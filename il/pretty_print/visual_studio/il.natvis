@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='utf-8'?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+
+<Type Name="il::Array&lt;*&gt;">
+  <DisplayString>{{ size={size_ - data_} }}</DisplayString>
+  <Expand>
+    <Item Name="[size]">size_ - data_</Item>
+    <Item Name="[capacity]">capacity_ - data_</Item>
+    <ArrayItems Condition="size_ != data_">
+      <Size>size_ - data_</Size>
+      <ValuePointer>data_</ValuePointer>
+    </ArrayItems>
+  </Expand>
+</Type>
+
+<Type Name="il::Array2D&lt;*&gt;">
+  <DisplayString>{{ size={size_[0] - data_} x {size_[1] - data_}}}</DisplayString>
+  <Expand>
+    <Item Name="[size(0)]">size_[0] - data_</Item>
+    <Item Name="[size(1)]">size_[1] - data_</Item>
+    <Item Name="[capacity(0)]">capacity_[0] - data_</Item>
+    <Item Name="[capacity(1)]">capacity_[1] - data_</Item>
+    <ArrayItems Condition="size_[0] != data_">
+      <Direction>Backward</Direction>
+      <Rank>2</Rank>
+      <Size>size_[$i] - data_</Size>
+      <ValuePointer>data_</ValuePointer>
+    </ArrayItems>
+  </Expand>
+</Type>
+
+</AutoVisualizer>

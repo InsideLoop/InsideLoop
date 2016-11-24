@@ -1,0 +1,11 @@
+//==============================================================================
+//
+//                                  InsideLoop
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.txt for details.
+//
+//==============================================================================
+
+- Change the default values in ildef so that it works with 32-bit and 64-bit
+  systems
