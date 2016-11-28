@@ -29,10 +29,8 @@ template <typename T>
 class Array2D {
  private:
 #ifdef IL_DEBUG_VISUALIZER
-  il::int_t debug_size_[0];
-  il::int_t debug_size_[1];
-  il::int_t debug_capacity_[0];
-  il::int_t debug_capacity_[1];
+  il::int_t debug_size_[2];
+  il::int_t debug_capacity_[2];
 #endif
   T* data_;
   T* size_[2];
@@ -48,11 +46,9 @@ class Array2D {
   */
   Array2D();
 
-  /* \brief Construct an il::Array2D<T> of n rows
-  and p
-  columns
-  // \details The row size and the row capacity of the array are set to n. The
-  // column size and the column capacity of the array are set to p.
+  /* \brief Construct an il::Array2D<T> of n0 rows and n1 columns
+  // \details The row size and the row capacity of the array are set to n0. The
+  // column size and the column capacity of the array are set to n1.
   // - If T is a numeric value, the memory is
   //   - (Debug mode) initialized to il::default_value<T>(). It is usually NaN
   //     if T is a floating point number or 666..666 if T is an integer.
@@ -68,12 +64,18 @@ class Array2D {
   */
   explicit Array2D(il::int_t n0, il::int_t n1);
 
-  /* \brief Construct an aligned array of n elements
+  /* \brief Construct an aligned array
+  // \details The pointer data, when considered as an integer, satisfies
+  // data_ = 0 (Modulo align_mod)
+  */
+  explicit Array2D(il::int_t n0, il::int_t n1, il::align_t, short align_mod);
+
+  /* \brief Construct an aligned array
   // \details The pointer data, when considered as an integer, satisfies
   // data_ = align_r (Modulo align_mod)
   */
-  explicit Array2D(il::int_t n0, il::int_t n1, il::align_t, short align_mod,
-                   short align_r = 0);
+  explicit Array2D(il::int_t n0, il::int_t n1, il::align_t, short align_r,
+                   short align_mod);
 
   /* \brief Construct an array of n rows and p columns with a value
   /
@@ -199,17 +201,18 @@ class Array2D {
   */
   T* data();
 
-  /* \brief Get a pointer to the first element of the (row/column)
+  /* \brief Get a pointer to the first element of the column
   // \details One should use this method only when using C-style API
   */
   const T* data(il::int_t i1) const;
 
-  /* \brief Get a pointer to the first element of the (row/column)
+  /* \brief Get a pointer to the first element of the column
   // \details One should use this method only when using C-style API
   */
   T* data(il::int_t i1);
 
-  /* \brief Memory distance (in sizeof(T)) in between A(i, j) and A(i + 1, j)
+  /* \brief The memory position of A(i0, i1) is
+  // data() + i1 * stride(1) + i0
   */
   il::int_t stride(il::int_t d) const;
 
@@ -294,8 +297,8 @@ Array2D<T>::Array2D(il::int_t n0, il::int_t n1) {
 }
 
 template <typename T>
-Array2D<T>::Array2D(il::int_t n0, il::int_t n1, il::align_t, short align_mod,
-                    short align_r) {
+Array2D<T>::Array2D(il::int_t n0, il::int_t n1, il::align_t, short align_r,
+                    short align_mod) {
   IL_ASSERT(n0 >= 0);
   IL_ASSERT(n1 >= 0);
   IL_ASSERT(align_mod >= 0);
@@ -363,6 +366,10 @@ Array2D<T>::Array2D(il::int_t n0, il::int_t n1, il::align_t, short align_mod,
   capacity_[0] = data_ + r0;
   capacity_[1] = data_ + r1;
 }
+
+template <typename T>
+Array2D<T>::Array2D(il::int_t n0, il::int_t n1, il::align_t, short align_mod)
+    : Array2D{n0, n1, il::align, 0, align_mod} {}
 
 template <typename T>
 Array2D<T>::Array2D(il::int_t n0, il::int_t n1, const T& x) {
@@ -1024,6 +1031,12 @@ T* Array2D<T>::allocate(il::int_t n, short align_mod, short align_r, il::io_t,
 
 template <typename T>
 void Array2D<T>::check_invariance() const {
+#ifdef IL_DEBUG_VISUALIZER
+  IL_ASSERT(debug_size_[0] == size_[0] - data_);
+  IL_ASSERT(debug_size_[1] == size_[1] - data_);
+  IL_ASSERT(debug_capacity_[0] == capacity_[0] - data_);
+  IL_ASSERT(debug_capacity_[1] == capacity_[1] - data_);
+#endif
   if (data_ == nullptr) {
     IL_ASSERT(size_[0] == nullptr);
     IL_ASSERT(size_[1] == nullptr);

@@ -7,15 +7,12 @@
 //
 //==============================================================================
 
-#include <cstdio>
-
-#include <il/Array.h>
 #include <il/Array2D.h>
-#include <il/io/numpy.h>
+#include <il/Array3D.h>
 
 int main() {
-  const int n = 1000;
-  il::Array<double> v{n};
+  il::Array2D<double> A{2, 3};
+  il::Array3D<double> B{2, 3, 4};
 
   return 0;
 }

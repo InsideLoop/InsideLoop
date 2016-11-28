@@ -183,8 +183,8 @@ set(SOURCE_FILES
     il/linear_algebra/factorization/Cholesky.h
     il/linear_algebra/factorization/LowerCholesky.h
     il/unit/time.h
-        il/pretty_print/gdb/__init__.py
-        il/pretty_print/gdb/printers.py)
+    il/pretty_print/gdb/__init__.py
+    il/pretty_print/gdb/printers.py)
 
 ################################################################################
 # A test program
@@ -203,6 +203,7 @@ set(UNIT_TEST_FILES
     il/container/1d/_test/Dummy_test.cpp
     il/container/2d/_test/Array2D_test.cpp
     il/container/2d/_test/Array2C_test.cpp
+    il/container/3d/_test/Array3D_test.cpp
     il/linear_algebra/_test/blas_test.cpp
     il/linear_algebra/_test/linear_solve_test.cpp
     il/linear_algebra/_test/dot_test.cpp

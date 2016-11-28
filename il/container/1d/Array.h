@@ -87,8 +87,8 @@ class Array {
   // // Construct an array of double of length 5, initialized with 3.14
   // il::Array<double> v{5, 3.14};
   */
-  explicit Array(il::int_t n, const T& x, il::align_t, short align_mod,
-                 short align_r = 0);
+  explicit Array(il::int_t n, const T& x, il::align_t, short align_r,
+                 short align_mod);
 
   /* \brief Construct an array of n elements with different values given by
   // a functional
@@ -393,8 +393,8 @@ Array<T>::Array(il::int_t n, const T& x) {
 }
 
 template <typename T>
-Array<T>::Array(il::int_t n, const T& x, il::align_t, short align_mod,
-                short align_r) {
+Array<T>::Array(il::int_t n, const T& x, il::align_t, short align_r,
+                short align_mod) {
   IL_ASSERT(n >= 0);
   IL_ASSERT(align_mod >= 0);
   IL_ASSERT(align_mod % sizeof(T) == 0);

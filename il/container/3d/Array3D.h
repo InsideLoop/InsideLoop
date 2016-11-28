@@ -20,6 +20,8 @@
 #include <new>
 // <utility> is needed for std::move
 #include <utility>
+// <functional> is needed for std::function
+#include <functional>
 
 namespace il {
 
@@ -27,17 +29,15 @@ template <typename T>
 class Array3D {
  private:
 #ifdef IL_DEBUG_VISUALIZER
-  il::int_t debug_align_;
-  il::int_t debug_size_0_;
-  il::int_t debug_size_1_;
-  il::int_t debug_size_2_;
-  il::int_t debug_capacity_0_;
-  il::int_t debug_capacity_1_;
-  il::int_t debug_capacity_2_;
+  il::int_t debug_size_[3];
+  il::int_t debug_capacity_[3];
 #endif
   T* data_;
   T* size_[3];
   T* capacity_[3];
+  short align_mod_;
+  short align_r_;
+  short new_shift_;
 
  public:
   /* \brief Default constructor
@@ -46,10 +46,10 @@ class Array3D {
   */
   Array3D();
 
-  /* \brief Construct an il::Array3D<T> of n rows and p columns and q slices
-  // \details The row size and the row capacity of the array are set to n. The
-  // column size and the column capacity of the array are set to p. The slice
-  // size and the slice capacity of the array are set to q.
+  /* \brief Construct an il::Array3D<T> of n0 rows, n1 columns and n2 slices
+  // \details The row size and the row capacity of the array are set to n0. The
+  // column size and the column capacity of the array are set to n1. The slice
+  // size and the slice capacity of the array are set to n2.
   // - If T is a numeric value, the memory is
   //   - (Debug mode) initialized to il::default_value<T>(). It is usually NaN
   //     if T is a floating point number or 666..666 if T is an integer.
@@ -65,15 +65,39 @@ class Array3D {
   */
   explicit Array3D(il::int_t n0, il::int_t n1, il::int_t n2);
 
-  /* \brief Construct an array of n rows and p columns with a value
-  /
-  // // Construct an array of double with 3 rows and 5 columns, initialized with
-  // // 3.14.
-  // il::Array2D<double> A{3, 5, 3.14};
+  /* \brief Construct an aligned array
+  // \details The pointer data, when considered as an integer, satisfies
+  // data_ = 0 (Modulo align_mod)
   */
-  explicit Array3D(il::int_t n, il::int_t p, il::int_t q, const T& x);
+  explicit Array3D(il::int_t n0, il::int_t n1, il::int_t n2, il::align_t,
+                   short align_mod);
 
-  /* \brief Construct an array of n rows, p columns and q slices using
+  /* \brief Construct an aligned array
+  // \details The pointer data, when considered as an integer, satisfies
+  // data_ = align_r (Modulo align_mod)
+  */
+  explicit Array3D(il::int_t n0, il::int_t n1, il::int_t n2, il::align_t,
+                   short align_r, short align_mod);
+
+  /* \brief Construct an array of n0 rows and n1 columns and n2 slices with a
+  // value
+  /
+  // // Construct an array of double with 3 rows, 5 columns and 7 slices,
+  // // initialized with 3.14.
+  // il::Array2D<double> A{3, 5, 7, 3.14};
+  */
+  explicit Array3D(il::int_t n0, il::int_t n1, il::int_t n2, const T& x);
+
+  /* \brief Construct an array of n elements with different values given by
+  // a functional
+  //
+  // il::Array<double> v{n,
+  //     [](il::int_t n) -> double { return 1.0 / (i + 1); }};
+  */
+  explicit Array3D(il::int_t n0, il::int_t n1, il::int_t n2,
+                   std::function<T(il::int_t, il::int_t, il::int_t)> f);
+
+  /* \brief Construct an array of n0 rows, n1 columns and n2 slices using
   // constructor arguments
   /
   // // Construct an array of 3 by 5 by 7 il::Array<double>, all of length 9 and
@@ -81,21 +105,21 @@ class Array3D {
   // il::Array3D<il::Array<double>> v{3, 5, 7, il::emplace, 9, 3.14};
   */
   template <typename... Args>
-  explicit Array3D(il::int_t n, il::int_t p, il::int_t q, il::emplace_t,
+  explicit Array3D(il::int_t n0, il::int_t n1, il::int_t n2, il::emplace_t,
                    Args&&... args);
 
-  /* \brief Construct an array of n rows, p columns and q slices from a
-  // brace-initialized list
+  /* \brief Construct an array from a brace-initialized list
   //
   // // Construct an array of double with 2 rows, 3 columns and 2 slices from a
   // // list
-  // il::Array2D<double> v{2, 3, 2, il::value,
-  //                       {2.0, 3.0, 4.0, 5.0, 6.0, 7.0,
-  //                        2.5, 3.5, 4.5, 5.5, 6.5, 7.5}};
+  // il::Array3D<double> v{il::value,
+  //                       {{2.0, 3.0}, {4.0, 5.0}, {6.0, 7.0}},
+  //                       {{2.5, 3.5}, {4.5, 5.5}, {6.5, 7.5}}};
   */
-  explicit Array3D(il::value_t,
-                   std::initializer_list<
-                       std::initializer_list<std::initializer_list<T>>> list);
+  explicit Array3D(
+      il::value_t,
+      std::initializer_list<std::initializer_list<std::initializer_list<T>>>
+          list);
 
   /* \brief The copy constructor
   // \details The different size and capacity of the constructed il::Array3D<T>
@@ -129,7 +153,7 @@ class Array3D {
   // il::Array3D<double> A{4, 6, 7};
   // std::cout << A(3, 5, 6) << std::endl;
   */
-  const T& operator()(il::int_t i, il::int_t j, il::int_t k) const;
+  const T& operator()(il::int_t i0, il::int_t i1, il::int_t i2) const;
 
   /* \brief Accessor for a il::3DArray<T>
   // \details Access (read and write) the (i, j, k)-th element of the array.
@@ -138,7 +162,7 @@ class Array3D {
   // il::Array3D<double> A{4, 6, 7};
   // A(0, 0, 0) = 3.14;
   */
-  T& operator()(il::int_t i, il::int_t j, il::int_t k);
+  T& operator()(il::int_t i0, il::int_t i1, il::int_t i2);
 
   /* \brief Get the size of the il::Array3D<T>
   // \details size(0) returns the number of rows of the array and size(1)
@@ -167,7 +191,7 @@ class Array3D {
   // unchanged. When one of the sizes is > than the the capacity, reallocation
   // is done and the array gets the same capacity as its size.
   */
-  void resize(il::int_t n, il::int_t p, il::int_t q);
+  void resize(il::int_t n0, il::int_t n1, il::int_t n2);
 
   /* \brief Get the capacity of the il::Array3D<T>
   // \details capacity(0) gives the capacity in terms of rows and capacity(1)
@@ -182,7 +206,11 @@ class Array3D {
   // and the slice capacity is >= to t, nothing is done. Otherwise, reallocation
   // is done and the new capacity is set to r, s and t
   */
-  void reserve(il::int_t r, il::int_t s, il::int_t t);
+  void reserve(il::int_t r0, il::int_t r1, il::int_t r2);
+
+  /* \brief Get the alignment of the pointer returned by data()
+  */
+  short alignment() const;
 
   /* \brief Get a pointer to const to the first element of the array
   // \details One should use this method only when using C-style API
@@ -194,12 +222,25 @@ class Array3D {
   */
   T* data();
 
-  /* \brief The memory position of A(i, j, k) is
-  // data() + (i * stride(0) + j) * stride(1) + k
+  /* \brief Get a pointer to the first element of the column
+  // \details One should use this method only when using C-style API
+  */
+  const T* data(il::int_t i1, il::int_t i2) const;
+
+  /* \brief Get a pointer to the first element of the column
+  // \details One should use this method only when using C-style API
+  */
+  T* data(il::int_t i1, il::int_t i2);
+
+  /* \brief The memory position of A(i0, i1, i2) is
+  // data() + i2 * stride(2) + i1 * stride(1) + i0
   */
   il::int_t stride(il::int_t d) const;
 
  private:
+  T* allocate(il::int_t n, short align_mod, short align_r, il::io_t,
+              short& new_shift);
+
   /* \brief Used internally in debug mode to check the invariance of the object
   */
   void check_invariance() const;
@@ -208,12 +249,12 @@ class Array3D {
 template <typename T>
 Array3D<T>::Array3D() {
 #ifdef IL_DEBUG_VISUALIZER
-  debug_size_0_ = 0;
-  debug_size_1_ = 0;
-  debug_size_2_ = 0;
-  debug_capacity_0_ = 0;
-  debug_capacity_1_ = 0;
-  debug_capacity_2_ = 0;
+  debug_size_[0] = 0;
+  debug_size_[1] = 0;
+  debug_size_[2] = 0;
+  debug_capacity_[0] = 0;
+  debug_capacity_[1] = 0;
+  debug_capacity_[2] = 0;
 #endif
   data_ = nullptr;
   size_[0] = nullptr;
@@ -222,214 +263,497 @@ Array3D<T>::Array3D() {
   capacity_[0] = nullptr;
   capacity_[1] = nullptr;
   capacity_[2] = nullptr;
+  align_mod_ = 0;
+  align_r_ = 0;
+  new_shift_ = 0;
 }
 
 template <typename T>
-Array3D<T>::Array3D(il::int_t n, il::int_t p, il::int_t q) {
-  IL_ASSERT(n >= 0);
-  IL_ASSERT(p >= 0);
-  IL_ASSERT(q >= 0);
-  il::int_t npq{n > 0 && p > 0 && q > 0
-                    ? n * p * q
-                    : (n > p && n > q ? n : (p > q ? p : q))};
-  if (std::is_pod<T>::value) {
-    data_ = new T[npq];
-#ifndef NDEBUG
-    for (il::int_t l{0}; l < n * p * q; ++l) {
-      data_[l] = il::default_value<T>();
-    }
-#endif
+Array3D<T>::Array3D(il::int_t n0, il::int_t n1, il::int_t n2) {
+  IL_ASSERT(n0 >= 0);
+  IL_ASSERT(n1 >= 0);
+  IL_ASSERT(n2 >= 0);
+  il::int_t r0;
+  il::int_t r1;
+  il::int_t r2;
+  if (n0 > 0 && n1 > 0 && n2 > 0) {
+    r0 = n0;
+    r1 = n1;
+    r2 = n2;
+  } else if (n0 == 0 && n1 == 0 && n2 == 0) {
+    r0 = 0;
+    r1 = 0;
+    r2 = 0;
   } else {
-    data_ = static_cast<T*>(::operator new(npq * sizeof(T)));
-    for (il::int_t l{0}; l < n * p * q; ++l) {
-      new (data_ + l) T{};
+    r0 = (n0 == 0) ? 1 : n0;
+    r1 = (n1 == 0) ? 1 : n1;
+    r2 = (n2 == 0) ? 1 : n2;
+  }
+  il::int_t r = r0 * r1 * r2;
+  if (r > 0) {
+    if (std::is_pod<T>::value) {
+      data_ = new T[r];
+#ifdef IL_DEFAULT_VALUE
+      for (il::int_t i2 = 0; i2 < n2; ++i2) {
+        for (il::int_t i1 = 0; i1 < n1; ++i1) {
+          for (il::int_t i0 = 0; i0 < n0; ++i0) {
+            data_[(i2 * r1 + i1) * r0 + i0] = il::default_value<T>();
+          }
+        }
+      }
+#endif
+    } else {
+      data_ = static_cast<T*>(::operator new(r * sizeof(T)));
+      for (il::int_t i2 = 0; i2 < n2; ++i2) {
+        for (il::int_t i1 = 0; i1 < n1; ++i1) {
+          for (il::int_t i0 = 0; i0 < n0; ++i0) {
+            new (data_ + (i2 * r1 + i1) * r0 + i0) T{};
+          }
+        }
+      }
     }
+  } else {
+    data_ = nullptr;
   }
 #ifdef IL_DEBUG_VISUALIZER
-  debug_size_0_ = n;
-  debug_size_1_ = p;
-  debug_size_2_ = q;
-  debug_capacity_0_ = n;
-  debug_capacity_1_ = p;
-  debug_capacity_2_ = q;
+  debug_size_[0] = n0;
+  debug_size_[1] = n1;
+  debug_size_[2] = n2;
+  debug_capacity_[0] = r0;
+  debug_capacity_[1] = r1;
+  debug_capacity_[2] = r2;
 #endif
-  size_[0] = data_ + n;
-  size_[1] = data_ + p;
-  size_[2] = data_ + q;
-  capacity_[0] = data_ + n;
-  capacity_[1] = data_ + p;
-  capacity_[2] = data_ + q;
+  size_[0] = data_ + n0;
+  size_[1] = data_ + n1;
+  size_[2] = data_ + n2;
+  capacity_[0] = data_ + r0;
+  capacity_[1] = data_ + r1;
+  capacity_[2] = data_ + r2;
+  align_mod_ = 0;
+  align_r_ = 0;
+  new_shift_ = 0;
 }
 
 template <typename T>
-Array3D<T>::Array3D(il::int_t n, il::int_t p, il::int_t q, const T& x) {
-  IL_ASSERT(n >= 0);
-  IL_ASSERT(p >= 0);
-  IL_ASSERT(q >= 0);
-  il::int_t npq{n > 0 && p > 0 && q > 0
-                    ? n * p * q
-                    : (n > p && n > q ? n : (p > q ? p : q))};
-  if (std::is_pod<T>::value) {
-    data_ = new T[npq];
-    for (il::int_t l{0}; l < n * p * q; ++l) {
-      data_[l] = x;
+Array3D<T>::Array3D(il::int_t n0, il::int_t n1, il::int_t n2, il::align_t,
+                    short align_r, short align_mod) {
+  IL_ASSERT(n0 >= 0);
+  IL_ASSERT(n1 >= 0);
+  IL_ASSERT(n2 >= 0);
+  IL_ASSERT(align_mod >= 0);
+  IL_ASSERT(align_mod % sizeof(T) == 0);
+  IL_ASSERT(align_r >= 0);
+  IL_ASSERT(align_r < align_mod);
+  IL_ASSERT(align_r % sizeof(T) == 0);
+  align_mod_ = align_mod;
+  align_r_ = align_r;
+  il::int_t r0;
+  il::int_t r1;
+  il::int_t r2;
+  if (n0 > 0 && n1 > 0 && n2 > 0) {
+    if (std::is_pod<T>::value && align_mod != 0) {
+      const il::int_t nb_lanes =
+          static_cast<il::int_t>(alignment() / sizeof(T));
+      r0 = ((n0 - 1) / nb_lanes + 1) * nb_lanes;
+      r1 = n1;
+      r2 = n2;
+    } else {
+      r0 = n0;
+      r1 = n1;
+      r2 = n2;
+    }
+  } else if (n0 == 0 && n1 == 0 && n2 == 0) {
+    r0 = 0;
+    r1 = 0;
+    r2 = 0;
+  } else {
+    r0 = (n0 == 0) ? 1 : n0;
+    r1 = (n1 == 0) ? 1 : n1;
+    r2 = (n2 == 0) ? 1 : n2;
+  }
+  il::int_t r = r0 * r1 * r2;
+  if (r > 0) {
+    if (std::is_pod<T>::value) {
+      if (align_mod == 0) {
+        data_ = new T[r];
+        new_shift_ = 0;
+      } else {
+        data_ = allocate(r, align_mod, align_r, il::io, new_shift_);
+      }
+#ifndef IL_DEFAULT_VALUE
+      for (il::int_t i2 = 0; i2 < n2; ++i2) {
+        for (il::int_t i1 = 0; i1 < n1; ++i1) {
+          for (il::int_t i0 = 0; i0 < n0; ++i0) {
+            data_[(i2 * r1 + i1) * r0 + i0] = il::default_value<T>();
+          }
+        }
+      }
+#endif
+    } else {
+      data_ = static_cast<T*>(::operator new(r * sizeof(T)));
+      for (il::int_t i2 = 0; i2 < n2; ++i2) {
+        for (il::int_t i1 = 0; i1 < n1; ++i1) {
+          for (il::int_t i0 = 0; i0 < n0; ++i0) {
+            new (data_ + (i2 * r1 + i1) * r0 + i0) T{};
+          }
+        }
+      }
     }
   } else {
-    data_ = static_cast<T*>(::operator new(npq * sizeof(T)));
-    for (il::int_t l{0}; l < n * p * q; ++l) {
-      new (data_ + l) T(x);
-    }
+    data_ = nullptr;
+    new_shift_ = 0;
   }
 #ifdef IL_DEBUG_VISUALIZER
-  debug_size_0_ = n;
-  debug_size_1_ = p;
-  debug_size_2_ = q;
-  debug_capacity_0_ = n;
-  debug_capacity_1_ = p;
-  debug_capacity_2_ = q;
+  debug_size_[0] = n0;
+  debug_size_[1] = n1;
+  debug_size_[2] = n2;
+  debug_capacity_[0] = r0;
+  debug_capacity_[1] = r1;
+  debug_capacity_[2] = r2;
 #endif
-  size_[0] = data_ + n;
-  size_[1] = data_ + p;
-  size_[2] = data_ + q;
-  capacity_[0] = data_ + n;
-  capacity_[1] = data_ + p;
-  capacity_[2] = data_ + q;
+  size_[0] = data_ + n0;
+  size_[1] = data_ + n1;
+  size_[2] = data_ + n2;
+  capacity_[0] = data_ + r0;
+  capacity_[1] = data_ + r1;
+  capacity_[2] = data_ + r2;
+}
+
+template <typename T>
+Array3D<T>::Array3D(il::int_t n0, il::int_t n1, il::int_t n2, il::align_t,
+                    short align_mod)
+    : Array3D{n0, n1, n2, il::align, 0, align_mod} {}
+
+template <typename T>
+Array3D<T>::Array3D(il::int_t n0, il::int_t n1, il::int_t n2, const T& x) {
+  IL_ASSERT(n0 >= 0);
+  IL_ASSERT(n1 >= 0);
+  IL_ASSERT(n2 >= 0);
+  il::int_t r0;
+  il::int_t r1;
+  il::int_t r2;
+  if (n0 > 0 && n1 > 0 && n2 > 0) {
+    r0 = n0;
+    r1 = n1;
+    r2 = n2;
+  } else if (n0 == 0 && n1 == 0 && n2 == 0) {
+    r0 = 0;
+    r1 = 0;
+    r2 = 0;
+  } else {
+    r0 = (n0 == 0) ? 1 : n0;
+    r1 = (n1 == 0) ? 1 : n1;
+    r2 = (n2 == 0) ? 1 : n2;
+  }
+  il::int_t r = r0 * r1 * r2;
+  if (r > 0) {
+    if (std::is_pod<T>::value) {
+      data_ = new T[r];
+      for (il::int_t i2 = 0; i2 < n2; ++i2) {
+        for (il::int_t i1 = 0; i1 < n1; ++i1) {
+          for (il::int_t i0 = 0; i0 < n0; ++i0) {
+            data_[(i2 * r1 + i1) * r0 + i0] = x;
+          }
+        }
+      }
+    } else {
+      data_ = static_cast<T*>(::operator new(r * sizeof(T)));
+      for (il::int_t i2 = 0; i2 < n2; ++i2) {
+        for (il::int_t i1 = 0; i1 < n1; ++i1) {
+          for (il::int_t i0 = 0; i0 < n0; ++i0) {
+            new (data_ + (i2 * r1 + i1) * r0 + i0) T(x);
+          }
+        }
+      }
+    }
+  } else {
+    data_ = nullptr;
+  }
+#ifdef IL_DEBUG_VISUALIZER
+  debug_size_[0] = n0;
+  debug_size_[1] = n1;
+  debug_size_[2] = n2;
+  debug_capacity_[0] = r0;
+  debug_capacity_[1] = r1;
+  debug_capacity_[2] = r2;
+#endif
+  size_[0] = data_ + n0;
+  size_[1] = data_ + n1;
+  size_[2] = data_ + n2;
+  capacity_[0] = data_ + r0;
+  capacity_[1] = data_ + r1;
+  capacity_[2] = data_ + r2;
+  align_mod_ = 0;
+  align_r_ = 0;
+  new_shift_ = 0;
+}
+
+template <typename T>
+Array3D<T>::Array3D(il::int_t n0, il::int_t n1, il::int_t n2,
+                    std::function<T(il::int_t, il::int_t, il::int_t)> f) {
+  IL_ASSERT(n0 >= 0);
+  IL_ASSERT(n1 >= 0);
+  IL_ASSERT(n2 >= 0);
+  il::int_t r0;
+  il::int_t r1;
+  il::int_t r2;
+  if (n0 > 0 && n1 > 0 && n2 > 0) {
+    r0 = n0;
+    r1 = n1;
+    r2 = n2;
+  } else if (n0 == 0 && n1 == 0 && n2 == 0) {
+    r0 = 0;
+    r1 = 0;
+    r2 = 0;
+  } else {
+    r0 = (n0 == 0) ? 1 : n0;
+    r1 = (n1 == 0) ? 1 : n1;
+    r2 = (n2 == 0) ? 1 : n2;
+  }
+  il::int_t r = r0 * r1 * r2;
+  if (r > 0) {
+    if (std::is_pod<T>::value) {
+      data_ = new T[r];
+      for (il::int_t i2 = 0; i2 < n2; ++i2) {
+        for (il::int_t i1 = 0; i1 < n1; ++i1) {
+          for (il::int_t i0 = 0; i0 < n0; ++i0) {
+            data_[(i2 * r1 + i1) * r0 + i0] = f(i0, i1, i2);
+          }
+        }
+      }
+    } else {
+      data_ = static_cast<T*>(::operator new(r * sizeof(T)));
+      for (il::int_t i2 = 0; i2 < n2; ++i2) {
+        for (il::int_t i1 = 0; i1 < n1; ++i1) {
+          for (il::int_t i0 = 0; i0 < n0; ++i0) {
+            new (data_ + (i2 * r1 + i1) * r0 + i0) T(f(i0, i1, i2));
+          }
+        }
+      }
+    }
+  } else {
+    data_ = nullptr;
+  }
+#ifdef IL_DEBUG_VISUALIZER
+  debug_size_[0] = n0;
+  debug_size_[1] = n1;
+  debug_size_[2] = n2;
+  debug_capacity_[0] = r0;
+  debug_capacity_[1] = r1;
+  debug_capacity_[2] = r2;
+#endif
+  size_[0] = data_ + n0;
+  size_[1] = data_ + n1;
+  size_[2] = data_ + n2;
+  capacity_[0] = data_ + r0;
+  capacity_[1] = data_ + r1;
+  capacity_[2] = data_ + r2;
+  align_mod_ = 0;
+  align_r_ = 0;
+  new_shift_ = 0;
 }
 
 template <typename T>
 template <typename... Args>
-Array3D<T>::Array3D(il::int_t n, il::int_t p, il::int_t q, il::emplace_t,
+Array3D<T>::Array3D(il::int_t n0, il::int_t n1, il::int_t n2, il::emplace_t,
                     Args&&... args) {
-  IL_ASSERT(n >= 0);
-  IL_ASSERT(p >= 0);
-  IL_ASSERT(q >= 0);
-  il::int_t npq{n > 0 && p > 0 && q > 0
-                    ? n * p * q
-                    : (n > p && n > q ? n : (p > q ? p : q))};
-  if (std::is_pod<T>::value) {
-    data_ = new T[npq];
+  IL_ASSERT(n0 >= 0);
+  IL_ASSERT(n1 >= 0);
+  IL_ASSERT(n2 >= 0);
+  il::int_t r0;
+  il::int_t r1;
+  il::int_t r2;
+  if (n0 > 0 && n1 > 0 && n2 > 0) {
+    r0 = n0;
+    r1 = n1;
+    r2 = n2;
+  } else if (n0 == 0 && n1 == 0 && n2 == 0) {
+    r0 = 0;
+    r1 = 0;
+    r2 = 0;
   } else {
-    data_ = static_cast<T*>(::operator new(npq * sizeof(T)));
+    r0 = (n0 == 0) ? 1 : n0;
+    r1 = (n1 == 0) ? 1 : n1;
+    r2 = (n2 == 0) ? 1 : n2;
   }
-  for (il::int_t l{0}; l < n * p * q; ++l) {
-    new (data_ + l) T(args...);
+  il::int_t r = r0 * r1 * r2;
+  if (r > 0) {
+    if (std::is_pod<T>::value) {
+      data_ = new T[r];
+    } else {
+      data_ = static_cast<T*>(::operator new(r * sizeof(T)));
+    }
+  } else {
+    data_ = nullptr;
+  }
+  for (il::int_t i2 = 0; i2 < n2; ++i2) {
+    for (il::int_t i1 = 0; i1 < n1; ++i1) {
+      for (il::int_t i0 = 0; i0 < n0; ++i0) {
+        new (data_ + (i2 * r1 + i1) * r0 + i0) T(args...);
+      }
+    }
   }
 #ifdef IL_DEBUG_VISUALIZER
-  debug_size_0_ = n;
-  debug_size_1_ = p;
-  debug_size_2_ = q;
-  debug_capacity_0_ = n;
-  debug_capacity_1_ = p;
-  debug_capacity_2_ = q;
+  debug_size_[0] = n0;
+  debug_size_[1] = n1;
+  debug_size_[2] = n2;
+  debug_capacity_[0] = r0;
+  debug_capacity_[1] = r1;
+  debug_capacity_[2] = r2;
 #endif
-  size_[0] = data_ + n;
-  size_[1] = data_ + p;
-  size_[2] = data_ + q;
-  capacity_[0] = data_ + n;
-  capacity_[1] = data_ + p;
-  capacity_[2] = data_ + q;
+  size_[0] = data_ + n0;
+  size_[1] = data_ + n1;
+  size_[2] = data_ + n2;
+  capacity_[0] = data_ + r0;
+  capacity_[1] = data_ + r1;
+  capacity_[2] = data_ + r2;
+  align_mod_ = 0;
+  align_r_ = 0;
+  new_shift_ = 0;
 }
 
 template <typename T>
-Array3D<T>::Array3D(il::value_t,
-                    std::initializer_list<
-                        std::initializer_list<std::initializer_list<T>>> list) {
-  const il::int_t n{static_cast<il::int_t>(list.size())};
-  const il::int_t p{static_cast<il::int_t>(list.begin()->size())};
-  const il::int_t q{static_cast<il::int_t>(list.begin()->begin()->size())};
-  il::int_t npq{n > 0 && p > 0 && q > 0
-                    ? n * p * q
-                    : (n > p && n > q ? n : (p > q ? p : q))};
-  if (std::is_pod<T>::value) {
-    data_ = new T[npq];
-    for (il::int_t i{0}; i < n; ++i) {
-      IL_ASSERT((list.begin() + i)->size() == p);
-      for (il::int_t j{0}; j < p; ++j) {
-        IL_ASSERT(((list.begin() + i)->begin() + j)->size() == q);
-        memcpy(data_ + (i * p + j) * q,
-               ((list.begin() + i)->begin() + j)->begin(), q * sizeof(T));
-      }
-    }
+Array3D<T>::Array3D(
+    il::value_t,
+    std::initializer_list<std::initializer_list<std::initializer_list<T>>>
+        list) {
+  const il::int_t n2{static_cast<il::int_t>(list.size())};
+  const il::int_t n1{n2 > 0 ? static_cast<il::int_t>(list.begin()->size()) : 0};
+  const il::int_t n0{
+      n1 > 0 ? static_cast<il::int_t>(list.begin()->begin()->size()) : 0};
+  il::int_t r0;
+  il::int_t r1;
+  il::int_t r2;
+  if (n0 > 0 && n1 > 0 && n2 > 0) {
+    r0 = n0;
+    r1 = n1;
+    r2 = n2;
+  } else if (n0 == 0 && n1 == 0 && n2 == 0) {
+    r0 = 0;
+    r1 = 0;
+    r2 = 0;
   } else {
-    data_ = static_cast<T*>(::operator new(npq * sizeof(T)));
-    for (il::int_t i{0}; i < n; ++i) {
-      IL_ASSERT((list.begin() + i)->size() == p);
-      for (il::int_t j{0}; j < p; ++j) {
-        IL_ASSERT(((list.begin() + i)->begin() + j)->size() == q);
-        for (il::int_t k{0}; k < q; ++k) {
-          new (data_ + (i * p + j) * q + k)
-              T(*(((list.begin() + i)->begin() + j)->begin() + k));
+    r0 = (n0 == 0) ? 1 : n0;
+    r1 = (n1 == 0) ? 1 : n1;
+    r2 = (n2 == 0) ? 1 : n2;
+  }
+  il::int_t r = r0 * r1 * r2;
+  if (r > 0) {
+    if (std::is_pod<T>::value) {
+      data_ = new T[r];
+      for (il::int_t i2{0}; i2 < n2; ++i2) {
+        IL_ASSERT(static_cast<il::int_t>((list.begin() + i2)->size()) == n1);
+        for (il::int_t i1{0}; i1 < n1; ++i1) {
+          IL_ASSERT(static_cast<il::int_t>(
+                        ((list.begin() + i2)->begin() + i1)->size()) == n0);
+          memcpy(data_ + (i2 * r1 + i1) * r0,
+                 ((list.begin() + i2)->begin() + i1)->begin(), n0 * sizeof(T));
+        }
+      }
+    } else {
+      data_ = static_cast<T*>(::operator new(r * sizeof(T)));
+      for (il::int_t i2{0}; i2 < n2; ++i2) {
+        IL_ASSERT(static_cast<il::int_t>((list.begin() + i2)->size()) == n1);
+        for (il::int_t i1{0}; i1 < n1; ++i1) {
+          IL_ASSERT(static_cast<il::int_t>(
+                        ((list.begin() + i2)->begin() + i1)->size()) == n0);
+          for (il::int_t i0{0}; i1 < n0; ++i0) {
+            new (data_ + (i2 * r1 + i1) * r0 + i0)
+                T(*(((list.begin() + i2)->begin() + i1)->begin() + i0));
+          }
         }
       }
     }
+  } else {
+    data_ = nullptr;
   }
 #ifdef IL_DEBUG_VISUALIZER
-  debug_size_0_ = n;
-  debug_size_1_ = p;
-  debug_size_2_ = q;
-  debug_capacity_0_ = n;
-  debug_capacity_1_ = p;
-  debug_capacity_2_ = q;
+  debug_size_[0] = n0;
+  debug_size_[1] = n1;
+  debug_size_[2] = n2;
+  debug_capacity_[0] = r0;
+  debug_capacity_[1] = r1;
+  debug_capacity_[2] = r2;
 #endif
-  size_[0] = data_ + n;
-  size_[1] = data_ + p;
-  size_[2] = data_ + q;
-  capacity_[0] = data_ + n;
-  capacity_[1] = data_ + p;
-  capacity_[2] = data_ + q;
+  size_[0] = data_ + n0;
+  size_[1] = data_ + n1;
+  size_[2] = data_ + n2;
+  capacity_[0] = data_ + r0;
+  capacity_[1] = data_ + r1;
+  capacity_[2] = data_ + r2;
+  align_mod_ = 0;
+  align_r_ = 0;
+  new_shift_ = 0;
 }
 
 template <typename T>
 Array3D<T>::Array3D(const Array3D<T>& A) {
-  const il::int_t n{A.size(0)};
-  const il::int_t p{A.size(1)};
-  const il::int_t q{A.size(2)};
-  il::int_t npq{n > 0 && p > 0 && q > 0
-                    ? n * p * q
-                    : (n > p && n > q ? n : (p > q ? p : q))};
+  const il::int_t n0 = A.size(0);
+  const il::int_t n1 = A.size(1);
+  const il::int_t n2 = A.size(2);
+  il::int_t r0;
+  il::int_t r1;
+  il::int_t r2;
+  if (n0 > 0 && n1 > 0 && n2 > 0) {
+    r0 = n0;
+    r1 = n1;
+    r2 = n2;
+  } else if (n0 == 0 && n1 == 0 && n2 == 0) {
+    r0 = 0;
+    r1 = 0;
+    r2 = 0;
+  } else {
+    r0 = (n0 == 0) ? 1 : n0;
+    r1 = (n1 == 0) ? 1 : n1;
+    r2 = (n2 == 0) ? 1 : n2;
+  }
+  il::int_t r = r0 * r1 * r2;
   if (std::is_pod<T>::value) {
-    data_ = new T[npq];
-    for (il::int_t i{0}; i < n; ++i) {
-      for (il::int_t j{0}; j < p; ++j) {
-        memcpy(data_ + (i * p + j) * q,
-               A.data_ + (i * A.stride(0) + j) * A.stride(1), p * sizeof(T));
+    data_ = new T[r];
+    for (il::int_t i2{0}; i2 < n2; ++i2) {
+      for (il::int_t i1{0}; i1 < n1; ++i1) {
+        memcpy(data_ + (i2 * r1 + i1) * r0,
+               A.data_ + i2 * A.stride(2) + i1 * A.stride(1), n0 * sizeof(T));
       }
     }
   } else {
-    data_ = static_cast<T*>(::operator new(n * p * sizeof(T)));
-    for (il::int_t i{0}; i < n; ++i) {
-      for (il::int_t j{0}; j < p; ++j) {
-        for (il::int_t k{0}; k < q; ++k) {
-          new (data_ + (i * p + j) * q) T(A(i, j, k));
+    data_ = static_cast<T*>(::operator new(r * sizeof(T)));
+    for (il::int_t i2{0}; i2 < n2; ++i2) {
+      for (il::int_t i1{0}; i1 < n1; ++i1) {
+        for (il::int_t i0{0}; i0 < n0; ++i0) {
+          new (data_ + (i2 * r1 + i1) * r0) T(A(i0, i1, i2));
         }
       }
     }
   }
 #ifdef IL_DEBUG_VISUALIZER
-  debug_size_0_ = n;
-  debug_size_1_ = p;
-  debug_size_2_ = q;
-  debug_capacity_0_ = n;
-  debug_capacity_1_ = p;
-  debug_capacity_2_ = q;
+  debug_size_[0] = n0;
+  debug_size_[1] = n1;
+  debug_size_[2] = n2;
+  debug_capacity_[0] = r0;
+  debug_capacity_[1] = r1;
+  debug_capacity_[2] = r2;
 #endif
-  size_[0] = data_ + n;
-  size_[1] = data_ + p;
-  size_[2] = data_ + q;
-  capacity_[0] = data_ + n;
-  capacity_[1] = data_ + p;
-  capacity_[2] = data_ + q;
+  size_[0] = data_ + n0;
+  size_[1] = data_ + n1;
+  size_[2] = data_ + n2;
+  capacity_[0] = data_ + r0;
+  capacity_[1] = data_ + r1;
+  capacity_[2] = data_ + r2;
+  align_mod_ = 0;
+  align_r_ = 0;
+  new_shift_ = 0;
 }
 
 template <typename T>
 Array3D<T>::Array3D(Array3D<T>&& A) {
 #ifdef IL_DEBUG_VISUALIZER
-  debug_size_0_ = A.debug_size_0_;
-  debug_size_1_ = A.debug_size_1_;
-  debug_size_2_ = A.debug_size_2_;
-  debug_capacity_0_ = A.debug_capacity_0_;
-  debug_capacity_1_ = A.debug_capacity_1_;
-  debug_capacity_2_ = A.debug_capacity_2_;
+  debug_size_[0] = A.debug_size_[0];
+  debug_size_[1] = A.debug_size_[1];
+  debug_size_[2] = A.debug_size_[2];
+  debug_capacity_[0] = A.debug_capacity_[0];
+  debug_capacity_[1] = A.debug_capacity_[1];
+  debug_capacity_[2] = A.debug_capacity_[2];
 #endif
   data_ = A.data_;
   size_[0] = A.size_[0];
@@ -438,13 +762,16 @@ Array3D<T>::Array3D(Array3D<T>&& A) {
   capacity_[0] = A.capacity_[0];
   capacity_[1] = A.capacity_[1];
   capacity_[2] = A.capacity_[2];
+  align_mod_ = A.align_mod_;
+  align_r_ = A.align_r_;
+  new_shift_ = A.new_shift_;
 #ifdef IL_DEBUG_VISUALIZER
-  A.debug_size_0_ = 0;
-  A.debug_size_1_ = 0;
-  A.debug_size_2_ = 0;
-  A.debug_capacity_0_ = 0;
-  A.debug_capacity_1_ = 0;
-  A.debug_capacity_2_ = 0;
+  A.debug_size_[0] = 0;
+  A.debug_size_[1] = 0;
+  A.debug_size_[2] = 0;
+  A.debug_capacity_[0] = 0;
+  A.debug_capacity_[1] = 0;
+  A.debug_capacity_[2] = 0;
 #endif
   A.data_ = nullptr;
   A.size_[0] = nullptr;
@@ -453,99 +780,117 @@ Array3D<T>::Array3D(Array3D<T>&& A) {
   A.capacity_[0] = nullptr;
   A.capacity_[1] = nullptr;
   A.capacity_[2] = nullptr;
+  A.align_mod_ = 0;
+  A.align_r_ = 0;
+  A.new_shift_ = 0;
 }
 
 template <typename T>
 Array3D<T>& Array3D<T>::operator=(const Array3D<T>& A) {
   if (this != &A) {
-    const il::int_t n{A.size(0)};
-    const il::int_t p{A.size(1)};
-    const il::int_t q{A.size(2)};
-    il::int_t npq{n > 0 && p > 0 && q > 0
-                      ? n * p * q
-                      : (n > p && n > q ? n : (p > q ? p : q))};
-    const bool needs_memory{n > capacity(0) || p > capacity(1) ||
-                            q > capacity(2)};
+    const il::int_t n0 = A.size(0);
+    const il::int_t n1 = A.size(1);
+    const il::int_t n2 = A.size(2);
+    il::int_t r0;
+    il::int_t r1;
+    il::int_t r2;
+    if (n0 > 0 && n1 > 0 && n2 > 0) {
+      r0 = n0;
+      r1 = n1;
+      r2 = n2;
+    } else if (n0 == 0 && n1 == 0 && n2 == 0) {
+      r0 = 0;
+      r1 = 0;
+      r2 = 0;
+    } else {
+      r0 = (n0 == 0) ? 1 : n0;
+      r1 = (n1 == 0) ? 1 : n1;
+      r2 = (n2 == 0) ? 1 : n2;
+    }
+    const il::int_t r = r0 * r1 * r2;
+    const bool needs_memory{r0 > capacity(0) || r1 > capacity(1) ||
+                            r2 > capacity(2)};
     if (needs_memory) {
       if (std::is_pod<T>::value) {
         if (data_) {
           delete[] data_;
         }
-        data_ = new T[npq];
-        for (il::int_t i{0}; i < n; ++i) {
-          for (il::int_t j{0}; j < p; ++j) {
-            memcpy(data_ + (i * p + j) * q,
-                   A.data_ + (i * A.stride(0) + j) * A.stride(1),
-                   q * sizeof(T));
+        data_ = new T[r];
+        for (il::int_t i2{0}; i2 < n2; ++i2) {
+          for (il::int_t i1{0}; i1 < n1; ++i1) {
+            memcpy(data_ + (i2 * r1 + i1) * r0,
+                   A.data_ + i2 * A.stride(2) + i1 * A.stride(1),
+                   n0 * sizeof(T));
           }
         }
       } else {
         if (data_) {
-          for (il::int_t i{0}; i < size(0); ++i) {
-            for (il::int_t j{0}; j < size(1); ++j) {
-              for (il::int_t k{0}; k < size(2); ++k) {
-                (data_ + (i * stride(0) + j) * stride(1) + k)->~T();
+          for (il::int_t i2{size(2) - 1}; i2 >= 0; --i2) {
+            for (il::int_t i1{size(1) - 1}; i1 >= 0; --i1) {
+              for (il::int_t i0{size(0) - 1}; i0 >= 0; --i0) {
+                (data_ + i2 * stride(2) + i1 * stride(1) + i0)->~T();
               }
             }
           }
           ::operator delete(data_);
         }
-        data_ = static_cast<T*>(::operator new(npq * sizeof(T)));
-        for (il::int_t i{0}; i < n; ++i) {
-          for (il::int_t j{0}; j < p; ++j) {
-            for (il::int_t k{0}; k < q; ++k) {
-              new (data_ + (i * p + j) * q + k) T(A(i, j, k));
+        data_ = static_cast<T*>(::operator new(r * sizeof(T)));
+        for (il::int_t i2{0}; i2 < n2; ++i2) {
+          for (il::int_t i1{0}; i1 < n1; ++i1) {
+            for (il::int_t i0{0}; i0 < n0; ++i0) {
+              new (data_ + (i2 * r1 + i1) * r0 + i0) T(A(i0, i1, i2));
             }
           }
         }
       }
 #ifdef IL_DEBUG_VISUALIZER
-      debug_size_0_ = n;
-      debug_size_1_ = p;
-      debug_size_2_ = q;
-      debug_capacity_0_ = n;
-      debug_capacity_1_ = p;
-      debug_capacity_2_ = q;
+      debug_size_[0] = n0;
+      debug_size_[1] = n1;
+      debug_size_[2] = n2;
+      debug_capacity_[0] = r0;
+      debug_capacity_[1] = r1;
+      debug_capacity_[2] = r2;
 #endif
-      size_[0] = data_ + n;
-      size_[1] = data_ + p;
-      size_[2] = data_ + q;
-      capacity_[0] = data_ + n;
-      capacity_[1] = data_ + p;
-      capacity_[2] = data_ + q;
+      size_[0] = data_ + n0;
+      size_[1] = data_ + n1;
+      size_[2] = data_ + n2;
+      capacity_[0] = data_ + r0;
+      capacity_[1] = data_ + r1;
+      capacity_[2] = data_ + r2;
     } else {
       if (std::is_pod<T>::value) {
-        for (il::int_t i{0}; i < n; ++i) {
-          for (il::int_t j{0}; j < p; ++j) {
-            memcpy(data_ + (i * stride(0) + j) * stride(1),
-                   A.data_ + (i * A.stride(0) + j) * A.stride(1),
-                   q * sizeof(T));
+        for (il::int_t i2{0}; i2 < n2; ++i2) {
+          for (il::int_t i1{0}; i1 < n1; ++i1) {
+            memcpy(data_ + i2 * stride(2) + i1 * stride(1),
+                   A.data_ + i2 * A.stride(2) + i1 * A.stride(1),
+                   n0 * sizeof(T));
           }
         }
       } else {
-        for (il::int_t i{0}; i < n; ++i) {
-          for (il::int_t j{0}; j < p; ++j) {
-            for (il::int_t k{0}; k < q; ++k) {
-              data_[(i * stride(0) + j) * stride(1) + k] = A(i, j, k);
+        for (il::int_t i2{0}; i2 < n2; ++i2) {
+          for (il::int_t i1{0}; i1 < n1; ++i1) {
+            for (il::int_t i0{0}; i0 < n0; ++i0) {
+              data_[i2 * stride(2) + i1 * stride(1) + i0] = A(i0, i1, i2);
             }
           }
         }
-        for (il::int_t i{0}; i < size(0); ++i) {
-          for (il::int_t j{i < n ? p : 0}; j < size(1); ++j) {
-            for (il::int_t k{i < n && j < p ? q : 0}; k < size(2); ++k) {
-              (data_ + (i * stride(0) + j) * stride(1) + k)->~T();
+        for (il::int_t i2{size(2) - 1}; i2 >= 0; --i2) {
+          for (il::int_t i1{size(1) - 1}; i1 >= 0; --i1) {
+            for (il::int_t i0{size(0) - 1}; i0 >= (i2 < n2 && i1 < n1 ? n0 : 0);
+                 --i0) {
+              (data_ + i2 * stride(2) + i1 * stride(1) + i0)->~T();
             }
           }
         }
       }
 #ifdef IL_DEBUG_VISUALIZER
-      debug_size_0_ = n;
-      debug_size_1_ = p;
-      debug_size_2_ = q;
+      debug_size_[0] = n0;
+      debug_size_[1] = n1;
+      debug_size_[2] = n2;
 #endif
-      size_[0] = data_ + n;
-      size_[1] = data_ + p;
-      size_[2] = data_ + q;
+      size_[0] = data_ + n0;
+      size_[1] = data_ + n1;
+      size_[2] = data_ + n2;
     }
   }
   return *this;
@@ -558,10 +903,10 @@ Array3D<T>& Array3D<T>::operator=(Array3D<T>&& A) {
       if (std::is_pod<T>::value) {
         delete[] data_;
       } else {
-        for (il::int_t i{0}; i < size(0); ++i) {
-          for (il::int_t j{0}; j < size(1); ++j) {
-            for (il::int_t k{0}; k < size(2); ++k) {
-              (data_ + (i * stride(0) + j) * stride(1) + k)->~T();
+        for (il::int_t i2{size(2) - 1}; i2 >= 0; --i2) {
+          for (il::int_t i1{size(1) - 1}; i1 >= 0; --i1) {
+            for (il::int_t i0{size(0) - 1}; i0 >= 0; --i0) {
+              (data_ + i2 * stride(2) + i1 * stride(1) + i0)->~T();
             }
           }
         }
@@ -569,12 +914,12 @@ Array3D<T>& Array3D<T>::operator=(Array3D<T>&& A) {
       }
     }
 #ifdef IL_DEBUG_VISUALIZER
-    debug_size_0_ = A.debug_size_0_;
-    debug_size_1_ = A.debug_size_1_;
-    debug_size_2_ = A.debug_size_2_;
-    debug_capacity_0_ = A.debug_capacity_0_;
-    debug_capacity_1_ = A.debug_capacity_1_;
-    debug_capacity_2_ = A.debug_capacity_2_;
+    debug_size_[0] = A.debug_size_[0];
+    debug_size_[1] = A.debug_size_[1];
+    debug_size_[2] = A.debug_size_[2];
+    debug_capacity_[0] = A.debug_capacity_[0];
+    debug_capacity_[1] = A.debug_capacity_[1];
+    debug_capacity_[2] = A.debug_capacity_[2];
 #endif
     data_ = A.data_;
     size_[0] = A.size_[0];
@@ -583,13 +928,16 @@ Array3D<T>& Array3D<T>::operator=(Array3D<T>&& A) {
     capacity_[0] = A.capacity_[0];
     capacity_[1] = A.capacity_[1];
     capacity_[2] = A.capacity_[2];
+    align_mod_ = A.align_mod_;
+    align_r_ = A.align_r_;
+    new_shift_ = A.new_shift_;
 #ifdef IL_DEBUG_VISUALIZER
-    A.debug_size_0_ = 0;
-    A.debug_size_1_ = 0;
-    A.debug_size_2_ = 0;
-    A.debug_capacity_0_ = 0;
-    A.debug_capacity_1_ = 0;
-    A.debug_capacity_2_ = 0;
+    A.debug_size_[0] = 0;
+    A.debug_size_[1] = 0;
+    A.debug_size_[2] = 0;
+    A.debug_capacity_[0] = 0;
+    A.debug_capacity_[1] = 0;
+    A.debug_capacity_[2] = 0;
 #endif
     A.data_ = nullptr;
     A.size_[0] = nullptr;
@@ -598,6 +946,9 @@ Array3D<T>& Array3D<T>::operator=(Array3D<T>&& A) {
     A.capacity_[0] = nullptr;
     A.capacity_[1] = nullptr;
     A.capacity_[2] = nullptr;
+    A.align_mod_ = 0;
+    A.align_r_ = 0;
+    A.new_shift_ = 0;
   }
   return *this;
 }
@@ -611,10 +962,10 @@ Array3D<T>::~Array3D() {
     if (std::is_pod<T>::value) {
       delete[] data_;
     } else {
-      for (il::int_t i{0}; i < size(0); ++i) {
-        for (il::int_t j{0}; j < size(1); ++j) {
-          for (il::int_t k{0}; k < size(2); ++k) {
-            (data_ + (i * stride(0) + j * stride(1)) + k)->~T();
+      for (il::int_t i2{size(2) - 1}; i2 >= 0; --i2) {
+        for (il::int_t i1{size(1) - 1}; i1 >= 0; --i1) {
+          for (il::int_t i0{size(0) - 1}; i0 >= 0; --i0) {
+            (data_ + i2 * stride(2) + i1 * stride(1) + i0)->~T();
           }
         }
       }
@@ -624,19 +975,28 @@ Array3D<T>::~Array3D() {
 }
 
 template <typename T>
-const T& Array3D<T>::operator()(il::int_t i, il::int_t j, il::int_t k) const {
-  IL_ASSERT(static_cast<il::uint_t>(i) < static_cast<il::uint_t>(size(0)));
-  IL_ASSERT(static_cast<il::uint_t>(j) < static_cast<il::uint_t>(size(1)));
-  IL_ASSERT(static_cast<il::uint_t>(k) < static_cast<il::uint_t>(size(2)));
-  return data_[(k * (capacity_[1] - data_) + j) * (capacity_[0] - data_) + i];
+const T& Array3D<T>::operator()(il::int_t i0, il::int_t i1,
+                                il::int_t i2) const {
+  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i0) <
+                   static_cast<il::uint_t>(size(0)));
+  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i1) <
+                   static_cast<il::uint_t>(size(1)));
+  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i2) <
+                   static_cast<il::uint_t>(size(2)));
+  return data_[(i2 * (capacity_[1] - data_) + i1) * (capacity_[0] - data_) +
+               i0];
 }
 
 template <typename T>
-T& Array3D<T>::operator()(il::int_t i, il::int_t j, il::int_t k) {
-  IL_ASSERT(static_cast<il::uint_t>(i) < static_cast<il::uint_t>(size(0)));
-  IL_ASSERT(static_cast<il::uint_t>(j) < static_cast<il::uint_t>(size(1)));
-  IL_ASSERT(static_cast<il::uint_t>(k) < static_cast<il::uint_t>(size(2)));
-  return data_[(k * (capacity_[1] - data_) + j) * (capacity_[0] - data_) + i];
+T& Array3D<T>::operator()(il::int_t i0, il::int_t i1, il::int_t i2) {
+  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i0) <
+                   static_cast<il::uint_t>(size(0)));
+  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i1) <
+                   static_cast<il::uint_t>(size(1)));
+  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i2) <
+                   static_cast<il::uint_t>(size(2)));
+  return data_[(i2 * (capacity_[1] - data_) + i1) * (capacity_[0] - data_) +
+               i0];
 }
 
 template <typename T>
@@ -646,66 +1006,87 @@ il::int_t Array3D<T>::size(il::int_t d) const {
 }
 
 template <typename T>
-void Array3D<T>::resize(il::int_t n, il::int_t p, il::int_t q) {
-  IL_ASSERT(n >= 0);
-  IL_ASSERT(p >= 0);
-  IL_ASSERT(q >= 0);
-  if (n <= capacity(0) && p <= capacity(1) && q <= capacity(2)) {
+void Array3D<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2) {
+  IL_ASSERT(n0 >= 0);
+  IL_ASSERT(n1 >= 0);
+  IL_ASSERT(n2 >= 0);
+  const il::int_t n0_old{size(0)};
+  const il::int_t n1_old{size(1)};
+  const il::int_t n2_old{size(2)};
+  if (n0 <= capacity(0) && n1 <= capacity(1) && n2 <= capacity(2)) {
     if (std::is_pod<T>::value) {
-#ifndef NDEBUG
-      for (il::int_t i{0}; i < n; ++i) {
-        for (il::int_t j{i < size(0) ? size(1) : 0}; j < p; ++j) {
-          for (il::int_t k{i < size(0) && j < size(1) ? size(2) : 0}; k < q;
-               ++k) {
-            data_[(i * stride(0) + j) * stride(1) + k] = il::default_value<T>();
+#ifdef IL_DEFAULT_VALUE
+      for (il::int_t i2{0}; i2 < n2; ++i2) {
+        for (il::int_t i1{0}; i1 < n1; ++i1) {
+          for (il::int_t i0{i2 < size(2) && i1 < size(1) ? size(0) : 0};
+               i0 < n0; ++i0) {
+            data_[i2 * stride(2) + i1 * stride(1) + i0] =
+                il::default_value<T>();
           }
         }
       }
 #endif
     } else {
-      for (il::int_t i{0}; i < size(0); ++i) {
-        for (il::int_t j{i < n ? p : 0}; j < size(1); ++j) {
-          for (il::int_t k{i < n && j < p ? q : 0}; k < size(2); ++k) {
-            (data_ + (i * stride(0) + j) * stride(1) + k)->~T();
+      for (il::int_t i2{size(2) - 1}; i2 >= 0; --i2) {
+        for (il::int_t i1{size(1) - 1}; i1 >= 0; --i1) {
+          for (il::int_t i0{size(0) - 1}; i0 >= (i2 < n2 && i1 < n1 ? n0 : 0);
+               --i0) {
+            (data_ + i2 * stride(2) + i1 * stride(1) + i0)->~T();
           }
         }
       }
-      for (il::int_t i{0}; i < n; ++i) {
-        for (il::int_t j{i < size(0) ? size(1) : 0}; j < p; ++j) {
-          for (il::int_t k{i < size(0) && j < size(1) ? size(2) : 0}; k < q;
-               ++k) {
-            new (data_ + (i * stride(0) + j) * stride(1) + k) T{};
+      for (il::int_t i2{0}; i2 < n2; ++i2) {
+        for (il::int_t i1{0}; i1 < n1; ++i1) {
+          for (il::int_t i0{i2 < size(2) && i1 < size(1) ? size(0) : 0};
+               i0 < n0; ++i0) {
+            new (data_ + i2 * stride(2) + i1 * stride(1) + i0) T{};
           }
         }
       }
     }
   } else {
-    il::int_t npq{n > 0 && p > 0 && q > 0
-                      ? n * p * q
-                      : (n > p && n > q ? n : (p > q ? p : q))};
+    il::int_t r0;
+    il::int_t r1;
+    il::int_t r2;
+    if (n0 > 0 && n1 > 0 && n2 > 0) {
+      r0 = n0;
+      r1 = n1;
+      r2 = n2;
+    } else if (n0 == 0 && n1 == 0 && n2 == 0) {
+      r0 = 0;
+      r1 = 0;
+      r2 = 0;
+    } else {
+      r0 = (n0 == 0) ? 1 : n0;
+      r1 = (n1 == 0) ? 1 : n1;
+      r2 = (n2 == 0) ? 1 : n2;
+    }
+    const il::int_t r = r0 * r1 * r2;
     T* new_data;
     if (std::is_pod<T>::value) {
-      new_data = new T[npq];
+      new_data = new T[r];
     } else {
-      new_data = static_cast<T*>(::operator new(npq * sizeof(T)));
+      new_data = static_cast<T*>(::operator new(r * sizeof(T)));
     }
     if (data_) {
       if (std::is_pod<T>::value) {
-        for (il::int_t i{0}; i < size(0); ++i) {
-          for (il::int_t j{0}; j < size(1); ++j) {
-            memcpy(new_data + (i * p + j) * q,
-                   data_ + (i * stride(0) + j) * stride(1),
-                   size(2) * sizeof(T));
+        for (il::int_t i2{0}; i2 < (n2 < n2_old ? n2 : n2_old); ++i2) {
+          for (il::int_t i1{0}; i1 < (n1 < n1_old ? n1 : n1_old); ++i1) {
+            memcpy(new_data + (i2 * r1 + i1) * r0,
+                   data_ + i2 * stride(2) + i1 * stride(1),
+                   (n0 < n0_old ? n0 : n0_old) * sizeof(T));
           }
         }
         delete[] data_;
       } else {
-        for (il::int_t i{0}; i < size(0); ++i) {
-          for (il::int_t j{0}; j < size(1); ++j) {
-            for (il::int_t k{0}; k < size(2); ++k) {
-              new (new_data + (i * p + j) * q + k)
-                  T(std::move(data_[(i * stride(0) + j) * stride(1) + k]));
-              (data_ + (i * stride(0) + j) * stride(1) + k)->~T();
+        for (il::int_t i2{n2_old - 1}; i2 >= 0; --i2) {
+          for (il::int_t i1{n1_old - 1}; i1 >= 0; --i1) {
+            for (il::int_t i0{n0_old - 1}; i0 >= 0; --i0) {
+              if (i2 < n2 && i1 < n1 && i0 < n0) {
+                new (new_data + (i2 * r1 + i1) * r0 + i0)
+                    T(std::move(data_[i2 * stride(2) + i1 * stride(1) + i0]));
+              }
+              (data_ + i2 * stride(2) + i1 * stride(1) + i0)->~T();
             }
           }
         }
@@ -714,43 +1095,43 @@ void Array3D<T>::resize(il::int_t n, il::int_t p, il::int_t q) {
     }
     if (std::is_pod<T>::value) {
 #ifndef NDEBUG
-      for (il::int_t i{0}; i < n; ++i) {
-        for (il::int_t j{i < size(0) ? size(1) : 0}; j < p; ++j) {
-          for (il::int_t k{i < size(0) && j < size(1) ? size(2) : 0}; k < q;
-               ++k) {
-            new_data[(i * p + j) * q + k] = il::default_value<T>();
+      for (il::int_t i2{0}; i2 < n2; ++i2) {
+        for (il::int_t i1{0}; i1 < n1; ++i1) {
+          for (il::int_t i0{i2 < size(2) && i1 < size(1) ? size(0) : 0};
+               i0 < n0; ++i0) {
+            new_data[(i2 * r1 + i1) * r0 + i0] = il::default_value<T>();
           }
         }
       }
 #endif
     } else {
-      for (il::int_t i{0}; i < n; ++i) {
-        for (il::int_t j{i < size(0) ? size(1) : 0}; j < p; ++j) {
-          for (il::int_t k{i < size(0) && j < size(1) ? size(2) : 0}; k < q;
-               ++k) {
-            new (new_data + (i * p + j) * q + k) T{};
+      for (il::int_t i2{0}; i2 < n2; ++i2) {
+        for (il::int_t i1{0}; i1 < n1; ++i1) {
+          for (il::int_t i0{i2 < size(2) && i1 < size(1) ? size(0) : 0};
+               i0 < n0; ++i0) {
+            new (new_data + (i2 * r1 + i1) * r0 + i0) T{};
           }
         }
       }
     }
     data_ = new_data;
 #ifdef IL_DEBUG_VISUALIZER
-    debug_capacity_0_ = n;
-    debug_capacity_1_ = p;
-    debug_capacity_2_ = q;
+    debug_capacity_[0] = r0;
+    debug_capacity_[1] = r1;
+    debug_capacity_[2] = r2;
 #endif
-    capacity_[0] = data_ + n;
-    capacity_[1] = data_ + p;
-    capacity_[2] = data_ + q;
+    capacity_[0] = data_ + r0;
+    capacity_[1] = data_ + r1;
+    capacity_[2] = data_ + r2;
   }
 #ifdef IL_DEBUG_VISUALIZER
-  debug_size_0_ = n;
-  debug_size_1_ = p;
-  debug_size_2_ = q;
+  debug_size_[0] = n0;
+  debug_size_[1] = n1;
+  debug_size_[2] = n2;
 #endif
-  size_[0] = data_ + n;
-  size_[1] = data_ + p;
-  size_[2] = data_ + q;
+  size_[0] = data_ + n0;
+  size_[1] = data_ + n1;
+  size_[2] = data_ + n2;
 }
 
 template <typename T>
@@ -760,40 +1141,44 @@ il::int_t Array3D<T>::capacity(il::int_t d) const {
 }
 
 template <typename T>
-void Array3D<T>::reserve(il::int_t r, il::int_t s, il::int_t t) {
-  IL_ASSERT(r >= 0);
-  IL_ASSERT(s >= 0);
-  IL_ASSERT(t >= 0);
-  if (r > capacity(0) || s > capacity(1) || t > capacity(2)) {
-    const il::int_t n_old{size(0)};
-    const il::int_t p_old{size(1)};
-    const il::int_t q_old{size(2)};
-    const il::int_t rst{r > 0 && s > 0 && t > 0
-                            ? r * s * t
-                            : (r > s && r > s ? r : (s > t ? s : t))};
+void Array3D<T>::reserve(il::int_t r0, il::int_t r1, il::int_t r2) {
+  IL_ASSERT(r0 >= 0);
+  IL_ASSERT(r1 >= 0);
+  IL_ASSERT(r2 >= 0);
+  r0 = (r0 < capacity(0)) ? capacity(0) : r0;
+  r1 = (r1 < capacity(1)) ? capacity(1) : r1;
+  r2 = (r2 < capacity(2)) ? capacity(2) : r2;
+  if (r0 > capacity(0) || r1 > capacity(1) || r2 > capacity(2)) {
+    const il::int_t n0_old{size(0)};
+    const il::int_t n1_old{size(1)};
+    const il::int_t n2_old{size(2)};
+    r0 = (r0 == 0) ? 1 : r0;
+    r1 = (r1 == 0) ? 1 : r1;
+    r2 = (r2 == 0) ? 1 : r2;
+    const il::int_t r = r0 * r1 * r2;
     T* new_data;
     if (std::is_pod<T>::value) {
-      new_data = new T[rst];
+      new_data = new T[r];
     } else {
-      new_data = static_cast<T*>(::operator new(rst * sizeof(T)));
+      new_data = static_cast<T*>(::operator new(r * sizeof(T)));
     }
     if (data_) {
       if (std::is_pod<T>::value) {
-        for (il::int_t i{0}; i < size(0); ++i) {
-          for (il::int_t j{0}; j < size(0); ++j) {
-            memcpy(new_data + (i * s + j) * t,
-                   data_ + (i * stride(0) + j) * stride(1),
-                   size(1) * sizeof(T));
+        for (il::int_t i2{0}; i2 < n2_old; ++i2) {
+          for (il::int_t i1{0}; i1 < n1_old; ++i1) {
+            memcpy(new_data + (i2 * r1 + i1) * r0,
+                   data_ + i2 * stride(2) + i1 * stride(1),
+                   n0_old * sizeof(T));
           }
         }
         delete[] data_;
       } else {
-        for (il::int_t i{0}; i < size(0); ++i) {
-          for (il::int_t j{0}; j < size(1); ++j) {
-            for (il::int_t k{0}; k < size(2); ++k) {
-              new (new_data + (i * s + j) * t + k)
-                  T(std::move(data_[(i * stride(0) + j) * stride(1) + k]));
-              (data_ + (i * stride(0) + j) * stride(1) + k)->~T();
+        for (il::int_t i2{n2_old - 1}; i2 >= 0; --i2) {
+          for (il::int_t i1{n1_old - 1}; i1 >= 0; --i1) {
+            for (il::int_t i0{n0_old - 1}; i0 >= 0; --i0) {
+              new (new_data + (i2 * r1 + i1) * r0 + i0)
+                  T(std::move(data_[i2 * stride(2) + i1 * stride(1) + i0]));
+              (data_ + i2 * stride(2) + i1 * stride(1) + i0)->~T();
             }
           }
         }
@@ -802,16 +1187,16 @@ void Array3D<T>::reserve(il::int_t r, il::int_t s, il::int_t t) {
     }
     data_ = new_data;
 #ifdef IL_DEBUG_VISUALIZER
-    debug_capacity_0_ = r;
-    debug_capacity_1_ = s;
-    debug_capacity_2_ = t;
+    debug_capacity_[0] = r0;
+    debug_capacity_[1] = r1;
+    debug_capacity_[2] = r2;
 #endif
-    size_[0] = data_ + n_old;
-    size_[1] = data_ + p_old;
-    size_[2] = data_ + q_old;
-    capacity_[0] = data_ + r;
-    capacity_[1] = data_ + s;
-    capacity_[2] = data_ + t;
+    size_[0] = data_ + n0_old;
+    size_[1] = data_ + n1_old;
+    size_[2] = data_ + n2_old;
+    capacity_[0] = data_ + r0;
+    capacity_[1] = data_ + r1;
+    capacity_[2] = data_ + r2;
   }
 }
 
@@ -827,12 +1212,23 @@ T* Array3D<T>::data() {
 
 template <typename T>
 il::int_t Array3D<T>::stride(il::int_t d) const {
-  IL_ASSERT(static_cast<il::uint_t>(d) < static_cast<il::uint_t>(2));
-  return static_cast<il::int_t>(capacity_[d + 1] - data_);
+  IL_ASSERT(static_cast<il::uint_t>(d) < static_cast<il::uint_t>(3));
+  return (d == 0)
+             ? 1
+             : static_cast<il::int_t>((capacity_[0] - data_) *
+                                      ((d == 1) ? 1 : (capacity_[1] - data_)));
 }
 
 template <typename T>
 void Array3D<T>::check_invariance() const {
+#ifdef IL_DEBUG_VISUALIZER
+  IL_ASSERT(debug_size_[0] == size_[0] - data_);
+  IL_ASSERT(debug_size_[1] == size_[1] - data_);
+  IL_ASSERT(debug_size_[2] == size_[2] - data_);
+  IL_ASSERT(debug_capacity_[0] == capacity_[0] - data_);
+  IL_ASSERT(debug_capacity_[1] == capacity_[1] - data_);
+  IL_ASSERT(debug_capacity_[2] == capacity_[2] - data_);
+#endif
   if (data_ == nullptr) {
     IL_ASSERT(size_[0] == nullptr);
     IL_ASSERT(size_[1] == nullptr);
@@ -850,6 +1246,17 @@ void Array3D<T>::check_invariance() const {
     IL_ASSERT((size_[0] - data_) <= (capacity_[0] - data_));
     IL_ASSERT((size_[1] - data_) <= (capacity_[1] - data_));
     IL_ASSERT((size_[2] - data_) <= (capacity_[2] - data_));
+  }
+  if (!std::is_pod<T>::value) {
+    IL_ASSERT(align_mod_ == 0);
+  }
+  if (align_mod_ == 0) {
+    IL_ASSERT(align_r_ == 0);
+    IL_ASSERT(new_shift_ == 0);
+  } else {
+    IL_ASSERT(align_r_ < align_mod_);
+    IL_ASSERT(((std::size_t)data_) % ((std::size_t)align_mod_) ==
+              ((std::size_t)align_r_));
   }
 }
 }
