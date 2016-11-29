@@ -682,7 +682,7 @@ TEST(Array3D, resize_2) {
 
   ASSERT_TRUE(A.size(0) == 3 && A.capacity(0) == 3 && A.size(1) == 1 &&
               A.capacity(1) == 1 && A.size(2) == 2 &&
-              A.capacity(2) == 2 & A(0, 0, 0) == 1 && A(1, 0, 0) == 2 &&
+              A.capacity(2) == 2 && A(0, 0, 0) == 1 && A(1, 0, 0) == 2 &&
               A(0, 0, 1) == 7 && A(1, 0, 1) == 8);
 }
 

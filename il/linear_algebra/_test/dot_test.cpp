@@ -9,8 +9,32 @@
 
 #include <gtest/gtest.h>
 
-#include <il/math.h>
 #include <il/linear_algebra/dot.h>
+#include <il/math.h>
+
+TEST(dot, matrix_vector_f_0) {
+  il::Array2D<double> A{il::value, {{1.0, 2.0}, {3.0, 4.0}, {5.0, 6.0}}};
+  il::Array<double> x{il::value, {1.0, 2.0, 3.0}};
+
+  il::Array<double> y = il::dot(A, x);
+
+  double error =
+      il::max(il::abs(y[0] - 22.0) / 22.0, il::abs(y[1] - 28.0) / 28.0);
+
+  IL_ASSERT(y.size() == 2 && error <= 1.0e-15);
+}
+
+TEST(dot, matrix_vector_c_0) {
+  il::Array2C<double> A{il::value, {{1.0, 2.0}, {3.0, 4.0}, {5.0, 6.0}}};
+  il::Array<double> x{il::value, {1.0, 2.0}};
+
+  il::Array<double> y = il::dot(A, x);
+
+  double error = il::max(il::abs(y[0] - 5.0) / 5.0, il::abs(y[1] - 11.0) / 11.0,
+                         il::abs(y[2] - 17.0) / 17.0);
+
+  IL_ASSERT(y.size() == 3 && error <= 1.0e-15);
+}
 
 TEST(dot, matrix_f_0) {
   il::Array2D<double> A{il::value, {{1.0, 2.0}, {3.0, 4.0}}};

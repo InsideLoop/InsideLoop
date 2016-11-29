@@ -10,20 +10,29 @@
 #ifndef IL_DOT_H
 #define IL_DOT_H
 
-#include <il/Array2D.h>
-#include <il/Array2C.h>
-
-#ifdef IL_MKL
-#include <mkl_cblas.h>
-#define IL_CBLAS_INT MKL_INT
-#define IL_CBLAS_LAYOUT CBLAS_LAYOUT
-#else
-#include <cblas.h>
-#define IL_CBLAS_INT int
-#define IL_CBLAS_LAYOUT CBLAS_ORDER
-#endif
+#include <il/linear_algebra/blas.h>
 
 namespace il {
+
+inline il::Array<double> dot(const il::Array2D<double>& A,
+                             const il::Array<double>& x) {
+  IL_ASSERT(A.size(1) == x.size());
+
+  il::Array<double> y{A.size(0)};
+  il::blas(1.0, A, x, 0.0, il::io, y);
+
+  return y;
+}
+
+inline il::Array<double> dot(const il::Array2C<double>& A,
+                             const il::Array<double>& x) {
+  IL_ASSERT(A.size(1) == x.size());
+
+  il::Array<double> y{A.size(0)};
+  il::blas(1.0, A, x, 0.0, il::io, y);
+
+  return y;
+}
 
 inline il::Array2D<double> dot(const il::Array2D<double>& A,
                                const il::Array2D<double>& B) {
