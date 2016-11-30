@@ -11,8 +11,8 @@
 #define IL_BLAS_H
 
 #include <il/Array.h>
-#include <il/Array2D.h>
 #include <il/Array2C.h>
+#include <il/Array2D.h>
 
 #ifdef IL_MKL
 #include <mkl_cblas.h>
@@ -43,7 +43,7 @@ enum class Blas {
 // x, y are vectors
 // y <- alpha x + y
 inline void blas(double alpha, const il::Array<double>& x, il::io_t,
-          il::Array<double>& y) {
+                 il::Array<double>& y) {
   IL_ASSERT(x.size() == y.size());
 
   const IL_CBLAS_INT n{static_cast<IL_CBLAS_INT>(x.size())};
@@ -54,8 +54,8 @@ inline void blas(double alpha, const il::Array<double>& x, il::io_t,
 
 // x, y are vectors
 // y <- alpha x + beta y
-inline void blas(double alpha, const il::Array<double>& x, double beta, il::io_t,
-          il::Array<double>& y) {
+inline void blas(double alpha, const il::Array<double>& x, double beta,
+                 il::io_t, il::Array<double>& y) {
   IL_ASSERT(x.size() == y.size());
 
   const IL_CBLAS_INT n{static_cast<IL_CBLAS_INT>(x.size())};
@@ -70,8 +70,9 @@ inline void blas(double alpha, const il::Array<double>& x, double beta, il::io_t
 
 // A is a matrix, x, y are vectors
 // y <- alpha A.x + beta y
-inline void blas(float alpha, const il::Array2D<float>& A, const il::Array<float>& x,
-          float beta, il::io_t, il::Array<float>& y) {
+inline void blas(float alpha, const il::Array2D<float>& A,
+                 const il::Array<float>& x, float beta, il::io_t,
+                 il::Array<float>& y) {
   IL_ASSERT(A.size(0) == y.size());
   IL_ASSERT(A.size(1) == x.size());
   IL_ASSERT(&x != &y);
@@ -91,8 +92,8 @@ inline void blas(float alpha, const il::Array2D<float>& A, const il::Array<float
 // A is a matrix, x, y are vectors
 // y <- alpha A.x + beta y
 inline void blas(double alpha, const il::Array2D<double>& A,
-          const il::Array<double>& x, double beta, il::io_t,
-          il::Array<double>& y) {
+                 const il::Array<double>& x, double beta, il::io_t,
+                 il::Array<double>& y) {
   IL_ASSERT(A.size(0) == y.size());
   IL_ASSERT(A.size(1) == x.size());
   IL_ASSERT(&x != &y);
@@ -112,8 +113,8 @@ inline void blas(double alpha, const il::Array2D<double>& A,
 // A is a matrix, x, y are vectors
 // y <- alpha A.x + beta y
 inline void blas(double alpha, const il::Array2C<double>& A,
-          const il::Array<double>& x, double beta, il::io_t,
-          il::Array<double>& y) {
+                 const il::Array<double>& x, double beta, il::io_t,
+                 il::Array<double>& y) {
   IL_ASSERT(A.size(0) == y.size());
   IL_ASSERT(A.size(1) == x.size());
   IL_ASSERT(&x != &y);
@@ -137,8 +138,8 @@ inline void blas(double alpha, const il::Array2C<double>& A,
 // A, B, C are matrices
 // C <- alpha A.B + beta C
 inline void blas(double alpha, const il::Array2D<double>& A,
-          const il::Array2D<double>& B, double beta, il::io_t,
-          il::Array2D<double>& C) {
+                 const il::Array2D<double>& B, double beta, il::io_t,
+                 il::Array2D<double>& C) {
   IL_ASSERT(A.size(1) == B.size(0));
   IL_ASSERT(C.size(0) == A.size(0));
   IL_ASSERT(C.size(1) == B.size(1));
@@ -159,8 +160,8 @@ inline void blas(double alpha, const il::Array2D<double>& A,
 }
 
 inline void blas(double alpha, const il::Array2D<double>& A, Blas info_a,
-          const il::Array2D<double>& B, Blas info_b, double beta, il::io_t,
-          il::Array2D<double>& C) {
+                 const il::Array2D<double>& B, Blas info_b, double beta,
+                 il::io_t, il::Array2D<double>& C) {
   IL_ASSERT(A.size(1) == B.size(0));
   IL_ASSERT(C.size(0) == A.size(0));
   IL_ASSERT(C.size(1) == B.size(1));
@@ -193,8 +194,8 @@ inline void blas(double alpha, const il::Array2D<double>& A, Blas info_a,
 // A, B, C are matrices
 // C <- alpha A.B + beta C
 inline void blas(double alpha, const il::Array2C<double>& A,
-          const il::Array2C<double>& B, double beta, il::io_t,
-          il::Array2C<double>& C) {
+                 const il::Array2C<double>& B, double beta, il::io_t,
+                 il::Array2C<double>& C) {
   IL_ASSERT(A.size(1) == B.size(0));
   IL_ASSERT(C.size(0) == A.size(0));
   IL_ASSERT(C.size(1) == B.size(1));
@@ -215,8 +216,8 @@ inline void blas(double alpha, const il::Array2C<double>& A,
 }
 
 inline void blas(double alpha, const il::Array2C<double>& A, Blas info_a,
-          const il::Array2C<double>& B, Blas info_b, double beta, il::io_t,
-          il::Array2C<double>& C) {
+                 const il::Array2C<double>& B, Blas info_b, double beta,
+                 il::io_t, il::Array2C<double>& C) {
   IL_ASSERT(A.size(1) == B.size(0));
   IL_ASSERT(C.size(0) == A.size(0));
   IL_ASSERT(C.size(1) == B.size(1));

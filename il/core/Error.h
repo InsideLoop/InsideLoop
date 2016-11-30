@@ -21,6 +21,7 @@ enum class ErrorCode {
   ok,
   unchecked,
   failed_precondition,
+  already_there,
   not_found,
   division_by_zero,
   negative_number,
