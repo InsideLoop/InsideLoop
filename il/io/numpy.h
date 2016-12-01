@@ -315,11 +315,18 @@ void save(const il::Array2D<T>& v, const std::string& filename, il::io_t,
 }
 
 template <typename T>
-void load(const std::string& filename, il::io_t, il::Array<T>& v, il::Error& error) {
+T load(const std::string& filename, il::io_t, il::Error& error) {
+  (void)filename;
+  error.set(il::ErrorCode::unimplemented);
+  return T{};
+}
+
+template <>
+il::Array<int> load(const std::string& filename, il::io_t, il::Error& error) {
   FILE* fp = fopen(filename.c_str(), "rb");
   if (!fp) {
     error.set(il::ErrorCode::not_found);
-    return;
+    return il::Array<int>{};
   }
 
   unsigned int* shape;
@@ -335,27 +342,28 @@ void load(const std::string& filename, il::io_t, il::Array<T>& v, il::Error& err
   }
 
   IL_ASSERT(ndims == 1);
-  IL_ASSERT(word_size == sizeof(T));
+  IL_ASSERT(word_size == sizeof(int));
 
-  v.resize(size);
+  il::Array<int> v{static_cast<il::int_t>(size)};
   std::size_t nread = fread(v.data(), word_size, size, fp);
   if (nread != size) {
     error.set(il::ErrorCode::wrong_file_format);
-    return;
+    return v;
   }
 
   fclose(fp);
 
   error.set(il::ErrorCode::ok);
+  return v;
 }
 
-template <typename T>
-void load(const std::string& filename, il::io_t, il::Array2D<T>& A,
-          il::Error& error) {
+template <>
+il::Array<double> load(const std::string& filename, il::io_t,
+                       il::Error& error) {
   FILE* fp = fopen(filename.c_str(), "rb");
   if (!fp) {
     error.set(il::ErrorCode::not_found);
-    return;
+    return il::Array<double>{};
   }
 
   unsigned int* shape;
@@ -363,9 +371,45 @@ void load(const std::string& filename, il::io_t, il::Array2D<T>& A,
   bool fortran_order;
   char type;
   cnpy::parse_npy_header(fp, word_size, shape, ndims, fortran_order, &type);
-  if (type != cnpy::map_type(typeid(T))) {
+
+  unsigned long long size =
+      1;  // long long so no overflow when multiplying by word_size
+  for (unsigned int i = 0; i < ndims; ++i) {
+    size *= shape[i];
+  }
+
+  IL_ASSERT(ndims == 1);
+  IL_ASSERT(word_size == sizeof(double));
+
+  il::Array<double> v{static_cast<il::int_t>(size)};
+  std::size_t nread = fread(v.data(), word_size, size, fp);
+  if (nread != size) {
+    error.set(il::ErrorCode::wrong_file_format);
+    return v;
+  }
+
+  fclose(fp);
+
+  error.set(il::ErrorCode::ok);
+  return v;
+}
+
+template <>
+il::Array2D<int> load(const std::string& filename, il::io_t, il::Error& error) {
+  FILE* fp = fopen(filename.c_str(), "rb");
+  if (!fp) {
+    error.set(il::ErrorCode::not_found);
+    return il::Array2D<int>{};
+  }
+
+  unsigned int* shape;
+  unsigned int ndims, word_size;
+  bool fortran_order;
+  char type;
+  cnpy::parse_npy_header(fp, word_size, shape, ndims, fortran_order, &type);
+  if (type != cnpy::map_type(typeid(int))) {
     error.set(il::ErrorCode::wrong_type);
-    return;
+    return il::Array2D<int>{};
   }
 
   unsigned long long size =
@@ -375,22 +419,64 @@ void load(const std::string& filename, il::io_t, il::Array2D<T>& A,
   }
 
   IL_ASSERT(ndims == 2);
-  IL_ASSERT(word_size == sizeof(T));
+  IL_ASSERT(word_size == sizeof(int));
   IL_ASSERT(fortran_order);
 
-  A.resize(shape[0], shape[1]);
-  IL_ASSERT(A.size(0) == A.capacity(0));
-  IL_ASSERT(A.size(1) == A.capacity(1));
+  il::Array2D<int> A{static_cast<il::int_t>(shape[0]),
+                     static_cast<il::int_t>(shape[1])};
 
   std::size_t nread = fread(A.data(), word_size, size, fp);
   if (nread != size) {
     error.set(il::ErrorCode::wrong_file_format);
-    return;
+    return A;
   }
 
   fclose(fp);
   error.set(il::ErrorCode::ok);
+  return A;
 }
 
+template <>
+il::Array2D<double> load(const std::string& filename, il::io_t,
+                         il::Error& error) {
+  FILE* fp = fopen(filename.c_str(), "rb");
+  if (!fp) {
+    error.set(il::ErrorCode::not_found);
+    return il::Array2D<double>{};
+  }
+
+  unsigned int* shape;
+  unsigned int ndims, word_size;
+  bool fortran_order;
+  char type;
+  cnpy::parse_npy_header(fp, word_size, shape, ndims, fortran_order, &type);
+  if (type != cnpy::map_type(typeid(double))) {
+    error.set(il::ErrorCode::wrong_type);
+    return il::Array2D<double>{};
+  }
+
+  unsigned long long size =
+      1;  // long long so no overflow when multiplying by word_size
+  for (unsigned int i = 0; i < ndims; ++i) {
+    size *= shape[i];
+  }
+
+  IL_ASSERT(ndims == 2);
+  IL_ASSERT(word_size == sizeof(double));
+  IL_ASSERT(fortran_order);
+
+  il::Array2D<double> A{static_cast<il::int_t>(shape[0]),
+                        static_cast<il::int_t>(shape[1])};
+
+  std::size_t nread = fread(A.data(), word_size, size, fp);
+  if (nread != size) {
+    error.set(il::ErrorCode::wrong_file_format);
+    return A;
+  }
+
+  fclose(fp);
+  error.set(il::ErrorCode::ok);
+  return A;
+}
 }
 #endif  // IL_NUMPY_H

@@ -271,6 +271,33 @@ class Array3DPrinter:
 	def to_string(self):
 		return "[size0: %s], [size1: %s], [capacity0: %s], [capacity1: %s]" % (self.size0, self.size1, self.capacity0, self.capacity1)
 
+class StaticArray3DPrinter:
+	def __init__(self, val):
+		type = val.type
+		if type.code == gdb.TYPE_CODE_REF:
+			type = type.target()
+		self.type = type.unqualified().strip_typedefs()
+		self.innerType = self.type.template_argument(0)
+		self.val = val
+		self.data = self.val['data_'].cast(self.innerType.pointer())
+		self.size0 = self.val['size_0_']
+		self.size1 = self.val['size_1_']
+		self.size2 = self.val['size_2_']
+
+	def children(self):
+		yield "size_0", self.size0
+		yield "size_1", self.size1
+		yield "size_2", self.size2
+		for k2 in range(0, self.size2):
+			for k1 in range(0, self.size1):
+				for k0 in range(0, self.size0):
+					dataPtr = self.data + self.size0 * self.size1 * k2 + self.size0 * k1 + k0
+					item = dataPtr.dereference()
+					yield ("[%s, %s, %s]" % (k0, k1, k2)), item
+
+	def to_string(self):
+		return "[size0: %s], [size1: %s], [size2: %s]" % (self.size0, self.size1, self.size2)
+
 def build_insideloop_dictionary ():
 	pretty_printers_dict[re.compile('^il::Array<.*>$')]  = lambda val: ArrayPrinter(val)
 	pretty_printers_dict[re.compile('^il::SmallArray<.*>$')]  = lambda val: SmallArrayPrinter(val)
@@ -282,6 +309,7 @@ def build_insideloop_dictionary ():
 	pretty_printers_dict[re.compile('^il::TriDiagonal<.*>$')]  = lambda val: TriDiagonalPrinter(val)
 	pretty_printers_dict[re.compile('^il::SparseArray2C<.*>$')]  = lambda val: SparseArray2CPrinter(val)
 	pretty_printers_dict[re.compile('^il::Array3D<.*>$')]  = lambda val: Array3DPrinter(val)
+	pretty_printers_dict[re.compile('^il::StaticArray3D<.*>$')]  = lambda val: StaticArray3DPrinter(val)
 
 def register_insideloop_printers(obj):
 	"Register insideloop pretty-printers with objfile Obj"
