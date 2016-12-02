@@ -66,7 +66,10 @@ class StaticArray3D {
   //                                      {2.0, 3.0, 4.0, 5.0, 6.0, 7.0,
   //                                       2.5, 3.5, 4.5, 5.5, 6.5, 7.5}};
   */
-  //  StaticArray3D(il::value_t, std::initializer_list<T> list);
+  StaticArray3D(
+      il::value_t,
+      std::initializer_list<std::initializer_list<std::initializer_list<T>>>
+          list);
 
   /* \brief Accessor for a const il::StaticArray3D<T, n0, n1, n2>
   // \details Access (read only) the (i, j, k)-th element of the array. Bound
@@ -149,14 +152,23 @@ StaticArray3D<T, n0, n1, n2>::StaticArray3D(const T& value) {
   }
 }
 
-// template <typename T, il::int_t n0, il::int_t n1, il::int_t n2>
-// StaticArray3D<T, n0, n1, n2>::StaticArray3D(il::value_t,
-//                                         std::initializer_list<T> list) {
-//  IL_ASSERT(n0 * n1 * n2 == static_cast<il::int_t>(list.size()));
-//  for (il::int_t l{0}; l < n0 * n1 * n2; ++l) {
-//    data_[l] = *(list.begin() + l);
-//  }
-//}
+template <typename T, il::int_t n0, il::int_t n1, il::int_t n2>
+StaticArray3D<T, n0, n1, n2>::StaticArray3D(
+    il::value_t,
+    std::initializer_list<std::initializer_list<std::initializer_list<T>>>
+        list) {
+  IL_ASSERT(n2 == static_cast<il::int_t>(list.size()));
+  for (il::int_t i2 = 0; i2 < n2; ++i2) {
+    IL_ASSERT(n1 == (list.begin() + i2)->size());
+    for (il::int_t i1 = 0; i1 < n1; ++i1) {
+      IL_ASSERT(n0 == ((list.begin() + i2)->begin() + i1)->size());
+      for (il::int_t i0 = 0; i0 < n0; ++i0) {
+        data_[(i2 * n1 + i1) * n0 + i0] =
+            *(((list.begin() + i2)->begin() + i1)->begin() + i0);
+      }
+    }
+  }
+}
 
 template <typename T, il::int_t n0, il::int_t n1, il::int_t n2>
 const T& StaticArray3D<T, n0, n1, n2>::operator()(il::int_t i0, il::int_t i1,

@@ -14,6 +14,7 @@
 #include <il/Array2D.h>
 #include <il/core/Error.h>
 
+#include <il/linear_algebra/sparse/container/SparseArray2C.h>
 #include <zlib.h>
 #include <cassert>
 #include <cstdio>
@@ -42,7 +43,7 @@ struct npz_t : public std::map<std::string, NpyArray> {
   }
 };
 
-char BigEndianTest();
+//char BigEndianTest();
 char map_type(const std::type_info& t);
 template <typename T>
 std::vector<char> create_npy_header(const T* data, const unsigned int* shape,
@@ -260,7 +261,7 @@ std::vector<char> create_npy_header(const T* data, const unsigned int* shape,
   (void)data;
   std::vector<char> dict;
   dict += "{'descr': '";
-  dict += BigEndianTest();
+  dict += '<'; //BigEndianTest();
   dict += map_type(typeid(T));
   dict += tostring(sizeof(T));
   dict += "', 'fortran_order': ";
@@ -314,6 +315,27 @@ void save(const il::Array2D<T>& v, const std::string& filename, il::io_t,
                  "w", il::io, error);
 }
 
+inline void save(const il::SparseArray2C<double>& A,
+                 const std::string& filename, il::io_t, il::Error& error) {
+  bool fortran_order = false;
+  il::Array<unsigned int> shape_column{
+      il::value, {static_cast<unsigned int>(A.nb_nonzeros())}};
+  cnpy::npy_save(filename + std::string{".column"}, A.column_data(),
+                 shape_column.data(), shape_column.size(), fortran_order, "w",
+                 il::io, error);
+
+  il::Array<unsigned int> shape_row{il::value,
+                                    {static_cast<unsigned int>(A.size(0) + 1)}};
+  cnpy::npy_save(filename + std::string{".row"}, A.row_data(), shape_row.data(),
+                 shape_row.size(), fortran_order, "w", il::io, error);
+
+  il::Array<unsigned int> shape_element{
+      il::value, {static_cast<unsigned int>(A.nb_nonzeros())}};
+  cnpy::npy_save(filename + std::string{".element"}, A.element_data(),
+                 shape_element.data(), shape_element.size(), fortran_order, "w",
+                 il::io, error);
+}
+
 template <typename T>
 T load(const std::string& filename, il::io_t, il::Error& error) {
   (void)filename;
@@ -322,7 +344,8 @@ T load(const std::string& filename, il::io_t, il::Error& error) {
 }
 
 template <>
-il::Array<int> load(const std::string& filename, il::io_t, il::Error& error) {
+inline il::Array<int> load(const std::string& filename, il::io_t,
+                           il::Error& error) {
   FILE* fp = fopen(filename.c_str(), "rb");
   if (!fp) {
     error.set(il::ErrorCode::not_found);
@@ -358,8 +381,8 @@ il::Array<int> load(const std::string& filename, il::io_t, il::Error& error) {
 }
 
 template <>
-il::Array<double> load(const std::string& filename, il::io_t,
-                       il::Error& error) {
+inline il::Array<double> load(const std::string& filename, il::io_t,
+                              il::Error& error) {
   FILE* fp = fopen(filename.c_str(), "rb");
   if (!fp) {
     error.set(il::ErrorCode::not_found);
@@ -395,7 +418,8 @@ il::Array<double> load(const std::string& filename, il::io_t,
 }
 
 template <>
-il::Array2D<int> load(const std::string& filename, il::io_t, il::Error& error) {
+inline il::Array2D<int> load(const std::string& filename, il::io_t,
+                             il::Error& error) {
   FILE* fp = fopen(filename.c_str(), "rb");
   if (!fp) {
     error.set(il::ErrorCode::not_found);
@@ -437,8 +461,8 @@ il::Array2D<int> load(const std::string& filename, il::io_t, il::Error& error) {
 }
 
 template <>
-il::Array2D<double> load(const std::string& filename, il::io_t,
-                         il::Error& error) {
+inline il::Array2D<double> load(const std::string& filename, il::io_t,
+                                il::Error& error) {
   FILE* fp = fopen(filename.c_str(), "rb");
   if (!fp) {
     error.set(il::ErrorCode::not_found);
@@ -477,6 +501,26 @@ il::Array2D<double> load(const std::string& filename, il::io_t,
   fclose(fp);
   error.set(il::ErrorCode::ok);
   return A;
+}
+
+template <>
+inline il::SparseArray2C<double> load(const std::string& filename, il::io_t,
+                                      il::Error& error) {
+  il::Error local_error{};
+  auto row =
+      il::load<il::Array<int>>(filename + std::string{".row"}, il::io, local_error);
+  local_error.abort();
+  auto column = il::load<il::Array<int>>(filename + std::string{".column"},
+                                         il::io, local_error);
+  local_error.abort();
+  auto element = il::load<il::Array<double>>(filename + std::string{".element"},
+                                             il::io, local_error);
+  local_error.abort();
+
+  const int n = row.size() - 1;
+  error.set(il::ErrorCode::ok);
+  return il::SparseArray2C<double>{n, n, std::move(column), std::move(row),
+                                   std::move(element)};
 }
 }
 #endif  // IL_NUMPY_H

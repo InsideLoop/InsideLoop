@@ -21,39 +21,38 @@
 namespace il {
 
 class PardisoSolver {
-  static_assert(sizeof(il::int_t) == sizeof(long long int),
-                "il::PardisoSolver: works only with 64 bit integers");
+  static_assert(sizeof(il::int_t) == sizeof(int),
+                "il::PardisoSolver: works only with 32 bit integers");
 
  private:
-  long long int n_;
-  bool symbolic_factorization_done_;
-  bool lu_decomposition_done_;
-  bool iterative_solver_allowed_;
-  long long int pardiso_nrhs_;
-  long long int pardiso_max_fact_;
-  long long int pardiso_mnum_;
-  long long int pardiso_mtype_;
-  long long int pardiso_msglvl_;
-  long long int pardiso_iparm_[64];
-  void* pardiso_pt_[64];
+  int n_;
+  int pardiso_nrhs_;
+  int pardiso_max_fact_;
+  int pardiso_mnum_;
+  int pardiso_mtype_;
+  int pardiso_msglvl_;
+  int pardiso_iparm_[64];
+  void *pardiso_pt_[64];
+  bool is_symbolic_factorization_;
+  bool is_numerical_factorization_;
+  const double *matrix_element_;
 
  public:
-  PardisoSolver(const il::SparseArray2C<double>& sparse_matrix);
-  il::Array<double> solve(il::SparseArray2C<double>& sparse_matrix,
-                          il::Array<double>& y,
-                          bool symbolic_factorization = false);
-  il::Array<double> solve_iterative(il::SparseArray2C<double>& sparse_matrix,
-                                    il::Array<double>& y);
+  PardisoSolver();
+  ~PardisoSolver();
+  void symbolic_factorization(const il::SparseArray2C<double> &A);
+  void numerical_factorization(const il::SparseArray2C<double> &A);
+  il::Array<double> solve(const il::SparseArray2C<double> &A,
+                          const il::Array<double> &y);
+  il::Array<double> solve_iterative(const il::SparseArray2C<double> &A,
+                                    const il::Array<double> &y);
+
+ private:
+  void release();
 };
 
-inline PardisoSolver::PardisoSolver(
-    const il::SparseArray2C<double>& sparse_matrix) {
-  IL_ASSERT(sparse_matrix.size(0) == sparse_matrix.size(1));
-
-  n_ = sparse_matrix.size(0);
-  symbolic_factorization_done_ = false;
-  lu_decomposition_done_ = false;
-  iterative_solver_allowed_ = false;
+inline PardisoSolver::PardisoSolver() {
+  n_ = 0;
   pardiso_nrhs_ = 1;
 
   // This is used to store multiple LU factorization using the same sparsity
@@ -87,7 +86,8 @@ inline PardisoSolver::PardisoSolver(
   // Fill-in reducing algorithm for the input matrix
   // - 0: use the minimum degree algorithm
   // - 2: use the METIS reordering scheme
-  // - 3: use the parallel METIS reordering scheme. It can decrease the chrono of
+  // - 3: use the parallel METIS reordering scheme. It can decrease the chrono
+  // of
   //      computation on multicore computers, especially when the phase 1 takes
   //      significant chrono.
   pardiso_iparm_[1] = 2;
@@ -207,108 +207,115 @@ inline PardisoSolver::PardisoSolver(
   for (int i = 0; i < 64; ++i) {
     pardiso_pt_[i] = nullptr;
   }
+
+  is_symbolic_factorization_ = false;
+  is_numerical_factorization_ = false;
+  matrix_element_ = nullptr;
+}
+
+inline PardisoSolver::~PardisoSolver() { release(); }
+
+void PardisoSolver::symbolic_factorization(const il::SparseArray2C<double> &A) {
+  IL_ASSERT(A.size(0) == A.size(1));
+  n_ = A.size(0);
+
+  const int phase = 11;
+  int error = 0;
+  int i_dummy;
+
+  release();
+  pardiso(pardiso_pt_, &pardiso_max_fact_, &pardiso_mnum_, &pardiso_mtype_,
+          &phase, &n_, A.element_data(), A.row_data(), A.column_data(),
+          &i_dummy, &pardiso_nrhs_, pardiso_iparm_, &pardiso_msglvl_, nullptr,
+          nullptr, &error);
+  IL_ASSERT(error == 0);
+
+  is_symbolic_factorization_ = true;
+  matrix_element_ = A.element_data();
+}
+
+void PardisoSolver::numerical_factorization(
+    const il::SparseArray2C<double> &A) {
+  IL_ASSERT(matrix_element_ = A.element_data());
+  IL_ASSERT(is_symbolic_factorization_);
+  IL_ASSERT(A.size(0) == n_);
+  IL_ASSERT(A.size(1) == n_);
+
+  const int phase = 22;
+  int error = 0;
+  int i_dummy;
+
+  pardiso(pardiso_pt_, &pardiso_max_fact_, &pardiso_mnum_, &pardiso_mtype_,
+          &phase, &n_, A.element_data(), A.row_data(), A.column_data(),
+          &i_dummy, &pardiso_nrhs_, pardiso_iparm_, &pardiso_msglvl_, nullptr,
+          nullptr, &error);
+  IL_ASSERT(error == 0);
+
+  is_numerical_factorization_ = true;
 }
 
 inline il::Array<double> PardisoSolver::solve(
-    il::SparseArray2C<double>& sparse_matrix, il::Array<double>& y,
-    bool symbolic_factorization) {
-  auto x = il::Array<double>{n_};
+    const il::SparseArray2C<double> &A, const il::Array<double> &y) {
+  IL_ASSERT(matrix_element_ = A.element_data());
+  IL_ASSERT(is_numerical_factorization_);
+  IL_ASSERT(A.size(0) == n_);
+  IL_ASSERT(A.size(1) == n_);
   IL_ASSERT(y.size() == n_);
+  il::Array<double> x{n_};
 
-  if (symbolic_factorization || !symbolic_factorization_done_) {
-    // Symbolic factorization
-    long long int error{0};
-    long long int phase{11};
-    long long int i_dummy;
-    double d_dummy;
+  const int phase = 33;
+  int error = 0;
+  int i_dummy;
+  pardiso(pardiso_pt_, &pardiso_max_fact_, &pardiso_mnum_, &pardiso_mtype_,
+          &phase, &n_, A.element_data(), A.row_data(), A.column_data(),
+          &i_dummy, &pardiso_nrhs_, pardiso_iparm_, &pardiso_msglvl_,
+          const_cast<double *>(y.data()), x.data(), &error);
 
-    auto start_time = std::chrono::high_resolution_clock::now();
-    pardiso_64(pardiso_pt_, &pardiso_max_fact_, &pardiso_mnum_, &pardiso_mtype_,
-               &phase, &n_, sparse_matrix.element_data(),
-               reinterpret_cast<long long int*>(sparse_matrix.row_data()),
-               reinterpret_cast<long long int*>(sparse_matrix.column_data()),
-               &i_dummy, &pardiso_nrhs_, pardiso_iparm_, &pardiso_msglvl_,
-               &d_dummy, &d_dummy, &error);
-    IL_ASSERT(error == 0);
-    auto end_time = std::chrono::high_resolution_clock::now();
-    auto time = std::chrono::duration_cast<std::chrono::nanoseconds>(
-                    end_time - start_time).count();
-    //    std::cout << "Time for symbolic: " << chrono / 1.0e9 << " seconds"
-    //              << std::endl;
-
-    symbolic_factorization_done_ = true;
-    lu_decomposition_done_ = false;
-    iterative_solver_allowed_ = false;
-  }
-  if (!lu_decomposition_done_) {
-    // LU decomposition
-    long long int error{0};
-    long long int phase{22};
-    long long int i_dummy;
-    double d_dummy;
-    auto start_time = std::chrono::high_resolution_clock::now();
-    pardiso_64(pardiso_pt_, &pardiso_max_fact_, &pardiso_mnum_, &pardiso_mtype_,
-               &phase, &n_, sparse_matrix.element_data(),
-               reinterpret_cast<long long int*>(sparse_matrix.row_data()),
-               reinterpret_cast<long long int*>(sparse_matrix.column_data()),
-               &i_dummy, &pardiso_nrhs_, pardiso_iparm_, &pardiso_msglvl_,
-               &d_dummy, &d_dummy, &error);
-    IL_ASSERT(error == 0);
-    auto end_time = std::chrono::high_resolution_clock::now();
-    auto time = std::chrono::duration_cast<std::chrono::nanoseconds>(
-                    end_time - start_time).count();
-//    std::cout << "Time for LU: " << time / 1.0e9 << " seconds" << std::endl;
-    lu_decomposition_done_ = true;
-    iterative_solver_allowed_ = true;
-  }
-  // Back substitution
-  long long int error{0};
-  long long int phase{33};
-  long long int i_dummy;
-  auto start_time = std::chrono::high_resolution_clock::now();
-  pardiso_64(pardiso_pt_, &pardiso_max_fact_, &pardiso_mnum_, &pardiso_mtype_,
-             &phase, &n_, sparse_matrix.element_data(),
-             reinterpret_cast<long long int*>(sparse_matrix.row_data()),
-             reinterpret_cast<long long int*>(sparse_matrix.column_data()),
-             &i_dummy, &pardiso_nrhs_, pardiso_iparm_, &pardiso_msglvl_,
-             y.data(), x.data(), &error);
   IL_ASSERT(error == 0);
-  auto end_time = std::chrono::high_resolution_clock::now();
-  auto time = std::chrono::duration_cast<std::chrono::nanoseconds>(
-                  end_time - start_time).count();
-  //  std::cout << "Time for backsubstitution: " << chrono / 1.0e9 << " seconds"
-  //            << std::endl;
-
-  lu_decomposition_done_ = false;
 
   return x;
 }
 
 inline il::Array<double> PardisoSolver::solve_iterative(
-    il::SparseArray2C<double>& sparse_matrix, il::Array<double>& y) {
+    const il::SparseArray2C<double> &A, const il::Array<double> &y) {
+  IL_ASSERT(matrix_element_ = A.element_data());
+  IL_ASSERT(is_numerical_factorization_);
+  IL_ASSERT(A.size(0) == n_);
+  IL_ASSERT(A.size(1) == n_);
   IL_ASSERT(y.size() == n_);
-  IL_ASSERT(iterative_solver_allowed_);
-  auto x = il::Array<double>{n_};
+  il::Array<double> x{n_};
 
-  long long int old_solver{pardiso_iparm_[3]};
-  pardiso_iparm_[3] = 21; // 6 digits of accuracy using LU decomposition
+  const int old_solver = pardiso_iparm_[3];
+  // 6 digits of accuracy using LU decomposition
+  pardiso_iparm_[3] = 21;
 
-  long long int error{0};
-  long long int phase{33};
-  long long int i_dummy;
-  pardiso_64(pardiso_pt_, &pardiso_max_fact_, &pardiso_mnum_, &pardiso_mtype_,
-             &phase, &n_, sparse_matrix.element_data(),
-             reinterpret_cast<long long int*>(sparse_matrix.row_data()),
-             reinterpret_cast<long long int*>(sparse_matrix.column_data()),
-             &i_dummy, &pardiso_nrhs_, pardiso_iparm_, &pardiso_msglvl_,
-             y.data(), x.data(), &error);
-//  IL_ASSERT(error == 0);
+  const int phase = 33;
+  int error = 0;
+  int i_dummy;
+  pardiso(pardiso_pt_, &pardiso_max_fact_, &pardiso_mnum_, &pardiso_mtype_,
+          &phase, &n_, A.element_data(), A.row_data(), A.column_data(),
+          &i_dummy, &pardiso_nrhs_, pardiso_iparm_, &pardiso_msglvl_,
+          const_cast<double *>(y.data()), x.data(), &error);
+  IL_ASSERT(error == 0);
 
   pardiso_iparm_[3] = old_solver;
 
-  std::cout << "Number of iterations: " << pardiso_iparm_[19] << std::endl;
-
   return x;
+}
+
+inline void PardisoSolver::release() {
+  const int phase = -1;
+  int error = 0;
+  int i_dummy;
+  if (is_symbolic_factorization_) {
+    PARDISO(pardiso_pt_, &pardiso_max_fact_, &pardiso_mnum_, &pardiso_mtype_,
+            &phase, &n_, nullptr, nullptr, nullptr, &i_dummy, &pardiso_nrhs_,
+            pardiso_iparm_, &pardiso_msglvl_, nullptr, nullptr, &error);
+    IL_ASSERT(error == 0);
+
+    is_symbolic_factorization_ = false;
+    is_numerical_factorization_ = false;
+  }
 }
 }
 

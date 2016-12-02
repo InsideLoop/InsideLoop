@@ -683,7 +683,7 @@ void SmallArray<T, small_size>::increase_capacity(il::int_t r) {
   data_ = new_data;
   size_ = data_ + n;
   capacity_ = data_ + r;
-};
+}
 
 template <typename T, il::int_t small_size>
 void SmallArray<T, small_size>::check_invariance() const {

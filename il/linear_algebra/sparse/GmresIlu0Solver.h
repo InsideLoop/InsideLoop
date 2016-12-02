@@ -22,17 +22,17 @@
 
 #pragma once
 
-#include <iostream>
 #include <chrono>
+#include <iostream>
 
 #include "mkl_blas.h"
-#include "mkl_spblas.h"
 #include "mkl_rci.h"
 #include "mkl_service.h"
+#include "mkl_spblas.h"
 
-#include <il/math>
 #include <il/container/1d/StaticArray.h>
-#include <il/container/2d/SparseArray2D.h>
+#include <il/linear_algebra/sparse/container/SparseArray2C.h>
+#include <il/math.h>
 
 namespace il {
 
@@ -44,52 +44,56 @@ class GmresIlu0Solver {
   bool preconditionner_computed_;
 
  public:
-  GmresIlu0Solver(const il::SparseMatrix<double, MKL_INT>& sparse_matrix)
-     ;
-  il::Array<double> solve(il::SparseMatrix<double, MKL_INT>& sparse_matrix,
-                           il::Array<double>& y);
+  GmresIlu0Solver(const il::SparseArray2C<double>& sparse_matrix);
+  il::Array<double> solve(il::SparseArray2C<double>& sparse_matrix,
+                          il::Array<double>& y);
 };
 
-GmresIlu0Solver::GmresIlu0Solver(const il::SparseMatrix<double, MKL_INT>& sparse_matrix)
+GmresIlu0Solver::GmresIlu0Solver(const il::SparseArray2C<double>& sparse_matrix)
     : n_{sparse_matrix.size(0)},
-                  max_nb_iterations_{100},
-                  bilu0_{sparse_matrix.nb_nonzeros()},
-                  preconditionner_computed_{false} {
+      max_nb_iterations_{100},
+      bilu0_{sparse_matrix.nb_nonzeros()},
+      preconditionner_computed_{false} {
   IL_ASSERT(sparse_matrix.size(0) == sparse_matrix.size(1));
 }
 
 il::Array<double> il::GmresIlu0Solver::solve(
-    il::SparseMatrix<double, MKL_INT>& sparse_matrix,
-    il::Array<double>& y) {
+    il::SparseArray2C<double>& sparse_matrix, il::Array<double>& y) {
   IL_ASSERT(y.size() == n_);
+  int* row = sparse_matrix.row_data();
+  for (int i = 0; i < n_ + 1; ++i) {
+    row[i] += 1;
+  }
+  int* column = sparse_matrix.column_data();
+  for (int k = 0; k < sparse_matrix.nb_nonzeros(); ++k) {
+    column[k] += 1;
+  }
 
   auto start_time = std::chrono::high_resolution_clock::now();
   auto x = il::Array<double>{n_, 0.0};
 
-  auto yloc = il::Array<double>{y};
+  il::Array<double> yloc = y;
   // I am not sure that ycopy is needed for the algorithm.
   // Can;t we just use y?
-  auto ycopy = il::Array<double>{y};
+  il::Array<double> ycopy = y;
 
-  auto ipar = il::StaticArray<MKL_INT, 128>{0};
+  il::StaticArray<MKL_INT, 128> ipar{0};
   ipar[14] = il::min(max_nb_iterations_, n_);  // Maximum number of iterations
-  auto dpar = il::StaticArray<double, 128>{0.0};
-
-  auto tmp = il::Array<double>{(2 * ipar[14] + 1) * n_ +
-                                ipar[14] * (ipar[14] + 9) / 2 + 1};
-  auto residual = il::Array<double>{n_};
-  auto trvec = il::Array<double>{n_};
+  il::StaticArray<double, 128> dpar{0.0};
+  il::Array<double> tmp{(2 * ipar[14] + 1) * n_ + ipar[14] * (ipar[14] + 9) / 2 + 1};
+  il::Array<double> residual{n_};
+  il::Array<double> trvec{n_};
 
   //  std::cout << "Running" << std::endl;
 
-  auto ierr = MKL_INT{0};
-  auto itercount = MKL_INT{0};
+  MKL_INT ierr = 0;
+  MKL_INT itercount = 0;
   MKL_INT RCI_request;
-  auto l_char = char{'L'};
-  auto n_char = char{'N'};
-  auto u_char = char{'U'};
-  auto one_int = MKL_INT{1};
-  auto minus_one_double = double{-1.0};
+  char l_char = 'L';
+  char n_char = 'N';
+  char u_char = 'U';
+  MKL_INT one_int = 1;
+  double minus_one_double = -1.0;
 
   dfgmres_init(&n_, x.data(), yloc.data(), &RCI_request, ipar.data(),
                dpar.data(), tmp.data());
@@ -122,9 +126,9 @@ il::Array<double> il::GmresIlu0Solver::solve(
     ipar[30] = 1;
     dpar[30] = 1.0e-20;
     dpar[31] = 1.0e-16;
-    dcsrilu0(&n_, sparse_matrix.element(), sparse_matrix.row(),
-             sparse_matrix.column(), bilu0_.data(), ipar.data(), dpar.data(),
-             &ierr);
+    dcsrilu0(&n_, sparse_matrix.element_data(), sparse_matrix.row_data(),
+             sparse_matrix.column_data(), bilu0_.data(), ipar.data(),
+             dpar.data(), &ierr);
     IL_ASSERT(ierr == 0);
     preconditionner_computed_ = true;
   }
@@ -154,9 +158,9 @@ il::Array<double> il::GmresIlu0Solver::solve(
         break;
       case 1:
         // This is a Sparse matrix/Vector multiplication
-        mkl_dcsrgemv(&n_char, &n_, sparse_matrix.element(), sparse_matrix.row(),
-                     sparse_matrix.column(), &tmp[ipar[21] - 1],
-                     &tmp[ipar[22] - 1]);
+        mkl_dcsrgemv(&n_char, &n_, sparse_matrix.element_data(),
+                     sparse_matrix.row_data(), sparse_matrix.column_data(),
+                     &tmp[ipar[21] - 1], &tmp[ipar[22] - 1]);
         break;
       case 2:
         ipar[12] = 1;
@@ -166,8 +170,9 @@ il::Array<double> il::GmresIlu0Solver::solve(
         // Compute the current true residual via MKL (Sparse) BLAS
         // routines. It multiplies the matrix A with yCopy and
         // store the result in residual.
-        mkl_dcsrgemv(&n_char, &n_, sparse_matrix.element(), sparse_matrix.row(),
-                     sparse_matrix.column(), ycopy.data(), residual.data());
+        mkl_dcsrgemv(&n_char, &n_, sparse_matrix.element_data(),
+                     sparse_matrix.row_data(), sparse_matrix.column_data(),
+                     ycopy.data(), residual.data());
         // Compute: residual = A.(current x) - y
         // Note that A.(current x) is stored in residual before this operation
         daxpy(&n_, &minus_one_double, yloc.data(), &one_int, residual.data(),
@@ -188,11 +193,11 @@ il::Array<double> il::GmresIlu0Solver::solve(
         // result produced by ILUT routine via standard MKL Sparse
         // Blas solver rout'ine mkl_dcsrtrsv
         mkl_dcsrtrsv(&l_char, &n_char, &u_char, &n_, bilu0_.data(),
-                     sparse_matrix.row(), sparse_matrix.column(),
+                     sparse_matrix.row_data(), sparse_matrix.column_data(),
                      &tmp[ipar[21] - 1], trvec.data());
         mkl_dcsrtrsv(&u_char, &n_char, &n_char, &n_, bilu0_.data(),
-                     sparse_matrix.row(), sparse_matrix.column(), trvec.data(),
-                     &tmp[ipar[22] - 1]);
+                     sparse_matrix.row_data(), sparse_matrix.column_data(),
+                     trvec.data(), &tmp[ipar[22] - 1]);
         break;
       case 4:
         // If RCI_REQUEST=4, then check if the norm of the next
@@ -213,11 +218,19 @@ il::Array<double> il::GmresIlu0Solver::solve(
               dpar.data(), tmp.data(), &itercount);
 
   auto end_time = std::chrono::high_resolution_clock::now();
-  auto time = std::chrono::duration_cast<std::chrono::nanoseconds>(
-                  end_time - start_time).count();
+  auto time = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time -
+                                                                   start_time)
+                  .count();
   std::cout << "Number of iterations: " << itercount << std::endl;
   std::cout << "Time: " << time / 1.0e9 << " seconds" << std::endl;
 
+  for (int i = 0; i < n_ + 1; ++i) {
+    row[i] -= 1;
+  }
+  for (int k = 0; k < sparse_matrix.nb_nonzeros(); ++k) {
+    column[k] -= 1;
+  }
+
   return x;
-};
+}
 }

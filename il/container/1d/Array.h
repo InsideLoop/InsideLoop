@@ -22,6 +22,8 @@
 #include <utility>
 // <functional> is needed for std::function
 #include <functional>
+// <type_traits> is needed for std::is_pod
+#include <type_traits>
 
 namespace il {
 

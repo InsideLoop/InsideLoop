@@ -179,7 +179,7 @@ class powN<true, 0, T> {
 template <il::int_t N, typename T>
 static T ipow(T x) {
   // (N & N-1) == 0 if N is a power of 2
-  return powN<(N & N - 1) == 0, N, T>::p(x);
+  return powN<(N & (N - 1)) == 0, N, T>::p(x);
 }
 
 template <typename T>

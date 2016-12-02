@@ -17,6 +17,7 @@
 #include <climits>
 #include <limits>
 #include <cmath>
+#include <initializer_list>
 
 #include <il/core/config.h>
 

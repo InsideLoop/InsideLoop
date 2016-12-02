@@ -15,11 +15,11 @@
 #include <cstring>
 #include <iomanip>
 
-char cnpy::BigEndianTest() {
-  unsigned char x[] = {1, 0};
-  short y = *(short*)x;
-  return y == 1 ? '<' : '>';
-}
+//char cnpy::BigEndianTest() {
+//  unsigned char x[] = {1, 0};
+//  short y = *(short*)x;
+//  return y == 1 ? '<' : '>';
+//}
 
 char cnpy::map_type(const std::type_info& t) {
   if (t == typeid(float)) return '0';
@@ -102,6 +102,7 @@ void cnpy::parse_npy_header(FILE* fp, unsigned int& word_size,
   loc1 = header.find("descr") + 9;
   bool littleEndian =
       (header[loc1] == '<' || header[loc1] == '|' ? true : false);
+  (void)littleEndian;
   assert(littleEndian);
 
   *type = header[loc1+1];
@@ -127,6 +128,10 @@ void cnpy::parse_zip_footer(FILE* fp, unsigned short& nrecs,
   global_header_size = *(unsigned int*)&footer[12];
   global_header_offset = *(unsigned int*)&footer[16];
   comment_len = *(unsigned short*)&footer[20];
+  (void) disk_no;
+  (void) disk_start;
+  (void) nrecs_on_disk;
+  (void) comment_len;
 
   assert(disk_no == 0);
   assert(disk_start == 0);
