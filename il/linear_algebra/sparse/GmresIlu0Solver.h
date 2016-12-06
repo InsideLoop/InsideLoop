@@ -22,9 +22,6 @@
 
 #pragma once
 
-#include <chrono>
-#include <iostream>
-
 #include "mkl_blas.h"
 #include "mkl_rci.h"
 #include "mkl_service.h"
@@ -38,117 +35,180 @@ namespace il {
 
 class GmresIlu0Solver {
  private:
-  MKL_INT n_;
-  il::int_t max_nb_iterations_;
-  il::Array<double> bilu0_;
+  il::int_t max_nb_iteration_;
+  il::int_t restart_iteration_;
+  double relative_precision_;
   bool preconditionner_computed_;
+  il::int_t nb_iteration_;
+  int behaviour_zero_diagonal_;
+  double zero_diagonal_threshold_;
+  double zero_diagonal_replacement_;
+  il::StaticArray<int, 128> ipar_;
+  il::StaticArray<double, 128> dpar_;
+  il::Array<double> bilu0_;
+  const double* matrix_element_;
 
  public:
-  GmresIlu0Solver(const il::SparseArray2C<double>& sparse_matrix);
-  il::Array<double> solve(il::SparseArray2C<double>& sparse_matrix,
-                          il::Array<double>& y);
+  GmresIlu0Solver(double relative_precision, int max_nb_iteration,
+                  int restart_iteration);
+  void set_relative_precision(double relative_precision);
+  void set_max_nb_iteration(il::int_t max_nb_iteration);
+  void set_restart_iteration(il::int_t restart_iteration);
+  void compute_preconditionner(il::io_t, il::SparseArray2C<double>& A);
+  il::Array<double> solve(const il::Array<double>& y, il::io_t,
+                          il::SparseArray2C<double>& A);
+  il::int_t nb_iteration() const;
+
+ private:
+  static void convert_c_to_fortran(il::io_t, il::SparseArray2C<double>& A);
+  static void convert_fortran_to_c(il::io_t, il::SparseArray2C<double>& A);
 };
 
-GmresIlu0Solver::GmresIlu0Solver(const il::SparseArray2C<double>& sparse_matrix)
-    : n_{sparse_matrix.size(0)},
-      max_nb_iterations_{100},
-      bilu0_{sparse_matrix.nb_nonzeros()},
-      preconditionner_computed_{false} {
-  IL_ASSERT(sparse_matrix.size(0) == sparse_matrix.size(1));
+inline GmresIlu0Solver::GmresIlu0Solver(double relative_precision,
+                                        int max_nb_iteration,
+                                        int restart_iteration)
+    : ipar_{}, dpar_{}, bilu0_{} {
+  behaviour_zero_diagonal_ = 0;
+  zero_diagonal_threshold_ = 1.0e-16;
+  zero_diagonal_replacement_ = 1.0e-10;
+  relative_precision_ = relative_precision;
+  max_nb_iteration_ = max_nb_iteration;
+  restart_iteration_ = restart_iteration;
+  preconditionner_computed_ = false;
+  matrix_element_ = nullptr;
 }
 
-il::Array<double> il::GmresIlu0Solver::solve(
-    il::SparseArray2C<double>& sparse_matrix, il::Array<double>& y) {
-  IL_ASSERT(y.size() == n_);
-  int* row = sparse_matrix.row_data();
-  for (int i = 0; i < n_ + 1; ++i) {
-    row[i] += 1;
-  }
-  int* column = sparse_matrix.column_data();
-  for (int k = 0; k < sparse_matrix.nb_nonzeros(); ++k) {
-    column[k] += 1;
-  }
+inline void GmresIlu0Solver::set_relative_precision(double relative_precision) {
+  relative_precision_ = relative_precision;
+}
 
-  auto start_time = std::chrono::high_resolution_clock::now();
-  auto x = il::Array<double>{n_, 0.0};
+inline void GmresIlu0Solver::set_max_nb_iteration(il::int_t max_nb_iteration) {
+  max_nb_iteration_ = max_nb_iteration;
+}
 
+inline void GmresIlu0Solver::set_restart_iteration(
+    il::int_t restart_iteration) {
+  restart_iteration_ = restart_iteration;
+}
+
+inline void GmresIlu0Solver::compute_preconditionner(
+    il::io_t, il::SparseArray2C<double>& A) {
+  IL_ASSERT(A.size(0) == A.size(1));
+
+  const int n = A.size(0);
+  bilu0_.resize(A.nb_nonzeros());
+  convert_c_to_fortran(il::io, A);
+  // In this example, specific for DCSRILU0 entries are set in turn:
+  // ipar_[30]: Specifies how the routine operates when a zero diagonal
+  //            element occurs during calculation. It his parameter is set to
+  //            0, the the calculations are stopped and the routine returns a
+  //            non-zero error value.
+  ipar_[30] = behaviour_zero_diagonal_;
+  // dpar_[30]: Specifies a small value, which is compared to the computed
+  //            diagonal elements. When ipar_[30] is not 0, the diagonal
+  //            elements less than dpar_[30] are set to dpar_[31]. The default
+  //            value is 1.0e-16.
+  dpar_[30] = zero_diagonal_threshold_;
+  // dpar_[31]: See dpar_[30]
+  dpar_[31] = zero_diagonal_replacement_;
+  int ierr = 0;
+  dcsrilu0(&n, A.element_data(), A.row_data(), A.column_data(), bilu0_.data(),
+           ipar_.data(), dpar_.data(), &ierr);
+  IL_ASSERT(ierr == 0);
+  preconditionner_computed_ = true;
+
+  convert_fortran_to_c(il::io, A);
+  matrix_element_ = A.element_data();
+}
+
+inline il::Array<double> il::GmresIlu0Solver::solve(
+    const il::Array<double>& y, il::io_t, il::SparseArray2C<double>& A) {
+  IL_ASSERT(matrix_element_ == A.element_data());
+  IL_ASSERT(preconditionner_computed_);
+  IL_ASSERT(A.size(0) == y.size());
+
+  const int n = A.size(0);
+
+  convert_c_to_fortran(il::io, A);
   il::Array<double> yloc = y;
-  // I am not sure that ycopy is needed for the algorithm.
-  // Can;t we just use y?
   il::Array<double> ycopy = y;
+  il::Array<double> x{n, 0.0};
 
-  il::StaticArray<MKL_INT, 128> ipar{0};
-  ipar[14] = il::min(max_nb_iterations_, n_);  // Maximum number of iterations
-  il::StaticArray<double, 128> dpar{0.0};
-  il::Array<double> tmp{(2 * ipar[14] + 1) * n_ + ipar[14] * (ipar[14] + 9) / 2 + 1};
-  il::Array<double> residual{n_};
-  il::Array<double> trvec{n_};
+  const il::int_t tmp_size = (2 * restart_iteration_ + 1) * n +
+                             restart_iteration_ * (restart_iteration_ + 9) / 2 +
+                             1;
+  il::Array<double> tmp{tmp_size};
+  il::Array<double> residual{n};
+  il::Array<double> trvec{n};
 
-  //  std::cout << "Running" << std::endl;
+  int itercount = 0;
+  int RCI_request;
 
-  MKL_INT ierr = 0;
-  MKL_INT itercount = 0;
-  MKL_INT RCI_request;
-  char l_char = 'L';
-  char n_char = 'N';
-  char u_char = 'U';
-  MKL_INT one_int = 1;
-  double minus_one_double = -1.0;
+  const char l_char = 'L';
+  const char n_char = 'N';
+  const char u_char = 'U';
+  const int one_int = 1;
+  const double minus_one_double = -1.0;
 
-  dfgmres_init(&n_, x.data(), yloc.data(), &RCI_request, ipar.data(),
-               dpar.data(), tmp.data());
+  dfgmres_init(&n, x.data(), yloc.data(), &RCI_request, ipar_.data(),
+               dpar_.data(), tmp.data());
   IL_ASSERT(RCI_request == 0);
-  if (!preconditionner_computed_) {
-    /*--------------------------------------------------------------------------
-    // Calculate ILU0 preconditioner.
-    //                      !ATTENTION!
-    // DCSRILU0 routine uses some IPAR, DPAR set by DFGMRES_INIT routine.
-    // Important for DCSRILU0 default entries set by DFGMRES_INIT are
-    // ipar[1] = 6 - output of error messages to the screen,
-    // ipar[5] = 1 - allow output of errors,
-    // ipar[30]= 0 - abort DCSRILU0 calculations if routine meets zero diagonal
-    //               element.
-    //
-    //
-    // If ILU0 is going to be used out of MKL FGMRES context, than the values
-    // of ipar[1], ipar[5], ipar[30], dpar[30], and dpar[31] should be user
-    // provided before the DCSRILU0 routine call.
-    //
-    // In this example, specific for DCSRILU0 entries are set in turn:
-    // ipar[30]= 1 - change small diagonal value to that given by dpar[31],
-    // dpar[30]= 1.E-20 instead of the default value set by DFGMRES_INIT.
-    //                  It is a small value to compare a diagonal entry with it.
-    // dpar[31]= 1.E-16 instead of the default value set by DFGMRES_INIT.
-    //                  It is the target value of the diagonal value if it is
-    //                  small as compared to dpar[30] and the routine should
-    //                  change it rather than abort DCSRILU0 calculations.
-    //------------------------------------------------------------------------*/
-    ipar[30] = 1;
-    dpar[30] = 1.0e-20;
-    dpar[31] = 1.0e-16;
-    dcsrilu0(&n_, sparse_matrix.element_data(), sparse_matrix.row_data(),
-             sparse_matrix.column_data(), bilu0_.data(), ipar.data(),
-             dpar.data(), &ierr);
-    IL_ASSERT(ierr == 0);
-    preconditionner_computed_ = true;
-  }
-  //  std::cout << "Preconditionner computed" << std::endl;
-  // Specifies the number of the non-restarted FGMRES iterations.
-  // ipar[14] = 20;
-  ipar[7] = 0;
-  // Use the GMRES method with the preconditionner
-  ipar[10] = 1;
-  // Specifies the relative tolerance. The default value is 1.0e-6
-  // dpar[0] = 1.0e-6;
-  dfgmres_check(&n_, x.data(), yloc.data(), &RCI_request, ipar.data(),
-                dpar.data(), tmp.data());
+
+  // ipar_[0]: The size of the matrix
+  // ipar_[1]: The default value is 6 and specifies that the errors are reported
+  //           to the screen
+  // ipar_[2]: Contains the current stage of the computation. The initial value
+  //           is 1
+  // ipar_[3]: Contains the current iteration number. The initial value is 0
+  // ipar_[4]: Specifies the maximum number of iterations. The default value is
+  //           min(150, n)
+  ipar_[4] = max_nb_iteration_;
+  // ipar_[5]: If the value is not 0, is report error messages according to
+  //           ipar_[1]. The default value is 1.
+  // ipar_[6]: For Warnings.
+  // ipar_[7]: If the value is not equal to 0, the dfgmres performs the stopping
+  //           test ipar_[3] <= ipar 4. The default value is 1.
+  // ipar_[8]: If the value is not equal to 0, the dfgmres performs the residual
+  //           stopping test dpar_[4] <= dpar_[3]. The default value is 1.
+  // ipar_[9]: For a used-defined stopping test
+  // ipar_[10]: If the value is set to 0, the routine runs the
+  //            non-preconditionned version of the algorithm. The default value
+  //            is 0.
+  ipar_[10] = 1;
+  // ipar_[13]: Contains the internal iteration counter that counts the number
+  //            of iterations before the restart takes place. The initial value
+  //            is 0.
+  // ipar_[14]: Specifies the number of the non-restarted FGMRES iterations.
+  //            To run the restarted version of the FGMRES method, assign the
+  //            number of iterations to ipar_[14] before the restart.
+  //            The default value is min(150, n) which means that by default,
+  //            the non-restarted version of FGMRES method is used.
+  ipar_[14] = restart_iteration_;
+  ipar_[30] = behaviour_zero_diagonal_;
+
+  // dpar_[0]: Specifies the relative tolerance. The default value is 1.0e-6
+  dpar_[0] = 1.0e-6;
+  // dpar_[1]: Specifies the absolute tolerance. The default value is 1.0
+  // dpar_[2]: Specifies the Euclidean norm of the initial residual. The initial
+  //          value is 0.0
+  // dpar_[3]: dpar_[0] * dpar_[2] + dpar_[1]
+  //          The value for the residual under which the iteration is stopped
+  //          (?)
+  // dpar_[4]: Specifies the euclidean norm of the current residual.
+  // dpar_[5]: Specifies the euclidean norm of the previsous residual
+  // dpar_[6]: Contains the norm of the generated vector
+  // dpar_[7]: Contains the tolerance for the norm of the generated vector
+  dpar_[30] = zero_diagonal_threshold_;
+  dpar_[31] = zero_diagonal_replacement_;
+
+  dfgmres_check(&n, x.data(), yloc.data(), &RCI_request, ipar_.data(),
+                dpar_.data(), tmp.data());
   IL_ASSERT(RCI_request == 0);
-  auto stop_iteration = bool{false};
-  auto y_norm = double{dnrm2(&n_, yloc.data(), &one_int)};
+  bool stop_iteration = false;
+  double y_norm = dnrm2(&n, yloc.data(), &one_int);
   while (!stop_iteration) {
-    //    std::cout << "New iteration" << std::endl;
     // The beginning of the iteration
-    dfgmres(&n_, x.data(), yloc.data(), &RCI_request, ipar.data(), dpar.data(),
+    dfgmres(&n, x.data(), yloc.data(), &RCI_request, ipar_.data(), dpar_.data(),
             tmp.data());
     switch (RCI_request) {
       case 0:
@@ -158,31 +218,26 @@ il::Array<double> il::GmresIlu0Solver::solve(
         break;
       case 1:
         // This is a Sparse matrix/Vector multiplication
-        mkl_dcsrgemv(&n_char, &n_, sparse_matrix.element_data(),
-                     sparse_matrix.row_data(), sparse_matrix.column_data(),
-                     &tmp[ipar[21] - 1], &tmp[ipar[22] - 1]);
+        mkl_dcsrgemv(&n_char, &n, A.element_data(), A.row_data(),
+                     A.column_data(), &tmp[ipar_[21] - 1], &tmp[ipar_[22] - 1]);
         break;
       case 2:
-        ipar[12] = 1;
+        ipar_[12] = 1;
         // Retrieve iteration number AND update sol
-        dfgmres_get(&n_, x.data(), ycopy.data(), &RCI_request, ipar.data(),
-                    dpar.data(), tmp.data(), &itercount);
+        dfgmres_get(&n, x.data(), ycopy.data(), &RCI_request, ipar_.data(),
+                    dpar_.data(), tmp.data(), &itercount);
         // Compute the current true residual via MKL (Sparse) BLAS
         // routines. It multiplies the matrix A with yCopy and
         // store the result in residual.
-        mkl_dcsrgemv(&n_char, &n_, sparse_matrix.element_data(),
-                     sparse_matrix.row_data(), sparse_matrix.column_data(),
-                     ycopy.data(), residual.data());
+        mkl_dcsrgemv(&n_char, &n, A.element_data(), A.row_data(),
+                     A.column_data(), ycopy.data(), residual.data());
         // Compute: residual = A.(current x) - y
         // Note that A.(current x) is stored in residual before this operation
-        daxpy(&n_, &minus_one_double, yloc.data(), &one_int, residual.data(),
+        daxpy(&n, &minus_one_double, yloc.data(), &one_int, residual.data(),
               &one_int);
         // This number plays a critical role in the precision of the method
-        //      std::cout << "Residual: " << dnrm2(&n_, residual.data(),
-        //      &one_int) << ",  y: " << y_norm << std::endl;
-        //      std::cout << "Relative norm of residual: " << dnrm2(&n_,
-        //      residual.data(), &one_int) / y_norm << std::endl;
-        if (dnrm2(&n_, residual.data(), &one_int) <= 1.0e-7 * y_norm) {
+        if (dnrm2(&n, residual.data(), &one_int) <=
+            relative_precision_ * y_norm) {
           stop_iteration = true;
         }
         break;
@@ -192,19 +247,17 @@ il::Array<double> il::GmresIlu0Solver::solve(
         // TMP(IPAR(23)). Here is the recommended usage of the
         // result produced by ILUT routine via standard MKL Sparse
         // Blas solver rout'ine mkl_dcsrtrsv
-        mkl_dcsrtrsv(&l_char, &n_char, &u_char, &n_, bilu0_.data(),
-                     sparse_matrix.row_data(), sparse_matrix.column_data(),
-                     &tmp[ipar[21] - 1], trvec.data());
-        mkl_dcsrtrsv(&u_char, &n_char, &n_char, &n_, bilu0_.data(),
-                     sparse_matrix.row_data(), sparse_matrix.column_data(),
-                     trvec.data(), &tmp[ipar[22] - 1]);
+        mkl_dcsrtrsv(&l_char, &n_char, &u_char, &n, bilu0_.data(), A.row_data(),
+                     A.column_data(), &tmp[ipar_[21] - 1], trvec.data());
+        mkl_dcsrtrsv(&u_char, &n_char, &n_char, &n, bilu0_.data(), A.row_data(),
+                     A.column_data(), trvec.data(), &tmp[ipar_[22] - 1]);
         break;
       case 4:
         // If RCI_REQUEST=4, then check if the norm of the next
         // generated vector is not zero up to rounding and
         // computational errors. The norm is contained in DPAR(7)
         // parameter
-        if (dpar[6] == 0.0) {
+        if (dpar_[6] == 0.0) {
           stop_iteration = true;
         }
         break;
@@ -213,24 +266,44 @@ il::Array<double> il::GmresIlu0Solver::solve(
         break;
     }
   }
-  ipar[12] = 0;
-  dfgmres_get(&n_, x.data(), yloc.data(), &RCI_request, ipar.data(),
-              dpar.data(), tmp.data(), &itercount);
+  ipar_[12] = 0;
+  dfgmres_get(&n, x.data(), yloc.data(), &RCI_request, ipar_.data(),
+              dpar_.data(), tmp.data(), &itercount);
 
-  auto end_time = std::chrono::high_resolution_clock::now();
-  auto time = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time -
-                                                                   start_time)
-                  .count();
-  std::cout << "Number of iterations: " << itercount << std::endl;
-  std::cout << "Time: " << time / 1.0e9 << " seconds" << std::endl;
+  nb_iteration_ = itercount;
 
-  for (int i = 0; i < n_ + 1; ++i) {
-    row[i] -= 1;
-  }
-  for (int k = 0; k < sparse_matrix.nb_nonzeros(); ++k) {
-    column[k] -= 1;
-  }
+  convert_fortran_to_c(il::io, A);
 
   return x;
+}
+
+inline il::int_t il::GmresIlu0Solver::nb_iteration() const {
+  return nb_iteration_;
+}
+
+inline void GmresIlu0Solver::convert_c_to_fortran(
+    il::io_t, il::SparseArray2C<double>& A) {
+  int n = A.size(0);
+  int* row = A.row_data();
+  for (int i = 0; i < n + 1; ++i) {
+    row[i] += 1;
+  }
+  int* column = A.column_data();
+  for (int k = 0; k < A.nb_nonzeros(); ++k) {
+    column[k] += 1;
+  }
+}
+
+inline void GmresIlu0Solver::convert_fortran_to_c(
+    il::io_t, il::SparseArray2C<double>& A) {
+  int n = A.size(0);
+  int* row = A.row_data();
+  for (int i = 0; i < n + 1; ++i) {
+    row[i] -= 1;
+  }
+  int* column = A.column_data();
+  for (int k = 0; k < A.nb_nonzeros(); ++k) {
+    column[k] -= 1;
+  }
 }
 }

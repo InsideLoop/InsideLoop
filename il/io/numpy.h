@@ -508,16 +508,16 @@ inline il::SparseArray2C<double> load(const std::string& filename, il::io_t,
                                       il::Error& error) {
   il::Error local_error{};
   auto row =
-      il::load<il::Array<int>>(filename + std::string{".row"}, il::io, local_error);
+      il::load<il::Array<il::int_t>>(filename + std::string{".row"}, il::io, local_error);
   local_error.abort();
-  auto column = il::load<il::Array<int>>(filename + std::string{".column"},
+  auto column = il::load<il::Array<il::int_t>>(filename + std::string{".column"},
                                          il::io, local_error);
   local_error.abort();
   auto element = il::load<il::Array<double>>(filename + std::string{".element"},
                                              il::io, local_error);
   local_error.abort();
 
-  const int n = row.size() - 1;
+  const il::int_t n = row.size() - 1;
   error.set(il::ErrorCode::ok);
   return il::SparseArray2C<double>{n, n, std::move(column), std::move(row),
                                    std::move(element)};

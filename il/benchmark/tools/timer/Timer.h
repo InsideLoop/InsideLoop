@@ -26,10 +26,10 @@ class Timer {
   double time() const;
 };
 
-Timer::Timer()
+inline Timer::Timer()
     : time_{0.0}, point_begin_{std::chrono::high_resolution_clock::now()} {}
 
-void Timer::stop() {
+inline void Timer::stop() {
   std::chrono::time_point<std::chrono::high_resolution_clock> point_end{
       std::chrono::high_resolution_clock::now()};
   time_ = 1.0e-9 *
@@ -38,7 +38,7 @@ void Timer::stop() {
               .count();
 }
 
-double Timer::time() const { return time_; }
+inline double Timer::time() const { return time_; }
 
 class TimerCycles {
  private:
@@ -51,7 +51,7 @@ class TimerCycles {
   long int cycles() const;
 };
 
-TimerCycles::TimerCycles() {
+inline TimerCycles::TimerCycles() {
   std::uint32_t low;
   std::uint32_t high;
   asm volatile("rdtsc" : "=a"(low), "=d"(high));
@@ -59,7 +59,7 @@ TimerCycles::TimerCycles() {
                  (static_cast<std::uint64_t>(high) << 32);
 }
 
-void TimerCycles::stop() {
+inline void TimerCycles::stop() {
   std::uint32_t low;
   std::uint32_t high;
   asm volatile("rdtsc" : "=a"(low), "=d"(high));
@@ -68,7 +68,7 @@ void TimerCycles::stop() {
   nb_cycles_ = point_end - point_begin_;
 }
 
-long int TimerCycles::cycles() const {
+inline long int TimerCycles::cycles() const {
   return static_cast<long int>(nb_cycles_);
 }
 }

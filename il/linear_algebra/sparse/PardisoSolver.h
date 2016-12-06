@@ -20,18 +20,84 @@
 
 namespace il {
 
-class PardisoSolver {
-  static_assert(sizeof(il::int_t) == sizeof(int),
-                "il::PardisoSolver: works only with 32 bit integers");
+template <typename Int>
+class PardisoSizeIntSelector {
+ public:
+  static void pardiso_int_t(_MKL_DSS_HANDLE_t pt, const Int *maxfct,
+                            const Int *mnum, const Int *mtype, const Int *phase,
+                            const Int *n, const void *a, const Int *ia,
+                            const Int *ja, Int *perm, const Int *nrhs,
+                            Int *iparm, const Int *msglvl, void *b, void *x,
+                            Int *error);
+};
 
+template <typename Int>
+void PardisoSizeIntSelector<Int>::pardiso_int_t(
+    _MKL_DSS_HANDLE_t pt, const Int *maxfct, const Int *mnum, const Int *mtype,
+    const Int *phase, const Int *n, const void *a, const Int *ia, const Int *ja,
+    Int *perm, const Int *nrhs, Int *iparm, const Int *msglvl, void *b, void *x,
+    Int *error) {
+  (void)pt;
+  (void)maxfct;
+  (void)mnum;
+  (void)mtype;
+  (void)phase;
+  (void)n;
+  (void)a;
+  (void)ia;
+  (void)ja;
+  (void)perm;
+  (void)nrhs;
+  (void)iparm;
+  (void)msglvl;
+  (void)b;
+  (void)x;
+  (void)error;
+  IL_ASSERT(false);
+}
+
+template <>
+void PardisoSizeIntSelector<int>::pardiso_int_t(
+    _MKL_DSS_HANDLE_t pt, const int *maxfct, const int *mnum, const int *mtype,
+    const int *phase, const int *n, const void *a, const int *ia, const int *ja,
+    int *perm, const int *nrhs, int *iparm, const int *msglvl, void *b, void *x,
+    int *error) {
+  pardiso(pt, maxfct, mnum, mtype, phase, n, a, ia, ja, perm, nrhs, iparm,
+          msglvl, b, x, error);
+}
+
+template <>
+void PardisoSizeIntSelector<std::ptrdiff_t>::pardiso_int_t(
+    _MKL_DSS_HANDLE_t pt, const std::ptrdiff_t *maxfct,
+    const std::ptrdiff_t *mnum, const std::ptrdiff_t *mtype,
+    const std::ptrdiff_t *phase, const std::ptrdiff_t *n, const void *a,
+    const std::ptrdiff_t *ia, const std::ptrdiff_t *ja, std::ptrdiff_t *perm,
+    const std::ptrdiff_t *nrhs, std::ptrdiff_t *iparm,
+    const std::ptrdiff_t *msglvl, void *b, void *x, std::ptrdiff_t *error) {
+  IL_ASSERT(sizeof(long long int) == sizeof(std::ptrdiff_t));
+  pardiso_64(pt, reinterpret_cast<const long long int *>(maxfct),
+             reinterpret_cast<const long long int *>(mnum),
+             reinterpret_cast<const long long int *>(mtype),
+             reinterpret_cast<const long long int *>(phase),
+             reinterpret_cast<const long long int *>(n), a,
+             reinterpret_cast<const long long int *>(ia),
+             reinterpret_cast<const long long int *>(ja),
+             reinterpret_cast<long long int *>(perm),
+             reinterpret_cast<const long long int *>(nrhs),
+             reinterpret_cast<long long int *>(iparm),
+             reinterpret_cast<const long long int *>(msglvl), b, x,
+             reinterpret_cast<long long int *>(error));
+}
+
+class PardisoSolver {
  private:
-  int n_;
-  int pardiso_nrhs_;
-  int pardiso_max_fact_;
-  int pardiso_mnum_;
-  int pardiso_mtype_;
-  int pardiso_msglvl_;
-  int pardiso_iparm_[64];
+  il::int_t n_;
+  il::int_t pardiso_nrhs_;
+  il::int_t pardiso_max_fact_;
+  il::int_t pardiso_mnum_;
+  il::int_t pardiso_mtype_;
+  il::int_t pardiso_msglvl_;
+  il::int_t pardiso_iparm_[64];
   void *pardiso_pt_[64];
   bool is_symbolic_factorization_;
   bool is_numerical_factorization_;
@@ -74,7 +140,7 @@ inline PardisoSolver::PardisoSolver() {
 
   pardiso_msglvl_ = 0;
 
-  for (int i = 0; i < 64; ++i) {
+  for (il::int_t i = 0; i < 64; ++i) {
     pardiso_iparm_[i] = 0;
   }
 
@@ -204,7 +270,7 @@ inline PardisoSolver::PardisoSolver() {
   //      the elements.
   pardiso_iparm_[59] = 0;
 
-  for (int i = 0; i < 64; ++i) {
+  for (il::int_t i = 0; i < 64; ++i) {
     pardiso_pt_[i] = nullptr;
   }
 
@@ -219,15 +285,18 @@ void PardisoSolver::symbolic_factorization(const il::SparseArray2C<double> &A) {
   IL_ASSERT(A.size(0) == A.size(1));
   n_ = A.size(0);
 
-  const int phase = 11;
-  int error = 0;
-  int i_dummy;
+  const il::int_t phase = 11;
+  il::int_t error = 0;
+  il::int_t i_dummy;
 
-  release();
-  pardiso(pardiso_pt_, &pardiso_max_fact_, &pardiso_mnum_, &pardiso_mtype_,
-          &phase, &n_, A.element_data(), A.row_data(), A.column_data(),
-          &i_dummy, &pardiso_nrhs_, pardiso_iparm_, &pardiso_msglvl_, nullptr,
-          nullptr, &error);
+  if (is_numerical_factorization_) {
+    release();
+  }
+  PardisoSizeIntSelector<il::int_t>::pardiso_int_t(
+      pardiso_pt_, &pardiso_max_fact_, &pardiso_mnum_, &pardiso_mtype_, &phase,
+      &n_, A.element_data(), A.row_data(), A.column_data(), &i_dummy,
+      &pardiso_nrhs_, pardiso_iparm_, &pardiso_msglvl_, nullptr, nullptr,
+      &error);
   IL_ASSERT(error == 0);
 
   is_symbolic_factorization_ = true;
@@ -241,14 +310,15 @@ void PardisoSolver::numerical_factorization(
   IL_ASSERT(A.size(0) == n_);
   IL_ASSERT(A.size(1) == n_);
 
-  const int phase = 22;
-  int error = 0;
-  int i_dummy;
+  const il::int_t phase = 22;
+  il::int_t error = 0;
+  il::int_t i_dummy;
 
-  pardiso(pardiso_pt_, &pardiso_max_fact_, &pardiso_mnum_, &pardiso_mtype_,
-          &phase, &n_, A.element_data(), A.row_data(), A.column_data(),
-          &i_dummy, &pardiso_nrhs_, pardiso_iparm_, &pardiso_msglvl_, nullptr,
-          nullptr, &error);
+  PardisoSizeIntSelector<il::int_t>::pardiso_int_t(
+      pardiso_pt_, &pardiso_max_fact_, &pardiso_mnum_, &pardiso_mtype_, &phase,
+      &n_, A.element_data(), A.row_data(), A.column_data(), &i_dummy,
+      &pardiso_nrhs_, pardiso_iparm_, &pardiso_msglvl_, nullptr, nullptr,
+      &error);
   IL_ASSERT(error == 0);
 
   is_numerical_factorization_ = true;
@@ -263,13 +333,14 @@ inline il::Array<double> PardisoSolver::solve(
   IL_ASSERT(y.size() == n_);
   il::Array<double> x{n_};
 
-  const int phase = 33;
-  int error = 0;
-  int i_dummy;
-  pardiso(pardiso_pt_, &pardiso_max_fact_, &pardiso_mnum_, &pardiso_mtype_,
-          &phase, &n_, A.element_data(), A.row_data(), A.column_data(),
-          &i_dummy, &pardiso_nrhs_, pardiso_iparm_, &pardiso_msglvl_,
-          const_cast<double *>(y.data()), x.data(), &error);
+  const il::int_t phase = 33;
+  il::int_t error = 0;
+  il::int_t i_dummy;
+  PardisoSizeIntSelector<il::int_t>::pardiso_int_t(
+      pardiso_pt_, &pardiso_max_fact_, &pardiso_mnum_, &pardiso_mtype_, &phase,
+      &n_, A.element_data(), A.row_data(), A.column_data(), &i_dummy,
+      &pardiso_nrhs_, pardiso_iparm_, &pardiso_msglvl_,
+      const_cast<double *>(y.data()), x.data(), &error);
 
   IL_ASSERT(error == 0);
 
@@ -285,17 +356,18 @@ inline il::Array<double> PardisoSolver::solve_iterative(
   IL_ASSERT(y.size() == n_);
   il::Array<double> x{n_};
 
-  const int old_solver = pardiso_iparm_[3];
+  const il::int_t old_solver = pardiso_iparm_[3];
   // 6 digits of accuracy using LU decomposition
   pardiso_iparm_[3] = 21;
 
-  const int phase = 33;
-  int error = 0;
-  int i_dummy;
-  pardiso(pardiso_pt_, &pardiso_max_fact_, &pardiso_mnum_, &pardiso_mtype_,
-          &phase, &n_, A.element_data(), A.row_data(), A.column_data(),
-          &i_dummy, &pardiso_nrhs_, pardiso_iparm_, &pardiso_msglvl_,
-          const_cast<double *>(y.data()), x.data(), &error);
+  const il::int_t phase = 33;
+  il::int_t error = 0;
+  il::int_t i_dummy;
+  PardisoSizeIntSelector<il::int_t>::pardiso_int_t(
+      pardiso_pt_, &pardiso_max_fact_, &pardiso_mnum_, &pardiso_mtype_, &phase,
+      &n_, A.element_data(), A.row_data(), A.column_data(), &i_dummy,
+      &pardiso_nrhs_, pardiso_iparm_, &pardiso_msglvl_,
+      const_cast<double *>(y.data()), x.data(), &error);
   IL_ASSERT(error == 0);
 
   pardiso_iparm_[3] = old_solver;
@@ -304,13 +376,14 @@ inline il::Array<double> PardisoSolver::solve_iterative(
 }
 
 inline void PardisoSolver::release() {
-  const int phase = -1;
-  int error = 0;
-  int i_dummy;
+  const il::int_t phase = -1;
+  il::int_t error = 0;
+  il::int_t i_dummy;
   if (is_symbolic_factorization_) {
-    PARDISO(pardiso_pt_, &pardiso_max_fact_, &pardiso_mnum_, &pardiso_mtype_,
-            &phase, &n_, nullptr, nullptr, nullptr, &i_dummy, &pardiso_nrhs_,
-            pardiso_iparm_, &pardiso_msglvl_, nullptr, nullptr, &error);
+    PardisoSizeIntSelector<il::int_t>::pardiso_int_t(
+        pardiso_pt_, &pardiso_max_fact_, &pardiso_mnum_, &pardiso_mtype_,
+        &phase, &n_, nullptr, nullptr, nullptr, &i_dummy, &pardiso_nrhs_,
+        pardiso_iparm_, &pardiso_msglvl_, nullptr, nullptr, &error);
     IL_ASSERT(error == 0);
 
     is_symbolic_factorization_ = false;
