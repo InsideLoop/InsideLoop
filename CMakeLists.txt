@@ -194,8 +194,11 @@ set(SOURCE_FILES
 # A test program
 ################################################################################
 
-add_executable(InsideLoop ${SOURCE_FILES} main.cpp)
-#target_include_directories(InsideLoop PRIVATE /opt/viennacl-1.7.1)
+
+add_executable(InsideLoop ${SOURCE_FILES}
+    main.cpp
+    il/linear_algebra/sparse/_test/matrix/heat.cpp)
+target_include_directories(InsideLoop PRIVATE /opt/viennacl-1.7.1)
 target_link_libraries(InsideLoop ${CMAKE_MKL_LIBRARIES} ${CMAKE_PNG_LIBRARIES})
 
 ################################################################################

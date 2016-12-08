@@ -49,7 +49,8 @@ BandArray2C<T>::BandArray2C(il::int_t n, il::int_t width)
 
 template <typename T>
 BandArray2C<T>::BandArray2C(il::int_t n0, il::int_t n1, il::int_t width_left,
-                            il::int_t width_right) : element_{n0, 1 + 2 * width_left + width_right, 0} {
+                            il::int_t width_right)
+    : element_{n0, 1 + 2 * width_left + width_right, 0} {
   n0_ = n0;
   n1_ = n1;
   width_left_ = width_left;

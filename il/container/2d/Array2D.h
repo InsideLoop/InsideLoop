@@ -10,18 +10,18 @@
 #ifndef IL_ARRAY2D_H
 #define IL_ARRAY2D_H
 
-#include <il/base.h>
-
 // <cstring> is needed for memcpy
 #include <cstring>
 // <initializer_list> is needed for std::initializer_list<T>
 #include <initializer_list>
 // <new> is needed for ::operator new
 #include <new>
+// <type_traits> is needed for std::is_pod
+#include <type_traits>
 // <utility> is needed for std::move
 #include <utility>
-// <functional> is needed for std::function
-#include <functional>
+
+#include <il/base.h>
 
 namespace il {
 
@@ -84,15 +84,6 @@ class Array2D {
   // il::Array2D<double> A{3, 5, 3.14};
   */
   explicit Array2D(il::int_t n0, il::int_t n1, const T& x);
-
-  /* \brief Construct an array of n elements with different values given by
-  // a functional
-  //
-  // il::Array<double> v{n,
-  //     [](il::int_t n) -> double { return 1.0 / (i + 1); }};
-  */
-  explicit Array2D(il::int_t n0, il::int_t n1,
-                   std::function<T(il::int_t, il::int_t)> f);
 
   /* \brief Construct an array of n rows and p columns from a brace-initialized
   // list
@@ -401,58 +392,6 @@ Array2D<T>::Array2D(il::int_t n0, il::int_t n1, const T& x) {
       for (il::int_t i1{0}; i1 < n1; ++i1) {
         for (il::int_t i0{0}; i0 < n0; ++i0) {
           new (data_ + i1 * r0 + i0) T(x);
-        }
-      }
-    }
-  } else {
-    data_ = nullptr;
-  }
-#ifdef IL_DEBUG_VISUALIZER
-  debug_size_[0] = n0;
-  debug_size_[1] = n1;
-  debug_capacity_[0] = r0;
-  debug_capacity_[1] = r1;
-#endif
-  size_[0] = data_ + n0;
-  size_[1] = data_ + n1;
-  capacity_[0] = data_ + r0;
-  capacity_[1] = data_ + r1;
-  align_mod_ = 0;
-  align_r_ = 0;
-  new_shift_ = 0;
-}
-
-template <typename T>
-Array2D<T>::Array2D(il::int_t n0, il::int_t n1,
-                    std::function<T(il::int_t, il::int_t)> f) {
-  IL_ASSERT(n0 >= 0);
-  IL_ASSERT(n1 >= 0);
-  il::int_t r0;
-  il::int_t r1;
-  if (n0 > 0 && n1 > 0) {
-    r0 = n0;
-    r1 = n1;
-  } else if (n0 == 0 && n1 == 0) {
-    r0 = 0;
-    r1 = 0;
-  } else {
-    r0 = (n0 == 0) ? 1 : n0;
-    r1 = (n1 == 0) ? 1 : n1;
-  }
-  il::int_t r{r0 * r1};
-  if (r > 0) {
-    if (std::is_pod<T>::value) {
-      data_ = new T[r];
-      for (il::int_t i1{0}; i1 < n1; ++i1) {
-        for (il::int_t i0{0}; i0 < n0; ++i0) {
-          data_[i1 * r0 + i0] = f(i0, i1);
-        }
-      }
-    } else {
-      data_ = static_cast<T*>(::operator new(r * sizeof(T)));
-      for (il::int_t i1{0}; i1 < n1; ++i1) {
-        for (il::int_t i0{0}; i0 < n0; ++i0) {
-          new (data_ + i1 * r0 + i0) T(f(i0, i1));
         }
       }
     }

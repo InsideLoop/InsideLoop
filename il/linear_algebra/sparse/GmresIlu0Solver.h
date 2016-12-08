@@ -49,6 +49,7 @@ class GmresIlu0Solver {
   const double* matrix_element_;
 
  public:
+  GmresIlu0Solver();
   GmresIlu0Solver(double relative_precision, int max_nb_iteration,
                   int restart_iteration);
   void set_relative_precision(double relative_precision);
@@ -63,6 +64,8 @@ class GmresIlu0Solver {
   static void convert_c_to_fortran(il::io_t, il::SparseArray2C<double>& A);
   static void convert_fortran_to_c(il::io_t, il::SparseArray2C<double>& A);
 };
+
+inline GmresIlu0Solver::GmresIlu0Solver() : GmresIlu0Solver{1.0e-3, 100, 20} {}
 
 inline GmresIlu0Solver::GmresIlu0Solver(double relative_precision,
                                         int max_nb_iteration,

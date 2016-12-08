@@ -10,6 +10,8 @@
 #ifndef IL_STATICARRAY2D_H
 #define IL_STATICARRAY2D_H
 
+// <cstring> is needed for memcpy
+#include <cstring>
 // <initializer_list> is needed for std::initializer_list<T>
 #include <initializer_list>
 // <type_traits> is needed for std::is_pod

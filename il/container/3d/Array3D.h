@@ -10,18 +10,18 @@
 #ifndef IL_ARRAY3D_H
 #define IL_ARRAY3D_H
 
-#include <il/base.h>
-
 // <cstring> is needed for memcpy
 #include <cstring>
 // <initializer_list> is needed for std::initializer_list<T>
 #include <initializer_list>
 // <new> is needed for ::operator new
 #include <new>
+// <type_traits> is needed for std::is_pod
+#include <type_traits>
 // <utility> is needed for std::move
 #include <utility>
-// <functional> is needed for std::function
-#include <functional>
+
+#include <il/base.h>
 
 namespace il {
 
@@ -87,15 +87,6 @@ class Array3D {
   // il::Array2D<double> A{3, 5, 7, 3.14};
   */
   explicit Array3D(il::int_t n0, il::int_t n1, il::int_t n2, const T& x);
-
-  /* \brief Construct an array of n elements with different values given by
-  // a functional
-  //
-  // il::Array<double> v{n,
-  //     [](il::int_t n) -> double { return 1.0 / (i + 1); }};
-  */
-  explicit Array3D(il::int_t n0, il::int_t n1, il::int_t n2,
-                   std::function<T(il::int_t, il::int_t, il::int_t)> f);
 
   /* \brief Construct an array of n0 rows, n1 columns and n2 slices using
   // constructor arguments
@@ -462,71 +453,6 @@ Array3D<T>::Array3D(il::int_t n0, il::int_t n1, il::int_t n2, const T& x) {
         for (il::int_t i1 = 0; i1 < n1; ++i1) {
           for (il::int_t i0 = 0; i0 < n0; ++i0) {
             new (data_ + (i2 * r1 + i1) * r0 + i0) T(x);
-          }
-        }
-      }
-    }
-  } else {
-    data_ = nullptr;
-  }
-#ifdef IL_DEBUG_VISUALIZER
-  debug_size_[0] = n0;
-  debug_size_[1] = n1;
-  debug_size_[2] = n2;
-  debug_capacity_[0] = r0;
-  debug_capacity_[1] = r1;
-  debug_capacity_[2] = r2;
-#endif
-  size_[0] = data_ + n0;
-  size_[1] = data_ + n1;
-  size_[2] = data_ + n2;
-  capacity_[0] = data_ + r0;
-  capacity_[1] = data_ + r1;
-  capacity_[2] = data_ + r2;
-  align_mod_ = 0;
-  align_r_ = 0;
-  new_shift_ = 0;
-}
-
-template <typename T>
-Array3D<T>::Array3D(il::int_t n0, il::int_t n1, il::int_t n2,
-                    std::function<T(il::int_t, il::int_t, il::int_t)> f) {
-  IL_ASSERT(n0 >= 0);
-  IL_ASSERT(n1 >= 0);
-  IL_ASSERT(n2 >= 0);
-  il::int_t r0;
-  il::int_t r1;
-  il::int_t r2;
-  if (n0 > 0 && n1 > 0 && n2 > 0) {
-    r0 = n0;
-    r1 = n1;
-    r2 = n2;
-  } else if (n0 == 0 && n1 == 0 && n2 == 0) {
-    r0 = 0;
-    r1 = 0;
-    r2 = 0;
-  } else {
-    r0 = (n0 == 0) ? 1 : n0;
-    r1 = (n1 == 0) ? 1 : n1;
-    r2 = (n2 == 0) ? 1 : n2;
-  }
-  il::int_t r = r0 * r1 * r2;
-  if (r > 0) {
-    if (std::is_pod<T>::value) {
-      data_ = new T[r];
-      for (il::int_t i2 = 0; i2 < n2; ++i2) {
-        for (il::int_t i1 = 0; i1 < n1; ++i1) {
-          for (il::int_t i0 = 0; i0 < n0; ++i0) {
-            data_[(i2 * r1 + i1) * r0 + i0] = f(i0, i1, i2);
-          }
-        }
-      }
-    } else {
-      data_ = static_cast<T*>(::operator new(r * sizeof(T)));
-      for (il::int_t i2 = 0; i2 < n2; ++i2) {
-        for (il::int_t i1 = 0; i1 < n1; ++i1) {
-          for (il::int_t i0 = 0; i0 < n0; ++i0) {
-            new (data_ + (i2 * r1 + i1) * r0 + i0) T(f(i0, i1, i2));
           }
         }
       }

@@ -35,6 +35,13 @@ struct abort_exception {};
 #define IL_ASSERT(condition) (condition) ? ((void)0) : ::abort()
 #endif
 
+#ifdef IL_UNIT_TEST
+#define IL_ASSERT_PRECOND(condition) \
+  (condition) ? ((void)0) : throw il::abort_exception {}
+#else
+#define IL_ASSERT_PRECOND(condition) (condition) ? ((void)0) : ::abort()
+#endif
+
 // IL_ASSERT_BOUNDS is used for bounds checking in Array containers
 // - in debug mode, the program is aborted
 // - in release mode, no bounds checking is done

@@ -16,6 +16,8 @@
 #include <initializer_list>
 // <new> is needed for ::operator new
 #include <new>
+// <type_traits> is needed for std::is_pod
+#include <type_traits>
 // <utility> is needed for std::move
 #include <utility>
 

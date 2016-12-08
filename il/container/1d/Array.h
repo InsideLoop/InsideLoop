@@ -10,20 +10,18 @@
 #ifndef IL_ARRAY_H
 #define IL_ARRAY_H
 
-#include <il/base.h>
-
 // <cstring> is needed for memcpy
 #include <cstring>
 // <initializer_list> is needed for std::initializer_list<T>
 #include <initializer_list>
 // <new> is needed for ::operator new
 #include <new>
-// <utility> is needed for std::move
-#include <utility>
-// <functional> is needed for std::function
-#include <functional>
 // <type_traits> is needed for std::is_pod
 #include <type_traits>
+// <utility> is needed for std::move
+#include <utility>
+
+#include <il/base.h>
 
 namespace il {
 
@@ -91,14 +89,6 @@ class Array {
   */
   explicit Array(il::int_t n, const T& x, il::align_t, short align_r,
                  short align_mod);
-
-  /* \brief Construct an array of n elements with different values given by
-  // a functional
-  //
-  // il::Array<double> v{n,
-  //     [](il::int_t n) -> double { return 1.0 / (i + 1); }};
-  */
-  explicit Array(il::int_t, std::function<T(il::int_t)> f);
 
   /* \brief Construct an array of n elements with a constructor arguments
   //
@@ -439,35 +429,6 @@ Array<T>::Array(il::int_t n, const T& x, il::align_t, short align_r,
 #endif
   size_ = data_ + n;
   capacity_ = data_ + n;
-}
-
-template <typename T>
-Array<T>::Array(il::int_t n, std::function<T(il::int_t)> f) {
-  IL_ASSERT(n >= 0);
-  if (n > 0) {
-    if (std::is_pod<T>::value) {
-      data_ = new T[n];
-      for (il::int_t i{0}; i < n; ++i) {
-        data_[i] = f(i);
-      }
-    } else {
-      data_ = static_cast<T*>(::operator new(n * sizeof(T)));
-      for (il::int_t i{0}; i < n; ++i) {
-        new (data_ + i) T(f(i));
-      }
-    }
-  } else {
-    data_ = nullptr;
-  }
-#ifdef IL_DEBUG_VISUALIZER
-  debug_size_ = n;
-  debug_capacity_ = n;
-#endif
-  size_ = data_ + n;
-  capacity_ = data_ + n;
-  align_mod_ = 0;
-  align_r_ = 0;
-  new_shift_ = 0;
 }
 
 template <typename T>

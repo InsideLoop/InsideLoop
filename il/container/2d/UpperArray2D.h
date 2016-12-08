@@ -10,16 +10,18 @@
 #ifndef IL_UPPERARRAY2D_H
 #define IL_UPPERARRAY2D_H
 
-#include <il/base.h>
-
 // <cstring> is needed for memcpy
 #include <cstring>
 // <initializer_list> is needed for std::initializer_list<T>
 #include <initializer_list>
 // <new> is needed for ::operator new
 #include <new>
+// <type_traits> is needed for std::is_pod
+#include <type_traits>
 // <utility> is needed for std::move
 #include <utility>
+
+#include <il/base.h>
 
 namespace il {
 

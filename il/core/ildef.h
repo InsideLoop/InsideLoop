@@ -12,12 +12,10 @@
 
 // <cstddef> is needed for std::size_t and std::ptrdiff_t
 #include <cstddef>
+// <cstdlib> is needed for std::malloc, std::abort, etc
 #include <cstdlib>
-#include <cstdint>
-#include <climits>
+// <limits> is needed for std::numeric_limits
 #include <limits>
-#include <cmath>
-#include <initializer_list>
 
 #include <il/core/config.h>
 
@@ -26,11 +24,11 @@ namespace il {
 #ifdef IL_INTEGER_INT
 typedef int int_t;
 typedef unsigned int uint_t;
-const int_t int_t_max{INT_MAX};
+const int_t int_t_max = std::numeric_limits<int>::max();
 #else
 typedef std::ptrdiff_t int_t;
 typedef std::size_t uint_t;
-const int_t int_t_max{PTRDIFF_MAX};
+const int_t int_t_max = std::numeric_limits<std::ptrdiff_t>::max();;
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -47,10 +45,10 @@ struct align_t {};
 const align_t align{};
 
 #define IL_SIMD 32
-const short simd{IL_SIMD};
+const short simd = IL_SIMD;
 #define IL_CACHELINE 64
-const short cacheline{IL_CACHELINE};
-const short page{4096};
+const short cacheline = IL_CACHELINE;
+const short page = 4096;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Default values for containers in debug mode
@@ -105,6 +103,7 @@ template <>
 inline unsigned long int default_value<unsigned long int>() {
   return (sizeof(long int) == 8) ? 1234567891234567891 : 1234567891;
 }
+
 }
 
 #endif  // IL_ILDEF_H

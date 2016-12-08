@@ -10,12 +10,14 @@
 #ifndef IL_STATICARRAY3D_H
 #define IL_STATICARRAY3D_H
 
+// <cstring> is needed for memcpy
+#include <cstring>
 // <initializer_list> is needed for std::initializer_list<T>
 #include <initializer_list>
 // <type_traits> is needed for std::is_pod
 #include <type_traits>
 
-#include <il/container/3d/Array3DView.h>
+#include <il/base.h>
 
 namespace il {
 

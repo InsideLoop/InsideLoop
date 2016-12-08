@@ -6,3 +6,6 @@
 // License. See LICENSE.txt for details.
 //
 //==============================================================================
+
+#include <il/container/4d/Array4D.h>
+
