@@ -136,6 +136,7 @@ set(SOURCE_FILES
     il/Array2C.h
     il/Array3D.h
     il/Array4D.h
+    il/Array4C.h
     il/ArrayView.h
     il/BandArray2C.h
     il/base.h
@@ -169,6 +170,7 @@ set(SOURCE_FILES
     il/container/3d/Array3DView.h
     il/container/3d/StaticArray3D.h
     il/container/4d/Array4D.h
+    il/container/4d/Array4C.h
     il/container/hash_table/HashFunction.h
     il/container/hash_table/HashTable.h
     il/core/config.h
