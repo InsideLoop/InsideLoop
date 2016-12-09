@@ -135,6 +135,7 @@ set(SOURCE_FILES
     il/Array2D.h
     il/Array2C.h
     il/Array3D.h
+    il/Array4D.h
     il/ArrayView.h
     il/BandArray2C.h
     il/base.h

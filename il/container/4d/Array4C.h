@@ -7,8 +7,8 @@
 //
 //==============================================================================
 
-#ifndef IL_ARRAY4D_H
-#define IL_ARRAY4D_H
+#ifndef IL_ARRAY4C_H
+#define IL_ARRAY4C_H
 
 // <cstring> is needed for memcpy
 #include <cstring>
@@ -26,7 +26,7 @@
 namespace il {
 
 template <typename T>
-class Array4D {
+class Array4C {
  private:
 #ifdef IL_DEBUG_VISUALIZER
   il::int_t debug_size_[4];
@@ -41,9 +41,9 @@ class Array4D {
   // \details The size and the capacity of the array are set to 0 and no memory
   // allocation is done during the process.
   */
-  Array4D();
+  Array4C();
 
-  /* \brief Construct an il::Array4D<T> of n rows and p columns and q slices
+  /* \brief Construct an il::Array4C<T> of n rows and p columns and q slices
   // \details The row size and the row capacity of the array are set to n. The
   // column size and the column capacity of the array are set to p. The slice
   // size and the slice capacity of the array are set to q.
@@ -58,9 +58,9 @@ class Array4D {
   //   constructor.
   //
   // // Construct an array of double with 3 rows, 5 columns and 7 slices.
-  // il::Array4D<double> A{3, 5, 7};
+  // il::Array4C<double> A{3, 5, 7};
   */
-  explicit Array4D(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3);
+  explicit Array4C(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3);
 
   /* \brief Construct an array of n rows and p columns with a value
   /
@@ -68,7 +68,7 @@ class Array4D {
   // // 3.14.
   // il::Array2D<double> A{3, 5, 3.14};
   */
-  explicit Array4D(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3,
+  explicit Array4C(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3,
                    il::value_t, const T& x);
 
   /* \brief Construct an array of n rows, p columns and q slices using
@@ -76,42 +76,42 @@ class Array4D {
   /
   // // Construct an array of 3 by 5 by 7 il::Array<double>, all of length 9 and
   // // initialized with 3.14
-  // il::Array4D<il::Array<double>> v{3, 5, 7, il::emplace, 9, 3.14};
+  // il::Array4C<il::Array<double>> v{3, 5, 7, il::emplace, 9, 3.14};
   */
   template <typename... Args>
-  explicit Array4D(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3,
+  explicit Array4C(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3,
                    il::emplace_t, Args&&... args);
 
   /* \brief The copy constructor
-  // \details The different size and capacity of the constructed il::Array4D<T>
+  // \details The different size and capacity of the constructed il::Array4C<T>
   // are equal to the size of the source array.
   */
-  Array4D(const Array4D<T>& A);
+  Array4C(const Array4C<T>& A);
 
   /* \brief The move constructor
   */
-  Array4D(Array4D<T>&& A);
+  Array4C(Array4C<T>&& A);
 
   /* \brief The copy assignment
   // \details The size is the same as the one for the source array. The
   // capacity is not changed if it is enough for the copy to happen and is
   // set to the size of the source array if the initial capacity is too low.
   */
-  Array4D& operator=(const Array4D<T>& A);
+  Array4C& operator=(const Array4C<T>& A);
 
   /* \brief The move assignment
   */
-  Array4D& operator=(Array4D<T>&& A);
+  Array4C& operator=(Array4C<T>&& A);
 
   /* \brief The destructor
   */
-  ~Array4D();
+  ~Array4C();
 
   /* \brief Accessor for a const il::4DArray<T>
   // \details Access (read only) the (i0, i1, i2, i3)-th element of the array.
   // Bound checking is done in debug mode but not in release mode.
   //
-  // il::Array4D<double> A{4, 6, 7, 8};
+  // il::Array4C<double> A{4, 6, 7, 8};
   // std::cout << A(3, 5, 6, 4) << std::endl;
   */
   const T& operator()(il::int_t i0, il::int_t i1, il::int_t i2,
@@ -121,12 +121,12 @@ class Array4D {
   // \details Access (read and write) the (i0, i1, i2, i3)-th element of the
   // array. Bound checking is done in debug mode but not in release mode.
   //
-  // il::Array4D<double> A{4, 6, 7, 8};
+  // il::Array4C<double> A{4, 6, 7, 8};
   // A(0, 0, 0, 0) = 3.14;
   */
   T& operator()(il::int_t i0, il::int_t i1, il::int_t i2, il::int_t i3);
 
-  /* \brief Get the size of the il::Array4D<T>
+  /* \brief Get the size of the il::Array4C<T>
   // \details size(0) returns the number of rows of the array and size(1)
   // returns the number of columns of the same array and size(2) return the
   // number of slices of the array. The library has been designed in a way that
@@ -136,11 +136,11 @@ class Array4D {
   // beginning of the loop in the following example. It allows many
   // optimizations from the compiler, including automatic vectorization.
   //
-  // il::Array4D<double> A{n0, n1, n2, n3};
-  // for (il::int_t i3 = 0; i3 < v.size(3); ++i3) {
-  //   for (il::int_t i2 = 0; i2 < v.size(2); ++i2) {
-  //     for (il::int_t i1 = 0; i1 < v.size(1); ++i1) {
-  //       for (il::int_t i0 = 0; i0 < v.size(0); ++i0) {
+  // il::Array4C<double> A{n0, n1, n2, n3};
+  // for (il::int_t i0 = 0; i0 < v.size(0); ++i0) {
+  //   for (il::int_t i1 = 0; i1 < v.size(1); ++i1) {
+  //     for (il::int_t i2 = 0; i2 < v.size(2); ++i2) {
+  //       for (il::int_t i3 = 0; i3 < v.size(3); ++i3) {
   //         A(i0, i1, i2, i3) = 1.0 / (1 + i0 + i1 + i2 + i3);
   //       }
   //     }
@@ -149,7 +149,7 @@ class Array4D {
   */
   il::int_t size(il::int_t d) const;
 
-  /* \brief Resizing an il::Array4D<T>
+  /* \brief Resizing an il::Array4C<T>
   // \details No reallocation is performed if the new size is <= to the
   // capacity for both rows, columns and slices. In this case, the capacity is
   // unchanged. When one of the sizes is > than the the capacity, reallocation
@@ -157,7 +157,7 @@ class Array4D {
   */
   void resize(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3);
 
-  /* \brief Get the capacity of the il::Array4D<T>
+  /* \brief Get the capacity of the il::Array4C<T>
   // \details capacity(0) gives the capacity in terms of rows and capacity(1)
   // gives the capacity in terms of columns and capacity(2) gives the capacity
   // in terms of slices.
@@ -194,7 +194,7 @@ class Array4D {
 };
 
 template <typename T>
-Array4D<T>::Array4D() {
+Array4C<T>::Array4C() {
 #ifdef IL_DEBUG_VISUALIZER
   debug_size_[0] = 0;
   debug_size_[1] = 0;
@@ -217,7 +217,7 @@ Array4D<T>::Array4D() {
 }
 
 template <typename T>
-Array4D<T>::Array4D(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3) {
+Array4C<T>::Array4C(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3) {
   IL_ASSERT_PRECOND(n0 >= 0);
   IL_ASSERT_PRECOND(n1 >= 0);
   IL_ASSERT_PRECOND(n2 >= 0);
@@ -247,11 +247,11 @@ Array4D<T>::Array4D(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3) {
     if (std::is_pod<T>::value) {
       data_ = new T[r];
 #ifdef IL_DEFAULT_VALUE
-      for (il::int_t i3 = 0; i3 < n3; ++i3) {
-        for (il::int_t i2 = 0; i2 < n2; ++i2) {
-          for (il::int_t i1 = 0; i1 < n1; ++i1) {
-            for (il::int_t i0 = 0; i0 < n0; ++i0) {
-              data_[((i3 * r2 + i2) * r1 + i1) * r0 + i0] =
+      for (il::int_t i0 = 0; i0 < n0; ++i0) {
+        for (il::int_t i1 = 0; i1 < n1; ++i1) {
+          for (il::int_t i2 = 0; i2 < n2; ++i2) {
+            for (il::int_t i3 = 0; i3 < n3; ++i3) {
+              data_[((i0 * r1 + i1) * r2 + i2) * r3 + i3] =
                   il::default_value<T>();
             }
           }
@@ -260,11 +260,11 @@ Array4D<T>::Array4D(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3) {
 #endif
     } else {
       data_ = static_cast<T*>(::operator new(r * sizeof(T)));
-      for (il::int_t i3 = 0; i3 < n3; ++i3) {
-        for (il::int_t i2 = 0; i2 < n2; ++i2) {
-          for (il::int_t i1 = 0; i1 < n1; ++i1) {
-            for (il::int_t i0 = 0; i0 < n0; ++i0) {
-              new (data_ + ((i3 * r2 + i2) * r1 + i1) * r0 + i0) T{};
+      for (il::int_t i0 = 0; i0 < n0; ++i0) {
+        for (il::int_t i1 = 0; i1 < n1; ++i1) {
+          for (il::int_t i2 = 0; i2 < n2; ++i2) {
+            for (il::int_t i3 = 0; i3 < n3; ++i3) {
+              new (data_ + ((i0 * r1 + i1) * r2 + i2) * r3 + i3) T{};
             }
           }
         }
@@ -294,7 +294,7 @@ Array4D<T>::Array4D(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3) {
 }
 
 template <typename T>
-Array4D<T>::Array4D(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3,
+Array4C<T>::Array4C(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3,
                     il::value_t, const T& x) {
   IL_ASSERT_PRECOND(n0 >= 0);
   IL_ASSERT_PRECOND(n1 >= 0);
@@ -324,22 +324,23 @@ Array4D<T>::Array4D(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3,
   if (r > 0) {
     if (std::is_pod<T>::value) {
       data_ = new T[r];
-      for (il::int_t i3 = 0; i3 < n3; ++i3) {
-        for (il::int_t i2 = 0; i2 < n2; ++i2) {
-          for (il::int_t i1 = 0; i1 < n1; ++i1) {
-            for (il::int_t i0 = 0; i0 < n0; ++i0) {
-              data_[((i3 * r2 + i2) * r1 + i1) * r0 + i0] = x;
+      for (il::int_t i0 = 0; i0 < n0; ++i0) {
+        for (il::int_t i1 = 0; i1 < n1; ++i1) {
+          for (il::int_t i2 = 0; i2 < n2; ++i2) {
+            for (il::int_t i3 = 0; i3 < n3; ++i3) {
+              data_[((i0 * r1 + i1) * r2 + i2) * r3 + i3] = x;
+              il::default_value<T>();
             }
           }
         }
       }
     } else {
       data_ = static_cast<T*>(::operator new(r * sizeof(T)));
-      for (il::int_t i3 = 0; i3 < n3; ++i3) {
-        for (il::int_t i2 = 0; i2 < n2; ++i2) {
-          for (il::int_t i1 = 0; i1 < n1; ++i1) {
-            for (il::int_t i0 = 0; i0 < n0; ++i0) {
-              new (data_ + ((i3 * r2 + i2) * r1 + i1) * r0 + i0) T(x);
+      for (il::int_t i0 = 0; i0 < n0; ++i0) {
+        for (il::int_t i1 = 0; i1 < n1; ++i1) {
+          for (il::int_t i2 = 0; i2 < n2; ++i2) {
+            for (il::int_t i3 = 0; i3 < n3; ++i3) {
+              new (data_ + ((i0 * r1 + i1) * r2 + i2) * r3 + i3) T(x);
             }
           }
         }
@@ -370,7 +371,7 @@ Array4D<T>::Array4D(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3,
 
 template <typename T>
 template <typename... Args>
-Array4D<T>::Array4D(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3,
+Array4C<T>::Array4C(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3,
                     il::emplace_t, Args&&... args) {
   IL_ASSERT_PRECOND(n0 >= 0);
   IL_ASSERT_PRECOND(n1 >= 0);
@@ -406,11 +407,11 @@ Array4D<T>::Array4D(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3,
   } else {
     data_ = nullptr;
   }
-  for (il::int_t i3 = 0; i3 < n3; ++i3) {
-    for (il::int_t i2 = 0; i2 < n2; ++i2) {
-      for (il::int_t i1 = 0; i1 < n1; ++i1) {
-        for (il::int_t i0 = 0; i0 < n0; ++i0) {
-          new (data_ + ((i3 * r2 + i2) * r1 + i1) * r0 + i0) T(args...);
+  for (il::int_t i0 = 0; i0 < n0; ++i0) {
+    for (il::int_t i1 = 0; i1 < n1; ++i1) {
+      for (il::int_t i2 = 0; i2 < n2; ++i2) {
+        for (il::int_t i3 = 0; i3 < n3; ++i3) {
+          new (data_ + ((i0 * r1 + i1) * r2 + i2) * r3 + i3) T(args...);
         }
       }
     }
@@ -436,7 +437,7 @@ Array4D<T>::Array4D(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3,
 }
 
 template <typename T>
-Array4D<T>::Array4D(const Array4D<T>& A) {
+Array4C<T>::Array4C(const Array4C<T>& A) {
   const il::int_t n0 = A.size(0);
   const il::int_t n1 = A.size(1);
   const il::int_t n2 = A.size(2);
@@ -464,24 +465,24 @@ Array4D<T>::Array4D(const Array4D<T>& A) {
   const il::int_t r = r0 * r1 * r2 * r3;
   if (std::is_pod<T>::value) {
     data_ = new T[r];
-    for (il::int_t i3 = 0; i3 < n3; ++i3) {
-      for (il::int_t i2 = 0; i2 < n2; ++i2) {
-        for (il::int_t i1 = 0; i1 < n1; ++i1) {
-          memcpy(data_ + ((i3 * r2 + i2) * r1 + i1) * r0,
+    for (il::int_t i0 = 0; i0 < n0; ++i0) {
+      for (il::int_t i1 = 0; i1 < n1; ++i1) {
+        for (il::int_t i2 = 0; i2 < n2; ++i2) {
+          memcpy(data_ + ((i0 * r1 + i1) * r2 + i2) * r3,
                  A.data_ +
-                     ((i3 * A.capacity(2) + i2) * A.capacity(1) + i1) *
-                         A.capacity(0),
-                 n0 * sizeof(T));
+                     ((i0 * A.capacity(1) + i1) * A.capacity(2) + i2) *
+                         A.capacity(3),
+                 n3 * sizeof(T));
         }
       }
     }
   } else {
     data_ = static_cast<T*>(::operator new(r * sizeof(T)));
-    for (il::int_t i3 = 0; i3 < n3; ++i3) {
-      for (il::int_t i2 = 0; i2 < n2; ++i2) {
-        for (il::int_t i1 = 0; i1 < n1; ++i1) {
-          for (il::int_t i0 = 0; i0 < n0; ++i0) {
-            new (data_ + ((i3 * r2 + i2) * r1 + i1) * r0 + i0)
+    for (il::int_t i0 = 0; i0 < n0; ++i0) {
+      for (il::int_t i1 = 0; i1 < n1; ++i1) {
+        for (il::int_t i2 = 0; i2 < n2; ++i2) {
+          for (il::int_t i3 = 0; i3 < n3; ++i3) {
+            new (data_ + ((i0 * r1 + i1) * r2 + i2) * r3 + i3)
                 T(A(i0, i1, i2, i3));
           }
         }
@@ -509,7 +510,7 @@ Array4D<T>::Array4D(const Array4D<T>& A) {
 }
 
 template <typename T>
-Array4D<T>::Array4D(Array4D<T>&& A) {
+Array4C<T>::Array4C(Array4C<T>&& A) {
 #ifdef IL_DEBUG_VISUALIZER
   debug_size_[0] = A.debug_size_[0];
   debug_size_[1] = A.debug_size_[1];
@@ -551,7 +552,7 @@ Array4D<T>::Array4D(Array4D<T>&& A) {
 }
 
 template <typename T>
-Array4D<T>& Array4D<T>::operator=(const Array4D<T>& A) {
+Array4C<T>& Array4C<T>::operator=(const Array4C<T>& A) {
   if (this != &A) {
     const il::int_t n0 = A.size(0);
     const il::int_t n1 = A.size(1);
@@ -586,26 +587,27 @@ Array4D<T>& Array4D<T>::operator=(const Array4D<T>& A) {
           delete[] data_;
         }
         data_ = new T[r];
-        for (il::int_t i3 = 0; i3 < n3; ++i3) {
-          for (il::int_t i2 = 0; i2 < n2; ++i2) {
-            for (il::int_t i1 = 0; i1 < n1; ++i1) {
-              memcpy(data_ + ((i3 * r2 + i2) * r1 + i1) * r0,
+        for (il::int_t i0 = 0; i0 < n0; ++i0) {
+          for (il::int_t i1 = 0; i1 < n1; ++i1) {
+            for (il::int_t i2 = 0; i2 < n2; ++i2) {
+              memcpy(data_ + ((i0 * r1 + i1) * r2 + i2) * r3,
                      A.data_ +
-                         ((i3 * A.capacity(2) + i2) * A.capacity(1) + i1) *
-                             A.capacity(0),
-                     n0 * sizeof(T));
+                         ((i0 * A.capacity(1) + i1) * A.capacity(2) + i2) *
+                             A.capacity(3),
+                     n3 * sizeof(T));
             }
           }
         }
       } else {
         if (data_) {
-          for (il::int_t i3 = size(3) - 1; i3 >= 0; --i3) {
-            for (il::int_t i2 = size(2) - 1; i2 >= 0; --i2) {
-              for (il::int_t i1 = size(1) - 1; i1 >= 0; --i1) {
-                for (il::int_t i0 = size(0) - 1; i0 >= 0; --i0) {
+          for (il::int_t i0 = size(0) - 1; i0 >= 0; --i0) {
+            for (il::int_t i1 = size(1) - 1; i1 >= 0; --i1) {
+              for (il::int_t i2 = size(2) - 1; i2 >= 0; --i2) {
+                for (il::int_t i3 = size(3) - 1; i3 >= 0; --i3) {
                   (data_ +
-                   ((i3 * capacity(2) + i2) * capacity(1) + i1) * capacity(0) +
-                   i0)->~T();
+                   ((i0 * A.capacity(1) + i1) * A.capacity(2) + i2) *
+                       A.capacity(3) +
+                   i3)->~T();
                 }
               }
             }
@@ -613,11 +615,11 @@ Array4D<T>& Array4D<T>::operator=(const Array4D<T>& A) {
           ::operator delete(data_);
         }
         data_ = static_cast<T*>(::operator new(r * sizeof(T)));
-        for (il::int_t i3 = 0; i3 < n3; ++i3) {
-          for (il::int_t i2 = 0; i2 < n2; ++i2) {
-            for (il::int_t i1 = 0; i1 < n1; ++i1) {
-              for (il::int_t i0 = 0; i0 < n0; ++i0) {
-                new (data_ + ((i3 * r2 + i2) * r1 + i1) * r0 + i0)
+        for (il::int_t i0 = 0; i0 < n0; ++i0) {
+          for (il::int_t i1 = 0; i1 < n1; ++i1) {
+            for (il::int_t i2 = 0; i2 < n2; ++i2) {
+              for (il::int_t i3 = 0; i3 < n3; ++i3) {
+                new (data_ + ((i0 * r1 + i1) * r2 + i2) * r3 + i3)
                     T(A(i0, i1, i2, i3));
               }
             }
@@ -644,40 +646,40 @@ Array4D<T>& Array4D<T>::operator=(const Array4D<T>& A) {
       capacity_[3] = data_ + r3;
     } else {
       if (std::is_pod<T>::value) {
-        for (il::int_t i3 = 0; i3 < n3; ++i3) {
-          for (il::int_t i2 = 0; i2 < n2; ++i2) {
-            for (il::int_t i1 = 0; i1 < n1; ++i1) {
+        for (il::int_t i0 = 0; i0 < n0; ++i0) {
+          for (il::int_t i1 = 0; i1 < n1; ++i1) {
+            for (il::int_t i2 = 0; i2 < n2; ++i2) {
               memcpy(data_ +
-                         ((i3 * capacity(2) + i2) * capacity(1) + i1) *
-                             capacity(0),
+                         ((i0 * capacity(1) + i1) * capacity(2) + i2) *
+                             capacity(3),
                      A.data_ +
-                         ((i3 * A.capacity(2) + i2) * A.capacity(1) + i1) *
-                             A.capacity(0),
-                     n0 * sizeof(T));
+                         ((i0 * A.capacity(1) + i1) * A.capacity(2) + i2) *
+                             A.capacity(3),
+                     n3 * sizeof(T));
             }
           }
         }
       } else {
-        for (il::int_t i3 = 0; i3 < n3; ++i3) {
-          for (il::int_t i2 = 0; i2 < n2; ++i2) {
-            for (il::int_t i1 = 0; i1 < n1; ++i1) {
-              for (il::int_t i0 = 0; i0 < n0; ++i0) {
-                data_[((i3 * capacity(2) + i2) * capacity(1) + i1) *
-                          capacity(0) +
-                      i0] = A(i0, i1, i2, i3);
+        for (il::int_t i0 = 0; i0 < n0; ++i0) {
+          for (il::int_t i1 = 0; i1 < n1; ++i1) {
+            for (il::int_t i2 = 0; i2 < n2; ++i2) {
+              for (il::int_t i3 = 0; i3 < n3; ++i3) {
+                data_[((i0 * capacity(1) + i1) * capacity(2) + i2) *
+                          capacity(3) +
+                      i3] = A(i0, i1, i2, i3);
               }
             }
           }
         }
-        for (il::int_t i3 = size(3) - 1; i3 >= 0; --i3) {
-          for (il::int_t i2 = size(2) - 1; i2 >= 0; --i2) {
-            for (il::int_t i1 = size(1) - 1; i1 >= 0; --i1) {
-              for (il::int_t i0 = size(0) - 1;
-                   i0 >= (((i1 < n1) && (i2 < n2) && (i3 < n3)) ? n0 : 0);
-                   --i0) {
+        for (il::int_t i0 = size(0) - 1; i0 >= 0; --i0) {
+          for (il::int_t i1 = size(1) - 1; i1 >= 0; --i1) {
+            for (il::int_t i2 = size(2) - 1; i2 >= 0; --i2) {
+              for (il::int_t i3 = size(3) - 1;
+                   i3 >= (((i0 < n0) && (i1 < n1) && (i2 < n2)) ? n3 : 0);
+                   --i3) {
                 (data_ +
-                 ((i3 * capacity(2) + i2) * capacity(1) + i1) * capacity(0) +
-                 i0)->~T();
+                 ((i0 * capacity(1) + i1) * capacity(2) + i2) * capacity(3) +
+                 i3)->~T();
               }
             }
           }
@@ -699,19 +701,19 @@ Array4D<T>& Array4D<T>::operator=(const Array4D<T>& A) {
 }
 
 template <typename T>
-Array4D<T>& Array4D<T>::operator=(Array4D<T>&& A) {
+Array4C<T>& Array4C<T>::operator=(Array4C<T>&& A) {
   if (this != &A) {
     if (data_) {
       if (std::is_pod<T>::value) {
         delete[] data_;
       } else {
-        for (il::int_t i3 = size(3) - 1; i3 >= 0; --i3) {
-          for (il::int_t i2 = size(2) - 1; i2 >= 0; --i2) {
-            for (il::int_t i1 = size(1) - 1; i1 >= 0; --i1) {
-              for (il::int_t i0 = size(0) - 1; i0 >= 0; --i0) {
+        for (il::int_t i0 = size(0) - 1; i0 >= 0; --i0) {
+          for (il::int_t i1 = size(1) - 1; i1 >= 0; --i1) {
+            for (il::int_t i2 = size(2) - 1; i2 >= 0; --i2) {
+              for (il::int_t i3 = size(3) - 1; i3 >= 0; --i3) {
                 (data_ +
-                 ((i3 * capacity(2) + i2) * capacity(1) + i1) * capacity(0) +
-                 i0)->~T();
+                 ((i0 * capacity(1) + i1) * capacity(2) + i2) * capacity(3) +
+                 i3)->~T();
               }
             }
           }
@@ -762,7 +764,7 @@ Array4D<T>& Array4D<T>::operator=(Array4D<T>&& A) {
 }
 
 template <typename T>
-Array4D<T>::~Array4D() {
+Array4C<T>::~Array4C() {
 #ifndef NDEBUG
   check_invariance();
 #endif
@@ -770,13 +772,13 @@ Array4D<T>::~Array4D() {
     if (std::is_pod<T>::value) {
       delete[] data_;
     } else {
-      for (il::int_t i3 = size(3) - 1; i3 >= 0; --i3) {
-        for (il::int_t i2 = size(2) - 1; i2 >= 0; --i2) {
-          for (il::int_t i1 = size(1) - 1; i1 >= 0; --i1) {
-            for (il::int_t i0 = size(0) - 1; i0 >= 0; --i0) {
+      for (il::int_t i0 = size(0) - 1; i0 >= 0; --i0) {
+        for (il::int_t i1 = size(1) - 1; i1 >= 0; --i1) {
+          for (il::int_t i2 = size(2) - 1; i2 >= 0; --i2) {
+            for (il::int_t i3 = size(3) - 1; i3 >= 0; --i3) {
               (data_ +
-               ((i3 * capacity(2) + i2) * capacity(1) + i1) * capacity(0) +
-               i0)->~T();
+               ((i0 * capacity(1) + i1) * capacity(2) + i2) * capacity(3) +
+               i3)->~T();
             }
           }
         }
@@ -787,7 +789,7 @@ Array4D<T>::~Array4D() {
 }
 
 template <typename T>
-const T& Array4D<T>::operator()(il::int_t i0, il::int_t i1, il::int_t i2,
+const T& Array4C<T>::operator()(il::int_t i0, il::int_t i1, il::int_t i2,
                                 il::int_t i3) const {
   IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i0) <
                    static_cast<il::uint_t>(size(0)));
@@ -797,14 +799,14 @@ const T& Array4D<T>::operator()(il::int_t i0, il::int_t i1, il::int_t i2,
                    static_cast<il::uint_t>(size(2)));
   IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i3) <
                    static_cast<il::uint_t>(size(3)));
-  return data_[((i3 * (capacity_[2] - data_) + i2) * (capacity_[1] - data_) +
-                i1) *
-                   (capacity_[0] - data_) +
-               i0];
+  return data_[((i0 * (capacity_[1] - data_) + i1) * (capacity_[2] - data_) +
+                i2) *
+                   (capacity_[3] - data_) +
+               i3];
 }
 
 template <typename T>
-T& Array4D<T>::operator()(il::int_t i0, il::int_t i1, il::int_t i2,
+T& Array4C<T>::operator()(il::int_t i0, il::int_t i1, il::int_t i2,
                           il::int_t i3) {
   IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i0) <
                    static_cast<il::uint_t>(size(0)));
@@ -814,20 +816,20 @@ T& Array4D<T>::operator()(il::int_t i0, il::int_t i1, il::int_t i2,
                    static_cast<il::uint_t>(size(2)));
   IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i3) <
                    static_cast<il::uint_t>(size(3)));
-  return data_[((i3 * (capacity_[2] - data_) + i2) * (capacity_[1] - data_) +
-                i1) *
-                   (capacity_[0] - data_) +
-               i0];
+  return data_[((i0 * (capacity_[1] - data_) + i1) * (capacity_[2] - data_) +
+                i2) *
+                   (capacity_[3] - data_) +
+               i3];
 }
 
 template <typename T>
-il::int_t Array4D<T>::size(il::int_t d) const {
+il::int_t Array4C<T>::size(il::int_t d) const {
   IL_ASSERT(static_cast<il::uint_t>(d) < static_cast<il::uint_t>(4));
   return static_cast<il::int_t>(size_[d] - data_);
 }
 
 template <typename T>
-void Array4D<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2,
+void Array4C<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2,
                         il::int_t n3) {
   IL_ASSERT_PRECOND(n0 >= 0);
   IL_ASSERT_PRECOND(n1 >= 0);
@@ -837,29 +839,29 @@ void Array4D<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2,
       n3 <= capacity(3)) {
     if (std::is_pod<T>::value) {
 #ifdef IL_DEFAULT_VALUE
-      for (il::int_t i3 = 0; i3 < n3; ++i3) {
-        for (il::int_t i2 = 0; i2 < n2; ++i2) {
-          for (il::int_t i1 = 0; i1 < n1; ++i1) {
-            for (il::int_t i0 =
-                     ((i1 < size(1) && i2 < size(2) && i3 < size(3)) ? size(0)
+      for (il::int_t i0 = 0; i0 < n0; ++i0) {
+        for (il::int_t i1 = 0; i1 < n1; ++i1) {
+          for (il::int_t i2 = 0; i2 < n2; ++i2) {
+            for (il::int_t i3 =
+                     ((i0 < size(0) && i1 < size(1) && i2 < size(2)) ? size(3)
                                                                      : 0);
-                 i0 < n0; ++i0) {
-              data_[((i3 * capacity(2) + i2) * capacity(1) + i1) * capacity(0) +
-                    i0] = il::default_value<T>();
+                 i3 < n3; ++i3) {
+              data_[((i0 * capacity(1) + i1) * capacity(2) + i2) * capacity(3) +
+                    i3] = il::default_value<T>();
             }
           }
         }
       }
 #endif
     } else {
-      for (il::int_t i3 = size(3) - 1; i3 >= 0; --i3) {
-        for (il::int_t i2 = size(2) - 1; i2 >= 0; --i2) {
-          for (il::int_t i1 = size(1) - 1; i1 >= 0; --i1) {
-            for (il::int_t i0 = size(0) - 1;
-                 i0 >= ((i1 < n1 && i2 < n2 && i3 < n3) ? n0 : 0); --i0) {
+      for (il::int_t i0 = size(0) - 1; i0 >= 0; --i0) {
+        for (il::int_t i1 = size(1) - 1; i1 >= 0; --i1) {
+          for (il::int_t i2 = size(2) - 1; i2 >= 0; --i2) {
+            for (il::int_t i3 = size(3) - 1;
+                 i3 >= ((i0 < n0 && i1 < n1 && i2 < n2) ? n3 : 0); --i3) {
               (data_ +
-               ((i3 * capacity(2) + i2) * capacity(1) + i1) * capacity(0) +
-               i0)->~T();
+               ((i0 * capacity(1) + i1) * capacity(2) + i2) * capacity(3) +
+               i3)->~T();
             }
           }
         }
@@ -899,31 +901,31 @@ void Array4D<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2,
     }
     if (data_) {
       if (std::is_pod<T>::value) {
-        for (il::int_t i3 = 0; i3 < n3; ++i3) {
-          for (il::int_t i2 = 0; i2 < n2; ++i2) {
-            for (il::int_t i1 = 0; i1 < n1; ++i1) {
-              memcpy(new_data + ((i3 * r2 + i2) * r1 + i1) * r0,
+        for (il::int_t i0 = 0; i0 < n0; ++i0) {
+          for (il::int_t i1 = 0; i1 < n1; ++i1) {
+            for (il::int_t i2 = 0; i2 < n2; ++i2) {
+              memcpy(new_data + ((i0 * r1 + i1) * r2 + i2) * r3,
                      data_ +
-                         ((i3 * capacity(2) + i2) * capacity(1) + i1) *
-                             capacity(0),
-                     size(0) * sizeof(T));
+                         ((i0 * capacity(1) + i1) * capacity(2) + i2) *
+                             capacity(3),
+                     size(3) * sizeof(T));
             }
           }
         }
         delete[] data_;
       } else {
-        for (il::int_t i3 = 0; i3 < n3_old; ++i3) {
-          for (il::int_t i2 = 0; i2 < n2_old; ++i2) {
-            for (il::int_t i1 = 0; i1 < n1_old; ++i1) {
-              for (il::int_t i0 = 0; i0 < n0_old; ++i0) {
-                new (new_data + ((i3 * r2 + i2) * r1 + i1) * r0 + i0)
+        for (il::int_t i0 = 0; i0 < n0_old; ++i0) {
+          for (il::int_t i1 = 0; i1 < n1_old; ++i1) {
+            for (il::int_t i2 = 0; i2 < n2_old; ++i2) {
+              for (il::int_t i3 = 0; i3 < n3_old; ++i3) {
+                new (new_data + ((i0 * r1 + i1) * r2 + i2) * r3 + i3)
                     T(std::move(
-                        data_[((i3 * capacity(2) + i2) * capacity(1) + i1) *
-                                  capacity(0) +
-                              i0]));
+                        data_[((i0 * capacity(1) + i1) * capacity(2) + i2) *
+                                  capacity(3) +
+                              i3]));
                 (data_ +
-                 ((i3 * capacity(2) + i2) * capacity(1) + i1) * capacity(0) +
-                 i0)->~T();
+                 ((i0 * capacity(1) + i1) * capacity(2) + i2) * capacity(3) +
+                 i3)->~T();
               }
             }
           }
@@ -933,13 +935,13 @@ void Array4D<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2,
     }
     if (std::is_pod<T>::value) {
 #ifdef IL_DEFAULT_VALUE
-      for (il::int_t i3 = 0; i3 < n3; ++i3) {
-        for (il::int_t i2 = 0; i2 < n2; ++i2) {
-          for (il::int_t i1 = 0; i1 < n1; ++i1) {
-            for (il::int_t i0 =
-                     ((i1 < n1_old && i2 < n2_old && i3 < n3_old) ? n0_old : 0);
-                 i0 < n0; ++i0) {
-              new_data[((i3 * r2 + i2) * r1 + i1) * r0 + i0] =
+      for (il::int_t i0 = 0; i0 < n0; ++i0) {
+        for (il::int_t i1 = 0; i1 < n1; ++i1) {
+          for (il::int_t i2 = 0; i2 < n2; ++i2) {
+            for (il::int_t i3 =
+                     ((i0 < n0_old && i1 < n1_old && i2 < n2_old) ? n3_old : 0);
+                 i3 < n3; ++i3) {
+              new_data[((i0 * r1 + i1) * r2 + i2) * r3 + i3] =
                   il::default_value<T>();
             }
           }
@@ -947,13 +949,13 @@ void Array4D<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2,
       }
 #endif
     } else {
-      for (il::int_t i3 = 0; i3 < n3; ++i3) {
-        for (il::int_t i2 = 0; i2 < n2; ++i2) {
-          for (il::int_t i1 = 0; i1 < n1; ++i1) {
-            for (il::int_t i0 =
-                     ((i1 < n1_old && i2 < n2_old && i3 < n3_old) ? n0_old : 0);
-                 i0 < n0; ++i0) {
-              new (new_data + ((i3 * r2 + i2) * r1 + i1) * r0 + i0) T{};
+      for (il::int_t i0 = 0; i0 < n0; ++i0) {
+        for (il::int_t i1 = 0; i1 < n1; ++i1) {
+          for (il::int_t i2 = 0; i2 < n2; ++i2) {
+            for (il::int_t i3 =
+                     ((i0 < n0_old && i1 < n1_old && i2 < n2_old) ? n3_old : 0);
+                 i3 < n3; ++i3) {
+              new (new_data + ((i0 * r1 + i1) * r2 + i2) * r3 + i3) T{};
             }
           }
         }
@@ -984,13 +986,13 @@ void Array4D<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2,
 }
 
 template <typename T>
-il::int_t Array4D<T>::capacity(il::int_t d) const {
+il::int_t Array4C<T>::capacity(il::int_t d) const {
   IL_ASSERT(static_cast<il::uint_t>(d) < static_cast<il::uint_t>(4));
   return static_cast<il::int_t>(capacity_[d] - data_);
 }
 
 template <typename T>
-void Array4D<T>::reserve(il::int_t r0, il::int_t r1, il::int_t r2,
+void Array4C<T>::reserve(il::int_t r0, il::int_t r1, il::int_t r2,
                          il::int_t r3) {
   IL_ASSERT_PRECOND(r0 >= 0);
   IL_ASSERT_PRECOND(r1 >= 0);
@@ -1015,31 +1017,31 @@ void Array4D<T>::reserve(il::int_t r0, il::int_t r1, il::int_t r2,
     }
     if (data_) {
       if (std::is_pod<T>::value) {
-        for (il::int_t i3 = 0; i3 < n3_old; ++i3) {
-          for (il::int_t i2 = 0; i2 < n2_old; ++i2) {
-            for (il::int_t i1 = 0; i1 < n1_old; ++i1) {
-              memcpy(new_data + ((i3 * r2 + i2) * r1 + i1) * r0,
+        for (il::int_t i0 = 0; i0 < n0_old; ++i0) {
+          for (il::int_t i1 = 0; i1 < n1_old; ++i1) {
+            for (il::int_t i2 = 0; i2 < n2_old; ++i2) {
+              memcpy(new_data + ((i0 * r1 + i1) * r2 + i2) * r3,
                      data_ +
-                         ((i3 * capacity(2) + i2) * capacity(1) + i1) *
-                             capacity(0),
-                     n0_old * sizeof(T));
+                         ((i0 * capacity(1) + i1) * capacity(2) + i2) *
+                             capacity(3),
+                     n3_old * sizeof(T));
             }
           }
         }
         delete[] data_;
       } else {
-        for (il::int_t i3 = 0; i3 < n3_old; ++i3) {
-          for (il::int_t i2 = 0; i2 < n2_old; ++i2) {
-            for (il::int_t i1 = 0; i1 < n1_old; ++i1) {
-              for (il::int_t i0 = 0; i0 < n0_old; ++i0) {
-                new (new_data + ((i3 * r2 + i2) * r1 + i1) * r0 + i0)
+        for (il::int_t i0 = 0; i0 < n0_old; ++i0) {
+          for (il::int_t i1 = 0; i1 < n1_old; ++i1) {
+            for (il::int_t i2 = 0; i2 < n2_old; ++i2) {
+              for (il::int_t i3 = 0; i3 < n3_old; ++i3) {
+                new (new_data + ((i0 * r1 + i1) * r2 + i2) * r3 + i3)
                     T(std::move(
-                        data_[((i3 * capacity(2) + i2) * capacity(1) + i1) *
-                                  capacity(0) +
-                              i0]));
+                        data_[((i0 * capacity(1) + i1) * capacity(2) + i2) *
+                                  capacity(3) +
+                              i3]));
                 (data_ +
-                 ((i3 * capacity(2) + i2) * capacity(1) + i1) * capacity(0) +
-                 i0)->~T();
+                 ((i0 * capacity(1) + i1) * capacity(2) + i2) * capacity(3) +
+                 i3)->~T();
               }
             }
           }
@@ -1066,17 +1068,17 @@ void Array4D<T>::reserve(il::int_t r0, il::int_t r1, il::int_t r2,
 }
 
 template <typename T>
-const T* Array4D<T>::data() const {
+const T* Array4C<T>::data() const {
   return data_;
 }
 
 template <typename T>
-T* Array4D<T>::data() {
+T* Array4C<T>::data() {
   return data_;
 }
 
 template <typename T>
-void Array4D<T>::check_invariance() const {
+void Array4C<T>::check_invariance() const {
   if (data_ == nullptr) {
     IL_ASSERT(size_[0] == nullptr);
     IL_ASSERT(size_[1] == nullptr);
@@ -1103,4 +1105,4 @@ void Array4D<T>::check_invariance() const {
 }
 }
 
-#endif  // IL_ARRAY4D_H
+#endif  // IL_ARRAY4C_H
