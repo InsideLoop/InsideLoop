@@ -26,9 +26,9 @@ Our first container, `il::Array` is meant to be a replacement for `std::vector`.
 #include <il/Array.h>
 
 int main() {
-  const int n = 100;
+  const il::int_t n = 100;
   il::Array<double> v(n);
-  for (int i = 0; i < v.size(); ++i) {
+  for (il::int_t i = 0; i < v.size(); ++i) {
     v[i] = 1.0 / (1 + i);
   }
   
@@ -46,9 +46,9 @@ differs from the standard library container on the following points:
   containers in debug mode. For `il::Array<T>`, `v[i]` are bounds checked in
   debug mode and not in release mode. 
 - **Indices**: Our containers use signed integers for indices. By default, we
-  use `int` (which is a 32 bit signed integer on 64-bit macOS, Linux and Windows
-  platforms), but the type might be changed to `std::ptrdiff_t` (which is
-  a 64-bit signed integer on those platforms).
+  use `std::ptrdiff_t` which is typedefed to `il::int_t` (it is a 64 bit signed integer on 64-bit macOS, Linux and Windows
+  platforms), but the type might be changed to `int` (which is
+  a 32-bit signed integer on those platforms).
 - **Initialization**: When T is a numeric type (int, float, double, etc), the
   construction of an `il::Array<T>` of size n does not initialize its memory in
   release mode.
@@ -64,11 +64,11 @@ equal to 0. With signed integers, the code is straightforward:
 ```cpp
 #include <il/Array.h>
 
-int f(const il::Array<double>& v, a, b) {
+il::int_t f(const il::Array<double>& v, a, b) {
   ASSERT(a >= 0);
   ASSERT(b <= v.size());
   
-  for (int k = b - 1; k >= a; --k) {
+  for (il::int_t k = b - 1; k >= a; --k) {
     if (v[k] == 0.0) {
       return k;
     }
@@ -100,10 +100,10 @@ of various numbers in an array. It has an obvious bug as `v[n - 1]` is not set.
 #include <il/Array.h>
 
 int main() {
-  const int n = 2000000000;
+  const il::int_t n = 2000000000;
   const double x = 0.001;
   il::Array<double> v(n);
-  for (int i = 0; i < n - 1; ++i) {
+  for (il::int_t i = 0; i < n - 1; ++i) {
     v[i] = std::cos(i * x);
   }
   
@@ -127,11 +127,11 @@ to get efficient multithreading.
 #include <il/Array.h>
 
 int main() {
-  const int n = 2000000000;
+  const il::int_t n = 2000000000;
   const double x = 0.001;
   il::Array<double> v(n);
 #pragma omp parallel for
-  for (int i = 0; i < v.size(); ++i) {
+  for (il::int_t i = 0; i < v.size(); ++i) {
     v[i] = std::cos(i * x);
   }
   
@@ -163,9 +163,9 @@ the sparsity pattern of a sparse matrix for which most rows contains no more tha
  
 ```cpp
 il::Array<il::SmallArray<double, 5>> A{n};
-for (int i = 0; i < n; ++i) {
+for (il::int_t i = 0; i < n; ++i) {
   LOOP {
-    const int column = ...;
+    const il::int_t column = ...;
     A[i].push_back(column);
   }
 }
@@ -184,10 +184,10 @@ than reason, most BLAS libraries (including the MKL) are better optimized for
 it. Here is a code that constructs an Hilbert matrix:
 
 ```cpp
-const int n = 63;
+const il::int_t n = 63;
 il::Array2D<double> A(n, n);
-for (int j = 0; A.size(1); ++j) {
-  for (int i = 0; A.size(0); ++i) {
+for (il::int_t j = 0; A.size(1); ++j) {
+  for (il::int_t i = 0; A.size(0); ++i) {
     A(i, j) = 1.0 / (2 + i + j);
   }
 }
@@ -200,10 +200,10 @@ The object will include some padding at the end of each column so each
 column is aligned.
 
 ```cpp
-const int n = 63;
+const il::int_t n = 63;
 il::Array2D<double> A(n, n, il::align, 32);
-for (int j = 0; A.size(1); ++j) {
-  for (int i = 0; A.size(0); ++i) {
+for (il::int_t j = 0; A.size(1); ++j) {
+  for (il::int_t i = 0; A.size(0); ++i) {
     A(i, j) = 1.0 / (2 + i + j);
   }
 }

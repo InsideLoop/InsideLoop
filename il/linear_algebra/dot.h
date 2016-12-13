@@ -81,7 +81,7 @@ inline il::Array2C<double> dot(const il::Array2C<double>& A,
   return C;
 }
 
-template <typename T, il::int_t n0, il::int_t n, il::int_t n>
+template <typename T, il::int_t n0, il::int_t n>
 inline il::StaticArray<T, n0> dot(const il::StaticArray2D<T, n0, n>& A,
                                   const il::StaticArray<T, n>& B) {
   il::StaticArray<T, n0> C{0};
@@ -95,7 +95,7 @@ inline il::StaticArray<T, n0> dot(const il::StaticArray2D<T, n0, n>& A,
   return C;
 }
 
-template <typename T, il::int_t n, il::int_t n, il::int_t n1>
+template <typename T, il::int_t n, il::int_t n1>
 inline il::StaticArray<T, n1> dot(const il::StaticArray<T, n>& A,
                                   const il::StaticArray2D<T, n, n1>& B) {
   il::StaticArray<T, n1> C{0};
