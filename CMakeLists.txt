@@ -21,7 +21,7 @@ project(InsideLoop CXX)
 project(InsideLoopUnitTest CXX)
 project(Program CXX)
 
-set(IL_OPENMP 1)
+set(IL_OPENMP 0)
 set(IL_MKL 1)
 set(IL_PNG 1)
 
@@ -128,8 +128,6 @@ endif()
 
 ################################################################################
 
-include_directories(${CMAKE_SOURCE_DIR} /opt/viennacl-1.7.1 /opt/eigen-3.3)
-
 set(SOURCE_FILES
     il/Array.h
     il/Array2D.h
@@ -199,9 +197,7 @@ set(SOURCE_FILES
 
 
 add_executable(InsideLoop ${SOURCE_FILES}
-    main.cpp
-    il/linear_algebra/sparse/_test/matrix/heat.cpp)
-target_include_directories(InsideLoop PRIVATE /opt/viennacl-1.7.1)
+    main.cpp)
 target_link_libraries(InsideLoop ${CMAKE_MKL_LIBRARIES} ${CMAKE_PNG_LIBRARIES})
 
 ################################################################################

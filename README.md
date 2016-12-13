@@ -184,10 +184,10 @@ than reason, most BLAS libraries (including the MKL) are better optimized for
 it. Here is a code that constructs an Hilbert matrix:
 
 ```cpp
-const int n = 100;
+const int n = 63;
 il::Array2D<double> A(n, n);
 for (int j = 0; A.size(1); ++j) {
-  for int i = 0; A.size(0); ++i) {
+  for (int i = 0; A.size(0); ++i) {
     A(i, j) = 1.0 / (2 + i + j);
   }
 }
@@ -195,13 +195,25 @@ for (int j = 0; A.size(1); ++j) {
 
 Most operations available on `il::Array<T>` ae also available on
 `il::Array2D<T>`. For instance, it is possible to `resize` the object and
-`reserve` memory for it.
+`reserve` memory for it. It is also possible to align a multidimensional array.
+The object will include some padding at the end of each column so each
+column is aligned.
+
+```cpp
+const int n = 63;
+il::Array2D<double> A(n, n, il::align, 32);
+for (int j = 0; A.size(1); ++j) {
+  for (int i = 0; A.size(0); ++i) {
+    A(i, j) = 1.0 / (2 + i + j);
+  }
+}
+```
 
 For those who want a 2-dimensional array with C ordering, `il::Array2C<T>`
-provides such an object. We also provdes `il::Array3D<T>` and `il::Array4D<T>`
+provides such an object. We also provide `il::Array3D<T>` and `il::Array4D<T>`
 objects.
 
-A `il::SmallArray2D<T, n0, n1>` is also available for 2-dimensional arrays
+A `il::StaticArray2D<T, n0, n1>` is also available for 2-dimensional arrays
 whose size is known at compile time. Their elements are stored on the stack
 instead of the heap.
 

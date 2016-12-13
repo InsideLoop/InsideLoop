@@ -87,6 +87,12 @@ class Array2C {
   */
   explicit Array2C(il::int_t n0, il::int_t n1, const T& x);
 
+  explicit Array2C(il::int_t n0, il::int_t n1, const T& x, il::align_t,
+                   short align_r, short align_mod);
+
+  explicit Array2C(il::int_t n0, il::int_t n1, const T& x, il::align_t,
+                   short align_mod);
+
   /* \brief Construct an array of n rows and p columns from a brace-initialized
   // list
   //
@@ -408,6 +414,80 @@ Array2C<T>::Array2C(il::int_t n0, il::int_t n1, const T& x) {
   align_r_ = 0;
   new_shift_ = 0;
 }
+
+template <typename T>
+Array2C<T>::Array2C(il::int_t n0, il::int_t n1, const T& x, il::align_t,
+                    short align_r, short align_mod) {
+  IL_ASSERT(n0 >= 0);
+  IL_ASSERT(n1 >= 0);
+  IL_ASSERT(align_mod >= 0);
+  IL_ASSERT(align_mod % sizeof(T) == 0);
+  IL_ASSERT(align_r >= 0);
+  IL_ASSERT(align_r < align_mod);
+  IL_ASSERT(align_r % sizeof(T) == 0);
+  align_mod_ = align_mod;
+  align_r_ = align_r;
+  il::int_t r0;
+  il::int_t r1;
+  if (n0 > 0 && n1 > 0) {
+    if (std::is_pod<T>::value && align_mod != 0) {
+      const il::int_t nb_lanes{static_cast<il::int_t>(alignment() / sizeof(T))};
+      r0 = n0;
+      r1 = ((n1 - 1) / nb_lanes + 1) * nb_lanes;
+    } else {
+      r0 = n0;
+      r1 = n1;
+    }
+  } else if (n0 == 0 && n1 == 0) {
+    r0 = 0;
+    r1 = 0;
+  } else {
+    r0 = (n0 == 0) ? 1 : n0;
+    r1 = (n1 == 0) ? 1 : n1;
+  }
+  il::int_t r{r0 * r1};
+  if (r > 0) {
+    if (std::is_pod<T>::value) {
+      if (align_mod == 0) {
+        data_ = new T[r];
+        new_shift_ = 0;
+      } else {
+        data_ = allocate(r, align_mod, align_r, il::io, new_shift_);
+      }
+      for (il::int_t i0{0}; i0 < n0; ++i0) {
+        for (il::int_t i1{0}; i1 < n1; ++i1) {
+          data_[i0 * r1 + i1] = x;
+        }
+      }
+    } else {
+      data_ = static_cast<T*>(::operator new(r * sizeof(T)));
+      new_shift_ = 0;
+      for (il::int_t i0{0}; i0 < n0; ++i0) {
+        for (il::int_t i1{0}; i1 < n1; ++i1) {
+          new (data_ + i0 * r1 + i1) T(x);
+        }
+      }
+    }
+  } else {
+    data_ = nullptr;
+    new_shift_ = 0;
+  }
+#ifdef IL_DEBUG_VISUALIZER
+  debug_size_0_ = n0;
+  debug_size_1_ = n1;
+  debug_capacity_0_ = r0;
+  debug_capacity_1_ = r1;
+#endif
+  size_[0] = data_ + n0;
+  size_[1] = data_ + n1;
+  capacity_[0] = data_ + r0;
+  capacity_[1] = data_ + r1;
+}
+
+template <typename T>
+Array2C<T>::Array2C(il::int_t n0, il::int_t n1, const T& x, il::align_t,
+                    short align_mod)
+    : Array2C{n0, n1, x, il::align, 0, align_mod} {}
 
 template <typename T>
 Array2C<T>::Array2C(il::value_t,

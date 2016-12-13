@@ -57,4 +57,6 @@ struct abort_exception {};
 #define IL_ASSERT_BOUNDS(condition) (condition) ? ((void)0) : abort()
 #endif
 
+#define IL_UNUSED(var) (void)var
+
 #endif  // IL_ILASSERT_H

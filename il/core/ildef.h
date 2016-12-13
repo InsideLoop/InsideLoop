@@ -28,7 +28,7 @@ const int_t int_t_max = std::numeric_limits<int>::max();
 #else
 typedef std::ptrdiff_t int_t;
 typedef std::size_t uint_t;
-const int_t int_t_max = std::numeric_limits<std::ptrdiff_t>::max();;
+const int_t int_t_max = std::numeric_limits<std::ptrdiff_t>::max();
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////

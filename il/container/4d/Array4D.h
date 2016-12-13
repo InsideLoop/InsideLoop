@@ -69,7 +69,7 @@ class Array4D {
   // il::Array2D<double> A{3, 5, 3.14};
   */
   explicit Array4D(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3,
-                   il::value_t, const T& x);
+                   const T& x);
 
   /* \brief Construct an array of n rows, p columns and q slices using
   // constructor arguments
@@ -295,7 +295,7 @@ Array4D<T>::Array4D(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3) {
 
 template <typename T>
 Array4D<T>::Array4D(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3,
-                    il::value_t, const T& x) {
+                    const T& x) {
   IL_ASSERT_PRECOND(n0 >= 0);
   IL_ASSERT_PRECOND(n1 >= 0);
   IL_ASSERT_PRECOND(n2 >= 0);
