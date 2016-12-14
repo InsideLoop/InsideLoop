@@ -219,11 +219,65 @@ instead of the heap.
 
 ## Linear algebra linked to BLAS/Lapack (MKL)
 
-Matrices are represented as 2-dimensional arrays and many objects are available
-to help solving linear system of equations. Here is the code to solve a linear
-system of equations:
+Matrices are represented as 2-dimensional arrays and many routines are available
+to help solving linear algebra problems.
+
+You can easily multiply a matrix by a vector with the following code.
+```cpp
+const il::int_t n = 1000;
+il::Array2D<double> A(n, n);
+// Fill the matrix
+il::Array<double> x(n);
+// Fill x
+
+il::Array<double> x = il::dot(A, x);
+```
+
+Matrix multiplication is also available with the same function
 
 ```cpp
+const il::int_t n = 1000;
+il::Array2D<double> A(n, n);
+// Fill the matrix A
+il::Array2D<double> B(n, n);
+// Fill the matrix B
+
+il::Array2D<double> C = il::dot(A, B);
+```
+
+and allows the best performance available on Intel processors as it use the
+MKL library from Intel behind the scene. If a matrix C is already available
+and you want to add the result of A.B to C, you can use the following blas
+function which won't allocate any memory:
+
+```cpp
+const il::int_t n = 1000;
+il::Array2D<double> A(n, n);
+// Fill the matrix A
+il::Array2D<double> B(n, n);
+// Fill the matrix B
+il::Array2D<double> C(n, n);
+// Fill the matrix C
+
+const double alpha = 1.0;
+const double beta = 1.0;
+// Perform C = alpha A.B + beta C
+il::blas(alpha, A, B, beta, il::io, C);
+```
+
+As you can see, InsideLoop is quite different from other linear algebra packages
+such as Eigen. We don't use expression templates which allow to write
+`C += A * B` which is considered useful by beginners. But it allows us to have
+a better control of the memory and the different operations. It also allows us
+to have a code that you can understand and hack easily if you need a new feature.
+You are also more likely to understand the errors of the compiler if something
+goes wrong. 
+
+InsideLoop also allows to solve system of linear equations.
+
+```cpp
+// Code to solve the system A.x = y
+
 const il::int_t n = 1000;
 il::Array2D<double> A(n, n);
 // Fill the matrix
@@ -233,8 +287,7 @@ il::Array<double> y(n);
 il::Status status;
 il::PartialLU<il::Array2D<double>> lu_decomposition(A, il::io, status);
 if (!status.ok()) {
-  // The matrix is singular to the machine precision. You should deal with the
-  // error.
+  // The matrix is singular to the machine precision. You should deal with the error.
 }
 
 il::Array<double> x = lu_decomposition.solve(y);
@@ -259,19 +312,39 @@ if there is any error with `status.abort_on_error()`. This interface allows
  allows InsideLoop to be used within codes that don't allow exceptions.
  
 For those who are familiar with LAPACK which is used behind the scene, it is
-known that the LU decomposition is done inplace by this routine. Here, as A is
+known that the LU decomposition is done inplace by the routine. As A is
 on the left of the `il::io` tag, it shows clearly that A cannot be mutated. A
 careful inspection of the signature of the constructor of
 `il::PartialLU<il::Array2D<double>>` shows that A is passed by value. In case
 you don't need A anymore after the construction of `lu_decomposition` and you
-don't want to pay the price of a copy, you can move A into lu_decomposition
-with the following code.
+don't want to pay the price of a copy, you can move A into lu_decomposition.
+It is also known that the solving part of LAPACK functions works inplace. As a
+consequence, we can even avoid memory allocation for x. 
 
 ```cpp
+// Code to solve the system A.x = y
+
+const il::int_t n = 1000;
+il::Array2D<double> A(n, n);
+// Fill the matrix
+il::Array<double> y(n);
+// Fill y
+
+il::Status status;
 il::PartialLU<il::Array2D<double>> lu_decomposition(std::move(A), il::io, status);
+if (!status.ok()) {
+  // The matrix is singular to the machine precision. You should deal with the error.
+}
+
+il::Array<double> x = lu_decomposition.solve(std::move(y));
 ```
-It shows that InsideLoop library allows explicit interfaces, explicit error
-handling, everything available at the full performance of MKL.
+
+This example shows that InsideLoop has explicit interfaces, allows explicit error
+handling, and the interfaces have been carefully crafted to get the same memory
+consumption and the same peformance of direct calls to the MKL. As our code is
+as simple as possible, it will be very easy for you to add new methods to our
+objects if you want to change the interface to get better performance in a case
+we overlooked.
 
 ## Hash Table
 
