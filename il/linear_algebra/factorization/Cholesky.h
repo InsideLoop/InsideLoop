@@ -10,8 +10,8 @@
 #ifndef IL_CHOLESKY_H
 #define IL_CHOLESKY_H
 
-#include <il/core/Error.h>
 #include <il/container/2d/Array2D.h>
+#include <il/core/Error.h>
 
 #include <iostream>
 
@@ -32,13 +32,14 @@ class Cholesky {
 };
 
 Cholesky::Cholesky(il::Array2D<double> A, il::io_t, il::Error& error) : l_{} {
-  IL_ASSERT(A.size(0) == A.size(1));
+  IL_ASSERT_PRECOND(A.size(0) == A.size(1));
 
-  const int layout{LAPACK_COL_MAJOR};
-  const char uplo{'L'};
-  const lapack_int n{static_cast<lapack_int>(A.size(0))};
-  const lapack_int lda{static_cast<lapack_int>(A.stride(1))};
-  const lapack_int lapack_error{LAPACKE_dpotrf(layout, uplo, n, A.data(), lda)};
+  const int layout = LAPACK_COL_MAJOR;
+  const char uplo = 'L';
+  const lapack_int n = static_cast<lapack_int>(A.size(0));
+  const lapack_int lda = static_cast<lapack_int>(A.stride(1));
+  const lapack_int lapack_error =
+      LAPACKE_dpotrf(layout, uplo, n, A.data(), lda);
   IL_ASSERT(lapack_error >= 0);
   if (lapack_error == 0) {
     error.set(ErrorCode::ok);

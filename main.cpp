@@ -7,16 +7,17 @@
 //
 //==============================================================================
 
-#include <cstdio>
-
-#include <il/linear_algebra/dot.h>
+#include <il/linear_algebra/factorization/PartialLU.h>
 
 int main() {
-  il::StaticArray3D<double, 6, 3, 9> A{};
-  il::StaticArray<double, 9> B{};
+  il::Array2D<double> A{il::value, {{2.0, 2.0}, {2.0, 2.0}}};
 
-  auto C = il::dot(A, B);
-  IL_UNUSED(C);
+  il::Error error{};
+  il::PartialLU<il::Array2D<double>> lu_decomposition{std::move(A), il::io,
+                                                      error};
+  error.abort();
+
+  il::Array2D<double> A_inv = lu_decomposition.inverse();
 
   return 0;
 }

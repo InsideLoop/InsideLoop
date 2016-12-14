@@ -77,7 +77,7 @@ il::int_t f(const il::Array<double>& v, a, b) {
   return -1;
 }
 ```
-It you write the same code with unsigned integers, you'll get a bug when
+If you write the same code with unsigned integers, you'll get a bug when
 `a == 0` and v does not contain any zero. In this case, k will go down to
 0, and then the cyclic nature of unsigned integers will make k go from `0`
 to `2^32 - 1 == 4'294'967'295`. An out-of-bound access is ready to happen. Writing a
@@ -223,6 +223,6 @@ We finally provide a hash table implemented using open addressing and quadratic
 probing. This hash table has better performance than the one provided by the
 standard library `std::unordered_map`.
 
-## Remarks and comments
+## Remarks, feature request, bug report
 
 Please send then to `fayard@insideloop.io`
