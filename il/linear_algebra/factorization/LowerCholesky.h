@@ -10,7 +10,7 @@
 #ifndef IL_LOWERCHOLESKY_H
 #define IL_LOWERCHOLESKY_H
 
-#include <il/core/Error.h>
+#include <il/core/Status.h>
 #include <il/container/2d/LowerArray2D.h>
 
 #include <iostream>
@@ -28,11 +28,11 @@ class LowerCholesky {
   il::LowerArray2D<double> l_;
 
  public:
-  LowerCholesky(il::LowerArray2D<double> A, il::io_t, il::Error& error);
+  LowerCholesky(il::LowerArray2D<double> A, il::io_t, il::Status &status);
 };
 
 LowerCholesky::LowerCholesky(il::LowerArray2D<double> A, il::io_t,
-                             il::Error& error)
+                             il::Status &status)
     : l_{} {
   const int layout{LAPACK_COL_MAJOR};
   const char uplo{'L'};
@@ -40,10 +40,10 @@ LowerCholesky::LowerCholesky(il::LowerArray2D<double> A, il::io_t,
   const lapack_int lapack_error{LAPACKE_dpptrf(layout, uplo, n, A.data())};
   IL_ASSERT(lapack_error >= 0);
   if (lapack_error == 0) {
-    error.set(ErrorCode::ok);
+    status.set(ErrorCode::ok);
     l_ = std::move(A);
   } else {
-    error.set(ErrorCode::negative_number);
+    status.set(ErrorCode::negative_number);
   }
 }
 }

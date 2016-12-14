@@ -20,10 +20,10 @@
 void kmeans_main() {
   std::string directory{"/Users/fayard/Desktop/"};
 
-  il::Error error{};
+  il::Status status{};
   il::Array3D<unsigned char> image{
-      il::load(directory + std::string{"lotus.png"}, il::png, il::io, error)};
-  error.abort();
+      il::load(directory + std::string{"lotus.png"}, il::png, il::io, status)};
+  status.abort_on_error();
   const int width{image.size(0)};
   const int height{image.size(1)};
 
@@ -128,5 +128,5 @@ void kmeans_main() {
 
   il::save(out, directory + std::string{"lotus-saved.png"}, il::png, il::io,
            error);
-  error.abort();
+  status.abort_on_error();
 }

@@ -10,7 +10,7 @@
 #ifndef IL_LINEAR_SOLVE_H
 #define IL_LINEAR_SOLVE_H
 
-#include <il/core/Error.h>
+#include <il/core/Status.h>
 
 #include <il/Array.h>
 #include <il/Array2C.h>
@@ -28,7 +28,7 @@ namespace il {
 
 inline il::Array<double> linear_solve(il::Array2D<double> A,
                                       il::Array<double> y, il::io_t,
-                                      il::Error &error) {
+                                      il::Status &status) {
   IL_ASSERT(A.size(0) == A.size(1));
   IL_ASSERT(y.size() == A.size(0));
 
@@ -44,9 +44,9 @@ inline il::Array<double> linear_solve(il::Array2D<double> A,
 
   IL_ASSERT(lapack_error >= 0);
   if (lapack_error == 0) {
-    error.set(il::ErrorCode::ok);
+    status.set(il::ErrorCode::ok);
   } else {
-    error.set(il::ErrorCode::division_by_zero);
+    status.set(il::ErrorCode::division_by_zero);
   }
 
   return y;
@@ -54,7 +54,7 @@ inline il::Array<double> linear_solve(il::Array2D<double> A,
 
 inline il::Array<double> linear_solve(il::Array2C<double> A,
                                       il::Array<double> y, il::io_t,
-                                      il::Error &error) {
+                                      il::Status &status) {
   IL_ASSERT(A.size(0) == A.size(1));
   IL_ASSERT(y.size() == A.size(1));
 
@@ -70,9 +70,9 @@ inline il::Array<double> linear_solve(il::Array2C<double> A,
 
   IL_ASSERT(lapack_error >= 0);
   if (lapack_error == 0) {
-    error.set(il::ErrorCode::ok);
+    status.set(il::ErrorCode::ok);
   } else {
-    error.set(il::ErrorCode::division_by_zero);
+    status.set(il::ErrorCode::division_by_zero);
   }
 
   return y;
@@ -80,7 +80,7 @@ inline il::Array<double> linear_solve(il::Array2C<double> A,
 
 inline il::Array<double> linear_solve(il::BandArray2C<double> A,
                                       il::Array<double> y, il::io_t,
-                                      il::Error &error) {
+                                      il::Status &status) {
   IL_ASSERT(A.size(0) == A.size(1));
   IL_ASSERT(y.size() == A.size(1));
   IL_ASSERT(A.capacity_right() >= A.width_left() + A.width_right());
@@ -100,9 +100,9 @@ inline il::Array<double> linear_solve(il::BandArray2C<double> A,
 
   IL_ASSERT(lapack_error >= 0);
   if (lapack_error == 0) {
-    error.set(il::ErrorCode::ok);
+    status.set(il::ErrorCode::ok);
   } else {
-    error.set(il::ErrorCode::division_by_zero);
+    status.set(il::ErrorCode::division_by_zero);
   }
 
   return y;
@@ -110,7 +110,7 @@ inline il::Array<double> linear_solve(il::BandArray2C<double> A,
 
 inline il::Array<double> linear_solve(il::TriDiagonal<double> A,
                                       il::Array<double> y, il::io_t,
-                                      il::Error &error) {
+                                      il::Status &status) {
   IL_ASSERT(A.size() == y.size());
 
   const int layout{LAPACK_ROW_MAJOR};
@@ -123,9 +123,9 @@ inline il::Array<double> linear_solve(il::TriDiagonal<double> A,
 
   IL_ASSERT(lapack_error >= 0);
   if (lapack_error == 0) {
-    error.set(il::ErrorCode::ok);
+    status.set(il::ErrorCode::ok);
   } else {
-    error.set(il::ErrorCode::division_by_zero);
+    status.set(il::ErrorCode::division_by_zero);
   }
 
   return y;

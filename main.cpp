@@ -10,13 +10,15 @@
 #include <il/linear_algebra/factorization/PartialLU.h>
 
 int main() {
-  il::Array2D<double> A{il::value, {{2.0, 2.0}, {2.0, 2.0}}};
+  il::Array2D<double> A{il::value, {{2.0, 1.0}, {2.0, 2.0}}};
 
-  il::Error error{};
+  il::Status status{};
   il::PartialLU<il::Array2D<double>> lu_decomposition{std::move(A), il::io,
-                                                      error};
-  error.abort();
+                                                      status};
+  status.abort_on_error();
 
+  double determinant_A = lu_decomposition.determinant();
+  IL_UNUSED(determinant_A);
   il::Array2D<double> A_inv = lu_decomposition.inverse();
 
   return 0;

@@ -174,7 +174,7 @@ set(SOURCE_FILES
     il/core/config.h
     il/core/ilassert.h
     il/core/ildef.h
-    il/core/Error.h
+        il/core/Status.h
     il/image/ppm.h
     il/io/numpy.h
     il/io/numpy.cpp

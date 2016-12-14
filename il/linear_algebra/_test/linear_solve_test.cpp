@@ -21,9 +21,9 @@ TEST(linear_solve, square_matrix_0) {
   il::Array<double> y{3, 0.0};
 
   try {
-    il::Error error{};
-    il::Array<double> x{il::linear_solve(std::move(A), y, il::io, error)};
-    error.ignore();
+    il::Status status{};
+    il::Array<double> x{il::linear_solve(std::move(A), y, il::io, status)};
+    status.ignore_error();
   } catch (il::abort_exception) {
     test_passed = true;
   }
@@ -41,9 +41,9 @@ TEST(linear_solve, square_matrix_1) {
   il::Array<double> y{4, 0.0};
 
   try {
-    il::Error error{};
-    il::Array<double> x{il::linear_solve(std::move(A), y, il::io, error)};
-    error.ignore();
+    il::Status status{};
+    il::Array<double> x{il::linear_solve(std::move(A), y, il::io, status)};
+    status.ignore_error();
   } catch (il::abort_exception) {
     test_passed = true;
   }
@@ -61,9 +61,9 @@ TEST(linear_solve, size_y) {
   il::Array<double> y{4, 0.0};
 
   try {
-    il::Error error{};
-    il::Array<double> x{il::linear_solve(std::move(A), y, il::io, error)};
-    error.ignore();
+    il::Status status{};
+    il::Array<double> x{il::linear_solve(std::move(A), y, il::io, status)};
+    status.ignore_error();
   } catch (il::abort_exception) {
     test_passed = true;
   }
@@ -75,9 +75,9 @@ TEST(linear_solve, c_order) {
   il::Array2C<double> A{il::value, {{1.0, 2.0}, {1.0, 4.0}}};
   il::Array<double> y{il::value, {5.0, 9.0}};
 
-  il::Error error{};
-  il::Array<double> x{il::linear_solve(A, y, il::io, error)};
-  error.ignore();
+  il::Status status{};
+  il::Array<double> x{il::linear_solve(A, y, il::io, status)};
+  status.ignore_error();
 
   ASSERT_TRUE(x.size() == 2 && x[0] == 1.0 && x[1] == 2.0);
 }
@@ -86,9 +86,9 @@ TEST(linear_solve, f_order) {
   il::Array2D<double> A{il::value, {{1.0, 1.0}, {2.0, 4.0}}};
   il::Array<double> y{il::value, {5.0, 9.0}};
 
-  il::Error error{};
-  il::Array<double> x{il::linear_solve(A, y, il::io, error)};
-  error.ignore();
+  il::Status status{};
+  il::Array<double> x{il::linear_solve(A, y, il::io, status)};
+  status.ignore_error();
 
   ASSERT_TRUE(x.size() == 2 && x[0] == 1.0 && x[1] == 2.0);
 }
@@ -98,10 +98,10 @@ TEST(linear_solve, singular_matrix_0) {
   il::Array<double> y{il::value, {1.0, 1.0}};
   bool test_passed{false};
 
-  il::Error error{};
-  il::Array<double> x{il::linear_solve(A, y, il::io, error)};
-  if (error.raised() &&
-      error.code() == il::ErrorCode::division_by_zero) {
+  il::Status status{};
+  il::Array<double> x{il::linear_solve(A, y, il::io, status)};
+  if (!status.ok() &&
+      status.error_code() == il::ErrorCode::division_by_zero) {
     test_passed = true;
   }
 
@@ -113,10 +113,10 @@ TEST(linear_solve, singular_matrix_1) {
   il::Array<double> y{il::value, {1.0, 1.0}};
   bool test_passed{false};
 
-  il::Error error{};
-  il::Array<double> x{il::linear_solve(A, y, il::io, error)};
-  if (error.raised() &&
-      error.code() == il::ErrorCode::division_by_zero) {
+  il::Status status{};
+  il::Array<double> x{il::linear_solve(A, y, il::io, status)};
+  if (!status.ok() &&
+      status.error_code() == il::ErrorCode::division_by_zero) {
     test_passed = true;
   }
 

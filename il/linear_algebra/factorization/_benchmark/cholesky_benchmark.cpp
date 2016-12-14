@@ -39,9 +39,9 @@ static void BM_CHOLESKY_FULL(benchmark::State& state) {
       }
     }
     state.ResumeTiming();
-    il::Error error{};
-    il::Cholesky C{std::move(B), il::io, error};
-    error.abort();
+    il::Status status{};
+    il::Cholesky C{std::move(B), il::io, status};
+    status.abort_on_error();
   }
 }
 
@@ -56,9 +56,9 @@ static void BM_CHOLESKY_PACKED(benchmark::State& state) {
       }
     }
     state.ResumeTiming();
-    il::Error error{};
-    il::LowerCholesky C{std::move(B), il::io, error};
-    error.abort();
+    il::Status status{};
+    il::LowerCholesky C{std::move(B), il::io, status};
+    status.abort_on_error();
   }
 }
 

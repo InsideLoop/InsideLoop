@@ -11,7 +11,7 @@
 #define IL_PNG_H
 
 #include <il/Array3D.h>
-#include <il/core/Error.h>
+#include <il/core/Status.h>
 
 namespace il {
 
@@ -19,10 +19,10 @@ struct png_t {};
 const png_t png{};
 
 il::Array3D<unsigned char> load(const std::string& filename, il::png_t,
-                                il::io_t, il::Error& error);
+                                il::io_t, il::Status &status);
 
 void save(const il::Array3D<unsigned char>& v, const std::string& filename,
-          il::png_t, il::io_t, il::Error& error);
+          il::png_t, il::io_t, il::Status &status);
 }
 
 #endif  // IL_PNG_H

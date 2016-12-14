@@ -15,7 +15,7 @@
 
 #include <il/Array2D.h>
 #include <il/StaticArray.h>
-#include <il/core/Error.h>
+#include <il/core/Status.h>
 
 namespace il {
 
@@ -26,22 +26,22 @@ struct Pixel {
 };
 
 il::Array2D<il::Pixel> read_ppm(const std::string& filename, il::io_t,
-                                il::Error& error) {
+                                il::Status &status) {
   il::Array2D<il::Pixel> image{};
 
   FILE* fp{std::fopen(filename.c_str(), "rb")};
   if (!fp) {
-    error.set(ErrorCode::not_found);
+    status.set(ErrorCode::not_found);
     return image;
   }
 
   char buffer[16];
   if (!std::fgets(buffer, sizeof(buffer), fp)) {
-    error.set(ErrorCode::wrong_file_format);
+    status.set(ErrorCode::wrong_file_format);
     return image;
   }
   if (buffer[0] != 'P' || buffer[1] != '6') {
-    error.set(ErrorCode::wrong_file_format);
+    status.set(ErrorCode::wrong_file_format);
     return image;
   }
 
@@ -58,18 +58,18 @@ il::Array2D<il::Pixel> read_ppm(const std::string& filename, il::io_t,
   int width;
   int height;
   if (std::fscanf(fp, "%d %d", &width, &height) != 2) {
-    error.set(ErrorCode::wrong_file_format);
+    status.set(ErrorCode::wrong_file_format);
     return image;
   }
   // read rgb component
   int rgb_comp_color;
   if (std::fscanf(fp, "%d", &rgb_comp_color) != 1) {
-    error.set(ErrorCode::wrong_file_format);
+    status.set(ErrorCode::wrong_file_format);
     return image;
   }
   // check rgb component depth
   if (rgb_comp_color != 255) {
-    error.set(ErrorCode::wrong_file_format);
+    status.set(ErrorCode::wrong_file_format);
     return image;
   }
   while (std::fgetc(fp) != '\n') {
@@ -78,13 +78,13 @@ il::Array2D<il::Pixel> read_ppm(const std::string& filename, il::io_t,
   // read pixel data from file
   image.resize(width, height);
   if (std::fread(image.data(), 3 * width, height, fp) != height) {
-    error.set(ErrorCode::wrong_file_format);
+    status.set(ErrorCode::wrong_file_format);
     image.resize(0, 0);
     return image;
   }
 
   std::fclose(fp);
-  error.set(ErrorCode::ok);
+  status.set(ErrorCode::ok);
 
   return image;
 }

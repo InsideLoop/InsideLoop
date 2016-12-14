@@ -32,10 +32,10 @@ static void BM_LU_ARRAY2D_MISALIGNED(benchmark::State& state) {
         A(i, j) = 1.0 / (i + j + 1);
       }
     }
-    il::Error error{};
+    il::Status status{};
     il::Array<double> x{
-        il::linear_solve(std::move(A), std::move(y), il::io, error)};
-    error.ignore();
+        il::linear_solve(std::move(A), std::move(y), il::io, status)};
+    status.ignore_error();
   }
 }
 
@@ -50,10 +50,10 @@ static void BM_LU_ARRAY2D(benchmark::State& state) {
         A(i, j) = 1.0 / (i + j + 1);
       }
     }
-    il::Error error{};
+    il::Status status{};
     il::Array<double> x{
-        il::linear_solve(std::move(A), std::move(y), il::io, error)};
-    error.ignore();
+        il::linear_solve(std::move(A), std::move(y), il::io, status)};
+    status.ignore_error();
   }
 }
 
@@ -68,9 +68,9 @@ static void BM_LU_ARRAY2D_COPY(benchmark::State& state) {
         A(i, j) = 1.0 / (i + j + 1);
       }
     }
-    il::Error error{};
-    il::Array<double> x{il::linear_solve(A, y, il::io, error)};
-    error.ignore();
+    il::Status status{};
+    il::Array<double> x{il::linear_solve(A, y, il::io, status)};
+    status.ignore_error();
   }
 }
 
@@ -85,10 +85,10 @@ static void BM_LU_ARRAY2D_SIMD_ALIGNED(benchmark::State& state) {
         A(i, j) = 1.0 / (i + j + 1);
       }
     }
-    il::Error error{};
+    il::Status status{};
     il::Array<double> x{
-        il::linear_solve(std::move(A), std::move(y), il::io, error)};
-    error.ignore();
+        il::linear_solve(std::move(A), std::move(y), il::io, status)};
+    status.ignore_error();
   }
 }
 
@@ -103,10 +103,10 @@ static void BM_LU_ARRAY2D_CACHE_ALIGNED(benchmark::State& state) {
         A(i, j) = 1.0 / (i + j + 1);
       }
     }
-    il::Error error{};
+    il::Status status{};
     il::Array<double> x{
-        il::linear_solve(std::move(A), std::move(y), il::io, error)};
-    error.ignore();
+        il::linear_solve(std::move(A), std::move(y), il::io, status)};
+    status.ignore_error();
   }
 }
 
@@ -121,10 +121,10 @@ static void BM_LU_ARRAY2C_MISALIGNED(benchmark::State& state) {
         A(i, j) = 1.0 / (i + j + 1);
       }
     }
-    il::Error error{};
+    il::Status status{};
     il::Array<double> x{
-        il::linear_solve(std::move(A), std::move(y), il::io, error)};
-    error.ignore();
+        il::linear_solve(std::move(A), std::move(y), il::io, status)};
+    status.ignore_error();
   }
 }
 
@@ -139,10 +139,10 @@ static void BM_LU_ARRAY2C(benchmark::State& state) {
         A(i, j) = 1.0 / (i + j + 1);
       }
     }
-    il::Error error{};
+    il::Status status{};
     il::Array<double> x{
-        il::linear_solve(std::move(A), std::move(y), il::io, error)};
-    error.ignore();
+        il::linear_solve(std::move(A), std::move(y), il::io, status)};
+    status.ignore_error();
   }
 }
 
@@ -157,10 +157,10 @@ static void BM_LU_ARRAY2C_SIMD_ALIGNED(benchmark::State& state) {
         A(i, j) = 1.0 / (i + j + 1);
       }
     }
-    il::Error error{};
+    il::Status status{};
     il::Array<double> x{
-        il::linear_solve(std::move(A), std::move(y), il::io, error)};
-    error.ignore();
+        il::linear_solve(std::move(A), std::move(y), il::io, status)};
+    status.ignore_error();
   }
 }
 
@@ -175,10 +175,10 @@ static void BM_LU_ARRAY2C_CACHE_ALIGNED(benchmark::State& state) {
         A(i, j) = 1.0 / (i + j + 1);
       }
     }
-    il::Error error{};
+    il::Status status{};
     il::Array<double> x{
-        il::linear_solve(std::move(A), std::move(y), il::io, error)};
-    error.ignore();
+        il::linear_solve(std::move(A), std::move(y), il::io, status)};
+    status.ignore_error();
   }
 }
 

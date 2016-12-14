@@ -217,6 +217,62 @@ A `il::StaticArray2D<T, n0, n1>` is also available for 2-dimensional arrays
 whose size is known at compile time. Their elements are stored on the stack
 instead of the heap.
 
+## Linear algebra linked to BLAS/Lapack (MKL)
+
+Matrices are represented as 2-dimensional arrays and many objects are available
+to help solving linear system of equations. Here is the code to solve a linear
+system of equations:
+
+```cpp
+const il::int_t n = 1000;
+il::Array2D<double> A(n, n);
+// Fill the matrix
+il::Array<double> y(n);
+// Fill y
+
+il::Status status;
+il::PartialLU<il::Array2D<double>> lu_decomposition(A, il::io, status);
+if (!status.ok()) {
+  // The matrix is singular to the machine precision. You should deal with the
+  // error.
+}
+
+il::Array<double> x = lu_decomposition.solve(y);
+```
+
+This code shows many design patterns available in the InsideLoop library. At
+first we define the matrix and the second member of the linear system. Then,
+we do the LU decomposition with partial pivoting of the matrix A, which is then
+stored in the object lu_decomposition. As the matrix might be singular with
+respect to machine precision (the algorithm finds no pivot in the process of
+the LU factorization), an error has to be given back to the user. Such errors
+are given back through `il::Status` objects which are passed by reference to the
+function. The tag `il::io` is here to distinguish in between input and output
+parameters. All parameters at its left are passed by value or constant reference
+(they are input parameters) and all parameters at its right are passed by
+reference (they are input/output parameters). It is mandatory to check the
+status of the function before the end of the scope. Otherwise the object
+status will abort the program when destroyed. You can also choose to ignore
+the status of the code with `status.ignore_error()` or even abort the program
+if there is any error with `status.abort_on_error()`. This interface allows
+ an explicit handling of error and makes it impossible to ignore them. It also
+ allows InsideLoop to be used within codes that don't allow exceptions.
+ 
+For those who are familiar with LAPACK which is used behind the scene, it is
+known that the LU decomposition is done inplace by this routine. Here, as A is
+on the left of the `il::io` tag, it shows clearly that A cannot be mutated. A
+careful inspection of the signature of the constructor of
+`il::PartialLU<il::Array2D<double>>` shows that A is passed by value. In case
+you don't need A anymore after the construction of `lu_decomposition` and you
+don't want to pay the price of a copy, you can move A into lu_decomposition
+with the following code.
+
+```cpp
+il::PartialLU<il::Array2D<double>> lu_decomposition(std::move(A), il::io, status);
+```
+It shows that InsideLoop library allows explicit interfaces, explicit error
+handling, everything available at the full performance of MKL.
+
 ## Hash Table
 
 We finally provide a hash table implemented using open addressing and quadratic

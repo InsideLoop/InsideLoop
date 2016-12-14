@@ -15,7 +15,7 @@
 #include <il/container/2d/Array2D.h>
 #include <il/container/2d/LowerArray2D.h>
 #include <il/container/2d/UpperArray2D.h>
-#include <il/core/Error.h>
+#include <il/core/Status.h>
 #include <il/linear_algebra/norm.h>
 
 #ifdef IL_MKL
@@ -43,7 +43,7 @@ class PartialLU<il::Array2D<double>> {
   //
   // where P is a permutation matrix, L is lower triangular with unit diagonal
   // elements, and U is upper triangular.
-  PartialLU(il::Array2D<double> A, il::io_t, il::Error& error);
+  PartialLU(il::Array2D<double> A, il::io_t, il::Status &status);
 
   // Size of the matrix
   il::int_t size(il::int_t d) const;
@@ -63,6 +63,9 @@ class PartialLU<il::Array2D<double>> {
   // Compute the inverse of the matrix
   il::Array2D<double> inverse() const;
 
+  // Compute the determinant of the matrix
+  double determinant() const;
+
   // Compute an approximation of the condition number
   double condition_number(il::Norm norm_type, double norm_a) const;
 
@@ -74,7 +77,7 @@ class PartialLU<il::Array2D<double>> {
 };
 
 PartialLU<il::Array2D<double>>::PartialLU(il::Array2D<double> A, il::io_t,
-                                          il::Error& error)
+                                          il::Status &status)
     : ipiv_{}, lu_{} {
   const int layout = LAPACK_COL_MAJOR;
   const lapack_int m = static_cast<lapack_int>(A.size(0));
@@ -86,11 +89,11 @@ PartialLU<il::Array2D<double>>::PartialLU(il::Array2D<double> A, il::io_t,
 
   IL_ASSERT(lapack_error >= 0);
   if (lapack_error == 0) {
-    error.set(ErrorCode::ok);
+    status.set(ErrorCode::ok);
     ipiv_ = std::move(ipiv);
     lu_ = std::move(A);
   } else {
-    error.set(ErrorCode::division_by_zero);
+    status.set(ErrorCode::division_by_zero);
   }
 }
 
@@ -147,6 +150,17 @@ il::Array2D<double> PartialLU<il::Array2D<double>>::inverse() const {
 
   return inverse;
 }
+
+double PartialLU<il::Array2D<double>>::determinant() const {
+  IL_ASSERT_PRECOND(lu_.size(0) == lu_.size(1));
+
+  double det = 1.0;
+  for (il::int_t i = 0; i < lu_.size(0); ++i) {
+    det *= lu_(i, i);
+  }
+
+  return det;
+};
 
 double PartialLU<il::Array2D<double>>::condition_number(il::Norm norm_type,
                                                         double norm_a) const {

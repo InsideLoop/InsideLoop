@@ -10,9 +10,9 @@
 #ifndef IL_HASHTABLE_H
 #define IL_HASHTABLE_H
 
-#include <il/base.h>
+#include <il/Array.h>
 #include <il/container/hash_table/HashFunction.h>
-#include <il/core/Error.h>
+#include <il/core/Status.h>
 
 namespace il {
 
@@ -111,9 +111,9 @@ class HashTable {
  public:
   HashTable(il::int_t nb_entries = 0);
   il::int_t nb_entries() const;
-  V value(const K& key, il::io_t, il::Error& error) const;
-  void insert(const K& key, const V& value, il::io_t, il::Error& error);
-  void erase(const K& key, il::io_t, il::Error& error);
+  V value(const K& key, il::io_t, il::Status &status) const;
+  void insert(const K& key, const V& value, il::io_t, il::Status &status);
+  void erase(const K& key, il::io_t, il::Status &status);
   bool empty() const;
   HashTableIterator<K, V, F> begin();
   HashTableIterator<K, V, F> end();
@@ -138,40 +138,40 @@ il::int_t HashTable<K, V, F>::nb_entries() const {
 }
 
 template <typename K, typename V, typename F>
-V HashTable<K, V, F>::value(const K& key, il::io_t, il::Error& error) const {
+V HashTable<K, V, F>::value(const K& key, il::io_t, il::Status &status) const {
   il::int_t i;
   bool found = search(key, il::io, i);
   if (found) {
-    error.set(il::ErrorCode::ok);
+    status.set(il::ErrorCode::ok);
     return bucket_[i].value;
   } else {
-    error.set(il::ErrorCode::not_found);
+    status.set(il::ErrorCode::not_found);
     return V{};
   }
 }
 
 template <typename K, typename V, typename F>
 void HashTable<K, V, F>::insert(const K& key, const V& value, il::io_t,
-                                il::Error& error) {
+                                il::Status &status) {
   il::int_t i;
   if (nb_entries_ >= bucket_.size() - 1) {
     grow(nb_bucket(nb_entries_));
   }
   bool found = search(key, il::io, i);
   if (found) {
-    error.set(il::ErrorCode::already_there);
+    status.set(il::ErrorCode::already_there);
     return;
   } else {
     bucket_[i].key = key;
     bucket_[i].value = value;
     ++nb_entries_;
-    error.set(il::ErrorCode::ok);
+    status.set(il::ErrorCode::ok);
     return;
   }
 }
 
 template <typename K, typename V, typename F>
-void HashTable<K, V, F>::erase(const K& key, il::io_t, il::Error& error) {
+void HashTable<K, V, F>::erase(const K& key, il::io_t, il::Status &status) {
   il::int_t i;
   bool found = search(key, il::io, i);
   if (found) {
@@ -179,10 +179,10 @@ void HashTable<K, V, F>::erase(const K& key, il::io_t, il::Error& error) {
     bucket_[i].value = V{};
     --nb_entries_;
     ++nb_tombstones_;
-    error.set(il::ErrorCode::ok);
+    status.set(il::ErrorCode::ok);
     return;
   } else {
-    error.set(il::ErrorCode::not_found);
+    status.set(il::ErrorCode::not_found);
     return;
   }
 }
@@ -265,15 +265,15 @@ void HashTable<K, V, F>::grow(il::int_t n) {
   nb_entries_ = 0;
   nb_tombstones_ = 0;
 
-  il::Error error{};
+  il::Status status{};
   for (il::int_t i = 0; i < old_bucket.size(); ++i) {
     if (!F::is_equal(old_bucket[i].key, empty_key) &&
         !F::is_equal(old_bucket[i].key, tombstone_key)) {
-      insert(old_bucket[i].key, old_bucket[i].value, il::io, error);
-      //      IL_ASSERT(!error.raised());
+      insert(old_bucket[i].key, old_bucket[i].value, il::io, status);
+      //      IL_ASSERT(!!status.ok());
     }
   }
-  error.ignore();
+  status.ignore_error();
 }
 
 template <typename K, typename V, typename F>
