@@ -44,17 +44,17 @@ differs from the standard library container on the following points:
 
 - **Bounds checking**: By default, bound checking is available for all our
   containers in debug mode. For `il::Array<T>`, `v[i]` are bounds checked in
-  debug mode and not in release mode. 
+  debug mode but not in release mode. 
 - **Indices**: Our containers use signed integers for indices. By default, we
-  use `std::ptrdiff_t` which is typedefed to `il::int_t` (it is a 64 bit signed integer on 64-bit macOS, Linux and Windows
+  use `std::ptrdiff_t` which is typedefed to `il::int_t` (it is a 64 bit signed
+  integer on 64-bit macOS, Linux and Windows
   platforms), but the type might be changed to `int` (which is
   a 32-bit signed integer on those platforms).
 - **Initialization**: When T is a numeric type (int, float, double, etc), the
   construction of an `il::Array<T>` of size n does not initialize its memory in
   release mode.
-- **Alignement**: For efficient vectorization, it is sometimes useful to align
-  memory to the vector width which is 32 bytes on AVX2 processors. This can
-  be easily done with the constructor `il::Array<double> v(n, il::align, 32)`.
+- **Vectorization**: InsideLoop library has been designed so it allow many
+  loops to be vectorized by the compiler. 
   
 These choices are important for both debugability and performance. We use
 **signed integers** because it makes it easier to write correct programs.
@@ -77,10 +77,10 @@ il::int_t f(const il::Array<double>& v, a, b) {
   return -1;
 }
 ```
-If you write the same code with unsigned integers, you'll get a bug when
+If you write the same code with unsigned integers, you'll get a bug if
 `a == 0` and v does not contain any zero. In this case, k will go down to
-0, and then the cyclic nature of unsigned integers will make k go from `0`
-to `2^32 - 1 == 4'294'967'295`. An out-of-bound access is ready to happen. Writing a
+0, and then the cyclic nature of unsigned integers will make k jump from `0`
+to `2^32 - 1 == 4'294'967'295`. An out-of-bound access and a crash is ready to happen. Writing a
 correct code with unsigned integers can be done, but is a bit more tricky. We cannot
 count all the bugs which have been discovered because of unsigned integers. Their
 usage in the C++ standard library was a mistake as acknowledged by
@@ -90,7 +90,7 @@ InsideLoop's library allows programmers to stay away from them. Moreover, the fa
 that signed overflow is undefined behaviour in C/C++ allows optimizations which
 are not available to the compiler when dealing with unsigned integers.
 
-We don't enforce initialization of numeric types for debugability and
+We don't enforce **initialization** of numeric types for debugability and
 performance reason. Let's look at the following code which stores the cosine
 of various numbers in an array. It has an obvious bug as `v[n - 1]` is not set.
 
@@ -147,13 +147,26 @@ loop, half of the vector will be taken care by the other socket and the memory
 will have to go trough the Quick Path Interconnect (QPI). The performance of the
  loop will be limited. Unfortunately, there is no easy solution for this problem
  with `std::vector` (unless you really want to deal with
-custom allocators) and this is one of the most important reason `std::vector` are
+custom allocators) and this is one of the many reason `std::vector` is
 not used in high performance computing programs.
 
+Concerning **vectorization**, unfortunately, pointer aliasing 
+makes vectorization impossible for the compiler in many situations. It has to
+be taken care either by working directly with pointers and using the `restrict`
+keyword or by using OpenMP 4 pragmas such as `#pragma omp simd`. InsideLoop
+library allows to get access to the underlying structure of the containers
+when such manual optimization is needed. Moreover, for efficient vectorization,
+it is sometimes useful to align memory to the vector width which is 32 bytes
+on AVX processors. This can be easily done with the constructor
+`il::Array<double> v(n, il::align, 32)`. You can even misalign arrays
+on AVX for teaching purposes with `il::Array<double> w(n, il::align, 16, 32)`.
+  
 ## Allocation on the stack for static and small arrays
 
 Insideloop's library also provides `il::StaticArray<T, n>` which is a replacement for
-`std::array<T, n>`. Moreover, it is often useful to work with small arrays whose size
+`std::array<T, n>` and uses the stack for its storage.
+
+It is also useful to work with small arrays whose size
 is not known at compile time but for which we know that most of them will have
 a small size. For those cases, InsideLoop provides the object `il::SmallArray<T, n>`
 which is a dynamic array whose elements are allocated on the stack when its size
@@ -171,16 +184,16 @@ for (il::int_t i = 0; i < n; ++i) {
 }
 ```
 
-This structure will allow us to use very few memory allocation.
+This structure will allow us to use few memory allocations.
 
 ## Multidimensional arrays
 
 InsideLoop's library provides efficient multidimensional arrays, in Fortran
 and C order. The object `il::Array2D<T>` represents a 2-dimensional array, with
 Fortran ordering: the memory will successively contains `A(0, 0)`, `A(1, 0)`,
-..., `A(nb_row - 1, 0)`, `A(0, 1)`, `A(1, 1)`, ..., `A(0, nb_col - 1)`, ...,
+..., `A(nb_row - 1, 0)`, `A(0, 1)`, `A(1, 1)`, ..., `A(nb_row - 1, 1)`, ...,
 `A(nb_row - 1, nb_col - 1)`. This ordering is the one used in Fortran, and for
-than reason, most BLAS libraries (including the MKL) are better optimized for
+that reason, most BLAS libraries (including the MKL) are better optimized for
 it. Here is a code that constructs an Hilbert matrix:
 
 ```cpp
@@ -193,11 +206,11 @@ for (il::int_t j = 0; A.size(1); ++j) {
 }
 ```
 
-Most operations available on `il::Array<T>` ae also available on
+Most operations available on `il::Array<T>` are also available for
 `il::Array2D<T>`. For instance, it is possible to `resize` the object and
 `reserve` memory for it. It is also possible to align a multidimensional array.
-The object will include some padding at the end of each column so each
-column is aligned.
+The object will include some padding at the end of each column so the first
+element of each column is aligned.
 
 ```cpp
 const il::int_t n = 63;
@@ -217,7 +230,7 @@ A `il::StaticArray2D<T, n0, n1>` is also available for 2-dimensional arrays
 whose size is known at compile time. Their elements are stored on the stack
 instead of the heap.
 
-## Linear algebra linked to BLAS/Lapack (MKL)
+## Linear algebra at the speed of MKL-optimized BLAS/Lapack
 
 Matrices are represented as 2-dimensional arrays and many routines are available
 to help solving linear algebra problems.
@@ -230,7 +243,7 @@ il::Array2D<double> A(n, n);
 il::Array<double> x(n);
 // Fill x
 
-il::Array<double> x = il::dot(A, x);
+il::Array<double> y = il::dot(A, x);
 ```
 
 Matrix multiplication is also available with the same function
@@ -244,9 +257,10 @@ il::Array2D<double> B(n, n);
 
 il::Array2D<double> C = il::dot(A, B);
 ```
+which can be used for any tensor contraction.
 
-and allows the best performance available on Intel processors as it use the
-MKL library from Intel behind the scene. If a matrix C is already available
+It allows the best performance available on Intel processors as it uses the
+MKL library behind the scene. If a matrix C is already available
 and you want to add the result of A.B to C, you can use the following blas
 function which won't allocate any memory:
 
@@ -266,18 +280,17 @@ il::blas(alpha, A, B, beta, il::io, C);
 ```
 
 As you can see, InsideLoop is quite different from other linear algebra packages
-such as Eigen. We don't use expression templates which allow to write
-`C += A * B` which is considered useful by beginners. But it allows us to have
+such as Eigen. We don't use expression templates which would allow to write
+`C += A * B` and expect good performance. But it allows us to have
 a better control of the memory and the different operations. It also allows us
 to have a code that you can understand and hack easily if you need a new feature.
-You are also more likely to understand the errors of the compiler if something
+You are more likely to understand the errors of the compiler if something
 goes wrong. 
 
-InsideLoop also allows to solve system of linear equations.
+You can also solve system of linear equations:
 
 ```cpp
 // Code to solve the system A.x = y
-
 const il::int_t n = 1000;
 il::Array2D<double> A(n, n);
 // Fill the matrix
@@ -323,7 +336,6 @@ consequence, we can even avoid memory allocation for x.
 
 ```cpp
 // Code to solve the system A.x = y
-
 const il::int_t n = 1000;
 il::Array2D<double> A(n, n);
 // Fill the matrix
