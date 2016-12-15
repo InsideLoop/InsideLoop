@@ -53,8 +53,10 @@ differs from the standard library container on the following points:
 - **Initialization**: When T is a numeric type (int, float, double, etc), the
   construction of an `il::Array<T>` of size n does not initialize its memory in
   release mode.
-- **Vectorization**: InsideLoop library has been designed so it allow many
-  loops to be vectorized by the compiler. 
+- **Vectorization**: InsideLoop library has been designed to allow many
+  loops to be vectorized automatically by the compiler, and to allow easy
+  access to the underlying structure of the objects when guided or manual
+  vectorization is needed.
   
 These choices are important for both debugability and performance. We use
 **signed integers** because it makes it easier to write correct programs.
@@ -65,8 +67,8 @@ equal to 0. With signed integers, the code is straightforward:
 #include <il/Array.h>
 
 il::int_t f(const il::Array<double>& v, a, b) {
-  ASSERT(a >= 0);
-  ASSERT(b <= v.size());
+  IL_ASSERT_PRECOND(a >= 0);
+  IL_ASSERT_PRECOND(b <= v.size());
   
   for (il::int_t k = b - 1; k >= a; --k) {
     if (v[k] == 0.0) {

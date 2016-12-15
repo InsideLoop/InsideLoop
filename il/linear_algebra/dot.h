@@ -109,6 +109,22 @@ inline il::StaticArray<T, n1> dot(const il::StaticArray<T, n>& A,
   return C;
 }
 
+template <typename T, il::int_t n0, il::int_t n, il::int_t n1>
+inline il::StaticArray2D<T, n0, n1> dot(const il::StaticArray2D<T, n0, n>& A,
+                                        const il::StaticArray2D<T, n, n1>& B) {
+  il::StaticArray2D<T, n0, n1> C{0};
+
+  for (il::int_t i1 = 0; i1 < n1; ++i1) {
+    for (il::int_t i = 0; i < n; ++i) {
+      for (il::int_t i0 = 0; i0 < n0; ++i0) {
+        C(i0, i1) += A(i0, i) * B(i, i1);
+      }
+    }
+  }
+
+  return C;
+}
+
 template <typename T, il::int_t n0, il::int_t n1, il::int_t n>
 inline il::StaticArray2D<T, n0, n1> dot(
     const il::StaticArray3D<T, n0, n1, n>& A, const il::StaticArray<T, n>& B) {

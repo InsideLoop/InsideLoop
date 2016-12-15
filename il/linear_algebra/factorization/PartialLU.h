@@ -36,7 +36,7 @@ class PartialLU<il::Array2D<double>> {
   il::Array2D<double> lu_;
 
  public:
-  // Computes a LU factorization of a genral n0 x n1 matrix A using partial
+  // Computes a LU factorization of a general n0 x n1 matrix A using partial
   // pivoting with row interchanges. The factorization has the form
   //
   //  A = P.L.U

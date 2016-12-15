@@ -186,8 +186,7 @@ set(SOURCE_FILES
     il/linear_algebra/norm.h
     il/linear_algebra/factorization/PartialLU.h
     il/linear_algebra/factorization/Cholesky.h
-    il/linear_algebra/factorization/LowerCholesky.h
-    il/unit/time.h
+        il/unit/time.h
     il/pretty_print/gdb/__init__.py
     il/pretty_print/gdb/printers.py)
 
