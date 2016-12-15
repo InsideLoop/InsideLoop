@@ -28,6 +28,7 @@ enum class ErrorCode {
   nonpositive_number,
   positive_number,
   nonnegative_number,
+  no_convergence,
   wrong_file_format,
   wrong_type,
   internal_error,

@@ -174,7 +174,7 @@ set(SOURCE_FILES
     il/core/config.h
     il/core/ilassert.h
     il/core/ildef.h
-        il/core/Status.h
+    il/core/Status.h
     il/image/ppm.h
     il/io/numpy.h
     il/io/numpy.cpp
@@ -186,7 +186,7 @@ set(SOURCE_FILES
     il/linear_algebra/norm.h
     il/linear_algebra/factorization/PartialLU.h
     il/linear_algebra/factorization/Cholesky.h
-        il/unit/time.h
+    il/unit/time.h
     il/pretty_print/gdb/__init__.py
     il/pretty_print/gdb/printers.py)
 
@@ -213,6 +213,7 @@ set(UNIT_TEST_FILES
     il/linear_algebra/_test/blas_test.cpp
     il/linear_algebra/_test/linear_solve_test.cpp
     il/linear_algebra/_test/dot_test.cpp
+    il/linear_algebra/factorization/_test/Eigen_test.cpp
     il/linear_algebra/sparse/_test/matrix/heat.cpp
     il/linear_algebra/sparse/_test/PardisoSolver_test.cpp
     il/linear_algebra/sparse/_test/GmresIlu0Solver_test.cpp

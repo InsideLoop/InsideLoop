@@ -1,0 +1,84 @@
+//==============================================================================
+//
+//                                  InsideLoop
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.txt for details.
+//
+//==============================================================================
+
+#ifndef IL_SINGULAR_H
+#define IL_SINGULAR_H
+
+#include <il/container/1d/Array.h>
+#include <il/container/2d/Array2D.h>
+#include <il/core/Status.h>
+#include <il/linear_algebra/norm.h>
+
+#ifdef IL_MKL
+#include <mkl_lapacke.h>
+#else
+#include <lapacke.h>
+#endif
+
+namespace il {
+
+template <typename MatrixType>
+class Singular {};
+
+template <>
+class Singular<il::Array2D<double>> {
+ private:
+  il::Array<double> singular_value_;
+
+ public:
+  // Computes singular values of A
+  Singular(il::Array2D<double> A, il::io_t, il::Status& status);
+};
+
+Singular<il::Array2D<double>>::Singular(il::Array2D<double> A, il::io_t,
+                                        il::Status& status)
+    : singular_value_{} {
+  IL_ASSERT_PRECOND(A.size(0) > 0);
+  IL_ASSERT_PRECOND(A.size(1) > 0);
+  IL_ASSERT_PRECOND(A.size(0) == A.size(1));
+
+  const int layout = LAPACK_COL_MAJOR;
+  const lapack_int m = static_cast<lapack_int>(A.size(0));
+  const lapack_int n = static_cast<lapack_int>(A.size(1));
+  const lapack_int lda = static_cast<lapack_int>(A.stride(1));
+  const il::int_t min_mn = m < n ? m : n;
+  il::Array<double> d{min_mn};
+  il::Array<double> e{(min_mn == 1) ? 1 : (min_mn - 1)};
+  il::Array<double> tauq{min_mn};
+  il::Array<double> taup{min_mn};
+  lapack_int lapack_error =
+      LAPACKE_dgebrd(layout, m, n, A.data(), lda, d.data(), e.data(),
+                     tauq.data(), taup.data());
+  IL_ASSERT(lapack_error >= 0);
+
+  const char uplo = (m >= n) ? 'U' : 'L';
+  const lapack_int ncvt = 0;
+  const lapack_int ldvt = 1;
+  const lapack_int nru = 0;
+  const lapack_int ldu = 1;
+  const lapack_int ncc = 0;  // No matrix C is upplied
+  const lapack_int ldc = 1;  // No matrix C is upplied
+  il::Array<double> vt{ldvt * ncvt};
+  il::Array<double> u{ldu * n};
+  il::Array<double> c{1};  // Should be useless
+  lapack_error =
+      LAPACKE_dbdsqr(layout, uplo, n, ncvt, nru, ncc, d.data(), e.data(),
+                     vt.data(), ldvt, u.data(), ldu, c.data(), ldc);
+
+  IL_ASSERT(lapack_error >= 0);
+  if (lapack_error == 0) {
+    status.set(ErrorCode::ok);
+    singular_value_ = std::move(d);
+  } else {
+    status.set(ErrorCode::no_convergence);
+  }
+}
+}
+
+#endif  // IL_SINGULAR_H

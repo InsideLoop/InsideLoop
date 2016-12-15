@@ -11,7 +11,10 @@
 
 #include <il/Timer.h>
 #include <il/linear_algebra/factorization/Cholesky.h>
+#include <il/linear_algebra/factorization/HouseHolder.h>
 #include <il/linear_algebra/factorization/PartialLU.h>
+#include <il/linear_algebra/factorization/Singular.h>
+#include <il/linear_algebra/factorization/Eigen.h>
 
 int main() {
   const il::int_t n = 10000;
@@ -46,10 +49,32 @@ int main() {
   status.abort_on_error();
   timer_lu.stop();
 
-  std::printf("Time for Cholesky decomposition: %7.2f s\n", timer_llt.time());
-  std::printf("Time for Cholesky (packed) decomposition: %7.2f s\n",
+  il::Timer timer_house_holder{};
+  il::HouseHolder<il::Array2D<double>> house_holder_decomposition{A};
+  timer_house_holder.stop();
+
+  il::Timer timer_eigen{};
+  il::Eigen<il::Array2D<double>> eigen_decomposition{ A, il::io, status};
+  status.abort_on_error();
+  timer_eigen.stop();
+
+  il::Timer timer_svd{};
+  il::Singular<il::Array2D<double>> svd_decomposition{ A, il::io, status};
+  status.abort_on_error();
+  timer_svd.stop();
+
+  std::printf("                    Time for Cholesky decomposition: %7.2f s\n",
+              timer_llt.time());
+  std::printf("           Time for Cholesky (packed) decomposition: %7.2f s\n",
               timer_llt_lower.time());
-  std::printf("Time for LU decomposition: %7.2f s\n", timer_lu.time());
+  std::printf("                          Time for LU decomposition: %7.2f s\n",
+              timer_lu.time());
+  std::printf("                 Time for HouseHolder decomposition: %7.2f s\n",
+              timer_house_holder.time());
+  std::printf("   Time for Eigen Value Decomposition decomposition: %7.2f s\n",
+              timer_eigen.time());
+  std::printf("Time for Singular Value Decomposition decomposition: %7.2f s\n",
+              timer_svd.time());
 
   return 0;
 }
