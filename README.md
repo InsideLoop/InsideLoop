@@ -1,8 +1,7 @@
 ![InsideLoop icon](http://www.insideloop.io/wp-content/uploads/2014/09/inside-loop-logo-front.png)
 
 InsideLoop is a **C++11 library** for **high performance scientific applications**
-running on processors including **Xeon** and **Xeon Phi** but also coprocessors
-including **Cuda** devices. In
+running on **processors** and **coprocessors**. In
 order to get the most of current hardware, data locality is of uttermost
 importance. Unfortunately, the Standard Template Library (STL) has been designed
 for generic programming and hides its memory layout to the programmer.
@@ -428,6 +427,20 @@ il::blas(1.0, A_gpu, B_gpu, 0.0, il::io, C_gpu);
 il::copy(C_gpu, il::io, C);
 
 ```
+
+## A Platform for core i7, Xeon, Xeon Phi and Cuda devices
+
+This makes it very easy to compare state of the art libraries on processors
+and on a co-processor. For instance, here are the timings for multiplying two
+10000x10000 matrices of floats and doubles on different devices using both the
+MKL from Parallel Studio XE 2017 and cuBLAS from CUDA 8.0:
+
+|                                                 |Time (float) | TFlops (float) | Time (double) | Tflops (double) |
+|-------------------------------------------------|:-----------:|:--------------:|:-------------:|:---------------:|
+|Core i7, 4 cores, Haswell (MacBook Pro 2014)     |     6.25 s  |   0.32 TFlops  |   12.78 s     |   0.15 TFlops   |
+|Dual-Xeon E5-2660, 2x14 cores, Broadwell         |     1.36 s  |   1.45 TFlops  |    2.72 s     |   0.73 TFlops   |
+|NVidia Titan X Pascal                            |     0.20 s  |   10.1 TFlops  |    5.40 s     |   0.37 TFlops   |
+
 
 ## Hash Table
 
