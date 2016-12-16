@@ -137,6 +137,30 @@ inline void blas(double alpha, const il::Array2C<double>& A,
 
 // A, B, C are matrices
 // C <- alpha A.B + beta C
+inline void blas(float alpha, const il::Array2D<float>& A,
+                 const il::Array2D<float>& B, float beta, il::io_t,
+                 il::Array2D<float>& C) {
+  IL_ASSERT(A.size(1) == B.size(0));
+  IL_ASSERT(C.size(0) == A.size(0));
+  IL_ASSERT(C.size(1) == B.size(1));
+  IL_ASSERT(&A != &C);
+  IL_ASSERT(&B != &C);
+
+  const IL_CBLAS_LAYOUT layout{CblasColMajor};
+  const CBLAS_TRANSPOSE transa{CblasNoTrans};
+  const CBLAS_TRANSPOSE transb{CblasNoTrans};
+  const IL_CBLAS_INT m{static_cast<IL_CBLAS_INT>(A.size(0))};
+  const IL_CBLAS_INT n{static_cast<IL_CBLAS_INT>(B.size(1))};
+  const IL_CBLAS_INT k{static_cast<IL_CBLAS_INT>(A.size(1))};
+  const IL_CBLAS_INT lda{static_cast<IL_CBLAS_INT>(A.stride(1))};
+  const IL_CBLAS_INT ldb{static_cast<IL_CBLAS_INT>(B.stride(1))};
+  const IL_CBLAS_INT ldc{static_cast<IL_CBLAS_INT>(C.stride(1))};
+  cblas_sgemm(layout, transa, transb, m, n, k, alpha, A.data(), lda, B.data(),
+              ldb, beta, C.data(), ldc);
+}
+
+// A, B, C are matrices
+// C <- alpha A.B + beta C
 inline void blas(double alpha, const il::Array2D<double>& A,
                  const il::Array2D<double>& B, double beta, il::io_t,
                  il::Array2D<double>& C) {
