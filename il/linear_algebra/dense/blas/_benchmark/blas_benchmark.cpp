@@ -13,7 +13,7 @@
 #include <il/Array.h>
 #include <il/Array2D.h>
 #include <il/Array2C.h>
-#include <il/linear_algebra/blas.h>
+#include <il/linear_algebra/dense/blas/blas.h>
 
 #include <benchmark/benchmark.h>
 

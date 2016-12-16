@@ -7,5 +7,5 @@
 //
 //==============================================================================
 
-#include <il/linear_algebra/dot.h>
-#include <il/linear_algebra/linear_solve.h>
+#include <il/linear_algebra/dense/blas/dot.h>
+#include <il/linear_algebra/dense/factorization/linear_solve.h>

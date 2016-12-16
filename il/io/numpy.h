@@ -14,7 +14,7 @@
 #include <il/Array2D.h>
 #include <il/core/Status.h>
 
-#include <il/linear_algebra/sparse/container/SparseArray2C.h>
+#include <il/SparseArray2C.h>
 #include <zlib.h>
 #include <cassert>
 #include <cstdio>

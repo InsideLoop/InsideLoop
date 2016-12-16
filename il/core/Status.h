@@ -31,6 +31,7 @@ enum class ErrorCode {
   no_convergence,
   wrong_file_format,
   wrong_type,
+  wrong_input,
   internal_error,
   unimplemented
 };

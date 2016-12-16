@@ -7,7 +7,7 @@
 //
 //==============================================================================
 
-#include <il/linear_algebra/sparse/_test/matrix/heat.h>
+#include <il/linear_algebra/sparse/factorization/_test/matrix/heat.h>
 
 namespace il {
 

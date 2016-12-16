@@ -16,7 +16,7 @@
 #include <il/container/2d/LowerArray2D.h>
 #include <il/container/2d/UpperArray2D.h>
 #include <il/core/Status.h>
-#include <il/linear_algebra/norm.h>
+#include <il/linear_algebra/dense/blas/norm.h>
 
 #ifdef IL_MKL
 #include <mkl_lapacke.h>
@@ -27,10 +27,10 @@
 namespace il {
 
 template <typename MatrixType>
-class PartialLU {};
+class LU {};
 
 template <>
-class PartialLU<il::Array2D<double>> {
+class LU<il::Array2D<double>> {
  private:
   il::Array<lapack_int> ipiv_;
   il::Array2D<double> lu_;
@@ -43,7 +43,7 @@ class PartialLU<il::Array2D<double>> {
   //
   // where P is a permutation matrix, L is lower triangular with unit diagonal
   // elements, and U is upper triangular.
-  PartialLU(il::Array2D<double> A, il::io_t, il::Status &status);
+  LU(il::Array2D<double> A, il::io_t, il::Status &status);
 
   // Size of the matrix
   il::int_t size(il::int_t d) const;
@@ -76,7 +76,7 @@ class PartialLU<il::Array2D<double>> {
   il::UpperArray2D<double> U() const;
 };
 
-PartialLU<il::Array2D<double>>::PartialLU(il::Array2D<double> A, il::io_t,
+LU<il::Array2D<double>>::LU(il::Array2D<double> A, il::io_t,
                                           il::Status &status)
     : ipiv_{}, lu_{} {
   const int layout = LAPACK_COL_MAJOR;
@@ -97,12 +97,12 @@ PartialLU<il::Array2D<double>>::PartialLU(il::Array2D<double> A, il::io_t,
   }
 }
 
-il::int_t PartialLU<il::Array2D<double>>::size(il::int_t d) const {
+il::int_t LU<il::Array2D<double>>::size(il::int_t d) const {
   IL_ASSERT_BOUNDS(static_cast<il::uint_t>(d) < static_cast<il::uint_t>(2));
   return lu_.size(d);
 }
 
-il::Array<double> PartialLU<il::Array2D<double>>::solve(
+il::Array<double> LU<il::Array2D<double>>::solve(
     il::Array<double> y) const {
   IL_ASSERT_PRECOND(lu_.size(0) == lu_.size(1));
 
@@ -119,7 +119,7 @@ il::Array<double> PartialLU<il::Array2D<double>>::solve(
   return y;
 }
 
-il::Array2D<double> PartialLU<il::Array2D<double>>::solve(
+il::Array2D<double> LU<il::Array2D<double>>::solve(
     il::Array2D<double> y) const {
   IL_ASSERT_PRECOND(lu_.size(0) == lu_.size(1));
   IL_ASSERT_PRECOND(lu_.size(0) == y.size(0));
@@ -137,7 +137,7 @@ il::Array2D<double> PartialLU<il::Array2D<double>>::solve(
   return y;
 }
 
-il::Array2D<double> PartialLU<il::Array2D<double>>::inverse() const {
+il::Array2D<double> LU<il::Array2D<double>>::inverse() const {
   IL_ASSERT_PRECOND(lu_.size(0) == lu_.size(1));
 
   il::Array2D<double> inverse{lu_};
@@ -151,7 +151,7 @@ il::Array2D<double> PartialLU<il::Array2D<double>>::inverse() const {
   return inverse;
 }
 
-double PartialLU<il::Array2D<double>>::determinant() const {
+double LU<il::Array2D<double>>::determinant() const {
   IL_ASSERT_PRECOND(lu_.size(0) == lu_.size(1));
 
   double det = 1.0;
@@ -162,7 +162,7 @@ double PartialLU<il::Array2D<double>>::determinant() const {
   return det;
 };
 
-double PartialLU<il::Array2D<double>>::condition_number(il::Norm norm_type,
+double LU<il::Array2D<double>>::condition_number(il::Norm norm_type,
                                                         double norm_a) const {
   IL_ASSERT_PRECOND(lu_.size(0) == lu_.size(1));
   IL_ASSERT_PRECOND(norm_type == il::Norm::L1 || norm_type == il::Norm::Linf);
@@ -179,19 +179,19 @@ double PartialLU<il::Array2D<double>>::condition_number(il::Norm norm_type,
   return 1.0 / rcond;
 }
 
-const double& PartialLU<il::Array2D<double>>::L(il::int_t i,
+const double& LU<il::Array2D<double>>::L(il::int_t i,
                                                 il::int_t j) const {
   IL_ASSERT_BOUNDS(j < i);
   return lu_(i, j);
 }
 
-const double& PartialLU<il::Array2D<double>>::U(il::int_t i,
+const double& LU<il::Array2D<double>>::U(il::int_t i,
                                                 il::int_t j) const {
   IL_ASSERT_BOUNDS(j >= i);
   return lu_(i, j);
 }
 
-il::LowerArray2D<double> PartialLU<il::Array2D<double>>::L() const {
+il::LowerArray2D<double> LU<il::Array2D<double>>::L() const {
   IL_ASSERT_PRECOND(size(0) == size(1));
 
   const il::int_t n = size(0);
@@ -205,7 +205,7 @@ il::LowerArray2D<double> PartialLU<il::Array2D<double>>::L() const {
   return L;
 }
 
-il::UpperArray2D<double> PartialLU<il::Array2D<double>>::U() const {
+il::UpperArray2D<double> LU<il::Array2D<double>>::U() const {
   IL_ASSERT_PRECOND(size(0) == size(1));
 
   const il::int_t n = size(0);

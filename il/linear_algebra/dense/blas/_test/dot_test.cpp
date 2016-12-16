@@ -9,7 +9,7 @@
 
 #include <gtest/gtest.h>
 
-#include <il/linear_algebra/dot.h>
+#include <il/linear_algebra/dense/blas/dot.h>
 #include <il/math.h>
 
 TEST(dot, matrix_vector_f_0) {

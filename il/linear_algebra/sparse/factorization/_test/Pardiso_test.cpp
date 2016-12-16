@@ -9,12 +9,12 @@
 
 #include <gtest/gtest.h>
 
-#include <il/linear_algebra/sparse/GmresIlu0Solver.h>
-#include <il/linear_algebra/sparse/_test/matrix/heat.h>
+#include <il/linear_algebra/sparse/factorization/Pardiso.h>
+#include <il/linear_algebra/sparse/factorization/_test/matrix/heat.h>
 
 #include <il/benchmark/tools/timer/Timer.h>
 
-TEST(GmresIlu0Solver, base) {
+TEST(Pardiso, base) {
   const double epsilon = 1.0e-15;
 
   il::Array<double> y{il::value, {3.0, 7.0}};
@@ -32,80 +32,75 @@ TEST(GmresIlu0Solver, base) {
   A[index[2]] = 3.0;
   A[index[3]] = 4.0;
 
-  const double relative_precision = epsilon;
-  const il::int_t max_nb_iteration = 10;
-  const il::int_t nb_restart = 5;
-  il::GmresIlu0Solver solver{relative_precision, max_nb_iteration, nb_restart};
-  solver.compute_preconditionner(il::io, A);
-  il::Array<double> x = solver.solve(y, il::io, A);
+  il::Pardiso solver{};
+  solver.symbolic_factorization(A);
+  solver.numerical_factorization(A);
+
+  il::Array<double> x = solver.solve(A, y);
 
   ASSERT_TRUE(il::abs(x[0] - 1.0) <= epsilon && il::abs(x[1] - 1.0) <= epsilon);
 }
 
-TEST(GmresIlu0Solver, heat) {
+TEST(Pardiso, heat) {
   const il::int_t n = 10;
 
   il::SparseArray2C<double> A{};
   il::Array<double> y{};
   il::heat_1d(n, il::io, A, y);
 
-  const double relative_precision = 1.0e-15;
-  const il::int_t max_nb_iteration = 10;
-  const il::int_t nb_restart = 5;
-  il::GmresIlu0Solver solver{relative_precision, max_nb_iteration, nb_restart};
-  solver.compute_preconditionner(il::io, A);
-  il::Array<double> x = solver.solve(y, il::io, A);
+  il::Pardiso solver{};
+  solver.symbolic_factorization(A);
+  solver.numerical_factorization(A);
+  il::Array<double> x = solver.solve(A, y);
 
   double max_err = 0.0;
   for (il::int_t i = 0; i < n; ++i) {
     max_err = il::max(max_err, il::abs(x[i] - 1.0));
   }
 
-  ASSERT_TRUE(max_err <= 10 * relative_precision);
+  const double epsilon = 1.0e-15;
+  ASSERT_TRUE(max_err <= epsilon);
 }
 
-TEST(GmresIlu0Solver, heat2D) {
+TEST(Pardiso, heat2D) {
   const il::int_t n = 10;
 
   il::SparseArray2C<double> A{};
   il::Array<double> y{};
   il::heat_2d(n, il::io, A, y);
 
-  const double relative_precision = 1.0e-7;
-  const il::int_t max_nb_iteration = 100;
-  const il::int_t nb_restart = 10;
-  il::GmresIlu0Solver solver{relative_precision, max_nb_iteration, nb_restart};
-  solver.compute_preconditionner(il::io, A);
-  il::Array<double> x = solver.solve(y, il::io, A);
-  il::int_t nb_iteration = solver.nb_iteration();
-  (void)nb_iteration;
+  il::Pardiso solver{};
+  solver.symbolic_factorization(A);
+  solver.numerical_factorization(A);
+  il::Array<double> x = solver.solve(A, y);
 
   double max_err = 0.0;
   for (il::int_t i = 0; i < x.size(); ++i) {
     max_err = il::max(max_err, il::abs(x[i] - 1.0));
   }
 
-  ASSERT_TRUE(max_err <= 10 * relative_precision);
+  const double epsilon = 1.0e-15;
+  ASSERT_TRUE(max_err <= 10 * epsilon);
 }
 
-TEST(GmresIlu0Solver, heat3D) {
+TEST(Pardiso, heat3D) {
   const il::int_t n = 10;
 
   il::SparseArray2C<double> A{};
   il::Array<double> y{};
   il::heat_3d(n, il::io, A, y);
 
-  const double relative_precision = 1.0e-7;
-  const il::int_t max_nb_iteration = 100;
-  const il::int_t nb_restart = 10;
-  il::GmresIlu0Solver solver{relative_precision, max_nb_iteration, nb_restart};
-  solver.compute_preconditionner(il::io, A);
-  il::Array<double> x = solver.solve(y, il::io, A);
+  il::Pardiso solver{};
+  solver.symbolic_factorization(A);
+  solver.numerical_factorization(A);
+  il::Array<double> x = solver.solve(A, y);
+
 
   double max_err = 0.0;
   for (il::int_t i = 0; i < x.size(); ++i) {
     max_err = il::max(max_err, il::abs(x[i] - 1.0));
   }
 
-  ASSERT_TRUE(max_err <= 10 * relative_precision);
+  const double epsilon = 1.0e-7;
+  ASSERT_TRUE(max_err <= 10 * epsilon);
 }

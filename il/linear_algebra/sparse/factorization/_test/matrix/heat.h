@@ -10,7 +10,7 @@
 #ifndef IL_HEAT_H
 #define IL_HEAT_H
 
-#include <il/linear_algebra/sparse/container/SparseArray2C.h>
+#include <il/SparseArray2C.h>
 
 namespace il {
 

@@ -7,4 +7,4 @@
 //
 //==============================================================================
 
-#include <il/linear_algebra/sparse/container/SparseArray2C.h>
+#include <il/container/2d/SparseArray2C.h>

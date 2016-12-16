@@ -12,7 +12,7 @@
 #include <gtest/gtest.h>
 
 #include <il/Array2D.h>
-#include <il/linear_algebra/factorization/Eigen.h>
+#include <il/linear_algebra/dense/factorization/Eigen.h>
 
 bool complex_sort(std::complex<double> z0, std::complex<double> z1) {
   if (std::real(z0) == std::real(z1)) {

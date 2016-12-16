@@ -15,7 +15,7 @@
 #include <il/StaticArray3D.h>
 
 #include <il/container/1d/StaticArray.h>
-#include <il/linear_algebra/blas.h>
+#include <il/linear_algebra/dense/blas/blas.h>
 
 namespace il {
 
@@ -158,6 +158,7 @@ inline il::StaticArray2D<T, n0, n2> dot_1_0(
 
   return C;
 }
+
 }
 
 #endif  // IL_DOT_H

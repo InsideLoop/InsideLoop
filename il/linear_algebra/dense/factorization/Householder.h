@@ -13,7 +13,7 @@
 #include <il/container/1d/Array.h>
 #include <il/container/2d/Array2D.h>
 #include <il/core/Status.h>
-#include <il/linear_algebra/norm.h>
+#include <il/linear_algebra/dense/blas/norm.h>
 
 #ifdef IL_MKL
 #include <mkl_lapacke.h>
@@ -24,10 +24,10 @@
 namespace il {
 
 template <typename MatrixType>
-class HouseHolder {};
+class Householder {};
 
 template <>
-class HouseHolder<il::Array2D<double>> {
+class Householder<il::Array2D<double>> {
  private:
   il::Array<double> reflexion_;
   il::Array2D<double> house_holder_;
@@ -37,7 +37,7 @@ class HouseHolder<il::Array2D<double>> {
   //
   //  A = Q.R
   //
-  HouseHolder(il::Array2D<double> A);
+  Householder(il::Array2D<double> A);
 
   // Size of the matrix
 //  il::int_t size(il::int_t d) const;
@@ -46,7 +46,7 @@ class HouseHolder<il::Array2D<double>> {
 //  il::Array<double> solve(il::Array<double> y) const;
 };
 
-HouseHolder<il::Array2D<double>>::HouseHolder(il::Array2D<double> A)
+Householder<il::Array2D<double>>::Householder(il::Array2D<double> A)
     : house_holder_{} {
   IL_ASSERT_PRECOND(A.size(0) > 0);
   IL_ASSERT_PRECOND(A.size(1) > 0);

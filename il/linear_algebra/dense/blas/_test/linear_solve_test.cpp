@@ -9,7 +9,7 @@
 
 #include <gtest/gtest.h>
 
-#include <il/linear_algebra/linear_solve.h>
+#include <il/linear_algebra/dense/factorization/linear_solve.h>
 
 TEST(linear_solve, square_matrix_0) {
   il::int_t test_passed{false};

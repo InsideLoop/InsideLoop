@@ -9,7 +9,7 @@
 
 #include <gtest/gtest.h>
 
-#include <il/linear_algebra/blas.h>
+#include <il/linear_algebra/dense/blas/blas.h>
 
 TEST(Blas, daxpy) {
   il::Array<double> x{il::value, {1.0, 2.0}};

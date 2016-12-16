@@ -28,12 +28,12 @@
 #include "mkl_spblas.h"
 
 #include <il/container/1d/StaticArray.h>
-#include <il/linear_algebra/sparse/container/SparseArray2C.h>
+#include <il/SparseArray2C.h>
 #include <il/math.h>
 
 namespace il {
 
-class GmresIlu0Solver {
+class GmresIlu0 {
  private:
   il::int_t max_nb_iteration_;
   il::int_t restart_iteration_;
@@ -49,8 +49,8 @@ class GmresIlu0Solver {
   const double* matrix_element_;
 
  public:
-  GmresIlu0Solver();
-  GmresIlu0Solver(double relative_precision, int max_nb_iteration,
+  GmresIlu0();
+  GmresIlu0(double relative_precision, int max_nb_iteration,
                   int restart_iteration);
   void set_relative_precision(double relative_precision);
   void set_max_nb_iteration(il::int_t max_nb_iteration);
@@ -65,9 +65,9 @@ class GmresIlu0Solver {
   static void convert_fortran_to_c(il::io_t, il::SparseArray2C<double>& A);
 };
 
-inline GmresIlu0Solver::GmresIlu0Solver() : GmresIlu0Solver{1.0e-3, 100, 20} {}
+inline GmresIlu0::GmresIlu0() : GmresIlu0{1.0e-3, 100, 20} {}
 
-inline GmresIlu0Solver::GmresIlu0Solver(double relative_precision,
+inline GmresIlu0::GmresIlu0(double relative_precision,
                                         int max_nb_iteration,
                                         int restart_iteration)
     : ipar_{}, dpar_{}, bilu0_{} {
@@ -81,20 +81,20 @@ inline GmresIlu0Solver::GmresIlu0Solver(double relative_precision,
   matrix_element_ = nullptr;
 }
 
-inline void GmresIlu0Solver::set_relative_precision(double relative_precision) {
+inline void GmresIlu0::set_relative_precision(double relative_precision) {
   relative_precision_ = relative_precision;
 }
 
-inline void GmresIlu0Solver::set_max_nb_iteration(il::int_t max_nb_iteration) {
+inline void GmresIlu0::set_max_nb_iteration(il::int_t max_nb_iteration) {
   max_nb_iteration_ = max_nb_iteration;
 }
 
-inline void GmresIlu0Solver::set_restart_iteration(
+inline void GmresIlu0::set_restart_iteration(
     il::int_t restart_iteration) {
   restart_iteration_ = restart_iteration;
 }
 
-inline void GmresIlu0Solver::compute_preconditionner(
+inline void GmresIlu0::compute_preconditionner(
     il::io_t, il::SparseArray2C<double>& A) {
   IL_ASSERT(A.size(0) == A.size(1));
 
@@ -124,7 +124,7 @@ inline void GmresIlu0Solver::compute_preconditionner(
   matrix_element_ = A.element_data();
 }
 
-inline il::Array<double> il::GmresIlu0Solver::solve(
+inline il::Array<double> il::GmresIlu0::solve(
     const il::Array<double>& y, il::io_t, il::SparseArray2C<double>& A) {
   IL_ASSERT(matrix_element_ == A.element_data());
   IL_ASSERT(preconditionner_computed_);
@@ -280,11 +280,11 @@ inline il::Array<double> il::GmresIlu0Solver::solve(
   return x;
 }
 
-inline il::int_t il::GmresIlu0Solver::nb_iteration() const {
+inline il::int_t il::GmresIlu0::nb_iteration() const {
   return nb_iteration_;
 }
 
-inline void GmresIlu0Solver::convert_c_to_fortran(
+inline void GmresIlu0::convert_c_to_fortran(
     il::io_t, il::SparseArray2C<double>& A) {
   int n = A.size(0);
   int* row = A.row_data();
@@ -297,7 +297,7 @@ inline void GmresIlu0Solver::convert_c_to_fortran(
   }
 }
 
-inline void GmresIlu0Solver::convert_fortran_to_c(
+inline void GmresIlu0::convert_fortran_to_c(
     il::io_t, il::SparseArray2C<double>& A) {
   int n = A.size(0);
   int* row = A.row_data();

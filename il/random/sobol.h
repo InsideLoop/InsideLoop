@@ -32,6 +32,7 @@ inline il::Array2C<double> sobol(il::int_t nb_point, il::int_t dim, double a,
 
   return A;
 }
+
 }
 
 #endif  // IL_SOBOL_H

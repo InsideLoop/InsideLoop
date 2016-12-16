@@ -300,7 +300,7 @@ il::Array<double> y(n);
 // Fill y
 
 il::Status status;
-il::PartialLU<il::Array2D<double>> lu_decomposition(A, il::io, status);
+il::LU<il::Array2D<double>> lu_decomposition(A, il::io, status);
 if (!status.ok()) {
   // The matrix is singular to the machine precision. You should deal with the error.
 }
@@ -345,7 +345,7 @@ il::Array<double> y(n);
 // Fill y
 
 il::Status status;
-il::PartialLU<il::Array2D<double>> lu_decomposition(std::move(A), il::io, status);
+il::LU<il::Array2D<double>> lu_decomposition(std::move(A), il::io, status);
 if (!status.ok()) {
   // The matrix is singular to the machine precision. You should deal with the error.
 }

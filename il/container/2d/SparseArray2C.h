@@ -14,7 +14,7 @@
 #include <il/Array2C.h>
 #include <il/SmallArray.h>
 #include <il/StaticArray.h>
-#include <il/linear_algebra/norm.h>
+#include <il/linear_algebra/dense/blas/norm.h>
 #include <il/math.h>
 
 namespace il {

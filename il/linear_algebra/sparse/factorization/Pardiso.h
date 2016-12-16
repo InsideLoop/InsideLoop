@@ -7,14 +7,14 @@
 //
 //==============================================================================
 
-#ifndef IL_PARDISOSOLVER_H
-#define IL_PARDISOSOLVER_H
+#ifndef IL_Pardiso_H
+#define IL_Pardiso_H
 
 #include <chrono>
 #include <iostream>
 
 #include <il/container/1d/Array.h>
-#include <il/linear_algebra/sparse/container/SparseArray2C.h>
+#include <il/SparseArray2C.h>
 
 #include <mkl.h>
 
@@ -89,7 +89,7 @@ void PardisoSizeIntSelector<std::ptrdiff_t>::pardiso_int_t(
              reinterpret_cast<long long int *>(error));
 }
 
-class PardisoSolver {
+class Pardiso {
  private:
   il::int_t n_;
   il::int_t pardiso_nrhs_;
@@ -104,8 +104,8 @@ class PardisoSolver {
   const double *matrix_element_;
 
  public:
-  PardisoSolver();
-  ~PardisoSolver();
+  Pardiso();
+  ~Pardiso();
   void symbolic_factorization(const il::SparseArray2C<double> &A);
   void numerical_factorization(const il::SparseArray2C<double> &A);
   il::Array<double> solve(const il::SparseArray2C<double> &A,
@@ -117,7 +117,7 @@ class PardisoSolver {
   void release();
 };
 
-inline PardisoSolver::PardisoSolver() {
+inline Pardiso::Pardiso() {
   n_ = 0;
   pardiso_nrhs_ = 1;
 
@@ -279,9 +279,9 @@ inline PardisoSolver::PardisoSolver() {
   matrix_element_ = nullptr;
 }
 
-inline PardisoSolver::~PardisoSolver() { release(); }
+inline Pardiso::~Pardiso() { release(); }
 
-void PardisoSolver::symbolic_factorization(const il::SparseArray2C<double> &A) {
+void Pardiso::symbolic_factorization(const il::SparseArray2C<double> &A) {
   IL_ASSERT(A.size(0) == A.size(1));
   n_ = A.size(0);
 
@@ -303,7 +303,7 @@ void PardisoSolver::symbolic_factorization(const il::SparseArray2C<double> &A) {
   matrix_element_ = A.element_data();
 }
 
-void PardisoSolver::numerical_factorization(
+void Pardiso::numerical_factorization(
     const il::SparseArray2C<double> &A) {
   IL_ASSERT(matrix_element_ = A.element_data());
   IL_ASSERT(is_symbolic_factorization_);
@@ -324,7 +324,7 @@ void PardisoSolver::numerical_factorization(
   is_numerical_factorization_ = true;
 }
 
-inline il::Array<double> PardisoSolver::solve(
+inline il::Array<double> Pardiso::solve(
     const il::SparseArray2C<double> &A, const il::Array<double> &y) {
   IL_ASSERT(matrix_element_ = A.element_data());
   IL_ASSERT(is_numerical_factorization_);
@@ -347,7 +347,7 @@ inline il::Array<double> PardisoSolver::solve(
   return x;
 }
 
-inline il::Array<double> PardisoSolver::solve_iterative(
+inline il::Array<double> Pardiso::solve_iterative(
     const il::SparseArray2C<double> &A, const il::Array<double> &y) {
   IL_ASSERT(matrix_element_ = A.element_data());
   IL_ASSERT(is_numerical_factorization_);
@@ -375,7 +375,7 @@ inline il::Array<double> PardisoSolver::solve_iterative(
   return x;
 }
 
-inline void PardisoSolver::release() {
+inline void Pardiso::release() {
   const il::int_t phase = -1;
   il::int_t error = 0;
   il::int_t i_dummy;
@@ -392,4 +392,4 @@ inline void PardisoSolver::release() {
 }
 }
 
-#endif  // IL_PARDISOSOLVER_H
+#endif  // IL_Pardiso_H

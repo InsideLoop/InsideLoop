@@ -175,17 +175,17 @@ set(SOURCE_FILES
     il/core/ilassert.h
     il/core/ildef.h
     il/core/Status.h
-    il/image/ppm.h
+    il/io/ppm.h
     il/io/numpy.h
     il/io/numpy.cpp
     il/io/png.h
     il/io/png.cpp
-    il/linear_algebra/blas.h
-    il/linear_algebra/dot.h
-    il/linear_algebra/linear_solve.h
-    il/linear_algebra/norm.h
-    il/linear_algebra/factorization/PartialLU.h
-    il/linear_algebra/factorization/Cholesky.h
+    il/linear_algebra/dense/blas/blas.h
+    il/linear_algebra/dense/blas/dot.h
+    il/linear_algebra/dense/factorization/linear_solve.h
+    il/linear_algebra/dense/blas/norm.h
+    il/linear_algebra/dense/factorization/LU.h
+    il/linear_algebra/dense/factorization/Cholesky.h
     il/unit/time.h
     il/pretty_print/gdb/__init__.py
     il/pretty_print/gdb/printers.py)
@@ -210,13 +210,13 @@ set(UNIT_TEST_FILES
     il/container/2d/_test/Array2D_test.cpp
     il/container/2d/_test/Array2C_test.cpp
     il/container/3d/_test/Array3D_test.cpp
-    il/linear_algebra/_test/blas_test.cpp
-    il/linear_algebra/_test/linear_solve_test.cpp
-    il/linear_algebra/_test/dot_test.cpp
-    il/linear_algebra/factorization/_test/Eigen_test.cpp
-    il/linear_algebra/sparse/_test/matrix/heat.cpp
-    il/linear_algebra/sparse/_test/PardisoSolver_test.cpp
-    il/linear_algebra/sparse/_test/GmresIlu0Solver_test.cpp
+    il/linear_algebra/dense/blas/_test/blas_test.cpp
+    il/linear_algebra/dense/blas/_test/linear_solve_test.cpp
+    il/linear_algebra/dense/blas/_test/dot_test.cpp
+    il/linear_algebra/dense/factorization/_test/Eigen_test.cpp
+    il/linear_algebra/sparse/factorization/_test/matrix/heat.cpp
+    il/linear_algebra/sparse/factorization/_test/Pardiso_test.cpp
+    il/linear_algebra/sparse/factorization/_test/GmresIlu0_test.cpp
     gtest/src/gtest-all.cc)
 
 add_executable(InsideLoopUnitTest ${SOURCE_FILES} ${UNIT_TEST_FILES} test.cpp)
