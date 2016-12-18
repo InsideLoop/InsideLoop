@@ -143,7 +143,7 @@ int main() {
 ```
 
 The same code would be much slower with std::vector on a dual-socket workstation
-because of non uniform memory allocation (NUMA) effects. As all the memory is
+because of Non Uniform Memory Access (NUMA) effects. As all the memory is
 initialized to `0.0` by the standard library, the first touch policy will map
 all the memory used by v to the RAM close to one of the processors. During the OpenMP
 loop, half of the vector will be taken care by the other socket and the memory
@@ -412,34 +412,32 @@ is then copied back to the main memory.
 #include <il/CudaArray2D.h>
 
 const int n = 10000;
-il::Array2D<double> A(n, 0);
+il::Array2D<double> A(n, n);
 il::Array2D<double> B(n, n);
 // Fill matrices A and B
-il::Array<double> C(n, n, 0.0);
 
-il::CudaArray<double> A_gpu(n, n);
-il::CudaArray<double> B_gpu(n, n);
-il::CudaArray<double> C_gpu(n, n);
-il::copy(A, il::io, A_gpu);
-il::copy(B, il::io, B_gpu);
-il::copy(C, il::io, C_gpu);
+auto A_gpu = il::copy<il::CudaArray2D<double>>(A);
+auto B_gpu = il::copy<il::CudaArray2D<double>>(B);
+il::CudaArray2D<double> C_gpu(n, n);
+
 il::blas(1.0, A_gpu, B_gpu, 0.0, il::io, C_gpu);
-il::copy(C_gpu, il::io, C);
+
+auto C =  il::copy<il::Array2D<double>>(C_gpu);
 
 ```
 
-## A Platform for core i7, Xeon, Xeon Phi and Cuda devices
+## A Platform for Core i7, Xeon, Xeon Phi and Cuda devices
 
 This makes it very easy to compare state of the art libraries on processors
 and on a co-processor. For instance, here are the timings for multiplying two
 10000x10000 matrices of floats and doubles on different devices using both the
 MKL from Parallel Studio XE 2017 and cuBLAS from CUDA 8.0:
 
-|                                                 |Time (float) | TFlops (float) | Time (double) | Tflops (double) |
+| Device                                          |Time (float) | TFlops (float) | Time (double) | TFlops (double) |
 |-------------------------------------------------|:-----------:|:--------------:|:-------------:|:---------------:|
-|Core i7, 4 cores, Haswell (MacBook Pro 2014)     |     6.25 s  |   0.32 TFlops  |   12.78 s     |   0.15 TFlops   |
-|Dual-Xeon E5-2660, 2x14 cores, Broadwell         |     1.36 s  |   1.45 TFlops  |    2.72 s     |   0.73 TFlops   |
-|NVidia Titan X Pascal                            |     0.20 s  |   10.1 TFlops  |    5.40 s     |   0.37 TFlops   |
+|Core i7, 4 cores, Haswell (MacBook Pro 2014)     |     6.25 s  |   0.320 TFlops |   12.78 s     |   0.150 TFlops  |
+|Dual-Xeon E5-2660, 2x14 cores, Broadwell         |     1.36 s  |   1.450 TFlops |    2.72 s     |   0.730 TFlops  |
+|NVidia Titan X Pascal                            |     0.20 s  |  10.100 TFlops |    5.40 s     |   0.370 TFlops  |
 
 
 ## Hash Table
@@ -450,4 +448,4 @@ standard library `std::unordered_map`.
 
 ## Remarks, feature request, bug report
 
-Please send then to `fayard@insideloop.io`
+Please send them to `fayard@insideloop.io`

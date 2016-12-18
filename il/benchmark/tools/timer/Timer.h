@@ -17,25 +17,43 @@ namespace il {
 
 class Timer {
  private:
+  bool launched_;
   double time_;
   std::chrono::time_point<std::chrono::high_resolution_clock> point_begin_;
 
  public:
   Timer();
+  void start();
   void stop();
+  void reset();
   double time() const;
 };
 
-inline Timer::Timer()
-    : time_{0.0}, point_begin_{std::chrono::high_resolution_clock::now()} {}
+inline Timer::Timer() : point_begin_{} {
+  time_ = 0.0;
+  launched_ = false;
+}
+
+inline Timer::start() {
+  IL_ASSERT(!launched_);
+  launched_ = true;
+  point_begin_ = std::chrono::high_resolution_clock::now();
+}
 
 inline void Timer::stop() {
-  std::chrono::time_point<std::chrono::high_resolution_clock> point_end{
-      std::chrono::high_resolution_clock::now()};
-  time_ = 1.0e-9 *
-          std::chrono::duration_cast<std::chrono::nanoseconds>(point_end -
-                                                               point_begin_)
-              .count();
+  std::chrono::time_point<std::chrono::high_resolution_clock> point_end =
+      std::chrono::high_resolution_clock::now();
+  IL_ASSERT(launched_);
+  launched_ = false;
+  time_ += 1.0e-9 *
+           std::chrono::duration_cast<std::chrono::nanoseconds>(point_end -
+                                                                point_begin_)
+               .count();
+}
+
+inline void Timer::reset() {
+  time_ = 0.0;
+  launched_ = false;
 }
 
 inline double Timer::time() const { return time_; }
