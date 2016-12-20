@@ -24,8 +24,8 @@ template<typename T>
 class CudaArray2D {
  private:
   T *data_;
-  int size_[2];
-  int capacity_[2];
+  il::int_t size_[2];
+  il::int_t capacity_[2];
 
  public:
   /* \brief Construct an array of n elements
@@ -38,7 +38,7 @@ class CudaArray2D {
 
   /* \brief Get the size of the il::CudaArray2D<T>
   */
-  int size(int d) const;
+  il::int_t size(il::int_t d) const;
 
   /* \brief Get a pointer to the first element of the array
   */
@@ -50,7 +50,7 @@ class CudaArray2D {
 };
 
 template<typename T>
-CudaArray2D<T>::CudaArray2D(int n0, int n1) {
+CudaArray2D<T>::CudaArray2D(il::int_t n0, il::int_t n1) {
   IL_ASSERT_PRECOND(n0 >= 0);
   IL_ASSERT_PRECOND(n1 >= 0);
 
@@ -67,7 +67,7 @@ CudaArray2D<T>::~CudaArray2D() {
 }
 
 template<typename T>
-int CudaArray2D<T>::size(int d) const {
+il::int_t CudaArray2D<T>::size(il::int_t d) const {
   return size_[d];
 }
 
@@ -82,4 +82,4 @@ T* CudaArray2D<T>::data() {
 }
 
 }
-#endif  // IL_CUDAARRAY_H
+#endif  // IL_CUDAARRAY2D_H

@@ -214,8 +214,7 @@ set(UNIT_TEST_FILES
     il/linear_algebra/dense/blas/_test/linear_solve_test.cpp
     il/linear_algebra/dense/blas/_test/dot_test.cpp
     il/linear_algebra/dense/factorization/_test/Eigen_test.cpp
-    il/linear_algebra/sparse/factorization/_test/matrix/heat.cpp
-    il/linear_algebra/sparse/factorization/_test/Pardiso_test.cpp
+        il/linear_algebra/sparse/factorization/_test/Pardiso_test.cpp
     il/linear_algebra/sparse/factorization/_test/GmresIlu0_test.cpp
     gtest/src/gtest-all.cc)
 

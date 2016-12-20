@@ -7,16 +7,19 @@
 //
 //==============================================================================
 
-#include <il/io/parse.h>
-#include <string>
+#include <il/SparseArray2C.h>
+#include <il/linear_algebra/sparse/blas/sparse_dot.h>
+
+#include <il/linear_algebra/sparse/factorization/_test/matrix/heat.h>
 
 int main() {
-  std::string text{"2.67e+5"};
+  const int n = 3;
+  il::SparseArray2C<double, int> A{};
+  il::Array<double> y{};
+  il::heat_3d(n, il::io, A, y);
 
-  il::Status status{};
-  double value = il::parse<double>(text, il::io, status);
-  status.abort_on_error();
-  IL_UNUSED(value);
+  il::SparseArray2C<double, int> C = il::dot(il::io, A, A);
 
   return 0;
 }
+
