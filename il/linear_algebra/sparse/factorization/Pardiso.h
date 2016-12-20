@@ -14,7 +14,7 @@
 #include <iostream>
 
 #include <il/container/1d/Array.h>
-#include <il/SparseArray2C.h>
+#include <il/SparseMatrixCSR.h>
 
 #include <mkl.h>
 
@@ -106,11 +106,11 @@ class Pardiso {
  public:
   Pardiso();
   ~Pardiso();
-  void symbolic_factorization(const il::SparseArray2C<double> &A);
-  void numerical_factorization(const il::SparseArray2C<double> &A);
-  il::Array<double> solve(const il::SparseArray2C<double> &A,
+  void symbolic_factorization(const il::SparseMatrixCSR<il::int_t, double> &A);
+  void numerical_factorization(const il::SparseMatrixCSR<il::int_t, double> &A);
+  il::Array<double> solve(const il::SparseMatrixCSR<il::int_t, double> &A,
                           const il::Array<double> &y);
-  il::Array<double> solve_iterative(const il::SparseArray2C<double> &A,
+  il::Array<double> solve_iterative(const il::SparseMatrixCSR<il::int_t, double> &A,
                                     const il::Array<double> &y);
 
  private:
@@ -281,7 +281,7 @@ inline Pardiso::Pardiso() {
 
 inline Pardiso::~Pardiso() { release(); }
 
-void Pardiso::symbolic_factorization(const il::SparseArray2C<double> &A) {
+void Pardiso::symbolic_factorization(const il::SparseMatrixCSR<il::int_t, double> &A) {
   IL_ASSERT(A.size(0) == A.size(1));
   n_ = A.size(0);
 
@@ -304,7 +304,7 @@ void Pardiso::symbolic_factorization(const il::SparseArray2C<double> &A) {
 }
 
 void Pardiso::numerical_factorization(
-    const il::SparseArray2C<double> &A) {
+    const il::SparseMatrixCSR<il::int_t, double> &A) {
   IL_ASSERT(matrix_element_ = A.element_data());
   IL_ASSERT(is_symbolic_factorization_);
   IL_ASSERT(A.size(0) == n_);
@@ -325,7 +325,7 @@ void Pardiso::numerical_factorization(
 }
 
 inline il::Array<double> Pardiso::solve(
-    const il::SparseArray2C<double> &A, const il::Array<double> &y) {
+    const il::SparseMatrixCSR<il::int_t, double> &A, const il::Array<double> &y) {
   IL_ASSERT(matrix_element_ = A.element_data());
   IL_ASSERT(is_numerical_factorization_);
   IL_ASSERT(A.size(0) == n_);
@@ -348,7 +348,7 @@ inline il::Array<double> Pardiso::solve(
 }
 
 inline il::Array<double> Pardiso::solve_iterative(
-    const il::SparseArray2C<double> &A, const il::Array<double> &y) {
+    const il::SparseMatrixCSR<il::int_t, double> &A, const il::Array<double> &y) {
   IL_ASSERT(matrix_element_ = A.element_data());
   IL_ASSERT(is_numerical_factorization_);
   IL_ASSERT(A.size(0) == n_);

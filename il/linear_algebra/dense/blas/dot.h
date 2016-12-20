@@ -19,6 +19,18 @@
 
 namespace il {
 
+inline double dot(const il::Array<double>& x, const il::Array<double>& y) {
+  IL_ASSERT(x.size() == y.size());
+
+  double sum = 0.0;
+#pragma omp parallel for reduction(+: sum)
+  for (il::int_t i = 0; i < x.size(); ++i) {
+    sum += x[i] * y[i];
+  }
+
+  return sum;
+}
+
 inline il::Array<double> dot(const il::Array2D<double>& A,
                              const il::Array<double>& x) {
   IL_ASSERT(A.size(1) == x.size());
@@ -158,7 +170,6 @@ inline il::StaticArray2D<T, n0, n2> dot_1_0(
 
   return C;
 }
-
 }
 
 #endif  // IL_DOT_H

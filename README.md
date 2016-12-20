@@ -240,7 +240,7 @@ A `il::StaticArray2D<T, n0, n1>` is also available for 2-dimensional arrays
 whose size is known at compile time. Their elements are stored on the stack
 instead of the heap.
 
-## Linear algebra on processors optimized by  the Intel MKL
+## Linear algebra on processors optimized by the Intel MKL
 
 Matrices are represented as 2-dimensional arrays and many routines are available
 to help solving linear algebra problems.
@@ -381,6 +381,79 @@ consumption and the same peformance of direct calls to the MKL. As our code is
 as simple as possible, it will be very easy for you to add new methods to our
 objects if you want to change the interface to get better performance in a case
 we overlooked.
+
+## Sparse Linear algebra
+
+InsideLoop also allows you to work with sparse matrices. You can work with
+Compressed Storage Row format, but there are also some other format optimized
+for BLAS operations. The following example solves the Heat equation with
+Dirichlet boundary conditions on a cube of size 70x70x70. We use the conjugate
+gradient method. As this algorithm requires many `A.x` operations
+(BLAS level 2), we use the `il::SparseMatrixBlas` object that contains a format
+optimized for BLAS operations.
+
+```cpp
+int main() {
+  const il::int_t nb_iteration = 50;
+  const double tolerance = 1.0e-8;
+
+  const il::int_t side = 70;
+  il::SparseMatrixCSR<int, double> A = il::heat_3d<int>(side);
+  const il::int_t n = A.size(0);
+  il::Array<double> y{n, 1.0};
+  il::Array<double> x{n, 0.0};
+
+  // This routine solves the conjugate gradient method that works for positive
+  // definite symmetric matrices. The implementation comes from the wikipedia
+  // page.
+
+  il::SparseMatrixBlas<int, double> A_blas{il::io, A};
+  A_blas.set_nb_matrix_vector(nb_iteration);
+
+  il::Array<double> r = y;
+  il::blas(-1.0, A_blas, x, 1.0, il::io, y);
+  il::Array<double> p = r;
+  double delta = il::dot(r, r);
+  il::Array<double> Ap{n};
+
+  while (true) {
+    il::blas(1.0, A_blas, p, 0.0, il::io, Ap);
+    const double alpha = delta / il::dot(p, Ap);
+    il::blas(alpha, p, 1.0, il::io, x);
+    il::blas(-alpha, Ap, 1.0, il::io, r);
+    const double beta = il::dot(r, r);
+    std::printf("Iteration: %3li,   Error: %7.3e\n", i, std::sqrt(beta));
+    if (beta <= tolerance * tolerance) {
+      break;
+    }
+    il::blas(1.0, r, beta / delta, il::io, p);
+    delta = beta;
+  }
+  
+  return 0;
+}
+
+```
+
+You can also solve the same problem with a direct method, using a LU
+decomposition from the Pardiso solver:
+
+```cpp
+int main() {
+  const il::int_t side = 70;
+  il::SparseMatrixCSR<int, double> A = il::heat_3d<int>(side);
+  const il::int_t n = A.size(0);
+  il::Array<double> y{n, 1.0};
+  
+  il::Pardiso solver{};
+  solver.symbolic_factorization(A_bis);
+  solver.numerical_factorization(A_bis);
+  il::Array<double> x = solver.solve(A_bis, y);
+
+  return 0;
+}
+
+```
 
 ## Linear algebra on Cuda devices
 

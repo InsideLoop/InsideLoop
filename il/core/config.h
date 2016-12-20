@@ -7,7 +7,7 @@
 //
 //==============================================================================
 
-//#define IL_INTEGER_PTRDIFF
-#define IL_INTEGER_INT
+#define IL_INTEGER_PTRDIFF
+//#define IL_INTEGER_INT
 
 //#define IL_BLAS_ATLAS

@@ -10,7 +10,7 @@
 #ifndef IL_SPARSE_DOT_H
 #define IL_SPARSE_DOT_H
 
-#include <il/SparseArray2C.h>
+#include <il/SparseMatrixCSR.h>
 
 #ifdef IL_MKL
 #include <mkl_spblas.h>
@@ -24,9 +24,9 @@ namespace il {
 
 // A is a matrix, x, y are vectors
 // C <- A.B
-inline il::SparseArray2C<double, int> dot(il::io_t,
-                                          il::SparseArray2C<double, int> &A,
-                                          il::SparseArray2C<double, int> &B) {
+inline il::SparseMatrixCSR<int, double> dot(il::io_t,
+                                          il::SparseMatrixCSR<int, double> &A,
+                                          il::SparseMatrixCSR<int, double> &B) {
   IL_ASSERT_PRECOND(A.size(1) == B.size(0));
 
   const char trans = 'n';
@@ -97,7 +97,7 @@ inline il::SparseArray2C<double, int> dot(il::io_t,
     --column[i];
   }
 
-  return il::SparseArray2C<double, int>{m, k, std::move(column), std::move(row),
+  return il::SparseMatrixCSR<int, double>{m, k, std::move(column), std::move(row),
                                         std::move(element)};
 }
 

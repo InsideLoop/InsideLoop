@@ -7,4 +7,4 @@
 //
 //==============================================================================
 
-#include <il/container/2d/SparseArray2C.h>
+#include <il/container/2d/SparseMatrixCSR.h>

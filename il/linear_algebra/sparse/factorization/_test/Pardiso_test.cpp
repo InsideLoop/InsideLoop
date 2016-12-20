@@ -9,6 +9,7 @@
 
 #include <gtest/gtest.h>
 
+#include <il/linear_algebra/sparse/blas/sparse_blas.h>
 #include <il/linear_algebra/sparse/factorization/Pardiso.h>
 #include <il/linear_algebra/sparse/factorization/_test/matrix/heat.h>
 
@@ -26,7 +27,7 @@ TEST(Pardiso, base) {
   position.emplace_back(il::value, std::initializer_list<il::int_t>{1, 1});
 
   il::Array<il::int_t> index{};
-  il::SparseArray2C<double> A{2, position, il::io, index};
+  il::SparseMatrixCSR<il::int_t, double> A{2, position, il::io, index};
   A[index[0]] = 1.0;
   A[index[1]] = 2.0;
   A[index[2]] = 3.0;
@@ -44,9 +45,10 @@ TEST(Pardiso, base) {
 TEST(Pardiso, heat) {
   const il::int_t n = 10;
 
-  il::SparseArray2C<double> A{};
-  il::Array<double> y{};
-  il::heat_1d(n, il::io, A, y);
+  il::SparseMatrixCSR<il::int_t, double> A = il::heat_1d<il::int_t>(n);
+  il::Array<double> x_theory{n, 1.0};
+  il::Array<double> y{n, 0.0};
+  il::blas(1.0, A, x_theory, 0.0, il::io, y);
 
   il::Pardiso solver{};
   solver.symbolic_factorization(A);
@@ -65,9 +67,10 @@ TEST(Pardiso, heat) {
 TEST(Pardiso, heat2D) {
   const il::int_t n = 10;
 
-  il::SparseArray2C<double> A{};
-  il::Array<double> y{};
-  il::heat_2d(n, il::io, A, y);
+  il::SparseMatrixCSR<il::int_t, double> A = il::heat_2d<il::int_t>(n);
+  il::Array<double> x_theory{n * n, 1.0};
+  il::Array<double> y{n * n, 0.0};
+  il::blas(1.0, A, x_theory, 0.0, il::io, y);
 
   il::Pardiso solver{};
   solver.symbolic_factorization(A);
@@ -86,9 +89,10 @@ TEST(Pardiso, heat2D) {
 TEST(Pardiso, heat3D) {
   const il::int_t n = 10;
 
-  il::SparseArray2C<double> A{};
-  il::Array<double> y{};
-  il::heat_3d(n, il::io, A, y);
+  il::SparseMatrixCSR<il::int_t, double> A = il::heat_3d<il::int_t>(n);
+  il::Array<double> x_theory{n * n * n, 1.0};
+  il::Array<double> y{n * n * n, 0.0};
+  il::blas(1.0, A, x_theory, 0.0, il::io, y);
 
   il::Pardiso solver{};
   solver.symbolic_factorization(A);

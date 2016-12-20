@@ -271,7 +271,7 @@ class LowerArray2DPrinter:
 	def to_string(self):
 		return "[size: %s], [capacity: %s]" % (self.size, self.capacity)
 
-class SparseArray2CPrinter:
+class SparseMatrixCSRPrinter:
 	def __init__(self, val):
 		type = val.type
 		if type.code == gdb.TYPE_CODE_REF:
@@ -455,7 +455,7 @@ def build_insideloop_dictionary ():
 	pretty_printers_dict[re.compile('^il::StaticArray2C<.*>$')]  = lambda val: StaticArray2CPrinter(val)
 	pretty_printers_dict[re.compile('^il::LowerArray2D<.*>$')]  = lambda val: LowerArray2DPrinter(val)
 	pretty_printers_dict[re.compile('^il::TriDiagonal<.*>$')]  = lambda val: TriDiagonalPrinter(val)
-	pretty_printers_dict[re.compile('^il::SparseArray2C<.*>$')]  = lambda val: SparseArray2CPrinter(val)
+	pretty_printers_dict[re.compile('^il::SparseMatrixCSR<.*>$')]  = lambda val: SparseMatrixCSRPrinter(val)
 	pretty_printers_dict[re.compile('^il::Array3D<.*>$')]  = lambda val: Array3DPrinter(val)
 	pretty_printers_dict[re.compile('^il::StaticArray3D<.*>$')]  = lambda val: StaticArray3DPrinter(val)
 	pretty_printers_dict[re.compile('^il::Array4D<.*>$')]  = lambda val: Array4DPrinter(val)

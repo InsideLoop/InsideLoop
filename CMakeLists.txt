@@ -143,7 +143,7 @@ set(SOURCE_FILES
     il/LowerArray2D.h
     il/math.h
     il/SmallArray.h
-    il/SparseArray2C.h
+    il/SparseMatrixCSR.h
     il/StaticArray.h
     il/StaticArray2D.h
     il/StaticArray2C.h
@@ -195,9 +195,9 @@ set(SOURCE_FILES
 ################################################################################
 
 
-add_executable(InsideLoop ${SOURCE_FILES}
-    main.cpp)
+add_executable(InsideLoop ${SOURCE_FILES} main.cpp)
 target_link_libraries(InsideLoop ${CMAKE_MKL_LIBRARIES} ${CMAKE_PNG_LIBRARIES})
+target_include_directories(InsideLoop PRIVATE /opt/blaze-3.0)
 
 ################################################################################
 # For Unit Tests

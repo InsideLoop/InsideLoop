@@ -14,7 +14,7 @@
 #include <il/Array2D.h>
 #include <il/core/Status.h>
 
-#include <il/SparseArray2C.h>
+#include <il/SparseMatrixCSR.h>
 #include <zlib.h>
 #include <cassert>
 #include <cstdio>
@@ -315,7 +315,7 @@ void save(const il::Array2D<T>& v, const std::string& filename, il::io_t,
                  "w", il::io, status);
 }
 
-inline void save(const il::SparseArray2C<double>& A,
+inline void save(const il::SparseMatrixCSR<il::int_t, double>& A,
                  const std::string& filename, il::io_t, il::Status &status) {
   bool fortran_order = false;
   il::Array<unsigned int> shape_column{
@@ -504,7 +504,7 @@ inline il::Array2D<double> load(const std::string& filename, il::io_t,
 }
 
 template <>
-inline il::SparseArray2C<double> load(const std::string& filename, il::io_t,
+inline il::SparseMatrixCSR<il::int_t, double> load(const std::string& filename, il::io_t,
                                       il::Status &status) {
   il::Status local_status{};
   auto row =
@@ -519,7 +519,7 @@ inline il::SparseArray2C<double> load(const std::string& filename, il::io_t,
 
   const il::int_t n = row.size() - 1;
   status.set(il::ErrorCode::ok);
-  return il::SparseArray2C<double>{n, n, std::move(column), std::move(row),
+  return il::SparseMatrixCSR<il::int_t, double>{n, n, std::move(column), std::move(row),
                                    std::move(element)};
 }
 }

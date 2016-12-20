@@ -9,6 +9,7 @@
 
 #include <gtest/gtest.h>
 
+#include <il/linear_algebra/sparse/blas/sparse_blas.h>
 #include <il/linear_algebra/sparse/factorization/GmresIlu0.h>
 #include <il/linear_algebra/sparse/factorization/_test/matrix/heat.h>
 
@@ -19,14 +20,14 @@ TEST(GmresIlu0, base) {
 
   il::Array<double> y{il::value, {3.0, 7.0}};
 
-  il::Array<il::StaticArray<il::int_t, 2>> position{};
-  position.emplace_back(il::value, std::initializer_list<il::int_t>{0, 0});
-  position.emplace_back(il::value, std::initializer_list<il::int_t>{0, 1});
-  position.emplace_back(il::value, std::initializer_list<il::int_t>{1, 0});
-  position.emplace_back(il::value, std::initializer_list<il::int_t>{1, 1});
+  il::Array<il::StaticArray<int, 2>> position{};
+  position.emplace_back(il::value, std::initializer_list<int>{0, 0});
+  position.emplace_back(il::value, std::initializer_list<int>{0, 1});
+  position.emplace_back(il::value, std::initializer_list<int>{1, 0});
+  position.emplace_back(il::value, std::initializer_list<int>{1, 1});
 
-  il::Array<il::int_t> index{};
-  il::SparseArray2C<double> A{2, position, il::io, index};
+  il::Array<int> index{};
+  il::SparseMatrixCSR<int, double> A{2, position, il::io, index};
   A[index[0]] = 1.0;
   A[index[1]] = 2.0;
   A[index[2]] = 3.0;
@@ -45,9 +46,10 @@ TEST(GmresIlu0, base) {
 TEST(GmresIlu0, heat) {
   const il::int_t n = 10;
 
-  il::SparseArray2C<double> A{};
-  il::Array<double> y{};
-  il::heat_1d(n, il::io, A, y);
+  il::SparseMatrixCSR<int, double> A = il::heat_1d<int>(n);
+  il::Array<double> x_theory{n, 1.0};
+  il::Array<double> y{n, 0.0};
+  il::blas(1.0, A, x_theory, 0.0, il::io, y);
 
   const double relative_precision = 1.0e-15;
   const il::int_t max_nb_iteration = 10;
@@ -67,9 +69,10 @@ TEST(GmresIlu0, heat) {
 TEST(GmresIlu0, heat2D) {
   const il::int_t n = 10;
 
-  il::SparseArray2C<double> A{};
-  il::Array<double> y{};
-  il::heat_2d(n, il::io, A, y);
+  il::SparseMatrixCSR<int, double> A = il::heat_2d<int>(n);
+  il::Array<double> x_theory{A.size(0), 1.0};
+  il::Array<double> y{A.size(0), 0.0};
+  il::blas(1.0, A, x_theory, 0.0, il::io, y);
 
   const double relative_precision = 1.0e-7;
   const il::int_t max_nb_iteration = 100;
@@ -91,9 +94,10 @@ TEST(GmresIlu0, heat2D) {
 TEST(GmresIlu0, heat3D) {
   const il::int_t n = 10;
 
-  il::SparseArray2C<double> A{};
-  il::Array<double> y{};
-  il::heat_3d(n, il::io, A, y);
+  il::SparseMatrixCSR<int, double> A = il::heat_3d<int>(n);
+  il::Array<double> x_theory{A.size(0), 1.0};
+  il::Array<double> y{A.size(0), 0.0};
+  il::blas(1.0, A, x_theory, 0.0, il::io, y);
 
   const double relative_precision = 1.0e-7;
   const il::int_t max_nb_iteration = 100;
