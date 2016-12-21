@@ -1,23 +1,58 @@
 ![InsideLoop icon](http://www.insideloop.io/wp-content/uploads/2014/09/inside-loop-logo-front.png)
 
 InsideLoop is a **C++11 library** for **high performance scientific applications**
-running on **processors** and **coprocessors**. In
-order to get the most of current hardware, data locality is of uttermost
-importance. Unfortunately, the Standard Template Library (STL) has been designed
-for generic programming and hides its memory layout to the programmer.
-InsideLoop stays away from generic programming and template meta-programming
-techniques. It should appeal to Fortran and C programmers who want to benefit
-from C++ features but don't want a complex library to get in their way to high
-performance computing.
+running on processors (**Core i7**, **Xeon**, **Xeon Phi**) and coprocessors
+(**Cuda**). This
+library has been designed to provide you with:
 
-InsideLoop provides arrays, multi-dimensional arrays and a hash table. It has
-been designed to provide you with:
+- **Arrays**, **multi-dimensional arrays** and a **hash table**
+- C++ wrappers for the linear algebra libraries provided by Intel
+  (Math Kernel Library, also known as the **MKL**) and NVidia (**cuBLAS**,
+  **cuSPARSE**)
+- **Efficient debugging** mode
+- A **simple code** base that could be extended easily
 
-- Containers for modern parallel architectures
-- C++ wrappers for the Math Kernel Library (MKL) from Intel
-- Portable performance across compilers
-- Smooth integration into your projects
-- Efficient debugging mode
+Before creating this library, we have looked for available solutions. Even
+though the following comments might seems quite harsh for the libraries we have
+tried, most of the problems raised here have their historical reasons and are
+due to their longevity and success:
+
+- **C++ Standard Library**: The only way to customize the containers from the standard library such as
+`std::vector` involved custom
+allocators which are very difficult to work with because they have never been
+designed to allocate memory. The standard library is crippled with containers
+useless for our work such as `std::list` (which is the enemy of data locality
+and performance). In order to cope with all those containers, iterators are
+central to the standard library, and make its usage more difficult. Scientific
+software developers mainly deal with arrays. As a consequence, we let them work
+with indices which are much more friendly to use. The standard library also
+lacks multi-dimensional arrays and an efficient hash table. Moreover, its usage
+of error handling is strange: opening a file that does not exists does not throw
+any exception whereas accessing an array out of bounds might throw one. Any
+decent programmer would throw an exception for opening a file that does not
+exists and abort the program for an out of bound array access as it is a
+programming error.
+
+- **Linear Algebra libraries**: Those libraires such as Eigen were also not a good solution for us.
+They rely on expression templates which allows you to write linear algebra in a
+very friendly manner, but makes the optimization of the computation very
+difficult to handle for the library maintainer. Although they do an amazing work
+for this, it is still very difficult to understand what is done under the hood.
+And as these libraries are all template based, their complexity will come to
+you one day or another. That's the reason we prefer, to avoid
+expression templates and template meta-programming techniques. It allows us to have a code
+base which is much more simple and easy to understand.
+
+Note that for the time being, InsideLoop is a work in progress which is
+experimental. Although some parts of it have been used in production code, it is
+still experimental. Even the API is not stabilized yetThe containers from the C++
+standard library were too difficult to customize to our needs without changing
+their types.
+
+In a few words, this library should appeal to scientic programmers looking for
+easy to use containers and wrappers around the best numerical libraries
+available today. It should be very friendly to C and Fortran programmers who
+represent still the bulk of High Performance coders.
 
 ## Debugability and efficiency for dynamic arrays
 
