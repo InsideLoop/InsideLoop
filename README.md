@@ -11,9 +11,11 @@ library has been designed to provide you with:
   **cuSPARSE**)
 - **Efficient debugging** mode
 - A **simple code** base that could be extended easily
+- An **Open Source** licence allowing its integration in both **free software**
+  and **commercial** products
 
 Before creating this library, we have looked for available solutions. Even
-though the following comments might seems quite harsh for the libraries we have
+though the following comments might seem quite harsh for the libraries we have
 tried, most of the problems raised here have their historical reasons and are
 due to their longevity and success:
 
@@ -25,34 +27,32 @@ useless for our work such as `std::list` (which is the enemy of data locality
 and performance). In order to cope with all those containers, iterators are
 central to the standard library, and make its usage more difficult. Scientific
 software developers mainly deal with arrays. As a consequence, we let them work
-with indices which are much more friendly to use. The standard library also
+with indices which are much more friendly to use for their work. The standard library also
 lacks multi-dimensional arrays and an efficient hash table. Moreover, its usage
-of error handling is strange: opening a file that does not exists does not throw
+of error handling is strange: opening a file that does not exist does not throw
 any exception whereas accessing an array out of bounds might throw one. Any
-decent programmer would throw an exception for opening a file that does not
-exists and abort the program for an out of bound array access as it is a
-programming error.
+decent programmer would throw an exception in the first situation and abort
+the program for an out of bound array access which is not an exceptional
+situation but a programming error.
 
 - **Linear Algebra libraries**: Those libraires such as Eigen were also not a good solution for us.
-They rely on expression templates which allows you to write linear algebra in a
-very friendly manner, but makes the optimization of the computation very
+They rely on expression templates which allow you to write linear algebra in a
+very friendly manner, but make the optimization of the computation very
 difficult to handle for the library maintainer. Although they do an amazing work
-for this, it is still very difficult to understand what is done under the hood.
-And as these libraries are all template based, their complexity will come to
+for this, it is very difficult to understand what is done under the hood.
+As these libraries are all template based, their complexity will come to
 you one day or another. That's the reason we prefer, to avoid
 expression templates and template meta-programming techniques. It allows us to have a code
 base which is much more simple and easy to understand.
 
-Note that for the time being, InsideLoop is a work in progress which is
-experimental. Although some parts of it have been used in production code, it is
-still experimental. Even the API is not stabilized yetThe containers from the C++
-standard library were too difficult to customize to our needs without changing
-their types.
-
-In a few words, this library should appeal to scientic programmers looking for
+In a few words, this library should appeal to **scientific programmers** looking for
 easy to use containers and wrappers around the best numerical libraries
-available today. It should be very friendly to C and Fortran programmers who
-represent still the bulk of High Performance coders.
+available today. It should be very **friendly** to **C** and **Fortran**
+programmers who still represent an important share of High Performance coders.
+
+Note that for the time being, **InsideLoop is a work in progress which is
+experimental**. Although some parts of it have been used in production code, it is
+still experimental. Even the API is not stabilized yet.
 
 ## Debugability and efficiency for dynamic arrays
 
