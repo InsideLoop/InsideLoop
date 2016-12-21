@@ -11,16 +11,21 @@ library has been designed to provide you with:
   **cuSPARSE**)
 - **Efficient debugging** mode
 - A **simple code** base that could be extended easily
+- Almost **no coupling in between classes** so you can extract from
+  InsideLoop the containers or the solvers you use. For instance, if you only
+  use arrays and multidimensional arrays, all you need are a few files.
 - An **Open Source** licence allowing its integration in both **free software**
   and **commercial** products
 
-Before creating this library, we have looked for available solutions. Even
-though the following comments might seem quite harsh for the libraries we have
-tried, most of the problems raised here have their historical reasons and are
-due to their longevity and success:
+Before creating this library, we have looked for available solutions but all
+of them have been discarded. Even though the following comments might seem quite
+harsh for the libraries we have tried, most of the problems raised here have
+their historical reasons and are due to their longevity and success. They just
+don't solver our problems even though they have been recognized to solve
+problems many people face.
 
-- **C++ Standard Library**: The only way to customize the containers from the standard library such as
-`std::vector` involved custom
+- **C++ Standard Library**: The only way to customize the containers from the
+standard library such as `std::vector` involved custom
 allocators which are very difficult to work with because they have never been
 designed to allocate memory. The standard library is crippled with containers
 useless for our work such as `std::list` (which is the enemy of data locality
@@ -45,7 +50,7 @@ you one day or another. That's the reason we prefer, to avoid
 expression templates and template meta-programming techniques. It allows us to have a code
 base which is much more simple and easy to understand.
 
-In a few words, this library should appeal to **scientific programmers** looking for
+In a few words, **InsideLoop** should appeal to **scientific programmers** looking for
 easy to use containers and wrappers around the best numerical libraries
 available today. It should be very **friendly** to **C** and **Fortran**
 programmers who still represent an important share of High Performance coders.
@@ -568,9 +573,13 @@ int main() {
   il::Array<float> y{n, 1.0f};
   il::Array<float> x{n, 0.0f};
 
+  // Copy the arrays to the GPU
   auto Ad = il::copy<il::CudaSparseMatrixCSR<float>>(A);
   auto yd = il::copy<il::CudaArray<float>>(y);
   auto xd = il::copy<il::CudaArray<float>>(x);
+  
+  // Handle for cuBLAS (used for scalar products) and cuSPARSE (used for
+  // sparse matrix multiplication).
   il::CublasHandle cublas_handle{};
   il::CusparseHandle cusparse_handle{};
 
@@ -609,7 +618,8 @@ int main() {
 
 ```
 
-This conjugate gradient method runs at the following speed:
+This conjugate gradient method with a 27 000 000 x 27 000 000 matrix containing
+7 elements per row, takes the following time for 10 iterations:
 
 | Device                                          |Time (float) |
 |-------------------------------------------------|:-----------:|

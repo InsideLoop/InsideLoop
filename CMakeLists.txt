@@ -171,6 +171,10 @@ set(SOURCE_FILES
     il/container/3d/StaticArray3D.h
     il/container/4d/Array4D.h
     il/container/4d/Array4C.h
+    il/container/cuda/1d/CudaArray.h
+    il/container/cuda/2d/CudaArray2D.h
+    il/container/cuda/2d/CudaSparseMatrixCSR.h
+    il/container/cuda/cuda_copy.h
     il/container/hash_table/HashFunction.h
     il/container/hash_table/HashTable.h
     il/core/config.h
