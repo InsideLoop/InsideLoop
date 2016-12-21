@@ -101,8 +101,8 @@ il::SparseMatrixCSR<Index, double> heat_2d(Index n) {
   return A;
 }
 
-template <typename Index>
-il::SparseMatrixCSR<Index, double> heat_3d(Index n) {
+template <typename Index, typename T>
+il::SparseMatrixCSR<Index, T> heat_3d(Index n) {
   il::Array<il::StaticArray<Index, 2>> position{};
   position.resize(7 * n * n * n);
   Index ii = 0;
@@ -149,10 +149,10 @@ il::SparseMatrixCSR<Index, double> heat_3d(Index n) {
   position.resize(ii);
 
   il::Array<Index> index{};
-  il::SparseMatrixCSR<Index, double> A{n * n * n, position, il::io, index};
+  il::SparseMatrixCSR<Index, T> A{n * n * n, position, il::io, index};
 
-  const double a = -1.0;
-  const double b = 7.0;
+  const T a = -1.0;
+  const T b = 7.0;
   Index idx = 0;
   for (Index k = 0; k < n; ++k) {
     for (Index j = 0; j < n; ++j) {

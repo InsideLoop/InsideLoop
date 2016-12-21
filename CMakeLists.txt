@@ -138,6 +138,7 @@ set(SOURCE_FILES
     il/ArrayView.h
     il/BandArray2C.h
     il/base.h
+    il/CudaArray2D.h
     il/HashTable.h
     il/linear_algebra.h
     il/LowerArray2D.h
@@ -160,6 +161,7 @@ set(SOURCE_FILES
     il/container/2d/BandArray2C.h
     il/container/2d/Array2DView.h
     il/container/2d/LowerArray2D.h
+    il/container/2d/SparseMatrixCSR.h
     il/container/2d/StaticArray2D.h
     il/container/2d/StaticArray2C.h
     il/container/2d/TriDiagonal.h
@@ -184,11 +186,22 @@ set(SOURCE_FILES
     il/linear_algebra/dense/blas/dot.h
     il/linear_algebra/dense/factorization/linear_solve.h
     il/linear_algebra/dense/blas/norm.h
+    il/linear_algebra/dense/blas/blas.h
+    il/linear_algebra/dense/blas/dot.h
+    il/linear_algebra/dense/blas/norm.h
     il/linear_algebra/dense/factorization/LU.h
     il/linear_algebra/dense/factorization/Cholesky.h
+    il/linear_algebra/dense/factorization/Householder.h
+    il/linear_algebra/dense/factorization/Eigen.h
+    il/linear_algebra/dense/factorization/Singular.h
+    il/linear_algebra/sparse/blas/_code/conjugate_gradient_blaze.h
+    il/linear_algebra/sparse/blas/sparse_blas.h
+    il/linear_algebra/sparse/blas/sparse_dot.h
+    il/linear_algebra/sparse/blas/sparse_linear_algebra.h
+    il/linear_algebra/sparse/blas/SparseMatrixBlas.h
+    il/linear_algebra/cuda/dense/blas/cuda_blas.h
     il/unit/time.h
-    il/pretty_print/gdb/__init__.py
-    il/pretty_print/gdb/printers.py)
+    il/random/sobol.h)
 
 ################################################################################
 # A test program
@@ -197,7 +210,7 @@ set(SOURCE_FILES
 
 add_executable(InsideLoop ${SOURCE_FILES} main.cpp)
 target_link_libraries(InsideLoop ${CMAKE_MKL_LIBRARIES} ${CMAKE_PNG_LIBRARIES})
-target_include_directories(InsideLoop PRIVATE /opt/blaze-3.0)
+target_include_directories(InsideLoop PRIVATE /opt/blaze-3.0 /opt/cuda-8.0/include)
 
 ################################################################################
 # For Unit Tests
@@ -214,7 +227,7 @@ set(UNIT_TEST_FILES
     il/linear_algebra/dense/blas/_test/linear_solve_test.cpp
     il/linear_algebra/dense/blas/_test/dot_test.cpp
     il/linear_algebra/dense/factorization/_test/Eigen_test.cpp
-        il/linear_algebra/sparse/factorization/_test/Pardiso_test.cpp
+    il/linear_algebra/sparse/factorization/_test/Pardiso_test.cpp
     il/linear_algebra/sparse/factorization/_test/GmresIlu0_test.cpp
     gtest/src/gtest-all.cc)
 

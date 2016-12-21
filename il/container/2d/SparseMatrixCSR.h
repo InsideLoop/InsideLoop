@@ -22,32 +22,32 @@ namespace il {
 template <typename Index, typename T>
 class SparseMatrixCSR {
  private:
-  Index n0_;
-  Index n1_;
+  il::int_t n0_;
+  il::int_t n1_;
   il::Array<T> element_;
   il::Array<Index> column_;
   il::Array<Index> row_;
 
  public:
   SparseMatrixCSR();
-  SparseMatrixCSR(Index height, Index width, il::Array<Index> column,
+  SparseMatrixCSR(il::int_t height, il::int_t width, il::Array<Index> column,
                   il::Array<Index> row);
-  SparseMatrixCSR(Index height, Index width, il::Array<Index> column,
+  SparseMatrixCSR(il::int_t height, il::int_t width, il::Array<Index> column,
                   il::Array<Index> row, il::Array<double> element);
   template <Index n>
-  SparseMatrixCSR(Index width, Index height,
+  SparseMatrixCSR(il::int_t width, il::int_t height,
                   const il::Array<il::SmallArray<Index, n>> &column);
-  SparseMatrixCSR(Index n, const il::Array<il::StaticArray<Index, 2>> &position,
+  SparseMatrixCSR(il::int_t n, const il::Array<il::StaticArray<Index, 2>> &position,
                   il::io_t, il::Array<Index> &index);
-  const T &operator[](Index k) const;
-  T &operator[](Index k);
-  const T &operator()(Index i, Index k) const;
-  T &operator()(Index i, Index k);
-  T element(Index k) const;
-  Index row(Index i) const;
-  Index column(Index k) const;
-  Index size(Index d) const;
-  Index nb_nonzeros() const;
+  const T &operator[](il::int_t k) const;
+  T &operator[](il::int_t k);
+  const T &operator()(il::int_t i, il::int_t k) const;
+  T &operator()(il::int_t i, il::int_t k);
+  T element(il::int_t k) const;
+  Index row(il::int_t i) const;
+  Index column(il::int_t k) const;
+  il::int_t size(il::int_t d) const;
+  il::int_t nb_nonzeros() const;
   const T *element_data() const;
   T *element_data();
   const Index *row_data() const;
@@ -63,7 +63,7 @@ SparseMatrixCSR<Index, T>::SparseMatrixCSR() : element_{}, column_{}, row_{} {
 }
 
 template <typename Index, typename T>
-SparseMatrixCSR<Index, T>::SparseMatrixCSR(Index height, Index width,
+SparseMatrixCSR<Index, T>::SparseMatrixCSR(il::int_t height, il::int_t width,
                                            il::Array<Index> column,
                                            il::Array<Index> row)
     : n0_{height},
@@ -75,7 +75,7 @@ SparseMatrixCSR<Index, T>::SparseMatrixCSR(Index height, Index width,
 }
 
 template <typename Index, typename T>
-SparseMatrixCSR<Index, T>::SparseMatrixCSR(Index height, Index width,
+SparseMatrixCSR<Index, T>::SparseMatrixCSR(il::int_t height, il::int_t width,
                                            il::Array<Index> column,
                                            il::Array<Index> row,
                                            il::Array<double> element)
@@ -90,7 +90,7 @@ SparseMatrixCSR<Index, T>::SparseMatrixCSR(Index height, Index width,
 template <typename Index, typename T>
 template <Index n>
 SparseMatrixCSR<Index, T>::SparseMatrixCSR(
-    Index width, Index height,
+    il::int_t width, il::int_t height,
     const il::Array<il::SmallArray<Index, n>> &column)
     : n1_{width}, n0_{height}, element_{}, column_{}, row_{height + 1} {
   Index nb_nonzero{0};
@@ -111,7 +111,7 @@ SparseMatrixCSR<Index, T>::SparseMatrixCSR(
 
 template <typename Index, typename T>
 SparseMatrixCSR<Index, T>::SparseMatrixCSR(
-    Index n, const il::Array<il::StaticArray<Index, 2>> &position, il::io_t,
+    il::int_t n, const il::Array<il::StaticArray<Index, 2>> &position, il::io_t,
     il::Array<Index> &index)
     : element_{}, column_{}, row_{} {
   IL_ASSERT(n >= 0);
@@ -229,17 +229,17 @@ SparseMatrixCSR<Index, T>::SparseMatrixCSR(
 }
 
 template <typename Index, typename T>
-T const &SparseMatrixCSR<Index, T>::operator[](Index k) const {
+T const &SparseMatrixCSR<Index, T>::operator[](il::int_t k) const {
   return element_[k];
 }
 
 template <typename Index, typename T>
-T &SparseMatrixCSR<Index, T>::operator[](Index k) {
+T &SparseMatrixCSR<Index, T>::operator[](il::int_t k) {
   return element_[k];
 }
 
 template <typename Index, typename T>
-T const &SparseMatrixCSR<Index, T>::operator()(Index i, Index k) const {
+T const &SparseMatrixCSR<Index, T>::operator()(il::int_t i, il::int_t k) const {
   IL_ASSERT(static_cast<il::uint_t>(i) < static_cast<il::uint_t>(n0_));
   IL_ASSERT(static_cast<il::uint_t>(row_[i] + k) <
             static_cast<il::uint_t>(row_[i + 1]));
@@ -247,7 +247,7 @@ T const &SparseMatrixCSR<Index, T>::operator()(Index i, Index k) const {
 }
 
 template <typename Index, typename T>
-T &SparseMatrixCSR<Index, T>::operator()(Index i, Index k) {
+T &SparseMatrixCSR<Index, T>::operator()(il::int_t i, il::int_t k) {
   IL_ASSERT(static_cast<il::uint_t>(i) < static_cast<il::uint_t>(n0_));
   IL_ASSERT(static_cast<il::uint_t>(row_[i] + k) <
             static_cast<il::uint_t>(row_[i + 1]));
@@ -255,13 +255,13 @@ T &SparseMatrixCSR<Index, T>::operator()(Index i, Index k) {
 }
 
 template <typename Index, typename T>
-Index SparseMatrixCSR<Index, T>::size(Index d) const {
+il::int_t SparseMatrixCSR<Index, T>::size(il::int_t d) const {
   IL_ASSERT_BOUNDS(static_cast<il::uint_t>(d) < static_cast<il::uint_t>(2));
   return (d == 0) ? n0_ : n1_;
 }
 
 template <typename Index, typename T>
-Index SparseMatrixCSR<Index, T>::nb_nonzeros() const {
+il::int_t SparseMatrixCSR<Index, T>::nb_nonzeros() const {
   return element_.size();
 }
 
@@ -296,17 +296,17 @@ Index *SparseMatrixCSR<Index, T>::column_data() {
 }
 
 template <typename Index, typename T>
-T SparseMatrixCSR<Index, T>::element(Index k) const {
+T SparseMatrixCSR<Index, T>::element(il::int_t k) const {
   return element_[k];
 }
 
 template <typename Index, typename T>
-Index SparseMatrixCSR<Index, T>::row(Index i) const {
+Index SparseMatrixCSR<Index, T>::row(il::int_t i) const {
   return row_[i];
 }
 
 template <typename Index, typename T>
-Index SparseMatrixCSR<Index, T>::column(Index k) const {
+Index SparseMatrixCSR<Index, T>::column(il::int_t k) const {
   return column_[k];
 }
 

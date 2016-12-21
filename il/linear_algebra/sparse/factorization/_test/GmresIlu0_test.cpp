@@ -94,7 +94,7 @@ TEST(GmresIlu0, heat2D) {
 TEST(GmresIlu0, heat3D) {
   const il::int_t n = 10;
 
-  il::SparseMatrixCSR<int, double> A = il::heat_3d<int>(n);
+  il::SparseMatrixCSR<int, double> A = il::heat_3d<int, double>(n);
   il::Array<double> x_theory{A.size(0), 1.0};
   il::Array<double> y{A.size(0), 0.0};
   il::blas(1.0, A, x_theory, 0.0, il::io, y);

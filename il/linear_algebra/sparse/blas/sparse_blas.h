@@ -21,7 +21,7 @@ namespace il {
 inline void blas(double alpha, const il::SparseMatrixCSR<int, double>& A,
                  const il::Array<double>& x, double beta, il::io_t,
                  il::Array<double>& y) {
-  //#pragma omp parallel for
+#pragma omp parallel for
   for (int i = 0; i < A.size(0); ++i) {
     double sum = 0.0;
     for (int k = A.row(i); k < A.row(i + 1); ++k) {
@@ -34,7 +34,7 @@ inline void blas(double alpha, const il::SparseMatrixCSR<int, double>& A,
 inline void blas(double alpha, const il::SparseMatrixCSR<il::int_t, double>& A,
                  const il::Array<double>& x, double beta, il::io_t,
                  il::Array<double>& y) {
-  //#pragma omp parallel for
+#pragma omp parallel for
   for (int i = 0; i < A.size(0); ++i) {
     double sum = 0.0;
     for (int k = A.row(i); k < A.row(i + 1); ++k) {
@@ -74,6 +74,19 @@ inline void blas(double alpha, const il::SparseMatrixCSR<il::int_t, double>& A,
 //  }
 //}
 
+inline void blas(float alpha, il::SparseMatrixBlas<int, float>& A_optimized,
+                 const il::Array<float>& x, float beta, il::io_t,
+                 il::Array<float>& y) {
+  const sparse_operation_t operation = SPARSE_OPERATION_NON_TRANSPOSE;
+  const sparse_matrix_t A = A_optimized.handle();
+  matrix_descr descr;
+  descr.type = SPARSE_MATRIX_TYPE_GENERAL;
+
+  sparse_status_t status =
+      mkl_sparse_s_mv(operation, alpha, A, descr, x.data(), beta, y.data());
+  IL_ASSERT(status == SPARSE_STATUS_SUCCESS);
+}
+
 inline void blas(double alpha, il::SparseMatrixBlas<int, double>& A_optimized,
                  const il::Array<double>& x, double beta, il::io_t,
                  il::Array<double>& y) {
@@ -86,6 +99,7 @@ inline void blas(double alpha, il::SparseMatrixBlas<int, double>& A_optimized,
       mkl_sparse_d_mv(operation, alpha, A, descr, x.data(), beta, y.data());
   IL_ASSERT(status == SPARSE_STATUS_SUCCESS);
 }
+
 }
 
 #endif  // IL_SPARSE_BLAS_H

@@ -394,38 +394,44 @@ optimized for BLAS operations.
 
 ```cpp
 int main() {
-  const il::int_t nb_iteration = 50;
   const double tolerance = 1.0e-8;
 
   const il::int_t side = 70;
-  il::SparseMatrixCSR<int, double> A = il::heat_3d<int>(side);
+  il::SparseMatrixCSR<int, double> A = il::heat_3d<int, double>(side);
   const il::int_t n = A.size(0);
-  il::Array<double> y{n, 1.0};
-  il::Array<double> x{n, 0.0};
+  il::Array<double> y(n, 1.0);
+  il::Array<double> x(n, 0.0);
 
   // This routine solves the conjugate gradient method that works for positive
   // definite symmetric matrices. The implementation comes from the wikipedia
   // page.
 
-  il::SparseMatrixBlas<int, double> A_blas{il::io, A};
+  // We use a sparse matrix representation optimized for BLAS operations. 
+  il::SparseMatrixBlas<int, double> A_blas(il::io, A);
   A_blas.set_nb_matrix_vector(nb_iteration);
 
+  // r = y - A.x 
   il::Array<double> r = y;
-  il::blas(-1.0, A_blas, x, 1.0, il::io, y);
+  il::blas(-1.0, A_blas, x, 1.0, il::io, r);
+  // p = r
   il::Array<double> p = r;
   double delta = il::dot(r, r);
   il::Array<double> Ap{n};
 
   while (true) {
+    // Ap = A.p
     il::blas(1.0, A_blas, p, 0.0, il::io, Ap);
     const double alpha = delta / il::dot(p, Ap);
+    // x = x + alpha.p
     il::blas(alpha, p, 1.0, il::io, x);
+    // r = r - alpha.Ap 
     il::blas(-alpha, Ap, 1.0, il::io, r);
     const double beta = il::dot(r, r);
     std::printf("Iteration: %3li,   Error: %7.3e\n", i, std::sqrt(beta));
     if (beta <= tolerance * tolerance) {
       break;
     }
+    // p = r + (beta / delta).p
     il::blas(1.0, r, beta / delta, il::io, p);
     delta = beta;
   }
@@ -436,12 +442,12 @@ int main() {
 ```
 
 You can also solve the same problem with a direct method, using a LU
-decomposition from the Pardiso solver:
+decomposition from the Pardiso solver.
 
 ```cpp
 int main() {
   const il::int_t side = 70;
-  il::SparseMatrixCSR<int, double> A = il::heat_3d<int>(side);
+  il::SparseMatrixCSR<int, double> A = il::heat_3d<int, double>(side);
   const il::int_t n = A.size(0);
   il::Array<double> y{n, 1.0};
   
@@ -499,8 +505,6 @@ auto C =  il::copy<il::Array2D<double>>(C_gpu);
 
 ```
 
-## A Platform for Core i7, Xeon, Xeon Phi and Cuda devices
-
 This makes it very easy to compare state of the art libraries on processors
 and on a co-processor. For instance, here are the timings for multiplying two
 10000x10000 matrices of floats and doubles on different devices using both the
@@ -512,6 +516,70 @@ MKL from Parallel Studio XE 2017 and cuBLAS from CUDA 8.0:
 |Dual-Xeon E5-2660, 2x14 cores, Broadwell         |     1.36 s  |   1.450 TFlops |    2.72 s     |   0.730 TFlops  |
 |NVidia Titan X Pascal                            |     0.20 s  |  10.100 TFlops |    5.40 s     |   0.370 TFlops  |
 
+
+As you can see, it it very easy to adapt CPU code to CUDA code. The following
+code performs a conjugate gradient method on a CUDA device. In the main
+algorithm, the only difference is the usage of a CUDA handle to the BLAS
+functions.
+
+```cpp
+int main() {
+  const il::int_t nb_iteration = 10;
+  const float tolerance = 1.0e-10f;
+  const il::int_t side = 300;
+
+  il::SparseMatrixCSR<int, float> A = il::heat_3d<int, float>(side);
+  const il::int_t n = A.size(0);
+  il::Array<float> y{n, 1.0f};
+  il::Array<float> x{n, 0.0f};
+
+  auto Ad = il::copy<il::CudaSparseMatrixCSR<float>>(A);
+  auto yd = il::copy<il::CudaArray<float>>(y);
+  auto xd = il::copy<il::CudaArray<float>>(x);
+  il::CublasHandle cublas_handle{};
+  il::CusparseHandle cusparse_handle{};
+
+  // This routine solves the conjugate gradient method that works for positive
+  // definite symmetric matrices. The implementation comes from the wikipedia
+  // page.
+
+  // rd = yd - A.xd
+  il::CudaArray<float> rd{yd};
+  il::blas(-1.0, Ad, xd, 1.0f, il::io, rd, cusparse_handle);
+  il::CudaArray<float> pd{rd};
+  // delta = rd.rd
+  float delta = il::dot(rd, rd, il::io, cublas_handle);
+  il::CudaArray<float> Apd{n};
+
+  for (il::int_t i = 0; i < nb_iteration; ++i) {
+    // Apd = Ad.pd
+    il::blas(1.0f, Ad, pd, 0.0f, il::io, Apd, cusparse_handle);
+    const float alpha = delta / il::dot(pd, Apd, il::io, cublas_handle);
+    // xd += alpha.pd
+    il::blas(alpha, pd, 1.0f, il::io, xd, cublas_handle);
+    // rd -= alpha.Apd
+    il::blas(-alpha, Apd, 1.0f, il::io, rd, cublas_handle);
+    const float beta = il::dot(rd, rd, il::io, cublas_handle);
+    std::printf("Iteration: %3li,   Error: %7.3e\n", i, std::sqrt(beta));
+    if (beta < tolerance * tolerance) {
+      break;
+    }
+    // pd = rd + (beta / delta) * pd
+    il::blas(1.0f, rd, beta / delta, il::io, pd, cublas_handle);
+    delta = beta;
+  }
+
+  return 0;
+}
+
+```
+
+This conjugate gradient method runs at the following speed:
+
+| Device                                          |Time (float) |
+|-------------------------------------------------|:-----------:|
+|Dual-Xeon E5-2660, 2x14 cores, Broadwell         |    0.827 s  |
+|NVidia Titan X Pascal                            |    0.145 s  |
 
 ## Hash Table
 

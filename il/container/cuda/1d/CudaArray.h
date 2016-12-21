@@ -10,8 +10,8 @@
 #ifndef IL_CUDAARRAY_H
 #define IL_CUDAARRAY_H
 
-#include <cuda_runtime_api.h>
 #include <cuda.h>
+#include <cuda_runtime_api.h>
 
 // <initializer_list> is needed for std::initializer_list<T>
 #include <initializer_list>
@@ -20,17 +20,19 @@
 
 namespace il {
 
-template<typename T>
+template <typename T>
 class CudaArray {
  private:
-  T *data_;
-  int size_;
-  int capacity_;
+  T* data_;
+  il::int_t size_;
+  il::int_t capacity_;
 
  public:
   /* \brief Construct an array of n elements
   */
-  explicit CudaArray(int n);
+  explicit CudaArray(il::int_t n);
+  CudaArray(const il::CudaArray<T>& x);
+  CudaArray(CudaArray<T>&& x);
 
   /* \brief The destructor
   */
@@ -38,19 +40,19 @@ class CudaArray {
 
   /* \brief Get the size of the il::CudaArray<T>
   */
-  int size() const;
+  il::int_t size() const;
 
   /* \brief Get a pointer to the first element of the array
   */
-  const T *data() const;
+  const T* data() const;
 
   /* \brief Get a pointer to the first element of the array
   */
-  T *data();
+  T* data();
 };
 
-template<typename T>
-CudaArray<T>::CudaArray(int n) {
+template <typename T>
+CudaArray<T>::CudaArray(il::int_t n) {
   IL_ASSERT_PRECOND(n >= 0);
 
   cudaMalloc(&data_, n * sizeof(T));
@@ -58,26 +60,50 @@ CudaArray<T>::CudaArray(int n) {
   capacity_ = n;
 }
 
-template<typename T>
-CudaArray<T>::~CudaArray() {
-  cudaFree(data_);
+template <typename T>
+CudaArray<T>::CudaArray(const il::CudaArray<T>& x) {
+  const il::int_t n = x.size();
+
+  cudaError_t error;
+  error = cudaMalloc(&data_, n * sizeof(T));
+  IL_ASSERT(error == 0);
+  error = cudaMemcpy(data_, x.data_, n * sizeof(T), cudaMemcpyDeviceToDevice);
+  IL_ASSERT(error == 0);
+
+  size_ = n;
+  capacity_ = n;
 }
 
-template<typename T>
-int CudaArray<T>::size() const {
+template <typename T>
+CudaArray<T>::CudaArray(il::CudaArray<T>&& x) {
+  data_ = x.data_;
+  size_ = x.size_;
+  capacity_ = x.capacity_;
+  x.data_ = nullptr;
+  x.size_ = 0;
+  x.capacity_ = 0;
+}
+
+template <typename T>
+CudaArray<T>::~CudaArray() {
+  if (data_ != nullptr) {
+    cudaFree(data_);
+  }
+}
+
+template <typename T>
+il::int_t CudaArray<T>::size() const {
   return size_;
 }
 
-template<typename T>
+template <typename T>
 const T* CudaArray<T>::data() const {
   return data_;
 }
 
-template<typename T>
+template <typename T>
 T* CudaArray<T>::data() {
   return data_;
 }
-
 }
 #endif  // IL_CUDAARRAY_H
-

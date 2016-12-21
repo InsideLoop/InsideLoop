@@ -30,7 +30,7 @@ class CudaArray2D {
  public:
   /* \brief Construct an array of n elements
   */
-  explicit CudaArray2D(int n0, int n1);
+  explicit CudaArray2D(il::int_t n0, il::int_t n1);
 
   /* \brief The destructor
   */

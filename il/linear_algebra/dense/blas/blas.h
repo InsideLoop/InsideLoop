@@ -54,6 +54,18 @@ inline void blas(double alpha, const il::Array<double>& x, il::io_t,
 
 // x, y are vectors
 // y <- alpha x + beta y
+inline void blas(float alpha, const il::Array<float>& x, float beta,
+                 il::io_t, il::Array<float>& y) {
+  IL_ASSERT(x.size() == y.size());
+
+  const IL_CBLAS_INT n{static_cast<IL_CBLAS_INT>(x.size())};
+  const IL_CBLAS_INT incx{1};
+  const IL_CBLAS_INT incy{1};
+  cblas_saxpby(n, alpha, x.data(), incx, beta, y.data(), incy);
+}
+
+// x, y are vectors
+// y <- alpha x + beta y
 inline void blas(double alpha, const il::Array<double>& x, double beta,
                  il::io_t, il::Array<double>& y) {
   IL_ASSERT(x.size() == y.size());
