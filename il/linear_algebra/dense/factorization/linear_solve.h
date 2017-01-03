@@ -20,12 +20,11 @@
 
 #ifdef IL_MKL
 #include <mkl_lapacke.h>
-#else
-#include <lapacke.h>
 #endif
 
 namespace il {
 
+#ifdef IL_MKL
 inline il::Array<double> linear_solve(il::Array2D<double> A,
                                       il::Array<double> y, il::io_t,
                                       il::Status &status) {
@@ -131,6 +130,7 @@ inline il::Array<double> linear_solve(il::TriDiagonal<double> A,
   return y;
 }
 
+#endif
 }
 
 #endif  // IL_LINEAR_SOLVE_H

@@ -1,7 +1,7 @@
 ![InsideLoop icon](http://www.insideloop.io/wp-content/uploads/2014/09/inside-loop-logo-front.png)
 
 InsideLoop is a **C++11 library** for **high performance scientific applications**
-running on processors (**Core i7**, **Xeon**, **Xeon Phi**) and coprocessors
+running on processors (**Core i5/i7**, **Xeon**, **Xeon Phi KNC/KNL**) and coprocessors
 (**Cuda**). This
 library has been designed to provide you with:
 
@@ -21,7 +21,7 @@ Before creating this library, we have looked for available solutions but all
 of them have been discarded. Even though the following comments might seem quite
 harsh for the libraries we have tried, most of the problems raised here have
 their historical reasons and are due to their longevity and success. They just
-don't solver our problems even though they have been recognized to solve
+don't solve our problems even though they have been recognized to solve
 problems many people face.
 
 - **C++ Standard Library**: The only way to customize the containers from the

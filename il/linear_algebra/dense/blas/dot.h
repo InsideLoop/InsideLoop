@@ -43,6 +43,7 @@ inline double dot(const il::Array<double>& x, const il::Array<double>& y) {
   return sum;
 }
 
+#ifdef IL_MKL
 inline il::Array<double> dot(const il::Array2D<double>& A,
                              const il::Array<double>& x) {
   IL_ASSERT(A.size(1) == x.size());
@@ -104,6 +105,7 @@ inline il::Array2C<double> dot(const il::Array2C<double>& A,
 
   return C;
 }
+#endif
 
 template <typename T, il::int_t n0, il::int_t n>
 inline il::StaticArray<T, n0> dot(const il::StaticArray2D<T, n0, n>& A,

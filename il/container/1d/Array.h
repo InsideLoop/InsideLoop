@@ -18,10 +18,13 @@
 #include <new>
 // <type_traits> is needed for std::is_pod
 #include <type_traits>
+// Used for tuples
+#include <tuple>
 // <utility> is needed for std::move
 #include <utility>
 
 #include <il/base.h>
+#include <il/core/arg.h>
 
 namespace il {
 
@@ -96,8 +99,8 @@ class Array {
   // // array of double being of lenth 3.
   // il::Array<il::Array<double>> v{5, il::emplace, 3};
   */
-  template <typename... Args>
-  explicit Array(il::int_t n, il::emplace_t, Args&&... args);
+  template <typename Args>
+  explicit Array(il::int_t n, il::emplace_t, Args&& args);
 
   /* \brief Construct an array from a brace-initialized list
   // \details The size and the capacity of the il::Array<T> is adjusted
@@ -432,8 +435,8 @@ Array<T>::Array(il::int_t n, const T& x, il::align_t, short align_r,
 }
 
 template <typename T>
-template <typename... Args>
-Array<T>::Array(il::int_t n, il::emplace_t, Args&&... args) {
+template <typename Args>
+Array<T>::Array(il::int_t n, il::emplace_t, Args&& args) {
   IL_ASSERT(n >= 0);
   if (n > 0) {
     if (std::is_pod<T>::value) {
@@ -445,7 +448,7 @@ Array<T>::Array(il::int_t n, il::emplace_t, Args&&... args) {
     data_ = nullptr;
   }
   for (il::int_t i{0}; i < n; ++i) {
-    new (data_ + i) T(args...);
+    il::placement_from_tuple<T>(data_ + i, std::forward<Args>(args));
   }
 #ifdef IL_DEBUG_VISUALIZER
   debug_size_ = n;

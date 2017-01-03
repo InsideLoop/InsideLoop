@@ -18,10 +18,6 @@
 #include <mkl_cblas.h>
 #define IL_CBLAS_INT MKL_INT
 #define IL_CBLAS_LAYOUT CBLAS_LAYOUT
-#else
-#include <cblas.h>
-#define IL_CBLAS_INT int
-#define IL_CBLAS_LAYOUT CBLAS_ORDER
 #endif
 
 namespace il {
@@ -36,6 +32,7 @@ enum class Blas {
   hermitian_lower
 };
 
+#ifdef IL_MKL
 ////////////////////////////////////////////////////////////////////////////////
 // BLAS Level 1
 ////////////////////////////////////////////////////////////////////////////////
@@ -306,6 +303,9 @@ inline void blas(double alpha, const il::Array2C<double>& A, Blas info_a,
     abort();
   }
 }
+
+#endif
+
 }
 
 #endif  // IL_BLAS_H

@@ -139,7 +139,7 @@ set(SOURCE_FILES
     il/BandArray2C.h
     il/base.h
     il/CudaArray2D.h
-    il/HashTable.h
+    il/HashMap.h
     il/linear_algebra.h
     il/LowerArray2D.h
     il/math.h
@@ -175,8 +175,8 @@ set(SOURCE_FILES
     il/container/cuda/2d/CudaArray2D.h
     il/container/cuda/2d/CudaSparseMatrixCSR.h
     il/container/cuda/cuda_copy.h
-    il/container/hash_table/HashFunction.h
-    il/container/hash_table/HashTable.h
+        il/container/hash/HashFunction.h
+        il/container/hash/HashMap.h
     il/core/config.h
     il/core/ilassert.h
     il/core/ildef.h
