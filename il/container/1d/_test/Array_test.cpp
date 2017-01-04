@@ -425,9 +425,9 @@ TEST(Array, reserve) {
   il::Array<il::int_t> v{};
   v.reserve(3);
   il::int_t* const old_v_data{v.data()};
-  v.push_back(7);
-  v.push_back(8);
-  v.push_back(9);
+  v.append(7);
+  v.append(8);
+  v.append(9);
   il::int_t* const new_v_data{v.data()};
 
   ASSERT_TRUE(old_v_data == new_v_data);
@@ -443,43 +443,44 @@ TEST(Array, reserve_object) {
               Dummy::destroyed[2] == -(1 + 0));
 }
 
-TEST(Array, push_back_0) {
+TEST(Array, append_0) {
   il::Array<il::int_t> v{};
-  v.push_back(5);
-  v.push_back(6);
-  v.push_back(7);
-  v.push_back(8);
-  v.push_back(9);
+  v.append(5);
+  v.append(6);
+  v.append(7);
+  v.append(8);
+  v.append(9);
 
   ASSERT_TRUE(v.size() == 5 && v[0] == 5 && v[1] == 6 && v[2] == 7 &&
               v[3] == 8 && v[4] == 9);
 }
 
-TEST(Array, push_back_1) {
+TEST(Array, append_1) {
   il::Array<il::int_t> v{};
   v.reserve(4);
   v.resize(3);
   il::int_t* const old_v_data{v.data()};
-  v.push_back(0);
+  v.append(0);
   il::int_t* const new_v_data{v.data()};
 
   ASSERT_TRUE(old_v_data == new_v_data);
 }
 
-TEST(Array, push_back_object) {
+TEST(Array, append_object) {
   Dummy::reset();
   il::Array<Dummy> v{3};
-  v.push_back(Dummy{});
+  v.append(Dummy{});
 
   ASSERT_TRUE(Dummy::destroyed.size() == 4 && Dummy::destroyed[0] == -(1 + 2) &&
               Dummy::destroyed[1] == -(1 + 1) &&
-              Dummy::destroyed[2] == -(1 + 0) && Dummy::destroyed[3] == 3);
+              Dummy::destroyed[2] == -(1 + 0) &&
+              Dummy::destroyed[3] == -(1 + 3));
 }
 
 TEST(Array, emplace_back) {
   Dummy::reset();
   il::Array<Dummy> v{3};
-  v.emplace_back();
+  v.append(il::emplace, il::arg());
 
   ASSERT_TRUE(Dummy::destroyed.size() == 3 && Dummy::destroyed[0] == -(1 + 2) &&
               Dummy::destroyed[1] == -(1 + 1) &&

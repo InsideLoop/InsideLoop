@@ -391,7 +391,7 @@ void fix_clusters(const il::Array2C<float>& point, il::io_t,
     il::Array<int> cluster_to_fix{};
     for (int i{0}; i < nb_cluster; ++i) {
       if (point_per_centroid[i] == 0) {
-        cluster_to_fix.push_back(i);
+        cluster_to_fix.append(i);
       }
     }
     if (cluster_to_fix.size() == 0) {
@@ -429,7 +429,7 @@ void fix_clusters(const il::Array2D<float>& point, il::io_t,
     il::Array<int> cluster_to_fix{};
     for (int i{0}; i < nb_cluster; ++i) {
       if (point_per_centroid[i] == 0) {
-        cluster_to_fix.push_back(i);
+        cluster_to_fix.append(i);
       }
     }
     if (cluster_to_fix.size() == 0) {

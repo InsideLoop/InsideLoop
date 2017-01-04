@@ -32,7 +32,7 @@ inline void alignment() {
       }
     }
     timer.stop();
-    std::printf("Unaligned: %7.3e ns\n", timer.time());
+    std::printf("Unaligned: %7.3e ns\n", timer.elapsed());
   }
 
   {
@@ -50,7 +50,7 @@ inline void alignment() {
       }
     }
     timer.stop();
-    std::printf("SIMD aligned: %7.3e ns\n", timer.time());
+    std::printf("SIMD aligned: %7.3e ns\n", timer.elapsed());
   }
 
   {
@@ -68,7 +68,7 @@ inline void alignment() {
       }
     }
     timer.stop();
-    std::printf("Cache aligned: %7.3e ns\n", timer.time());
+    std::printf("Cache aligned: %7.3e ns\n", timer.elapsed());
   }
 }
 
@@ -95,7 +95,7 @@ inline void conditional_assignment() {
       }
     }
     timer.stop();
-    std::printf("Unaligned timing: %7.3e\n", timer.time());
+    std::printf("Unaligned timing: %7.3e\n", timer.elapsed());
   }
 
   {
@@ -117,7 +117,7 @@ inline void conditional_assignment() {
       }
     }
     timer.stop();
-    std::printf("SIMD aligned timing: %7.3e\n", timer.time());
+    std::printf("SIMD aligned timing: %7.3e\n", timer.elapsed());
   }
 
   {
@@ -139,7 +139,7 @@ inline void conditional_assignment() {
       }
     }
     timer.stop();
-    std::printf("Cache aligned timing: %7.3e\n", timer.time());
+    std::printf("Cache aligned timing: %7.3e\n", timer.elapsed());
   }
 }
 }

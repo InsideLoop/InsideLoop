@@ -630,7 +630,71 @@ This conjugate gradient method with a 27 000 000 x 27 000 000 matrix containing
 
 We finally provide a hash table implemented using open addressing and quadratic
 probing. This hash table has better performance than the one provided by the
-standard library `std::unordered_map`.
+standard library `std::unordered_map`. An open addressing hash table is made
+of an array of `(key, value)` pairs of length `nb_slot`. The key type must
+exhibit 2 special values known as `empty_key` and `tombstone_key` which are
+forbidden to use. When no `(key, value)` are inserted in the hash table, all
+the keys are set to `empty_key` to mark the slot as empty. When you want to
+insert a `(key, value)` pair, the table hashes the key and produce an integer
+which is reduced modulo `nb_slot`. If the slot is empty, the `(key, value)` pair
+is stored here. Otherwise (in this case, we have what is called a collision), it
+steps to the next slot (modulo `nb_slot`) and
+checks if it is empty. If it is, the `(key, value)` pair is stored here.
+Otherwise, it makes 2 steps and check if this slot is empty. In case it is not,
+it makes 3 steps, etc. Until it finds a valid slot that we call `i`.
+
+To insert a `(key, value)` pair into a hash table, we need to make sure that the
+key is not already present in the hash table. So we search for it. The method
+search returns a valid slot `i` if it is found or some information on where to
+construct the `(key, value)` pair if it is not found. In the second case, all
+you need is to call `insert` using this information.
+
+```cpp
+#include <string>
+#include <il/HashMap.h>
+
+void add_european_country(il::HashMap<std::string, il::int_t>& population) {
+  std::string country{"France"};
+  il::int_t n = 64806269;
+  
+  il::int_t i = population.search(country);
+  if (!population.found(i)) {
+    population.insert(country, n, il::io, i);
+  }
+  
+  country = std::string{"Germany"};
+  n = 80219695;
+  i = population.search(country);
+  if (!population.found(i)) {
+    population.insert(country, n, il::io, i);
+  }
+  
+  ...
+}
+```
+
+In order to display the information for the population, for a given country you
+first need to search the hash table for this country to make sure it is present.
+Then, you can display the associated value. You can use the following code to
+display the population of a country with the previous hash table:
+
+```cpp
+#include <string>
+#include <il/HashMap.h>
+
+void print_population_country(
+    const il::HashMap<std::string, il::int_t>& population,
+    const std::string& country) {
+  il::int_t i = population.search(country);
+  if (population.found(i)) {
+    std::printf("The population of %s is %td\n", country.c_str(),
+        population.value(i));
+  } else {
+    std::printf("I don't know the population of %s\n", country.c_str());
+  }
+}
+```
+
 
 ## Remarks, feature request, bug report
 

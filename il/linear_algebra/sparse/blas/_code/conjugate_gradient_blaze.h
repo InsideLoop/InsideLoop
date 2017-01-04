@@ -53,5 +53,5 @@ void code() {
     delta_cl = beta_cl;
   }
   timer.stop();
-  std::printf("    Time for Conjugate Gradient Blaze: %7.3f s\n", timer.time());
+  std::printf("    Time for Conjugate Gradient Blaze: %7.3f s\n", timer.elapsed());
 };

@@ -21,7 +21,7 @@ namespace il {
 inline void blas(double alpha, const il::SparseMatrixCSR<int, double>& A,
                  const il::Array<double>& x, double beta, il::io_t,
                  il::Array<double>& y) {
-#pragma omp parallel for
+//#pragma omp parallel for
   for (int i = 0; i < A.size(0); ++i) {
     double sum = 0.0;
     for (int k = A.row(i); k < A.row(i + 1); ++k) {
@@ -34,7 +34,7 @@ inline void blas(double alpha, const il::SparseMatrixCSR<int, double>& A,
 inline void blas(double alpha, const il::SparseMatrixCSR<il::int_t, double>& A,
                  const il::Array<double>& x, double beta, il::io_t,
                  il::Array<double>& y) {
-#pragma omp parallel for
+//#pragma omp parallel for
   for (int i = 0; i < A.size(0); ++i) {
     double sum = 0.0;
     for (int k = A.row(i); k < A.row(i + 1); ++k) {

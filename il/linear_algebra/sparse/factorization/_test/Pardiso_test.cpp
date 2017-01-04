@@ -21,10 +21,10 @@ TEST(Pardiso, base) {
   il::Array<double> y{il::value, {3.0, 7.0}};
 
   il::Array<il::StaticArray<il::int_t, 2>> position{};
-  position.emplace_back(il::value, std::initializer_list<il::int_t>{0, 0});
-  position.emplace_back(il::value, std::initializer_list<il::int_t>{0, 1});
-  position.emplace_back(il::value, std::initializer_list<il::int_t>{1, 0});
-  position.emplace_back(il::value, std::initializer_list<il::int_t>{1, 1});
+  position.append(il::StaticArray<il::int_t, 2>{il::value, {0, 0}});
+  position.append(il::StaticArray<il::int_t, 2>{il::value, {0, 1}});
+  position.append(il::StaticArray<il::int_t, 2>{il::value, {1, 0}});
+  position.append(il::StaticArray<il::int_t, 2>{il::value, {1, 1}});
 
   il::Array<il::int_t> index{};
   il::SparseMatrixCSR<il::int_t, double> A{2, position, il::io, index};

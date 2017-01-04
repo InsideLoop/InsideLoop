@@ -175,8 +175,8 @@ set(SOURCE_FILES
     il/container/cuda/2d/CudaArray2D.h
     il/container/cuda/2d/CudaSparseMatrixCSR.h
     il/container/cuda/cuda_copy.h
-        il/container/hash/HashFunction.h
-        il/container/hash/HashMap.h
+    il/container/hash/HashFunction.h
+    il/container/hash/HashMap.h
     il/core/config.h
     il/core/ilassert.h
     il/core/ildef.h
@@ -214,7 +214,7 @@ set(SOURCE_FILES
 
 add_executable(InsideLoop ${SOURCE_FILES} main.cpp)
 target_link_libraries(InsideLoop ${CMAKE_MKL_LIBRARIES} ${CMAKE_PNG_LIBRARIES})
-target_include_directories(InsideLoop PRIVATE /opt/blaze-3.0 /opt/cuda-8.0/include)
+target_include_directories(InsideLoop PRIVATE ${CMAKE_SOURCE_DIR} /opt/blaze-3.0 /opt/cuda-8.0/include)
 
 ################################################################################
 # For Unit Tests
@@ -237,7 +237,7 @@ set(UNIT_TEST_FILES
 
 add_executable(InsideLoopUnitTest ${SOURCE_FILES} ${UNIT_TEST_FILES} test.cpp)
 
-target_include_directories(InsideLoopUnitTest PUBLIC ${CMAKE_SOURCE_DIR}/gtest)
+target_include_directories(InsideLoopUnitTest PUBLIC ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/gtest)
 target_link_libraries(InsideLoopUnitTest ${CMAKE_MKL_LIBRARIES} ${CMAKE_PNG_LIBRARIES})
 
 # For unit tests: The precondition of our fonctions are checked with assert

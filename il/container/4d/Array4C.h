@@ -71,17 +71,6 @@ class Array4C {
   explicit Array4C(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3,
                    il::value_t, const T& x);
 
-  /* \brief Construct an array of n rows, p columns and q slices using
-  // constructor arguments
-  /
-  // // Construct an array of 3 by 5 by 7 il::Array<double>, all of length 9 and
-  // // initialized with 3.14
-  // il::Array4C<il::Array<double>> v{3, 5, 7, il::emplace, 9, 3.14};
-  */
-  template <typename... Args>
-  explicit Array4C(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3,
-                   il::emplace_t, Args&&... args);
-
   /* \brief The copy constructor
   // \details The different size and capacity of the constructed il::Array4C<T>
   // are equal to the size of the source array.
@@ -348,73 +337,6 @@ Array4C<T>::Array4C(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3,
     }
   } else {
     data_ = nullptr;
-  }
-#ifdef IL_DEBUG_VISUALIZER
-  debug_size_[0] = n0;
-  debug_size_[1] = n1;
-  debug_size_[2] = n2;
-  debug_size_[3] = n3;
-  debug_capacity_[0] = r0;
-  debug_capacity_[1] = r1;
-  debug_capacity_[2] = r2;
-  debug_capacity_[3] = r3;
-#endif
-  size_[0] = data_ + n0;
-  size_[1] = data_ + n1;
-  size_[2] = data_ + n2;
-  size_[3] = data_ + n3;
-  capacity_[0] = data_ + r0;
-  capacity_[1] = data_ + r1;
-  capacity_[2] = data_ + r2;
-  capacity_[3] = data_ + r3;
-}
-
-template <typename T>
-template <typename... Args>
-Array4C<T>::Array4C(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3,
-                    il::emplace_t, Args&&... args) {
-  IL_ASSERT_PRECOND(n0 >= 0);
-  IL_ASSERT_PRECOND(n1 >= 0);
-  IL_ASSERT_PRECOND(n2 >= 0);
-  IL_ASSERT_PRECOND(n3 >= 0);
-  il::int_t r0;
-  il::int_t r1;
-  il::int_t r2;
-  il::int_t r3;
-  if (n0 > 0 && n1 > 0 && n2 > 0 && n3 > 0) {
-    r0 = n0;
-    r1 = n1;
-    r2 = n2;
-    r3 = n3;
-  } else if (n0 == 0 && n1 == 0 && n2 == 0 && n3 == 0) {
-    r0 = 0;
-    r1 = 0;
-    r2 = 0;
-    r3 = 0;
-  } else {
-    r0 = (n0 == 0) ? 1 : n0;
-    r1 = (n1 == 0) ? 1 : n1;
-    r2 = (n2 == 0) ? 1 : n2;
-    r3 = (n3 == 0) ? 1 : n3;
-  }
-  const il::int_t r = r0 * r1 * r2 * r3;
-  if (r > 0) {
-    if (std::is_pod<T>::value) {
-      data_ = new T[r];
-    } else {
-      data_ = static_cast<T*>(::operator new(r * sizeof(T)));
-    }
-  } else {
-    data_ = nullptr;
-  }
-  for (il::int_t i0 = 0; i0 < n0; ++i0) {
-    for (il::int_t i1 = 0; i1 < n1; ++i1) {
-      for (il::int_t i2 = 0; i2 < n2; ++i2) {
-        for (il::int_t i3 = 0; i3 < n3; ++i3) {
-          new (data_ + ((i0 * r1 + i1) * r2 + i2) * r3 + i3) T(args...);
-        }
-      }
-    }
   }
 #ifdef IL_DEBUG_VISUALIZER
   debug_size_[0] = n0;

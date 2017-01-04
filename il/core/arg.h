@@ -45,12 +45,13 @@ namespace detail {
 template <typename T, typename Tuple, std::size_t... I>
 constexpr T make_from_tuple_impl(Tuple&& t, index_sequence<I...>) {
   return T(std::get<I>(std::forward<Tuple>(t))...);
-};
+}
 
 template <typename T, typename Tuple, std::size_t... I>
 void placement_from_tuple_impl(T* p, Tuple&& t, index_sequence<I...>) {
   new (p) T(std::get<I>(std::forward<Tuple>(t))...);
-};
+}
+
 }
 
 template <typename T, typename Tuple>
@@ -59,7 +60,7 @@ constexpr T make_from_tuple(Tuple&& t) {
       std::forward<Tuple>(t),
       make_index_sequence<
           std::tuple_size<typename std::decay<Tuple>::type>::value>{});
-};
+}
 
 template <typename T, typename Tuple>
 void placement_from_tuple(T* p, Tuple&& t) {
@@ -67,12 +68,12 @@ void placement_from_tuple(T* p, Tuple&& t) {
       p, std::forward<Tuple>(t),
       make_index_sequence<
           std::tuple_size<typename std::decay<Tuple>::type>::value>{});
-};
+}
 
 template <typename... Types>
 constexpr std::tuple<Types&&...> arg(Types&&... argument) {
   return std::tuple<Types&&...>(std::forward<Types>(argument)...);
-};
+}
 }
 
 #endif  // IL_ARG_H

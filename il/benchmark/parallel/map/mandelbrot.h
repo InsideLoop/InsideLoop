@@ -127,7 +127,7 @@ double time_mandelbrot_serial_serial(float x_left, float x_right,
   timer.stop();
   il::escape(v.data());
 
-  return timer.time();
+  return timer.elapsed();
 }
 
 // Mandelbrot set: OpenMP for threads, no vectorisation
@@ -168,7 +168,7 @@ double time_mandelbrot_openmp_serial(float x_left, float x_right,
   timer.stop();
   il::escape(v.data());
 
-  return timer.time();
+  return timer.elapsed();
 }
 
 // Mandelbrot set: OpenMP for threads, OpenMP for vectorisation
@@ -210,7 +210,7 @@ double time_mandelbrot_openmp_openmp(float x_left, float x_right,
   timer.stop();
   il::escape(v.data());
 
-  return timer.time();
+  return timer.elapsed();
 }
 
 // Mandelbrot set: TBB for threads, no vectorisation
@@ -254,7 +254,7 @@ double time_mandelbrot_tbb_serial(float x_left, float x_right, float y_bottom,
   timer.stop();
   il::escape(v.data());
 
-  return timer.time();
+  return timer.elapsed();
 }
 #endif
 
@@ -300,7 +300,7 @@ double time_mandelbrot_tbb_openmp(float x_left, float x_right, float y_bottom,
   timer.stop();
   il::escape(v.data());
 
-  return timer.time();
+  return timer.elapsed();
 }
 #endif
 
@@ -341,7 +341,7 @@ double time_mandelbrot_cilk_serial(float x_left, float x_right, float y_bottom,
   timer.stop();
   il::escape(v.data());
 
-  return timer.time();
+  return timer.elapsed();
 }
 #endif
 
@@ -383,7 +383,7 @@ double time_mandelbrot_cilk_openmp(float x_left, float x_right, float y_bottom,
   timer.stop();
   il::escape(v.data());
 
-  return timer.time();
+  return timer.elapsed();
 }
 #endif
 
@@ -427,7 +427,7 @@ double time_mandelbrot_cilk_cilk(float x_left, float x_right, float y_bottom,
   timer.stop();
   il::escape(v.data());
 
-  return timer.time();
+  return timer.elapsed();
 }
 #endif
 

@@ -199,6 +199,12 @@ class Array {
   */
   void append(const T& x);
 
+  /* \brief Add an element at the end of the array
+  // \details Reallocation is done only if it is needed. In case reallocation
+  // happens, then new capacity is roughly (3/2) the previous capacity.
+  */
+  void append(T&& x);
+
   /* \brief Construct an element at the end of the array
   // \details Reallocation is done only if it is needed. In case reallocation
   // happens, then new capacity is roughly (3/2) the previous capacity.
@@ -713,13 +719,37 @@ void Array<T>::reserve(il::int_t r) {
 template <typename T>
 void Array<T>::append(const T& x) {
   if (size_ == capacity_) {
-    const il::int_t n{size()};
+    const il::int_t n = size();
+    T x_copy = x;
+    increase_capacity(n > 1 ? (3 * n) / 2 : n + 1);
+    if (std::is_pod<T>::value) {
+      *size_ = x_copy;
+    } else {
+      new (size_) T(std::move(x_copy));
+    }
+  } else {
+    if (std::is_pod<T>::value) {
+      *size_ = x;
+    } else {
+      new (size_) T(x);
+    }
+  }
+#ifdef IL_DEBUG_VISUALIZER
+  ++debug_size_;
+#endif
+  ++size_;
+}
+
+template <typename T>
+void Array<T>::append(T&& x) {
+  if (size_ == capacity_) {
+    const il::int_t n = size();
     increase_capacity(n > 1 ? (3 * n) / 2 : n + 1);
   }
   if (std::is_pod<T>::value) {
-    *size_ = x;
+    *size_ = std::move(x);
   } else {
-    new (size_) T(x);
+    new (size_) T(std::move(x));
   }
 #ifdef IL_DEBUG_VISUALIZER
   ++debug_size_;

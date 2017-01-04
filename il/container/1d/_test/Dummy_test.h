@@ -45,7 +45,7 @@ class Dummy {
     other.id_ = -(1001 + other.id_);
     return *this;
   }
-  ~Dummy() { destroyed.push_back(id_); }
+  ~Dummy() { destroyed.append(id_); }
   il::int_t id() { return id_; };
 };
 

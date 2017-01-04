@@ -21,15 +21,15 @@ namespace il {
 template <typename Index>
 il::SparseMatrixCSR<Index, double> heat_1d(Index n) {
   il::Array<il::StaticArray<Index, 2>> position{};
-  position.emplace_back(il::value, std::initializer_list<Index>{0, 0});
-  position.emplace_back(il::value, std::initializer_list<Index>{0, 1});
+  position.append(il::StaticArray<Index, 2>{il::value, {0, 0}});
+  position.append(il::StaticArray<Index, 2>{il::value, {0, 1}});
   for (Index i = 1; i < n - 1; ++i) {
-    position.emplace_back(il::value, std::initializer_list<Index>{i, i - 1});
-    position.emplace_back(il::value, std::initializer_list<Index>{i, i});
-    position.emplace_back(il::value, std::initializer_list<Index>{i, i + 1});
+    position.append(il::StaticArray<Index, 2>{il::value, {i, i - 1}});
+    position.append(il::StaticArray<Index, 2>{il::value, {i, i}});
+    position.append(il::StaticArray<Index, 2>{il::value, {i, i + 1}});
   }
-  position.emplace_back(il::value, std::initializer_list<Index>{n - 1, n - 2});
-  position.emplace_back(il::value, std::initializer_list<Index>{n - 1, n - 1});
+  position.append(il::StaticArray<Index, 2>{il::value, {n - 1, n - 2}});
+  position.append(il::StaticArray<Index, 2>{il::value, {n - 1, n - 1}});
 
   il::Array<Index> index{};
   il::SparseMatrixCSR<Index, double> A{n, position, il::io, index};
@@ -56,21 +56,21 @@ il::SparseMatrixCSR<Index, double> heat_2d(Index n) {
     for (Index j = 0; j < n; ++j) {
       const Index idx = i * n + j;
       if (i >= 1) {
-        position.emplace_back(
-            il::value, std::initializer_list<Index>{idx, (i - 1) * n + j});
+        position.append(il::StaticArray<Index, 2>{
+            il::value, {idx, (i - 1) * n + j}});
       }
       if (j >= 1) {
-        position.emplace_back(
-            il::value, std::initializer_list<Index>{idx, i * n + (j - 1)});
+        position.append(il::StaticArray<Index, 2>{
+            il::value, {idx, i * n + (j - 1)}});
       }
-      position.emplace_back(il::value, std::initializer_list<Index>{idx, idx});
+      position.append(il::StaticArray<Index, 2>{il::value, {idx, idx}});
       if (j < n - 1) {
-        position.emplace_back(
-            il::value, std::initializer_list<Index>{idx, i * n + (j + 1)});
+        position.append(il::StaticArray<Index, 2>{
+            il::value, {idx, i * n + (j + 1)}});
       }
       if (i < n - 1) {
-        position.emplace_back(
-            il::value, std::initializer_list<Index>{idx, (i + 1) * n + j});
+        position.append(il::StaticArray<Index, 2>{
+            il::value, {idx, (i + 1) * n + j}});
       }
     }
   }

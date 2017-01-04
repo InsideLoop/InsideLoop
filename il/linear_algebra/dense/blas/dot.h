@@ -23,7 +23,7 @@ inline float dot(const il::Array<float>& x, const il::Array<float>& y) {
   IL_ASSERT(x.size() == y.size());
 
   float sum = 0.0f;
-#pragma omp parallel for reduction(+: sum)
+//#pragma omp parallel for reduction(+: sum)
   for (il::int_t i = 0; i < x.size(); ++i) {
     sum += x[i] * y[i];
   }
@@ -35,7 +35,7 @@ inline double dot(const il::Array<double>& x, const il::Array<double>& y) {
   IL_ASSERT(x.size() == y.size());
 
   double sum = 0.0;
-#pragma omp parallel for reduction(+: sum)
+//#pragma omp parallel for reduction(+: sum)
   for (il::int_t i = 0; i < x.size(); ++i) {
     sum += x[i] * y[i];
   }

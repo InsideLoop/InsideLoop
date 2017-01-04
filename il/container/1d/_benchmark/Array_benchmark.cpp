@@ -22,7 +22,7 @@ static void BM_STD_VECTOR(benchmark::State& state) {
   while (state.KeepRunning()) {
     std::vector<int> v{};
     for (int i{0}; i < n; i++) {
-      v.push_back(i);
+      v.append(i);
     }
   }
 }
@@ -31,7 +31,7 @@ static void BM_IL_ARRAY(benchmark::State& state) {
   while (state.KeepRunning()) {
     il::Array<int> v{};
     for (int i{0}; i < n; i++) {
-      v.push_back(i);
+      v.append(i);
     }
   }
 }

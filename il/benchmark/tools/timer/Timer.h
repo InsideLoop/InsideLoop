@@ -29,7 +29,7 @@ class Timer {
   void start();
   void stop();
   void reset();
-  double time() const;
+  double elapsed() const;
 };
 
 inline Timer::Timer() : point_begin_{} {
@@ -59,7 +59,7 @@ inline void Timer::reset() {
   launched_ = false;
 }
 
-inline double Timer::time() const { return time_; }
+inline double Timer::elapsed() const { return time_; }
 
 class TimerCycles {
  private:

@@ -102,7 +102,6 @@ class Copy<il::CudaSparseMatrixCSR<T>, il::SparseMatrixCSR<int, T>> {
                                       std::move(column), std::move(element)};
   }
 };
-
 }
 
 #endif  // IL_CUDA_COPY_H

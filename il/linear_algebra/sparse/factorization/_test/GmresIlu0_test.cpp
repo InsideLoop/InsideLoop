@@ -21,10 +21,10 @@ TEST(GmresIlu0, base) {
   il::Array<double> y{il::value, {3.0, 7.0}};
 
   il::Array<il::StaticArray<int, 2>> position{};
-  position.emplace_back(il::value, std::initializer_list<int>{0, 0});
-  position.emplace_back(il::value, std::initializer_list<int>{0, 1});
-  position.emplace_back(il::value, std::initializer_list<int>{1, 0});
-  position.emplace_back(il::value, std::initializer_list<int>{1, 1});
+  position.append(il::StaticArray<int, 2>{il::value, {0, 0}});
+  position.append(il::StaticArray<int, 2>{il::value, {0, 1}});
+  position.append(il::StaticArray<int, 2>{il::value, {1, 0}});
+  position.append(il::StaticArray<int, 2>{il::value, {1, 1}});
 
   il::Array<int> index{};
   il::SparseMatrixCSR<int, double> A{2, position, il::io, index};
