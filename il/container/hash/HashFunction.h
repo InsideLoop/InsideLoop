@@ -57,7 +57,8 @@ class HashFunction<long> {
     return std::numeric_limits<long>::min();
   }
   static std::size_t hash_value(long val) {
-    return static_cast<std::size_t>(val * 37);
+//    return static_cast<std::size_t>(val * 37);
+    return static_cast<std::size_t>(37 * val);
   }
   static bool is_equal(long val0, long val1) {
     return val0 == val1;

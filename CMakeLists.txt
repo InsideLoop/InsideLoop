@@ -214,7 +214,7 @@ set(SOURCE_FILES
 
 add_executable(InsideLoop ${SOURCE_FILES} main.cpp)
 target_link_libraries(InsideLoop ${CMAKE_MKL_LIBRARIES} ${CMAKE_PNG_LIBRARIES})
-target_include_directories(InsideLoop PRIVATE ${CMAKE_SOURCE_DIR} /opt/blaze-3.0 /opt/cuda-8.0/include)
+target_include_directories(InsideLoop PRIVATE ${CMAKE_SOURCE_DIR} /opt/google-hash/include /opt/blaze-3.0 /opt/cuda-8.0/include)
 
 ################################################################################
 # For Unit Tests

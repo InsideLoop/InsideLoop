@@ -636,7 +636,7 @@ exhibit 2 special values known as `empty_key` and `tombstone_key` which are
 forbidden to use. When no `(key, value)` are inserted in the hash table, all
 the keys are set to `empty_key` to mark the slot as empty. When you want to
 insert a `(key, value)` pair, the table hashes the key and produce an integer
-which is reduced modulo `nb_slot`. If the slot is empty, the `(key, value)` pair
+which is reduced modulo `nb_slot`. If the corresponding slot is empty, the `(key, value)` pair
 is stored here. Otherwise (in this case, we have what is called a collision), it
 steps to the next slot (modulo `nb_slot`) and
 checks if it is empty. If it is, the `(key, value)` pair is stored here.
@@ -695,6 +695,27 @@ void print_population_country(
 }
 ```
 
+In terms of performance, this `HashMap` is better than both the
+`std::unordered_map` provided by the standard library and the Google dense hash
+map even though it implements exactly the same algorithm. In order to test
+the performance of the hash table, we generated 50 000 000 random numbers in
+between 0 and 2^62 which we used as a key for a `HashMap<il::int_t, il::int_t>`
+that we filled with a corresponding value of 0. Then we searched the values for
+every single keys, in the same order as they were inserted. The same hash function
+(hash(k) = k) was used for all those tables. We obtained the following timings:
+
+| Hash table                                     |Time insertion | Time selection |
+|------------------------------------------------|:-------------:|:--------------:|
+| `il::HashMap<il::int_t, il::int_t>`            |    3.89 s     |    1.63 s      |
+| `google_dense_hash_map<il::int_t, il::int_t>`  |    4.75 s     |    2.24 s      |
+| `std::unordered_map<il::int_t, il::int_t>`     |   30.71 s     |    5.44 s      |
+
+As you can see, the difference in between the first 2 hash tables (open adressing
+with quadratic probing) and the one available in the C++ standard library is
+significant because the algorithms are differents. The difference in between the
+two open addressing hash tables with quadratic probing is an implementation
+difference and differs from compiler to compiler, but the InsideLoop version
+is always faster with gcc, clang and intel compilers.
 
 ## Remarks, feature request, bug report
 
