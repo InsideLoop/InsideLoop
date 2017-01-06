@@ -186,6 +186,7 @@ set(SOURCE_FILES
     il/io/numpy.cpp
     il/io/png.h
     il/io/png.cpp
+    il/io/format/format.cc
     il/linear_algebra/dense/blas/blas.h
     il/linear_algebra/dense/blas/dot.h
     il/linear_algebra/dense/factorization/linear_solve.h

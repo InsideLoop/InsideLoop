@@ -7,10 +7,15 @@
 //
 //==============================================================================
 
-#include <il/format.h>
+#ifndef IL_FORMAT_H
+#define IL_FORMAT_H
 
-int main() {
-  il::print("Bonjour {}. Tu as {} ans.", "Francois", 40);
+#include <il/io/format/format.h>
 
-  return 0;
+namespace il {
+
+FMT_VARIADIC(void, print, fmt::CStringRef)
+
 }
+
+#endif  // IL_ARRAY_H

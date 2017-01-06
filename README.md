@@ -696,9 +696,9 @@ void print_population_country(
 ```
 
 In terms of performance, this `HashMap` is better than both the
-`std::unordered_map` provided by the standard library and the Google dense hash
-map even though it implements exactly the same algorithm. In order to test
-the performance of the hash table, we generated 50 000 000 random numbers in
+`std::unordered_map` provided by the standard library. It is even faster than
+Google dense hash map even though it implements exactly the same algorithm.
+In order to test the performance of the hash table, we generated 50 000 000 random numbers in
 between 0 and 2^62 which we used as a key for a `HashMap<il::int_t, il::int_t>`
 that we filled with a corresponding value of 0. Then we searched the values for
 every single keys, in the same order as they were inserted. The same hash function
