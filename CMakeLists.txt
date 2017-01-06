@@ -150,6 +150,7 @@ set(SOURCE_FILES
     il/StaticArray2D.h
     il/StaticArray2C.h
     il/StaticArray3D.h
+    il/String.h
     il/Timer.h
     il/TriDiagonal.h
     il/UpperArray2D.h
@@ -178,6 +179,7 @@ set(SOURCE_FILES
     il/container/cuda/cuda_copy.h
     il/container/hash/HashFunction.h
     il/container/hash/HashMap.h
+    il/container/string/String.h
     il/core/config.h
     il/core/ilassert.h
     il/core/ildef.h

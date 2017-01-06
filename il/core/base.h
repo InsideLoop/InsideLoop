@@ -7,8 +7,8 @@
 //
 //==============================================================================
 
-#ifndef IL_ILDEF_H
-#define IL_ILDEF_H
+#ifndef IL_BASE_H
+#define IL_BASE_H
 
 // <cstddef> is needed for std::size_t and std::ptrdiff_t
 #include <cstddef>
@@ -17,10 +17,115 @@
 // <limits> is needed for std::numeric_limits
 #include <limits>
 
-#include <il/core/config.h>
+////////////////////////////////////////////////////////////////////////////////
+// Configuration
+////////////////////////////////////////////////////////////////////////////////
+
+#define IL_INTEGER_PTRDIFF
+//#define IL_INTEGER_INT
+
+//#define IL_BLAS_ATLAS
 
 ////////////////////////////////////////////////////////////////////////////////
-// For arrays
+// Assertions
+////////////////////////////////////////////////////////////////////////////////
+
+namespace il {
+struct abort_exception {};
+}
+
+// Use this when the expectation is fast to compute compared to the function
+#ifdef IL_UNIT_TEST
+#define IL_EXPECT_FAST(condition) \
+  (condition) ? ((void)0) : throw il::abort_exception {}
+#elif NDEBUG
+#define IL_EXPECT_FAST(condition) ((void)0)
+#else
+#define IL_EXPECT_FAST(condition) \
+  (condition) ? ((void) 0) : ::abort();
+#endif
+
+
+// Use this when the the expectation is as expensive to compute as the function
+#ifdef IL_UNIT_TEST
+#define IL_EXPECT_MEDIUM(condition) \
+  (condition) ? ((void)0) : throw il::abort_exception {}
+#elif NDEBUG
+#define IL_EXPECT_MEDIUM(condition) ((void)0)
+#else
+#define IL_EXPECT_MEDIUM(condition) \
+  (condition) ? ((void) 0) : ::abort();
+#endif
+
+// Use this when the the expectation is more expensive to compute than the
+// function
+#ifdef IL_UNIT_TEST
+#define IL_EXPECT_SLOW(condition) \
+  (condition) ? ((void)0) : throw il::abort_exception {}
+#elif NDEBUG
+#define IL_EXPECT_SLOW(condition) ((void)0)
+#else
+#define IL_EXPECT_SLOW(condition) \
+  (condition) ? ((void) 0) : ::abort();
+#endif
+
+// This one is not check and can contain code that is not run
+#ifdef IL_UNIT_TEST
+#define IL_ENSURE(condition) \
+  (condition) ? ((void)0) : throw il::abort_exception {}
+#elif NDEBUG
+#define IL_ENSURE(condition) ((void)0)
+#else
+#define IL_ENSURE(condition) \
+  (condition) ? ((void) 0) : ::abort();
+#endif
+
+
+//#ifndef NDEBUG
+//#define IL_DEBUG_VISUALIZER
+//#endif
+
+#ifndef NDEBUG
+#define IL_DEFAULT_VALUE
+#endif
+
+#ifndef NDEBUG
+#define IL_INVARIANCE
+#endif
+
+#ifdef IL_UNIT_TEST
+#define IL_ASSERT(condition) \
+  (condition) ? ((void)0) : throw il::abort_exception {}
+#else
+#define IL_ASSERT(condition) (condition) ? ((void)0) : ::abort()
+#endif
+
+#ifdef IL_UNIT_TEST
+#define IL_ASSERT_PRECOND(condition) \
+  (condition) ? ((void)0) : throw il::abort_exception {}
+#else
+#define IL_ASSERT_PRECOND(condition) (condition) ? ((void)0) : ::abort()
+#endif
+
+// IL_ASSERT_BOUNDS is used for bounds checking in Array containers
+// - in debug mode, the program is aborted
+// - in release mode, no bounds checking is done
+// - in unit test mode, an exception is thrown so our unit test can check that
+//   bounds checking is done correctly
+//
+#ifdef IL_UNIT_TEST
+#define IL_ASSERT_BOUNDS(condition) \
+  (condition) ? ((void)0) : throw il::abort_exception {}
+#elif NDEBUG
+#define IL_ASSERT_BOUNDS(condition) ((void)0)
+#else
+#define IL_ASSERT_BOUNDS(condition) (condition) ? ((void)0) : abort()
+#endif
+
+#define IL_UNUSED(var) (void)var
+
+////////////////////////////////////////////////////////////////////////////////
+// Namespace il
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace il {
@@ -110,4 +215,4 @@ inline unsigned long int default_value<unsigned long int>() {
 
 }
 
-#endif  // IL_ILDEF_H
+#endif  // IL_BASE_H

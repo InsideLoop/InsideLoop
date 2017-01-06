@@ -7,6 +7,5 @@
 //
 //==============================================================================
 
-#include <il/core/ilassert.h>
-#include <il/core/ildef.h>
+#include <il/core/base.h>
 #include <il/core/arg.h>

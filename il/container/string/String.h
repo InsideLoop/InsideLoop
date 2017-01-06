@@ -10,21 +10,34 @@
 #ifndef IL_STRING_H
 #define IL_STRING_H
 
+// <cstring> is needed for memcpy
+#include <cstring>
+
 #include <il/base.h>
 
 namespace il {
 
 class String {
+  // LargeString is defined this way (64-bit system, little endian as on Linux
+  // and Windows)
+  //
+  // - For small string optimization: 24 chars which makes 24 bytes
+  // - For large strings: 1 pointer and 2 std::size_t which make 24 bytes
+  //
+  // The last 2 bits (the most significant ones as we are on a little endian
+  // system), are used to know if:
+  //
+  // 00: small size optimization
+  // 01: large size (the string is on the heap)
+  // 10: not a String object, used as empty key for hash tables
+  // 11: not a String object, used as tombstone key for hash tables
+  //
  private:
   struct LargeString {
-   public:
     char* data;
     std::size_t size;
-
-   private:
     std::size_t capacity_;
 
-   public:
     il::int_t capacity() const {
       return static_cast<il::int_t>(capacity_ & capacity_extract_mask_);
     }
@@ -49,8 +62,16 @@ class String {
  public:
   String();
   String(const char* data);
+  String(const String& s);
+  String(String&& s);
+  String& operator=(const String& s);
+  String& operator=(String&& s);
   ~String();
+  void reserve(il::int_t r);
   void append(const char* data);
+  void append(const String& s);
+  void append(const char* data, const String& s);
+  void append(const char* data0, const String& s, const char* data1);
   il::int_t size() const;
   il::int_t capacity() const;
   const char* c_str() const;
@@ -80,10 +101,100 @@ String::String(const char* data) {
   }
 }
 
+String::String(const String& s) {
+  const il::int_t size = s.size();
+  if (size <= max_small_size_) {
+    std::memcpy(small_, s.c_str(), static_cast<std::size_t>(size) + 1);
+    set_small_size(size);
+  } else {
+    large_.data = new char[size + 1];
+    std::memcpy(large_.data, s.c_str(), static_cast<std::size_t>(size) + 1);
+    large_.size = static_cast<std::size_t>(size);
+    large_.set_capacity(size);
+  }
+}
+
+String::String(String&& s) {
+  const il::int_t size = s.size();
+  if (size <= max_small_size_) {
+    std::memcpy(small_, s.c_str(), static_cast<std::size_t>(size) + 1);
+    set_small_size(size);
+  } else {
+    large_.data = s.large_.data;
+    large_.size = s.large_.size;
+    large_.capacity_ = s.large_.capacity_;
+    s.small_[0] = '\0';
+    s.set_small_size(0);
+  }
+}
+
+String& String::operator=(const String& s) {
+  const il::int_t size = s.size();
+  if (size <= max_small_size_) {
+    if (!is_small()) {
+      delete[] large_.data;
+    }
+    std::memcpy(small_, s.c_str(), static_cast<std::size_t>(size) + 1);
+    set_small_size(size);
+  } else {
+    if (size <= capacity()) {
+      std::memcpy(large_.data, s.c_str(), static_cast<std::size_t>(size) + 1);
+      large_.size = static_cast<std::size_t>(size);
+    } else {
+      delete[] large_.data;
+      large_.data = new char[size + 1];
+      std::memcpy(large_.data, s.c_str(), static_cast<std::size_t>(size) + 1);
+      large_.size = static_cast<std::size_t>(size);
+      large_.set_capacity(size);
+    }
+  }
+  return *this;
+}
+
+String& String::operator=(String&& s) {
+  if (this != &s) {
+    const il::int_t size = s.size();
+    if (size <= max_small_size_) {
+      if (!is_small()) {
+        delete[] large_.data;
+      }
+      std::memcpy(small_, s.c_str(), static_cast<std::size_t>(size) + 1);
+      set_small_size(size);
+    } else {
+      large_.data = s.large_.data;
+      large_.size = s.large_.size;
+      large_.capacity_ = s.large_.capacity_;
+      s.small_[0] = '\0';
+      s.set_small_size(0);
+    }
+  }
+  return *this;
+}
+
 String::~String() {
   if (!is_small()) {
     delete[] large_.data;
   }
+}
+
+void String::reserve(il::int_t r) {
+  IL_ASSERT_PRECOND(r >= 0);
+
+  const bool old_is_small = is_small();
+  if (old_is_small && r <= max_small_size_) {
+    return;
+  }
+  const il::int_t old_capacity = capacity();
+  if (r <= old_capacity) {
+    return;
+  }
+
+  const il::int_t old_size = size();
+  char* new_data = new char[r + 1];
+  std::memcpy(new_data, c_str(), static_cast<std::size_t>(old_size) + 1);
+  large_.data = new_data;
+  large_.size = old_size;
+  large_.set_capacity(r);
 }
 
 void String::append(const char* data) {
@@ -97,13 +208,17 @@ void String::append(const char* data) {
       std::memcpy(small_ + old_size, data, static_cast<std::size_t>(size) + 1);
       set_small_size(old_size + size);
     } else {
-      char* new_data = new char[old_size + size + 1];
+      const il::int_t new_size = old_size + size;
+      const il::int_t alt_capacity = 2 * old_size;
+      const il::int_t new_capacity =
+          new_size > alt_capacity ? new_size : alt_capacity;
+      char* new_data = new char[new_capacity + 1];
       std::memcpy(new_data, small_, static_cast<std::size_t>(old_size));
       std::memcpy(new_data + old_size, data,
                   static_cast<std::size_t>(size) + 1);
       large_.data = new_data;
-      large_.size = old_size + size;
-      large_.set_capacity(old_size + size);
+      large_.size = new_size;
+      large_.set_capacity(new_capacity);
     }
   } else {
     if (old_size + size <= capacity()) {
@@ -111,16 +226,35 @@ void String::append(const char* data) {
                   static_cast<std::size_t>(size) + 1);
       large_.size = old_size + size;
     } else {
-      char* new_data = new char[old_size + size + 1];
+      const il::int_t new_size = old_size + size;
+      const il::int_t alt_capacity = 2 * old_size;
+      const il::int_t new_capacity =
+          new_size > alt_capacity ? new_size : alt_capacity;
+      char* new_data = new char[new_capacity + 1];
       std::memcpy(new_data, large_.data, static_cast<std::size_t>(old_size));
       std::memcpy(new_data + old_size, data,
                   static_cast<std::size_t>(size) + 1);
       delete[] large_.data;
       large_.data = new_data;
-      large_.size = old_size + size;
-      large_.set_capacity(old_size + size);
+      large_.size = new_size;
+      large_.set_capacity(new_capacity);
     }
   }
+}
+
+void String::append(const String& s) {
+  append(s.c_str());
+}
+
+void String::append(const char* data, const String& s) {
+  append(data);
+  append(s.c_str());
+}
+
+void String::append(const char* data0, const String& s, const char* data1) {
+  append(data0);
+  append(s.c_str());
+  append(data1);
 }
 
 il::int_t String::size() const {
