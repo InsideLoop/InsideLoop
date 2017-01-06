@@ -7,16 +7,5 @@
 //
 //==============================================================================
 
-#include <il/format.h>
-#include <il/String.h>
+#include <il/container/string/String.h>
 
-int main() {
-  il::String name{"Hello"};
-
-  il::print("  String: {}\n", name.c_str());
-  il::print("Is small: {}\n", name.is_small());
-  il::print("    Size: {}\n", name.size());
-  il::print("Capacity: {}\n", name.capacity());
-
-  return 0;
-}

@@ -139,6 +139,7 @@ set(SOURCE_FILES
     il/BandArray2C.h
     il/base.h
     il/CudaArray2D.h
+    il/format.h
     il/HashMap.h
     il/linear_algebra.h
     il/LowerArray2D.h
