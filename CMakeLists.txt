@@ -33,7 +33,8 @@ if (UNIX)
         if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -pedantic")
         elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -pedantic")
+#            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -pedantic")
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
         elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -pedantic")
         endif()
@@ -180,9 +181,7 @@ set(SOURCE_FILES
     il/container/hash/HashFunction.h
     il/container/hash/HashMap.h
     il/container/string/String.h
-    il/core/config.h
-    il/core/ilassert.h
-    il/core/ildef.h
+    il/core/base.h
     il/core/Status.h
     il/io/ppm.h
     il/io/numpy.h
@@ -218,7 +217,7 @@ set(SOURCE_FILES
 
 add_executable(InsideLoop ${SOURCE_FILES} main.cpp)
 target_link_libraries(InsideLoop ${CMAKE_MKL_LIBRARIES} ${CMAKE_PNG_LIBRARIES})
-target_include_directories(InsideLoop PRIVATE ${CMAKE_SOURCE_DIR} /opt/google-hash/include /opt/blaze-3.0 /opt/cuda-8.0/include)
+target_include_directories(InsideLoop PRIVATE ${CMAKE_SOURCE_DIR} /opt/llvm-3.9.0/include /opt/google-hash/include /opt/blaze-3.0 /opt/cuda-8.0/include)
 
 ################################################################################
 # For Unit Tests

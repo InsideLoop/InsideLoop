@@ -23,7 +23,6 @@ inline float dot(const il::Array<float>& x, const il::Array<float>& y) {
   IL_ASSERT(x.size() == y.size());
 
   float sum = 0.0f;
-//#pragma omp parallel for reduction(+: sum)
   for (il::int_t i = 0; i < x.size(); ++i) {
     sum += x[i] * y[i];
   }
@@ -35,7 +34,6 @@ inline double dot(const il::Array<double>& x, const il::Array<double>& y) {
   IL_ASSERT(x.size() == y.size());
 
   double sum = 0.0;
-//#pragma omp parallel for reduction(+: sum)
   for (il::int_t i = 0; i < x.size(); ++i) {
     sum += x[i] * y[i];
   }
@@ -168,16 +166,19 @@ inline il::StaticArray2D<T, n0, n1> dot(
   return C;
 }
 
-template <typename T, il::int_t n0, il::int_t n, il::int_t n2>
-inline il::StaticArray2D<T, n0, n2> dot_1_0(
-    const il::StaticArray3D<T, n0, n, n2>& A, const il::StaticArray<T, n>& B) {
-  il::StaticArray2D<T, n0, n2> C{};
+template <typename T, il::int_t n0, il::int_t n, il::int_t n1, il::int_t n2>
+inline il::StaticArray3D<T, n0, n1, n2> dot(
+    const il::StaticArray2D<T, n0, n>& A,
+    const il::StaticArray3D<T, n, n1, n2>& B) {
+  il::StaticArray3D<T, n0, n1, n2> C{};
 
   for (il::int_t i0 = 0; i0 < n0; ++i0) {
-    for (il::int_t i2 = 0; i2 < n2; ++i2) {
-      C(i0, i2) = 0;
-      for (il::int_t i = 0; i < n; ++i) {
-        C(i0, i2) += A(i0, i, i2) * B[i];
+    for (il::int_t i1 = 0; i1 < n1; ++i1) {
+      for (il::int_t i2 = 0; i2 < n2; ++i2) {
+        C(i0, i1, i2) = 0.0;
+        for (il::int_t i = 0; i < n; ++i) {
+          C(i0, i1, i2) += A(i0, i) * B(i, i1, i2);
+        }
       }
     }
   }

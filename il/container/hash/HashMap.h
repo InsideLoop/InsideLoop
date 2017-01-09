@@ -99,7 +99,7 @@ class HashMap {
  private:
   KeyValue<K, V>* slot_;
   // The number of slot is equal to 2^p_ if p_ >= 0 and 0 if p_ = -1;
-  il::int_t p_;
+  int p_;
   il::int_t nb_element_;
   il::int_t nb_tombstone_;
 
@@ -131,7 +131,6 @@ class HashMap {
 
  private:
   void grow(il::int_t r);
-  static il::int_t next_power_of_2(il::int_t i);
 };
 
 template <typename K, typename V, typename F>
@@ -343,8 +342,8 @@ void HashMap<K, V, F>::insert(const K& key, const V& value, il::io_t,
   IL_ASSERT_PRECOND(!found(i));
 
   il::int_t i_local = -(1 + i);
-  if (2 * (nb_element_ + 1) >= (1 << p_)) {
-    grow(il::next_power_of_2_64(nb_element_ + 1));
+  if (2 * (nb_element_ + 1) > (1 << p_)) {
+    grow(il::next_power_of_2_64(2 * (nb_element_ + 1)));
     il::int_t j = search(key);
     i_local = -(1 + j);
   }
@@ -404,12 +403,12 @@ template <typename K, typename V, typename F>
 void HashMap<K, V, F>::reserve(il::int_t r) {
   IL_ASSERT_PRECOND(r >= 0);
 
-  grow(next_power_of_2(r));
+  grow(il::next_power_of_2_64(r));
 }
 
 template <typename K, typename V, typename F>
 double HashMap<K, V, F>::load() const {
-  IL_EXPECT_MEDIUM(p_ >= 0)
+  IL_EXPECT_MEDIUM(p_ >= 0);
 
   return static_cast<double>(nb_element_) / capacity();
 }

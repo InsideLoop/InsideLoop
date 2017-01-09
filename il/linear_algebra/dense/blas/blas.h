@@ -13,6 +13,9 @@
 #include <il/Array.h>
 #include <il/Array2C.h>
 #include <il/Array2D.h>
+#include <il/StaticArray.h>
+#include <il/StaticArray2D.h>
+#include <il/StaticArray3D.h>
 
 #ifdef IL_MKL
 #include <mkl_cblas.h>
@@ -303,8 +306,21 @@ inline void blas(double alpha, const il::Array2C<double>& A, Blas info_a,
     abort();
   }
 }
+#endif // IL_MKL
 
-#endif
+template <typename T, il::int_t n0, il::int_t n1, il::int_t n>
+void blas(double alpha, const il::StaticArray3D<T, n0, n1, n>& A,
+                 const il::StaticArray<T, n>& B, double beta,
+                 il::io_t, il::StaticArray2D<T, n0, n1>& C) {
+  for (il::int_t i0 = 0; i0 < n0; ++i0) {
+    for (il::int_t i1 = 0; i1 < n1; ++i1) {
+      C(i0, i1) *= beta;
+      for (il::int_t i = 0; i < n; ++i) {
+        C(i0, i1) += alpha * A(i0, i1, i) * B[i];
+      }
+    }
+  }
+}
 
 }
 

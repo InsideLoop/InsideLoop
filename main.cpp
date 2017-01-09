@@ -15,15 +15,20 @@
 #include <il/format.h>
 
 #include <google/dense_hash_map>
+#include <llvm/ADT/DenseMap.h>
 
 int main() {
   il::Timer timer{};
-  il::int_t n = 50000000;
+//  const il::int_t n = 1 << 26;
+  const il::int_t n = 1 << 26;
+//  il::int_t n = 10;
   const bool inside_loop = true;
   il::int_t sum_il = 0;
+  const bool llvm = false;
+  il::int_t sum_llvm = 0;
   const bool google = true;
   il::int_t sum_google = 0;
-  const bool stl = true;
+  const bool stl = false;
   il::int_t sum_stl = 0;
 
   std::default_random_engine engine{};
@@ -33,13 +38,14 @@ int main() {
   for (il::int_t k = 0; k < n; ++k) {
     v[k] = 8 * dist(engine) + 3;
   }
+  il::print("{:>20}: {:>10n}\n", "n", n);
 
   //////////////////////////////////////////////////////////////////////////////
   // Timing Inside Loop
   //////////////////////////////////////////////////////////////////////////////
   if (inside_loop) {
     timer.start();
-    il::HashMap<il::int_t, il::int_t> map{n};
+    il::HashMap<il::int_t, il::int_t> map{2 * n};
     for (il::int_t k = 0; k < n; ++k) {
       const il::int_t key = v[k];
       il::int_t i = map.search(key);
@@ -63,6 +69,33 @@ int main() {
     timer.stop();
 
     il::print("{:>20}: {:>10} s\n", "Time search IL", timer.elapsed());
+    il::print("{:>20}: {:>10n}\n", "Number of slots", map.capacity());
+    timer.reset();
+  }
+
+  //////////////////////////////////////////////////////////////////////////////
+  // Timing LLVM
+  //////////////////////////////////////////////////////////////////////////////
+  if (llvm) {
+    timer.start();
+    llvm::DenseMap<il::int_t, il::int_t> map_llvm(n);
+    for (il::int_t k = 0; k < n; ++k) {
+      const il::int_t key = v[k];
+      map_llvm[key] = k;
+    }
+    timer.stop();
+
+    il::print("{:>20}: {:>10} s\n", "Time insert LLVM", timer.elapsed());
+
+    timer.reset();
+    timer.start();
+    for (il::int_t k = 0; k < n; ++k) {
+      const il::int_t key = v[k];
+      sum_llvm += map_llvm[key];
+    }
+    timer.stop();
+
+    il::print("{:>20}: {:>10} s\n", "Time search LLVM", timer.elapsed());
     timer.reset();
   }
 
@@ -91,6 +124,7 @@ int main() {
     timer.stop();
 
     il::print("{:>20}: {:>10} s\n", "Time search Google", timer.elapsed());
+    il::print("{:>20}: {:>10n}\n", "Number of slots", map_google.bucket_count());
     timer.reset();
   }
 
