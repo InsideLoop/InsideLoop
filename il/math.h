@@ -141,7 +141,8 @@ class powN {
   static T p(T x) {
 // Remove right-most 1-bit in binary representation of N:
 #define N1 (N & (N - 1))
-    return powN<(N1 & (N1 - 1)) == 0, N1, T>::p(x) * powN<true, N - N1, T>::p(x);
+    return powN<(N1 & (N1 - 1)) == 0, N1, T>::p(x) *
+           powN<true, N - N1, T>::p(x);
 #undef N1
   }
 };
@@ -195,6 +196,80 @@ double ipow(T x, il::int_t n) {
   }
   return ans;
 }
+
+inline std::uint32_t previous_power_of_2_32(std::uint32_t x) {
+  x |= x >> 1;
+  x |= x >> 2;
+  x |= x >> 4;
+  x |= x >> 8;
+  x |= x >> 16;
+  x -= (x >> 1);
+
+  return x;
+}
+
+inline std::uint32_t next_power_of_2_32(std::uint32_t x) {
+  x -= 1;
+  x |= x >> 1;
+  x |= x >> 2;
+  x |= x >> 4;
+  x |= x >> 8;
+  x |= x >> 16;
+  x += 1;
+
+  return x;
+}
+
+inline std::uint64_t previous_power_of_2_64(std::uint64_t x) {
+  x |= x >> 1;
+  x |= x >> 2;
+  x |= x >> 4;
+  x |= x >> 8;
+  x |= x >> 16;
+  x |= x >> 32;
+  x -= (x >> 1);
+
+  return x;
+}
+
+inline std::uint64_t next_power_of_2_64(std::uint64_t x) {
+  x -= 1;
+  x |= x >> 1;
+  x |= x >> 2;
+  x |= x >> 4;
+  x |= x >> 8;
+  x |= x >> 16;
+  x |= x >> 32;
+  x += 1;
+
+  return x;
+}
+
+// From http://chessprogramming.wikispaces.com/BitScan
+static const int table_log2_64[64] = {
+    63, 0,  58, 1,  59, 47, 53, 2,  60, 39, 48, 27, 54, 33, 42, 3,
+    61, 51, 37, 40, 49, 18, 28, 20, 55, 30, 34, 11, 43, 14, 22, 4,
+    62, 57, 46, 52, 38, 26, 32, 41, 50, 36, 17, 19, 29, 10, 13, 21,
+    56, 45, 25, 31, 35, 16, 9,  12, 44, 24, 15, 8,  23, 7,  6,  5};
+
+inline int next_log2_64(std::uint64_t x) {
+  const il::int_t index = static_cast<il::int_t>(
+      (next_power_of_2_64(x) * 0x07EDD5E59A4E28C2) >> 58);
+
+  return table_log2_64[index];
+}
+
+static const int table_log2_32[32] = {
+    0, 9,  1,  10, 13, 21, 2,  29, 11, 14, 16, 18, 22, 25, 3, 30,
+    8, 12, 20, 28, 15, 17, 24, 7,  19, 27, 23, 6,  26, 5,  4, 31};
+
+inline int next_log2_32(std::uint32_t x) {
+  const il::int_t index =
+      static_cast<il::int_t>((next_power_of_2_32(x) * 0x07C4ACDD) >> 27);
+
+  return table_log2_64[index];
+}
+
 }
 
 #endif  // IL_MATH_H

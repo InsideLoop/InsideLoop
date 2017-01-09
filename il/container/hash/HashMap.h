@@ -13,6 +13,7 @@
 #include <il/Array.h>
 #include <il/container/hash/HashFunction.h>
 #include <il/core/Status.h>
+#include <il/math.h>
 
 namespace il {
 
@@ -97,7 +98,8 @@ template <typename K, typename V, typename F = HashFunction<K>>
 class HashMap {
  private:
   KeyValue<K, V>* slot_;
-  il::int_t nb_slot_;
+  // The number of slot is equal to 2^p_ if p_ >= 0 and 0 if p_ = -1;
+  il::int_t p_;
   il::int_t nb_element_;
   il::int_t nb_tombstone_;
 
@@ -135,25 +137,28 @@ class HashMap {
 template <typename K, typename V, typename F>
 HashMap<K, V, F>::HashMap() {
   slot_ = nullptr;
-  nb_slot_ = 0;
+  p_ = -1;
   nb_element_ = 0;
   nb_tombstone_ = 0;
 }
 
 template <typename K, typename V, typename F>
 HashMap<K, V, F>::HashMap(il::int_t n) {
-  IL_ASSERT_PRECOND(n >= 0);
+  IL_EXPECT_FAST(n >= 0);
+
   if (n > 0) {
-    n = next_power_of_2(2 * n);
+    const int p = 1 + il::next_log2_64(n);
+    const il::int_t m = 1 << p;
     slot_ = static_cast<KeyValue<K, V>*>(
-        ::operator new(n * sizeof(KeyValue<K, V>)));
-    for (il::int_t i = 0; i < n; ++i) {
-      F::set_empty(il::io, reinterpret_cast<K*>(slot_ + i));
+        ::operator new(m * sizeof(KeyValue<K, V>)));
+    for (il::int_t i = 0; i < m; ++i) {
+      F::construct_empty(il::io, reinterpret_cast<K*>(slot_ + i));
     }
+    p_ = p;
   } else {
     slot_ = nullptr;
+    p_ = -1;
   }
-  nb_slot_ = n;
   nb_element_ = 0;
   nb_tombstone_ = 0;
 }
@@ -161,22 +166,24 @@ HashMap<K, V, F>::HashMap(il::int_t n) {
 template <typename K, typename V, typename F>
 HashMap<K, V, F>::HashMap(il::value_t,
                           std::initializer_list<il::KeyValue<K, V>> list) {
-  const il::int_t nb_element = static_cast<il::int_t>(list.size());
-  il::int_t n = nb_element;
+  const il::int_t n = static_cast<il::int_t>(list.size());
+
   if (n > 0) {
-    n = next_power_of_2(2 * n);
+    const int p = 1 + il::next_log2_64(n);
+    const il::int_t m = 1 << p;
     slot_ = static_cast<KeyValue<K, V>*>(
-        ::operator new(n * sizeof(KeyValue<K, V>)));
-    for (il::int_t i = 0; i < n; ++i) {
-      F::set_empty(il::io, reinterpret_cast<K*>(slot_ + i));
+        ::operator new(m * sizeof(KeyValue<K, V>)));
+    for (il::int_t i = 0; i < m; ++i) {
+      F::construct_empty(il::io, reinterpret_cast<K*>(slot_ + i));
     }
+    p_ = p;
   } else {
     slot_ = nullptr;
+    p_ = -1;
   }
-  nb_slot_ = n;
   nb_element_ = 0;
   nb_tombstone_ = 0;
-  for (il::int_t k = 0; k < nb_element; ++k) {
+  for (il::int_t k = 0; k < n; ++k) {
     il::int_t i = search((list.begin() + k)->key);
     IL_ASSERT(!found(i));
     insert((list.begin() + k)->key, (list.begin() + k)->value, il::io, i);
@@ -185,24 +192,26 @@ HashMap<K, V, F>::HashMap(il::value_t,
 
 template <typename K, typename V, typename F>
 HashMap<K, V, F>::HashMap(const HashMap<K, V, F>& map) {
-  const il::int_t n = map.nb_slot_;
-  if (n > 0) {
+  const il::int_t p = map.p_;
+  if (p >= 0) {
+    const il::int_t m = 1 << p;
     slot_ = static_cast<KeyValue<K, V>*>(
-        ::operator new(n * sizeof(KeyValue<K, V>)));
-    for (il::int_t i = 0; i < n; ++i) {
+        ::operator new(m * sizeof(KeyValue<K, V>)));
+    for (il::int_t i = 0; i < m; ++i) {
       if (F::is_empty(map.slot_[i].key)) {
-        F::set_empty(il::io, reinterpret_cast<K*>(slot_ + i));
+        F::construct_empty(il::io, reinterpret_cast<K*>(slot_ + i));
       } else if (F::is_tombstone(map.slot_[i].key)) {
-        F::set_tombstone(il::io, reinterpret_cast<K*>(slot_ + i));
+        F::construct_tombstone(il::io, reinterpret_cast<K*>(slot_ + i));
       } else {
         new (const_cast<K*>(&((slot_ + i)->key))) K(map.slot_[i].key);
         new (&((slot_ + i)->value)) V(map.slot_[i].value);
       }
     }
+    p_ = p;
   } else {
     slot_ = nullptr;
+    p_ = -1;
   }
-  nb_slot_ = n;
   nb_element_ = map.nb_element_;
   nb_tombstone_ = map.nb_tombstone_;
 }
@@ -210,42 +219,48 @@ HashMap<K, V, F>::HashMap(const HashMap<K, V, F>& map) {
 template <typename K, typename V, typename F>
 HashMap<K, V, F>::HashMap(HashMap<K, V, F>&& map) {
   slot_ = map.slot_;
-  nb_slot_ = map.nb_slot_;
+  p_ = map.p_;
   nb_element_ = map.nb_element_;
   nb_tombstone_ = map.nb_tombstone_;
   map.slot_ = nullptr;
-  map.nb_slot_ = 0;
+  map.p_ = -1;
   map.nb_element_ = 0;
   map.nb_tombstone_ = 0;
 }
 
 template <typename K, typename V, typename F>
 HashMap<K, V, F>& HashMap<K, V, F>::operator=(const HashMap<K, V, F>& map) {
-  const il::int_t n = map.nb_slot_;
-  if (n > 0) {
-    for (il::int_t i = 0; i < nb_slot_; ++i) {
-      if (!F::is_empy(slot_ + i) && !F::is_tombstone(slot_ + i)) {
-        (&((slot_ + i)->value))->~V();
-        (&((slot_ + i)->key))->~K();
+  const il::int_t p = map.p_;
+  const il::int_t old_p = p_;
+  if (p >= 0) {
+    if (old_p >= 0) {
+      const il::int_t old_m = 1 << old_p;
+      for (il::int_t i = 0; i < old_m; ++i) {
+        if (!F::is_empy(slot_ + i) && !F::is_tombstone(slot_ + i)) {
+          (&((slot_ + i)->value))->~V();
+          (&((slot_ + i)->key))->~K();
+        }
       }
     }
     ::operator delete(slot_);
+    const il::int_t m = 1 << p;
     slot_ = static_cast<KeyValue<K, V>*>(
-        ::operator new(n * sizeof(KeyValue<K, V>)));
-    for (il::int_t i = 0; i < n; ++i) {
+        ::operator new(m * sizeof(KeyValue<K, V>)));
+    for (il::int_t i = 0; i < m; ++i) {
       if (F::is_empty(map.slot_[i].key)) {
-        F::set_empty(il::io, reinterpret_cast<K*>(slot_ + i));
+        F::construct_empty(il::io, reinterpret_cast<K*>(slot_ + i));
       } else if (F::is_tombstone(map.slot_[i].key)) {
-        F::set_tombstone(il::io, reinterpret_cast<K*>(slot_ + i));
+        F::construct_tombstone(il::io, reinterpret_cast<K*>(slot_ + i));
       } else {
         new (const_cast<K*>(&((slot_ + i)->key))) K(map.slot_[i].key);
         new (&((slot_ + i)->value)) V(map.slot_[i].value);
       }
     }
+    p_ = p;
   } else {
     slot_ = nullptr;
+    p_ = -1;
   }
-  nb_slot_ = n;
   nb_element_ = map.nb_element_;
   nb_tombstone_ = map.nb_tombstone_;
 }
@@ -253,8 +268,10 @@ HashMap<K, V, F>& HashMap<K, V, F>::operator=(const HashMap<K, V, F>& map) {
 template <typename K, typename V, typename F>
 HashMap<K, V, F>& HashMap<K, V, F>::operator=(HashMap<K, V, F>&& map) {
   if (this != &map) {
-    if (slot_ != nullptr) {
-      for (il::int_t i = 0; i < nb_slot_; ++i) {
+    const il::int_t old_p = p_;
+    if (old_p >= 0) {
+      const il::int_t old_m = 1 << old_p;
+      for (il::int_t i = 0; i < old_m; ++i) {
         if (!F::is_empy(slot_ + i) && !F::is_tombstone(slot_ + i)) {
           (&((slot_ + i)->value))->~V();
           (&((slot_ + i)->key))->~K();
@@ -263,11 +280,11 @@ HashMap<K, V, F>& HashMap<K, V, F>::operator=(HashMap<K, V, F>&& map) {
       ::operator delete(slot_);
     }
     slot_ = map.slot_;
-    nb_slot_ = map.nb_slot_;
+    p_ = map.p_;
     nb_element_ = map.nb_element_;
     nb_tombstone_ = map.nb_tombstone_;
     map.slot_ = nullptr;
-    map.nb_slot_ = 0;
+    map.p_ = -1;
     map.nb_element_ = 0;
     map.nb_tombstone_ = 0;
   }
@@ -275,8 +292,9 @@ HashMap<K, V, F>& HashMap<K, V, F>::operator=(HashMap<K, V, F>&& map) {
 
 template <typename K, typename V, typename F>
 HashMap<K, V, F>::~HashMap() {
-  if (slot_ != nullptr) {
-    for (il::int_t i = 0; i < nb_slot_; ++i) {
+  if (p_ >= 0) {
+    const il::int_t m = 1 << p_;
+    for (il::int_t i = 0; i < m; ++i) {
       if (!F::is_empty(slot_[i].key) && !F::is_tombstone(slot_[i].key)) {
         (&((slot_ + i)->value))->~V();
         (&((slot_ + i)->key))->~K();
@@ -288,15 +306,15 @@ HashMap<K, V, F>::~HashMap() {
 
 template <typename K, typename V, typename F>
 il::int_t HashMap<K, V, F>::search(const K& key) const {
-  IL_EXPECT_FAST(!F::is_empty(key));
-  IL_EXPECT_FAST(!F::is_tombstone(key));
+  IL_EXPECT_MEDIUM(!F::is_empty(key));
+  IL_EXPECT_MEDIUM(!F::is_tombstone(key));
 
-  if (nb_slot_ == 0) {
-    return -(1 + nb_slot_);
+  if (p_ == -1) {
+    return -1;
   }
 
-  const std::size_t nb_slot_minus_one = static_cast<std::size_t>(nb_slot_) - 1;
-  il::int_t i = static_cast<il::int_t>(F::hash_value(key) & nb_slot_minus_one);
+  const il::int_t mask = (1 << p_) - 1;
+  il::int_t i = static_cast<il::int_t>(F::hash(key, p_));
   il::int_t i_tombstone = -1;
   il::int_t delta_i = 1;
   while (true) {
@@ -309,8 +327,8 @@ il::int_t HashMap<K, V, F>::search(const K& key) const {
     }
 
     i += delta_i;
+    i &= mask;
     ++delta_i;
-    i &= nb_slot_minus_one;
   }
 }
 
@@ -325,8 +343,8 @@ void HashMap<K, V, F>::insert(const K& key, const V& value, il::io_t,
   IL_ASSERT_PRECOND(!found(i));
 
   il::int_t i_local = -(1 + i);
-  if (2 * (nb_element_ + 1) >= nb_slot_) {
-    grow(next_power_of_2(nb_element_ + 1));
+  if (2 * (nb_element_ + 1) >= (1 << p_)) {
+    grow(il::next_power_of_2_64(nb_element_ + 1));
     il::int_t j = search(key);
     i_local = -(1 + j);
   }
@@ -341,7 +359,7 @@ void HashMap<K, V, F>::erase(il::int_t i) {
   IL_ASSERT_PRECOND(found(i));
 
   (&((slot_ + i)->key))->~K();
-  F::set_tombstone(il::io, reinterpret_cast<K*>(slot_ + i));
+  F::construct_tombstone(il::io, reinterpret_cast<K*>(slot_ + i));
   (&((slot_ + i)->value))->~V();
   --nb_element_;
   ++nb_tombstone_;
@@ -351,7 +369,7 @@ void HashMap<K, V, F>::erase(il::int_t i) {
 template <typename K, typename V, typename F>
 const K& HashMap<K, V, F>::key(il::int_t i) const {
   IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i) <
-                   static_cast<il::uint_t>(nb_slot_));
+                   static_cast<il::uint_t>((p_ >= 0) ? (1 << p_) : 0));
 
   return slot_[i].key;
 }
@@ -359,7 +377,7 @@ const K& HashMap<K, V, F>::key(il::int_t i) const {
 template <typename K, typename V, typename F>
 const V& HashMap<K, V, F>::value(il::int_t i) const {
   IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i) <
-                   static_cast<il::uint_t>(nb_slot_));
+                   static_cast<il::uint_t>((p_ >= 0) ? (1 << p_) : 0));
 
   return slot_[i].value;
 }
@@ -367,7 +385,7 @@ const V& HashMap<K, V, F>::value(il::int_t i) const {
 template <typename K, typename V, typename F>
 V& HashMap<K, V, F>::value(il::int_t i) {
   IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i) <
-                   static_cast<il::uint_t>(nb_slot_));
+                   static_cast<il::uint_t>((p_ >= 0) ? (1 << p_) : 0));
 
   return slot_[i].value;
 }
@@ -379,7 +397,7 @@ il::int_t HashMap<K, V, F>::size() const {
 
 template <typename K, typename V, typename F>
 il::int_t HashMap<K, V, F>::capacity() const {
-  return nb_slot_;
+  return (p_ >= 0) ? (1 << p_) : 0;
 }
 
 template <typename K, typename V, typename F>
@@ -391,18 +409,19 @@ void HashMap<K, V, F>::reserve(il::int_t r) {
 
 template <typename K, typename V, typename F>
 double HashMap<K, V, F>::load() const {
-  return static_cast<double>(nb_element_) / nb_slot_;
+  IL_EXPECT_MEDIUM(p_ >= 0)
+
+  return static_cast<double>(nb_element_) / capacity();
 }
 
 template <typename K, typename V, typename F>
 double HashMap<K, V, F>::displaced() const {
-  const std::size_t nb_slot_minus_one = static_cast<std::size_t>(nb_slot_) - 1;
+  const il::int_t m = capacity();
   il::int_t nb_displaced = 0;
-  for (il::int_t i = 0; i < nb_slot_; ++i) {
-    if (!F::is_empty(slot_[i].key) &&
-        !F::is_tombstone(slot_[i].key)) {
-      const il::int_t hashed = static_cast<il::int_t>(
-          F::hash_value(slot_[i].key) & nb_slot_minus_one);
+  for (il::int_t i = 0; i < m; ++i) {
+    if (!F::is_empty(slot_[i].key) && !F::is_tombstone(slot_[i].key)) {
+      const il::int_t hashed =
+          static_cast<il::int_t>(F::hash(slot_[i].key, p_));
       if (i != hashed) {
         ++nb_displaced;
       }
@@ -414,14 +433,14 @@ double HashMap<K, V, F>::displaced() const {
 
 template <typename K, typename V, typename F>
 double HashMap<K, V, F>::displaced_twice() const {
-  const std::size_t nb_slot_minus_one = static_cast<std::size_t>(nb_slot_) - 1;
+  const il::int_t m = capacity();
+  const il::int_t mask = (1 << p_) - 1;
   il::int_t nb_displaced_twice = 0;
-  for (il::int_t i = 0; i < nb_slot_; ++i) {
-    if (!F::is_empty(slot_[i].key) &&
-        !F::is_tombstone(slot_[i].key)) {
-      const il::int_t hashed = static_cast<il::int_t>(
-          F::hash_value(slot_[i].key) & nb_slot_minus_one);
-      if (i != hashed && (((i - 1) - hashed) & nb_slot_minus_one) != 0) {
+  for (il::int_t i = 0; i < m; ++i) {
+    if (!F::is_empty(slot_[i].key) && !F::is_tombstone(slot_[i].key)) {
+      const il::int_t hashed =
+          static_cast<il::int_t>(F::hash(slot_[i].key, p_));
+      if (i != hashed && (((i - 1) - hashed) & mask) != 0) {
         ++nb_displaced_twice;
       }
     }
@@ -442,8 +461,7 @@ HashMapIterator<K, V, F> HashMap<K, V, F>::begin() {
   } else {
     il::int_t i = 0;
     while (true) {
-      if (!F::is_empty(slot_[i].key) &&
-          !F::is_tombstone(slot_[i].key)) {
+      if (!F::is_empty(slot_[i].key) && !F::is_tombstone(slot_[i].key)) {
         return HashMapIterator<K, V, F>{slot_ + i, slot_ + nb_element_};
       }
       ++i;
@@ -458,21 +476,24 @@ HashMapIterator<K, V, F> HashMap<K, V, F>::end() {
 
 template <typename K, typename V, typename F>
 void HashMap<K, V, F>::grow(il::int_t r) {
-  IL_ASSERT(r >= nb_slot_);
+  IL_EXPECT_FAST(r >= capacity());
 
   KeyValue<K, V>* old_slot_ = slot_;
-  il::int_t old_nb_slot_ = nb_slot_;
+  const il::int_t old_m = (1 << p_);
+  const int p = il::next_power_of_2_64(r);
+  const il::int_t m = 1 << p;
+
   slot_ =
-      static_cast<KeyValue<K, V>*>(::operator new(r * sizeof(KeyValue<K, V>)));
-  for (il::int_t i = 0; i < r; ++i) {
-    F::set_empty(il::io, reinterpret_cast<K*>(slot_ + i));
+      static_cast<KeyValue<K, V>*>(::operator new(m * sizeof(KeyValue<K, V>)));
+  for (il::int_t i = 0; i < m; ++i) {
+    F::construct_empty(il::io, reinterpret_cast<K*>(slot_ + i));
   }
-  nb_slot_ = r;
+  p_ = p;
   nb_element_ = 0;
   nb_tombstone_ = 0;
 
-  if (old_nb_slot_ > 0) {
-    for (il::int_t i = 0; i < old_nb_slot_; ++i) {
+  if (p_ >= 0) {
+    for (il::int_t i = 0; i < old_m; ++i) {
       if (!F::is_empty(old_slot_[i].key) &&
           !F::is_tombstone(old_slot_[i].key)) {
         il::int_t new_i = search(old_slot_[i].key);
@@ -483,24 +504,6 @@ void HashMap<K, V, F>::grow(il::int_t r) {
     }
     ::operator delete(old_slot_);
   }
-}
-
-template <typename K, typename V, typename F>
-il::int_t HashMap<K, V, F>::next_power_of_2(il::int_t i) {
-  IL_ASSERT(i >= 0);
-
-  i |= (i >> 1);
-  i |= (i >> 2);
-  i |= (i >> 4);
-  i |= (i >> 8);
-  i |= (i >> 16);
-  if (sizeof(il::int_t) == 8) {
-    i |= (i >> 32);
-  }
-  i = i + 1;
-
-  IL_ASSERT(i >= 0);
-  return i;
 }
 }
 
