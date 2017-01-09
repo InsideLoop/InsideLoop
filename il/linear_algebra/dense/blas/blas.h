@@ -16,6 +16,7 @@
 #include <il/StaticArray.h>
 #include <il/StaticArray2D.h>
 #include <il/StaticArray3D.h>
+#include <il/StaticArray4D.h>
 
 #ifdef IL_MKL
 #include <mkl_cblas.h>
@@ -54,8 +55,8 @@ inline void blas(double alpha, const il::Array<double>& x, il::io_t,
 
 // x, y are vectors
 // y <- alpha x + beta y
-inline void blas(float alpha, const il::Array<float>& x, float beta,
-                 il::io_t, il::Array<float>& y) {
+inline void blas(float alpha, const il::Array<float>& x, float beta, il::io_t,
+                 il::Array<float>& y) {
   IL_ASSERT(x.size() == y.size());
 
   const IL_CBLAS_INT n{static_cast<IL_CBLAS_INT>(x.size())};
@@ -306,17 +307,45 @@ inline void blas(double alpha, const il::Array2C<double>& A, Blas info_a,
     abort();
   }
 }
-#endif // IL_MKL
+#endif  // IL_MKL
+
+template <typename T, il::int_t n0, il::int_t n>
+void blas(double alpha, const il::StaticArray2D<T, n0, n>& A,
+          const il::StaticArray<T, n>& B, double beta, il::io_t,
+          il::StaticArray<T, n0>& C) {
+  for (il::int_t i0 = 0; i0 < n0; ++i0) {
+    C[i0] *= beta;
+    for (il::int_t i = 0; i < n; ++i) {
+      C[i0] += alpha * A(i0, i) * B[i];
+    }
+  }
+}
 
 template <typename T, il::int_t n0, il::int_t n1, il::int_t n>
 void blas(double alpha, const il::StaticArray3D<T, n0, n1, n>& A,
-                 const il::StaticArray<T, n>& B, double beta,
-                 il::io_t, il::StaticArray2D<T, n0, n1>& C) {
+          const il::StaticArray<T, n>& B, double beta, il::io_t,
+          il::StaticArray2D<T, n0, n1>& C) {
   for (il::int_t i0 = 0; i0 < n0; ++i0) {
     for (il::int_t i1 = 0; i1 < n1; ++i1) {
       C(i0, i1) *= beta;
       for (il::int_t i = 0; i < n; ++i) {
         C(i0, i1) += alpha * A(i0, i1, i) * B[i];
+      }
+    }
+  }
+}
+
+template <typename T, il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n>
+void blas(double alpha, const il::StaticArray4D<T, n0, n1, n2, n>& A,
+          const il::StaticArray<T, n>& B, double beta, il::io_t,
+          il::StaticArray3D<T, n0, n1, n2>& C) {
+  for (il::int_t i0 = 0; i0 < n0; ++i0) {
+    for (il::int_t i1 = 0; i1 < n1; ++i1) {
+      for (il::int_t i2 = 0; i2 < n2; ++i2) {
+        C(i0, i1, i2) *= beta;
+        for (il::int_t i = 0; i < n; ++i) {
+          C(i0, i1, i2) += alpha * A(i0, i1, i2, i) * B[i];
+        }
       }
     }
   }
