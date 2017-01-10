@@ -26,6 +26,29 @@ class HashFunction {
   //  static std::size_t hash(const T& val, int p);
   //  static bool is_equal(const T& val0, const T& val1);
 };
+template <>
+class HashFunction<int> {
+ public:
+  static inline bool is_empty(int val) {
+    return val == std::numeric_limits<int>::max();
+  }
+  static inline bool is_tombstone(int val) {
+    return val == std::numeric_limits<int>::min();
+  }
+  static inline void construct_empty(il::io_t, int* val) {
+    *val = std::numeric_limits<int>::max();
+  }
+  static inline void construct_tombstone(il::io_t, int* val) {
+    *val = std::numeric_limits<int>::min();
+  }
+  static std::size_t hash(int val, int p) {
+    const std::size_t knuth = 11133510565745311;
+    const std::size_t y = static_cast<std::size_t>(val);
+
+    return (y * knuth) >> (64 - p);
+  }
+  static bool is_equal(int val0, int val1) { return val0 == val1; }
+};
 
 template <>
 class HashFunction<long> {

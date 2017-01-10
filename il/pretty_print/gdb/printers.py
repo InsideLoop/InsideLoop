@@ -443,6 +443,36 @@ class Array4CPrinter:
 	def to_string(self):
 		return "[size0: %s], [size1: %s], [size2: %s], [size3: %s], [capacity0: %s], [capacity1: %s], [capacity2: %s], [capacity3: %s]" % (self.size0, self.size1, self.size2, self.size3, self.capacity0, self.capacity1, self.capacity2, self.capacity3)
 
+class StaticArray4DPrinter:
+	def __init__(self, val):
+		type = val.type
+		if type.code == gdb.TYPE_CODE_REF:
+			type = type.target()
+		self.type = type.unqualified().strip_typedefs()
+		self.innerType = self.type.template_argument(0)
+		self.val = val
+		self.data = self.val['data_'].cast(self.innerType.pointer())
+		self.size0 = self.val['size_0_']
+		self.size1 = self.val['size_1_']
+		self.size2 = self.val['size_2_']
+		self.size3 = self.val['size_3_']
+
+	def children(self):
+		yield "size_0", self.size0
+		yield "size_1", self.size1
+		yield "size_2", self.size2
+		yield "size_3", self.size3
+		for k3 in range(0, self.size3):
+			for k2 in range(0, self.size2):
+				for k1 in range(0, self.size1):
+					for k0 in range(0, self.size0):
+						dataPtr = self.data + self.size0 * self.size1 * self.size2 * k3 + self.size0 * self.size1 * k2 + self.size0 * k1 + k0
+						item = dataPtr.dereference()
+						yield ("[%s, %s, %s, %s]" % (k0, k1, k2, k3)), item
+
+	def to_string(self):
+		return "[size0: %s], [size1: %s], [size2: %s], [size3: %s]" % (self.size0, self.size1, self.size2, self.size3)
+
 def build_insideloop_dictionary ():
 	pretty_printers_dict[re.compile('^il::Array<.*>$')]  = lambda val: ArrayPrinter(val)
 	pretty_printers_dict[re.compile('^il::StaticArray<.*>$')]  = lambda val: StaticArrayPrinter(val)
@@ -460,6 +490,7 @@ def build_insideloop_dictionary ():
 	pretty_printers_dict[re.compile('^il::StaticArray3D<.*>$')]  = lambda val: StaticArray3DPrinter(val)
 	pretty_printers_dict[re.compile('^il::Array4D<.*>$')]  = lambda val: Array4DPrinter(val)
 	pretty_printers_dict[re.compile('^il::Array4C<.*>$')]  = lambda val: Array4CPrinter(val)
+	pretty_printers_dict[re.compile('^il::StaticArray4D<.*>$')]  = lambda val: StaticArray4DPrinter(val)
 
 def register_insideloop_printers(obj):
 	"Register insideloop pretty-printers with objfile Obj"

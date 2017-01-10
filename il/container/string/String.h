@@ -80,12 +80,12 @@ class String {
   void set_small_size(il::int_t n);
 };
 
-String::String() {
+inline String::String() {
   small_[0] = '\0';
   set_small_size(0);
 }
 
-String::String(const char* data) {
+inline String::String(const char* data) {
   il::int_t size = 0;
   while (data[size] != '\0') {
     ++size;
@@ -101,7 +101,7 @@ String::String(const char* data) {
   }
 }
 
-String::String(const String& s) {
+inline String::String(const String& s) {
   const il::int_t size = s.size();
   if (size <= max_small_size_) {
     std::memcpy(small_, s.c_str(), static_cast<std::size_t>(size) + 1);
@@ -114,7 +114,7 @@ String::String(const String& s) {
   }
 }
 
-String::String(String&& s) {
+inline String::String(String&& s) {
   const il::int_t size = s.size();
   if (size <= max_small_size_) {
     std::memcpy(small_, s.c_str(), static_cast<std::size_t>(size) + 1);
@@ -128,7 +128,7 @@ String::String(String&& s) {
   }
 }
 
-String& String::operator=(const String& s) {
+inline String& String::operator=(const String& s) {
   const il::int_t size = s.size();
   if (size <= max_small_size_) {
     if (!is_small()) {
@@ -151,7 +151,7 @@ String& String::operator=(const String& s) {
   return *this;
 }
 
-String& String::operator=(String&& s) {
+inline String& String::operator=(String&& s) {
   if (this != &s) {
     const il::int_t size = s.size();
     if (size <= max_small_size_) {
@@ -171,13 +171,13 @@ String& String::operator=(String&& s) {
   return *this;
 }
 
-String::~String() {
+inline String::~String() {
   if (!is_small()) {
     delete[] large_.data;
   }
 }
 
-void String::reserve(il::int_t r) {
+inline void String::reserve(il::int_t r) {
   IL_ASSERT_PRECOND(r >= 0);
 
   const bool old_is_small = is_small();
@@ -197,7 +197,7 @@ void String::reserve(il::int_t r) {
   large_.set_capacity(r);
 }
 
-void String::append(const char* data) {
+inline void String::append(const char* data) {
   const il::int_t old_size = size();
   il::int_t size = 0;
   while (data[size] != '\0') {
@@ -242,22 +242,22 @@ void String::append(const char* data) {
   }
 }
 
-void String::append(const String& s) {
+inline void String::append(const String& s) {
   append(s.c_str());
 }
 
-void String::append(const char* data, const String& s) {
+inline void String::append(const char* data, const String& s) {
   append(data);
   append(s.c_str());
 }
 
-void String::append(const char* data0, const String& s, const char* data1) {
+inline void String::append(const char* data0, const String& s, const char* data1) {
   append(data0);
   append(s.c_str());
   append(data1);
 }
 
-il::int_t String::size() const {
+inline il::int_t String::size() const {
   if (is_small()) {
     return max_small_size_ - static_cast<il::int_t>(small_[max_small_size_]);
   } else {
@@ -265,7 +265,7 @@ il::int_t String::size() const {
   }
 }
 
-il::int_t String::capacity() const {
+inline il::int_t String::capacity() const {
   if (is_small()) {
     return max_small_size_;
   } else {
@@ -273,7 +273,7 @@ il::int_t String::capacity() const {
   }
 }
 
-const char* String::c_str() const {
+inline const char* String::c_str() const {
   if (is_small()) {
     return small_;
   } else {
@@ -281,11 +281,11 @@ const char* String::c_str() const {
   }
 }
 
-bool String::is_small() const {
+inline bool String::is_small() const {
   return (bytes_[max_small_size_] & category_extract_mask_) == 0;
 }
 
-void String::set_small_size(il::int_t n) {
+inline void String::set_small_size(il::int_t n) {
   IL_ASSERT_PRECOND(static_cast<il::uint_t>(n) <=
                     static_cast<il::uint_t>(max_small_size_));
 

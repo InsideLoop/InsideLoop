@@ -146,7 +146,7 @@ HashMap<K, V, F>::HashMap(il::int_t n) {
   IL_EXPECT_FAST(n >= 0);
 
   if (n > 0) {
-    const int p = 1 + il::next_log2_64(n);
+    const int p = 1 + il::next_log2_32(n);
     const il::int_t m = 1 << p;
     slot_ = static_cast<KeyValue<K, V>*>(
         ::operator new(m * sizeof(KeyValue<K, V>)));
@@ -168,7 +168,7 @@ HashMap<K, V, F>::HashMap(il::value_t,
   const il::int_t n = static_cast<il::int_t>(list.size());
 
   if (n > 0) {
-    const int p = 1 + il::next_log2_64(n);
+    const int p = 1 + il::next_log2_32(n);
     const il::int_t m = 1 << p;
     slot_ = static_cast<KeyValue<K, V>*>(
         ::operator new(m * sizeof(KeyValue<K, V>)));
@@ -341,9 +341,12 @@ void HashMap<K, V, F>::insert(const K& key, const V& value, il::io_t,
                               il::int_t& i) {
   IL_ASSERT_PRECOND(!found(i));
 
+  // FIXME: What it the place is a tombstone. We should update the number of
+  // tombstones in the hash table.
+
   il::int_t i_local = -(1 + i);
   if (2 * (nb_element_ + 1) > (1 << p_)) {
-    grow(il::next_power_of_2_64(2 * (nb_element_ + 1)));
+    grow(il::next_power_of_2_32(2 * (nb_element_ + 1)));
     il::int_t j = search(key);
     i_local = -(1 + j);
   }
@@ -403,7 +406,7 @@ template <typename K, typename V, typename F>
 void HashMap<K, V, F>::reserve(il::int_t r) {
   IL_ASSERT_PRECOND(r >= 0);
 
-  grow(il::next_power_of_2_64(r));
+  grow(il::next_power_of_2_32(r));
 }
 
 template <typename K, typename V, typename F>
@@ -479,7 +482,7 @@ void HashMap<K, V, F>::grow(il::int_t r) {
 
   KeyValue<K, V>* old_slot_ = slot_;
   const il::int_t old_m = (1 << p_);
-  const int p = il::next_power_of_2_64(r);
+  const int p = il::next_log2_32(r);
   const il::int_t m = 1 << p;
 
   slot_ =

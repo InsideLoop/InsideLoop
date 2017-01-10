@@ -33,7 +33,7 @@ if (UNIX)
         if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -pedantic")
         elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -pedantic")
+#            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -pedantic")
         elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -pedantic")
         endif()
@@ -150,6 +150,7 @@ set(SOURCE_FILES
     il/StaticArray2D.h
     il/StaticArray2C.h
     il/StaticArray3D.h
+    il/StaticArray4D.h
     il/String.h
     il/Timer.h
     il/TriDiagonal.h
@@ -173,6 +174,7 @@ set(SOURCE_FILES
     il/container/3d/StaticArray3D.h
     il/container/4d/Array4D.h
     il/container/4d/Array4C.h
+    il/container/4d/StaticArray4D.h
     il/container/cuda/1d/CudaArray.h
     il/container/cuda/2d/CudaArray2D.h
     il/container/cuda/2d/CudaSparseMatrixCSR.h
