@@ -69,6 +69,8 @@ struct abort_exception {};
   (condition) ? ((void) 0) : ::abort();
 #endif
 
+#define IL_EXPECT_AXIOM(message) (void)0
+
 // This one is not check and can contain code that is not run
 #ifdef IL_UNIT_TEST
 #define IL_ENSURE(condition) \
@@ -123,6 +125,8 @@ struct abort_exception {};
 #endif
 
 #define IL_UNUSED(var) (void)var
+
+#define IL_UNREACHABLE abort()
 
 ////////////////////////////////////////////////////////////////////////////////
 // Namespace il

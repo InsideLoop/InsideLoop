@@ -11,68 +11,92 @@
 #define IL_NORM_H
 
 #include <il/math.h>
-#include <il/container/1d/Array.h>
-#include <il/container/2d/Array2D.h>
-#include <il/container/2d/TriDiagonal.h>
+#include <il/Array.h>
+#include <il/StaticArray.h>
+#include <il/Array2D.h>
+#include <il/TriDiagonal.h>
 
 namespace il {
 
 enum class Norm { L1, L2, Linf };
 
-template <typename T>
-double norm(const il::Array<T>& x, Norm norm_type) {
-  IL_ASSERT(x.size() > 0);
-
-  auto norm = T{0};
+template <il::int_t n>
+double norm(const il::StaticArray<double, n>& v, il::Norm norm_type) {
+  double ans = 0.0;
   switch (norm_type) {
     case Norm::L1:
-      for (il::int_t i{0}; i < x.size(); ++i) {
-        norm += il::abs(x[i]);
+      for (il::int_t i = 0; i < n; ++i) {
+        ans += il::abs(v[i]);
       }
       break;
     case Norm::L2:
-      for (il::int_t i{0}; i < x.size(); ++i) {
-        norm += il::ipow<2>(x[i]);
+      for (il::int_t i = 0; i < n; ++i) {
+        ans += il::ipow<2>(v[i]);
       }
+      ans = std::sqrt(ans);
       break;
     case Norm::Linf:
-      for (il::int_t i{0}; i < x.size(); ++i) {
-        norm = il::max(norm, il::abs(x[i]));
+      for (il::int_t i = 0; i < n; ++i) {
+        ans = il::max(ans, il::abs(v[i]));
       }
       break;
     default:
-      IL_ASSERT(false);
+      IL_UNREACHABLE;
   }
-  return norm;
+  return ans;
 }
 
-template <typename T>
-double norm(const il::Array<T>& x, Norm norm_type, const il::Array<T>& alpha) {
-  IL_ASSERT(x.size() > 0);
-  IL_ASSERT(alpha.size() == x.size());
-
-  auto norm = T{0};
+inline double norm(const il::Array<double>& v, Norm norm_type) {
+  double ans = 0.0;
   switch (norm_type) {
     case Norm::L1:
-      for (il::int_t i{0}; i < x.size(); ++i) {
-        norm += il::abs(x[i] / alpha[i]);
+      for (il::int_t i = 0; i < v.size(); ++i) {
+        ans += il::abs(v[i]);
       }
       break;
     case Norm::L2:
-      for (il::int_t i{0}; i < x.size(); ++i) {
-        norm += il::ipow<2>(x[i] / alpha[i]);
+      for (il::int_t i = 0; i < v.size(); ++i) {
+        ans += il::ipow<2>(v[i]);
       }
+      ans = std::sqrt(ans);
       break;
     case Norm::Linf:
-      for (il::int_t i{0}; i < x.size(); ++i) {
-        norm = il::max(norm, il::abs(x[i] / alpha[i]));
+      for (il::int_t i = 0; i < v.size(); ++i) {
+        ans = il::max(ans, il::abs(v[i]));
       }
       break;
     default:
-      IL_ASSERT(false);
+      IL_UNREACHABLE;
   }
+  return ans;
+}
 
-  return norm;
+inline double norm(const il::Array<double>& x, Norm norm_type, const il::Array<double>& alpha) {
+  IL_EXPECT_FAST(alpha.size() == x.size());
+  IL_EXPECT_AXIOM("All alpha elements must be positive");
+
+  double ans = 0.0;
+  switch (norm_type) {
+    case Norm::L1:
+      for (il::int_t i = 0; i < x.size(); ++i) {
+        ans += il::abs(x[i] / alpha[i]);
+      }
+      break;
+    case Norm::L2:
+      for (il::int_t i = 0; i < x.size(); ++i) {
+        ans += il::ipow<2>(x[i] / alpha[i]);
+      }
+      ans = std::sqrt(ans);
+      break;
+    case Norm::Linf:
+      for (il::int_t i = 0; i < x.size(); ++i) {
+        ans = il::max(ans, il::abs(x[i] / alpha[i]));
+      }
+      break;
+    default:
+      IL_UNREACHABLE;
+  }
+  return ans;
 }
 
 template <typename T>
