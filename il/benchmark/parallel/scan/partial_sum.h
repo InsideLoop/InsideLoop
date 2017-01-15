@@ -78,12 +78,12 @@ void partial_sum() {
     auto partial_sum_serial = [&n](il::io_t, il::BState& state) {
       il::Array<double> v{n, 0.0};
       il::Array<double> p{n, 0.0};
-      for (il::int_t k{0}; k < v.size(); ++k) {
+      for (il::int_t k = 0; k < v.size(); ++k) {
         v[k] = 1.0 / (k + 1);
       }
       while (state.keep_running()) {
         p[0] = v[0];
-        for (il::int_t k{1}; k < p.size(); ++k) {
+        for (il::int_t k = 1; k < p.size(); ++k) {
           p[k] = p[k - 1] + v[k];
         }
       }
@@ -96,7 +96,7 @@ void partial_sum() {
     auto partial_sum_tbb = [&n](il::io_t, il::BState& state) {
       il::Array<double> v{n, 0.0};
       il::Array<double> p{n, 0.0};
-      for (il::int_t k{0}; k < v.size(); ++k) {
+      for (il::int_t k = 0; k < v.size(); ++k) {
         v[k] = 1.0 / (k + 1);
       }
       while (state.keep_running()) {

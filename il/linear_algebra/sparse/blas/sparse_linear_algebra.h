@@ -8,7 +8,7 @@ double norm(const il::SparseArray2D<T> &A, Norm norm_type,
   switch (norm_type) {
     case Norm::infinity:
       for (il::int_t i = 0; i < A.size(0); ++i) {
-        double sum{0.0};
+        double sum = 0.0;
         for (il::int_t k = A.row(i); k < A.row(i + 1); ++k) {
           sum += il::abs(A[k] * alpha[A.column(k)] / beta[i]);
         }

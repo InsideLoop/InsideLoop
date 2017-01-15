@@ -35,7 +35,7 @@ inline il::Array<double> linear_solve(il::Array2D<double> A,
 
   const int layout{LAPACK_COL_MAJOR};
   const lapack_int n{static_cast<lapack_int>(A.size(0))};
-  const lapack_int nrhs{1};
+  const lapack_int nrhs = 1;
   const lapack_int lda{static_cast<lapack_int>(A.stride(1))};
   const lapack_int ldx{n};
   const lapack_int lapack_error{LAPACKE_dgesv(layout, n, nrhs, A.data(), lda,
@@ -61,9 +61,9 @@ inline il::Array<double> linear_solve(il::Array2C<double> A,
 
   const int layout{LAPACK_ROW_MAJOR};
   const lapack_int n{static_cast<lapack_int>(A.size(0))};
-  const lapack_int nrhs{1};
+  const lapack_int nrhs = 1;
   const lapack_int lda{static_cast<lapack_int>(A.stride(0))};
-  const lapack_int ldx{1};
+  const lapack_int ldx = 1;
   const lapack_int lapack_error{LAPACKE_dgesv(layout, n, nrhs, A.data(), lda,
                                               ipiv.data(), y.data(), ldx)};
 
@@ -90,10 +90,10 @@ inline il::Array<double> linear_solve(il::BandArray2C<double> A,
   const lapack_int n{static_cast<lapack_int>(A.size(1))};
   const lapack_int kl{static_cast<lapack_int>(A.width_left())};
   const lapack_int ku{static_cast<lapack_int>(A.width_right())};
-  const lapack_int nrhs{1};
+  const lapack_int nrhs = 1;
   const lapack_int ldab{
       static_cast<lapack_int>(A.width_left() + 1 + A.capacity_right())};
-  const lapack_int ldb{1};
+  const lapack_int ldb = 1;
   const lapack_int lapack_error{LAPACKE_dgbsv(
       layout, n, kl, ku, nrhs, A.data(), ldab, ipiv.data(), y.data(), ldb)};
 
@@ -114,8 +114,8 @@ inline il::Array<double> linear_solve(il::TriDiagonal<double> A,
 
   const int layout{LAPACK_ROW_MAJOR};
   const lapack_int n{static_cast<lapack_int>(A.size())};
-  const lapack_int nrhs{1};
-  const lapack_int ldb{1};
+  const lapack_int nrhs = 1;
+  const lapack_int ldb = 1;
   const lapack_int lapack_error{LAPACKE_dgtsv(layout, n, nrhs, A.data_lower(),
                                               A.data_diagonal(), A.data_upper(),
                                               y.data(), ldb)};

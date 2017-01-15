@@ -254,12 +254,12 @@ SmallArray<T, small_size>::SmallArray(il::int_t n) {
   }
   if (std::is_pod<T>::value) {
 #ifdef IL_DEFAULT_VALUE
-    for (il::int_t i{0}; i < n; ++i) {
+    for (il::int_t i = 0; i < n; ++i) {
       data_[i] = il::default_value<T>();
     }
 #endif
   } else {
-    for (il::int_t i{0}; i < n; ++i) {
+    for (il::int_t i = 0; i < n; ++i) {
       new (data_ + i) T{};
     }
   }
@@ -287,7 +287,7 @@ SmallArray<T, small_size>::SmallArray(il::int_t n, const T& x) {
     size_ = data_ + n;
     capacity_ = data_ + n;
   }
-  for (il::int_t i{0}; i < n; ++i) {
+  for (il::int_t i = 0; i < n; ++i) {
     new (data_ + i) T(x);
   }
 }
@@ -318,7 +318,7 @@ SmallArray<T, small_size>::SmallArray(il::value_t,
   if (std::is_pod<T>::value) {
     memcpy(data_, list.begin(), n * sizeof(T));
   } else {
-    for (il::int_t i{0}; i < n; ++i) {
+    for (il::int_t i = 0; i < n; ++i) {
       new (data_ + i) T(*(list.begin() + i));
     }
   }
@@ -349,7 +349,7 @@ SmallArray<T, small_size>::SmallArray(const SmallArray<T, small_size>& A) {
   if (std::is_pod<T>::value) {
     memcpy(data_, A.data_, n * sizeof(T));
   } else {
-    for (il::int_t i{0}; i < n; ++i) {
+    for (il::int_t i = 0; i < n; ++i) {
       new (data_ + i) T(A.data_[i]);
     }
   }
@@ -363,7 +363,7 @@ SmallArray<T, small_size>::SmallArray(SmallArray<T, small_size>&& A) {
     if (std::is_pod<T>::value) {
       memcpy(data_, A.data_, n * sizeof(T));
     } else {
-      for (il::int_t i{0}; i < n; ++i) {
+      for (il::int_t i = 0; i < n; ++i) {
         new (data_ + i) T(std::move(A.data_[i]));
         (data_ + i)->~T();
       }
@@ -409,14 +409,14 @@ SmallArray<T, small_size>& SmallArray<T, small_size>::operator=(
         data_ = new T[n];
         memcpy(data_, A.data_, n * sizeof(T));
       } else {
-        for (il::int_t i{0}; i < size(); ++i) {
+        for (il::int_t i = 0; i < size(); ++i) {
           (data_ + i)->~T();
         }
         if (!small_data_used()) {
           ::operator delete(data_);
         }
         data_ = static_cast<T*>(::operator new(n * sizeof(T)));
-        for (il::int_t i{0}; i < n; ++i) {
+        for (il::int_t i = 0; i < n; ++i) {
           new (data_ + i) T(A.data_[i]);
         }
       }
@@ -433,7 +433,7 @@ SmallArray<T, small_size>& SmallArray<T, small_size>::operator=(
           (data_ + i)->~T();
         }
       }
-      for (il::int_t i{0}; i < n; ++i) {
+      for (il::int_t i = 0; i < n; ++i) {
         data_[i] = A.data_[i];
       }
 #ifdef IL_DEBUG_VISUALIZER
@@ -454,7 +454,7 @@ SmallArray<T, small_size>& SmallArray<T, small_size>::operator=(
         delete[] data_;
       }
     } else {
-      for (il::int_t i{0}; i < size(); ++i) {
+      for (il::int_t i = 0; i < size(); ++i) {
         (data_ + i)->~T();
       }
       if (!small_data_used()) {
@@ -467,7 +467,7 @@ SmallArray<T, small_size>& SmallArray<T, small_size>::operator=(
       if (std::is_pod<T>::value) {
         memcpy(data_, A.data_, n * sizeof(T));
       } else {
-        for (il::int_t i{0}; i < n; ++i) {
+        for (il::int_t i = 0; i < n; ++i) {
           new (data_ + i) T(std::move(A.data_[i]));
           (data_ + i)->~T();
         }
@@ -511,7 +511,7 @@ SmallArray<T, small_size>::~SmallArray() {
       delete[] data_;
     }
   } else {
-    for (il::int_t i{0}; i <= size(); ++i) {
+    for (il::int_t i = 0; i <= size(); ++i) {
       (data_ + i)->~T();
     }
     if (!small_data_used()) {
@@ -562,7 +562,7 @@ void SmallArray<T, small_size>::resize(il::int_t n) {
       }
 #endif
     } else {
-      for (il::int_t i{0}; i < size(); ++i) {
+      for (il::int_t i = 0; i < size(); ++i) {
         (data_ + i)->~T();
       }
       for (il::int_t i{size()}; i < n; ++i) {
@@ -671,7 +671,7 @@ void SmallArray<T, small_size>::increase_capacity(il::int_t r) {
       delete[] data_;
     }
   } else {
-    for (il::int_t i{0}; i < n; ++i) {
+    for (il::int_t i = 0; i < n; ++i) {
       new (new_data + i) T(std::move(data_[i]));
       (data_ + i)->~T();
     }

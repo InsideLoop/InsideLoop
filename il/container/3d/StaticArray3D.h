@@ -93,8 +93,8 @@ class StaticArray3D {
 
   /* \brief Get the size of the il::StaticArray3D<T, n0, n1, n2>
   //
-  // for (il::int_t i{0}; i < v.size(0); ++i) {
-  //   for (il::int_t j{0}; j < v.size(1); ++j) {
+  // for (il::int_t i = 0; i < v.size(0); ++i) {
+  //   for (il::int_t j = 0; j < v.size(1); ++j) {
   //     A(i, j) = 1.0 / (i + j + 2);
   //   }
   // }
@@ -140,7 +140,7 @@ template <typename T, il::int_t n0, il::int_t n1, il::int_t n2>
 StaticArray3D<T, n0, n1, n2>::StaticArray3D() {
   if (std::is_pod<T>::value) {
 #ifndef NDEBUG
-    for (il::int_t l{0}; l < n0 * n1 * n2; ++l) {
+    for (il::int_t l = 0; l < n0 * n1 * n2; ++l) {
       data_[l] = il::default_value<T>();
     }
 #endif
@@ -149,7 +149,7 @@ StaticArray3D<T, n0, n1, n2>::StaticArray3D() {
 
 template <typename T, il::int_t n0, il::int_t n1, il::int_t n2>
 StaticArray3D<T, n0, n1, n2>::StaticArray3D(const T& value) {
-  for (il::int_t l{0}; l < n0 * n1 * n2; ++l) {
+  for (il::int_t l = 0; l < n0 * n1 * n2; ++l) {
     data_[l] = value;
   }
 }

@@ -38,7 +38,7 @@ void vector_addition() {
       il::Array<double> v1{n, 0.0};
       il::Array<double> v2{n, 0.0};
       while (state.keep_running()) {
-        for (il::int_t k{0}; k < v2.size(); ++k) {
+        for (il::int_t k = 0; k < v2.size(); ++k) {
           v2[k] += v1[k];
         }
       }
@@ -52,7 +52,7 @@ void vector_addition() {
       il::Array<double> v2{n, 0.0};
       while (state.keep_running()) {
 #pragma omp parallel for
-        for (il::int_t k{0}; k < v2.size(); ++k) {
+        for (il::int_t k = 0; k < v2.size(); ++k) {
           v2[k] += v1[k];
         }
       }
@@ -84,7 +84,7 @@ void vector_addition() {
       il::Array<double> v1{n, 0.0};
       il::Array<double> v2{n, 0.0};
       while (state.keep_running()) {
-        cilk_for(il::int_t k{0}; k < n; ++k) { v2[k] += v1[k]; }
+        cilk_for(il::int_t k = 0; k < n; ++k) { v2[k] += v1[k]; }
       }
     };
     double time_cilk{il::benchmark(vector_addition_cilk) / n};

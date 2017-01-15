@@ -12,10 +12,16 @@
 
 #include <chrono>
 #include <cstdint>
+#include <cstddef>
+#include <cstdlib>
+#include <limits>
+
 
 #include <il/core/base.h>
 
 namespace il {
+
+typedef std::ptrdiff_t int_t;
 
 class Timer {
  private:

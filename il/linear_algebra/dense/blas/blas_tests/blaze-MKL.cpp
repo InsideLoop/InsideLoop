@@ -33,7 +33,7 @@ int main() {
 //  }
 
   //for (int i = 0; i < 15; ++i) {
-  //int n{3000};
+  //int n = 3000;
   //double* A = new double[n * n];
   //double* B = new double[n * n];
   //double* C = new double[n * n];

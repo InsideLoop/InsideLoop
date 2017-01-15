@@ -149,8 +149,8 @@ class Array2D {
   // compiler, including automatic vectorization.
   //
   // il::Array2D<double> A{n, p};
-  // for (il::int_t i{0}; i < v.size(0); ++i) {
-  //   for (il::int_t j{0}; j < v.size(1); ++j) {
+  // for (il::int_t i = 0; i < v.size(0); ++i) {
+  //   for (il::int_t j = 0; j < v.size(1); ++j) {
   //     A(i, j) = 1.0 / (i + j + 2);
   //   }
   // }
@@ -255,16 +255,16 @@ Array2D<T>::Array2D(il::int_t n0, il::int_t n1) {
     if (std::is_pod<T>::value) {
       data_ = new T[r];
 #ifdef IL_DEFAULT_VALUE
-      for (il::int_t i1{0}; i1 < n1; ++i1) {
-        for (il::int_t i0{0}; i0 < n0; ++i0) {
+      for (il::int_t i1 = 0; i1 < n1; ++i1) {
+        for (il::int_t i0 = 0; i0 < n0; ++i0) {
           data_[i1 * r0 + i0] = il::default_value<T>();
         }
       }
 #endif
     } else {
       data_ = static_cast<T*>(::operator new(r * sizeof(T)));
-      for (il::int_t i1{0}; i1 < n1; ++i1) {
-        for (il::int_t i0{0}; i0 < n0; ++i0) {
+      for (il::int_t i1 = 0; i1 < n1; ++i1) {
+        for (il::int_t i0 = 0; i0 < n0; ++i0) {
           new (data_ + i1 * r0 + i0) T{};
         }
       }
@@ -327,8 +327,8 @@ Array2D<T>::Array2D(il::int_t n0, il::int_t n1, il::align_t, short align_r,
         data_ = allocate(r, align_mod, align_r, il::io, new_shift_);
       }
 #ifdef IL_DEFAULT_VALUE
-      for (il::int_t i1{0}; i1 < n1; ++i1) {
-        for (il::int_t i0{0}; i0 < n0; ++i0) {
+      for (il::int_t i1 = 0; i1 < n1; ++i1) {
+        for (il::int_t i0 = 0; i0 < n0; ++i0) {
           data_[i1 * r0 + i0] = il::default_value<T>();
         }
       }
@@ -336,8 +336,8 @@ Array2D<T>::Array2D(il::int_t n0, il::int_t n1, il::align_t, short align_r,
     } else {
       data_ = static_cast<T*>(::operator new(r * sizeof(T)));
       new_shift_ = 0;
-      for (il::int_t i1{0}; i1 < n1; ++i1) {
-        for (il::int_t i0{0}; i0 < n0; ++i0) {
+      for (il::int_t i1 = 0; i1 < n1; ++i1) {
+        for (il::int_t i0 = 0; i0 < n0; ++i0) {
           new (data_ + i1 * r0 + i0) T{};
         }
       }
@@ -382,15 +382,15 @@ Array2D<T>::Array2D(il::int_t n0, il::int_t n1, const T& x) {
   if (r > 0) {
     if (std::is_pod<T>::value) {
       data_ = new T[r];
-      for (il::int_t i1{0}; i1 < n1; ++i1) {
-        for (il::int_t i0{0}; i0 < n0; ++i0) {
+      for (il::int_t i1 = 0; i1 < n1; ++i1) {
+        for (il::int_t i0 = 0; i0 < n0; ++i0) {
           data_[i1 * r0 + i0] = x;
         }
       }
     } else {
       data_ = static_cast<T*>(::operator new(r * sizeof(T)));
-      for (il::int_t i1{0}; i1 < n1; ++i1) {
-        for (il::int_t i0{0}; i0 < n0; ++i0) {
+      for (il::int_t i1 = 0; i1 < n1; ++i1) {
+        for (il::int_t i0 = 0; i0 < n0; ++i0) {
           new (data_ + i1 * r0 + i0) T(x);
         }
       }
@@ -426,15 +426,15 @@ Array2D<T>::Array2D(il::value_t,
     il::int_t r{r0 * r1};
     if (std::is_pod<T>::value) {
       data_ = new T[r];
-      for (il::int_t i1{0}; i1 < n1; ++i1) {
+      for (il::int_t i1 = 0; i1 < n1; ++i1) {
         IL_ASSERT(static_cast<il::int_t>((list.begin() + i1)->size()) == n0);
         memcpy(data_ + i1 * r0, (list.begin() + i1)->begin(), n0 * sizeof(T));
       }
     } else {
       data_ = static_cast<T*>(::operator new(r * sizeof(T)));
-      for (il::int_t i1{0}; i1 < n1; ++i1) {
+      for (il::int_t i1 = 0; i1 < n1; ++i1) {
         IL_ASSERT(static_cast<il::int_t>((list.begin() + i1)->size()) == n0);
-        for (il::int_t i0{0}; i0 < n0; ++i0) {
+        for (il::int_t i0 = 0; i0 < n0; ++i0) {
           new (data_ + i1 * r0 + i0) T(*((list.begin() + i1)->begin() + i0));
         }
       }
@@ -499,14 +499,14 @@ Array2D<T>::Array2D(const Array2D<T>& A) {
     } else {
       data_ = allocate(r, A.align_mod_, A.align_r_, il::io, new_shift_);
     }
-    for (il::int_t i1{0}; i1 < n1; ++i1) {
+    for (il::int_t i1 = 0; i1 < n1; ++i1) {
       memcpy(data_ + i1 * r0, A.data() + i1 * A.stride(1), n0 * sizeof(T));
     }
   } else {
     data_ = static_cast<T*>(::operator new(r * sizeof(T)));
     new_shift_ = 0;
-    for (il::int_t i1{0}; i1 < n1; ++i1) {
-      for (il::int_t i0{0}; i0 < n0; ++i0) {
+    for (il::int_t i1 = 0; i1 < n1; ++i1) {
+      for (il::int_t i0 = 0; i0 < n0; ++i0) {
         new (data_ + i1 * r0 + i0) T(A(i0, i1));
       }
     }
@@ -593,7 +593,7 @@ Array2D<T>& Array2D<T>::operator=(const Array2D<T>& A) {
         } else {
           data_ = allocate(r, align_mod, align_r, il::io, new_shift_);
         }
-        for (il::int_t i1{0}; i1 < n1; ++i1) {
+        for (il::int_t i1 = 0; i1 < n1; ++i1) {
           memcpy(data_ + i1 * r0, A.data_ + i1 * A.stride(1), n0 * sizeof(T));
         }
       } else {
@@ -607,8 +607,8 @@ Array2D<T>& Array2D<T>::operator=(const Array2D<T>& A) {
         }
         data_ = static_cast<T*>(::operator new(r * sizeof(T)));
         new_shift_ = 0;
-        for (il::int_t i1{0}; i1 < n1; ++i1) {
-          for (il::int_t i0{0}; i0 < n0; ++i0) {
+        for (il::int_t i1 = 0; i1 < n1; ++i1) {
+          for (il::int_t i0 = 0; i0 < n0; ++i0) {
             new (data_ + i1 * r0 + i0) T(A(i0, i1));
           }
         }
@@ -627,13 +627,13 @@ Array2D<T>& Array2D<T>::operator=(const Array2D<T>& A) {
       align_r_ = align_r;
     } else {
       if (std::is_pod<T>::value) {
-        for (il::int_t i1{0}; i1 < n1; ++i1) {
+        for (il::int_t i1 = 0; i1 < n1; ++i1) {
           memcpy(data_ + i1 * stride(1), A.data_ + i1 * A.stride(1),
                  n0 * sizeof(T));
         }
       } else {
-        for (il::int_t i1{0}; i1 < n1; ++i1) {
-          for (il::int_t i0{0}; i0 < n0; ++i0) {
+        for (il::int_t i1 = 0; i1 < n1; ++i1) {
+          for (il::int_t i0 = 0; i0 < n0; ++i0) {
             data_[i1 * stride(1) + i0] = A(i0, i1);
           }
         }
@@ -781,14 +781,14 @@ void Array2D<T>::resize(il::int_t n0, il::int_t n1) {
         new_data = allocate(r, align_mod_, align_r_, il::io, new_shift);
       }
       if (data_) {
-        for (il::int_t i1{0}; i1 < (n1 < n1_old ? n1 : n1_old); ++i1) {
+        for (il::int_t i1 = 0; i1 < (n1 < n1_old ? n1 : n1_old); ++i1) {
           memcpy(new_data + i1 * r0, data_ + i1 * stride(1),
                  (n0 < n0_old ? n0 : n0_old) * sizeof(T));
         }
         delete[](data_ - new_shift_);
       }
 #ifdef IL_DEFAULT_VALUE
-      for (il::int_t i1{0}; i1 < n1; ++i1) {
+      for (il::int_t i1 = 0; i1 < n1; ++i1) {
         for (il::int_t i0{i1 < n1_old ? n0_old : 0}; i0 < n0; ++i0) {
           new_data[i1 * r0 + i0] = il::default_value<T>();
         }
@@ -812,7 +812,7 @@ void Array2D<T>::resize(il::int_t n0, il::int_t n1) {
         }
         ::operator delete(data_);
       }
-      for (il::int_t i1{0}; i1 < n1; ++i1) {
+      for (il::int_t i1 = 0; i1 < n1; ++i1) {
         for (il::int_t i0{i1 < n1_old ? n0_old : 0}; i0 < n0; ++i0) {
           new (new_data + i1 * r0 + i0) T{};
         }
@@ -829,7 +829,7 @@ void Array2D<T>::resize(il::int_t n0, il::int_t n1) {
   } else {
     if (std::is_pod<T>::value) {
 #ifdef IL_DEFAULT_VALUE
-      for (il::int_t i1{0}; i1 < n1; ++i1) {
+      for (il::int_t i1 = 0; i1 < n1; ++i1) {
         for (il::int_t i0{i1 < n1_old ? n0_old : 0}; i0 < n1; ++i0) {
           data_[i1 * stride(1) + i0] = il::default_value<T>();
         }
@@ -841,7 +841,7 @@ void Array2D<T>::resize(il::int_t n0, il::int_t n1) {
           (data_ + i1 * stride(1) + i0)->~T();
         }
       }
-      for (il::int_t i1{0}; i1 < n1; ++i1) {
+      for (il::int_t i1 = 0; i1 < n1; ++i1) {
         for (il::int_t i0{i1 < n1_old ? n0_old : 0}; i0 < n0; ++i0) {
           new (data_ + i1 * stride(1) + i0) T{};
         }
@@ -886,7 +886,7 @@ void Array2D<T>::reserve(il::int_t r0, il::int_t r1) {
         new_data = allocate(r, align_mod_, align_r_, il::io, new_shift);
       }
       if (data_) {
-        for (il::int_t i1{0}; i1 < size(1); ++i1) {
+        for (il::int_t i1 = 0; i1 < size(1); ++i1) {
           memcpy(new_data + i1 * r0, data_ + i1 * stride(1),
                  size(0) * sizeof(T));
         }

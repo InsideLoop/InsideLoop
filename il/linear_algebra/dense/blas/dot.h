@@ -72,8 +72,8 @@ inline il::Array2D<double> dot(const il::Array2D<double>& A,
   const IL_CBLAS_INT m{static_cast<IL_CBLAS_INT>(A.size(0))};
   const IL_CBLAS_INT n{static_cast<IL_CBLAS_INT>(B.size(1))};
   const IL_CBLAS_INT k{static_cast<IL_CBLAS_INT>(A.size(1))};
-  const double alpha{1.0};
-  const double beta{0.0};
+  const double alpha = 1.0;
+  const double beta = 0.0;
   const IL_CBLAS_INT lda{static_cast<IL_CBLAS_INT>(A.stride(1))};
   const IL_CBLAS_INT ldb{static_cast<IL_CBLAS_INT>(B.stride(1))};
   const IL_CBLAS_INT ldc{static_cast<IL_CBLAS_INT>(C.stride(1))};
@@ -93,8 +93,8 @@ inline il::Array2C<double> dot(const il::Array2C<double>& A,
   const IL_CBLAS_INT m{static_cast<IL_CBLAS_INT>(A.size(0))};
   const IL_CBLAS_INT n{static_cast<IL_CBLAS_INT>(B.size(1))};
   const IL_CBLAS_INT k{static_cast<IL_CBLAS_INT>(A.size(1))};
-  const double alpha{1.0};
-  const double beta{0.0};
+  const double alpha = 1.0;
+  const double beta = 0.0;
   const IL_CBLAS_INT lda{static_cast<IL_CBLAS_INT>(A.stride(0))};
   const IL_CBLAS_INT ldb{static_cast<IL_CBLAS_INT>(B.stride(0))};
   const IL_CBLAS_INT ldc{static_cast<IL_CBLAS_INT>(C.stride(0))};
@@ -108,7 +108,7 @@ inline il::Array2C<double> dot(const il::Array2C<double>& A,
 template <typename T, il::int_t n0, il::int_t n>
 inline il::StaticArray<T, n0> dot(const il::StaticArray2D<T, n0, n>& A,
                                   const il::StaticArray<T, n>& B) {
-  il::StaticArray<T, n0> C{0};
+  il::StaticArray<T, n0> C = 0;
 
   for (il::int_t i = 0; i < n; ++i) {
     for (il::int_t i0 = 0; i0 < n0; ++i0) {
@@ -122,7 +122,7 @@ inline il::StaticArray<T, n0> dot(const il::StaticArray2D<T, n0, n>& A,
 template <typename T, il::int_t n, il::int_t n1>
 inline il::StaticArray<T, n1> dot(const il::StaticArray<T, n>& A,
                                   const il::StaticArray2D<T, n, n1>& B) {
-  il::StaticArray<T, n1> C{0};
+  il::StaticArray<T, n1> C = 0;
 
   for (il::int_t i1 = 0; i1 < n1; ++i1) {
     for (il::int_t i = 0; i < n; ++i) {
@@ -136,7 +136,7 @@ inline il::StaticArray<T, n1> dot(const il::StaticArray<T, n>& A,
 template <typename T, il::int_t n0, il::int_t n, il::int_t n1>
 inline il::StaticArray2D<T, n0, n1> dot(const il::StaticArray2D<T, n0, n>& A,
                                         const il::StaticArray2D<T, n, n1>& B) {
-  il::StaticArray2D<T, n0, n1> C{0};
+  il::StaticArray2D<T, n0, n1> C = 0;
 
   for (il::int_t i1 = 0; i1 < n1; ++i1) {
     for (il::int_t i = 0; i < n; ++i) {

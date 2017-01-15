@@ -28,12 +28,12 @@ void kmeans_main() {
   const int height{image.size(1)};
 
   const int nb_point{width * height};
-  const int nb_cluster{8};
-  const int nb_iteration{200};
+  const int nb_cluster = 8;
+  const int nb_iteration = 200;
 
   il::Array2D<float> point{nb_point, 3};
   for (int ky = 0; ky < image.size(1); ++ky) {
-    for (int kx{0}; kx < image.size(0); ++kx) {
+    for (int kx = 0; kx < image.size(0); ++kx) {
       point(ky * width + kx, 0) = static_cast<float>(image(kx, ky, 0)) / 255;
       point(ky * width + kx, 1) = static_cast<float>(image(kx, ky, 1)) / 255;
       point(ky * width + kx, 2) = static_cast<float>(image(kx, ky, 2)) / 255;
@@ -42,7 +42,7 @@ void kmeans_main() {
 
   //  auto start = std::chrono::high_resolution_clock::now();
   //  il::Array2C<float> point_bis{nb_point, 3};
-  //  for (int k{0}; k < nb_point; ++k) {
+  //  for (int k = 0; k < nb_point; ++k) {
   //    point_bis(k, 0) = point(k, 0);
   //    point_bis(k, 1) = point(k, 1);
   //    point_bis(k, 2) = point(k, 2);
@@ -103,11 +103,11 @@ void kmeans_main() {
   std::printf(" Best method: %7.3f s\n", time);
 
   il::Array3D<unsigned char> out{width, height, 3};
-  for (int ky{0}; ky < height; ++ky) {
-    for (int kx{0}; kx < width; ++kx) {
+  for (int ky = 0; ky < height; ++ky) {
+    for (int kx = 0; kx < width; ++kx) {
       float best_distance{std::numeric_limits<float>::max()};
       int best_centroid{-1};
-      for (int i{0}; i < nb_cluster; ++i) {
+      for (int i = 0; i < nb_cluster; ++i) {
         float x{point(ky * width + kx, 0) - centroid(i, 0)};
         float y{point(ky * width + kx, 1) - centroid(i, 1)};
         float z{point(ky * width + kx, 2) - centroid(i, 2)};

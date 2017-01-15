@@ -15,7 +15,7 @@ TEST(linear_solve, square_matrix_0) {
   il::int_t test_passed{false};
 
   il::Array2D<double> A{3, 4, 0.0};
-  for (il::int_t i{0}; i < 3; ++i) {
+  for (il::int_t i = 0; i < 3; ++i) {
     A(i, i) = 1.0;
   }
   il::Array<double> y{3, 0.0};
@@ -35,7 +35,7 @@ TEST(linear_solve, square_matrix_1) {
   il::int_t test_passed{false};
 
   il::Array2D<double> A{4, 3, 0.0};
-  for (il::int_t i{0}; i < 3; ++i) {
+  for (il::int_t i = 0; i < 3; ++i) {
     A(i, i) = 1.0;
   }
   il::Array<double> y{4, 0.0};
@@ -55,7 +55,7 @@ TEST(linear_solve, size_y) {
   il::int_t test_passed{false};
 
   il::Array2D<double> A{3, 3, 0.0};
-  for (il::int_t i{0}; i < 3; ++i) {
+  for (il::int_t i = 0; i < 3; ++i) {
     A(i, i) = 1.0;
   }
   il::Array<double> y{4, 0.0};

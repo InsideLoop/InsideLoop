@@ -37,7 +37,7 @@ il::Array2C<float> kmeans_clustering_0(const il::Array2C<float>& point,
   il::Array2C<float> centroid{nb_cluster, 3};
   il::Array<int> point_per_centroid{nb_cluster};
   il::Array<int> cluster{nb_point};
-  for (int k{0}; k < nb_point; ++k) {
+  for (int k = 0; k < nb_point; ++k) {
     cluster[k] = k % nb_cluster;
   }
 
@@ -45,13 +45,13 @@ il::Array2C<float> kmeans_clustering_0(const il::Array2C<float>& point,
   int iteration{-1};
   while (true) {
     // Compute the centroid of the clusters
-    for (int i{0}; i < nb_cluster; ++i) {
+    for (int i = 0; i < nb_cluster; ++i) {
       centroid(i, 0) = 0.0f;
       centroid(i, 1) = 0.0f;
       centroid(i, 2) = 0.0f;
       point_per_centroid[i] = 0;
     }
-    for (int k{0}; k < nb_point; ++k) {
+    for (int k = 0; k < nb_point; ++k) {
       int i{cluster[k]};
       ++point_per_centroid[i];
       centroid(i, 0) += point(k, 0);
@@ -63,7 +63,7 @@ il::Array2C<float> kmeans_clustering_0(const il::Array2C<float>& point,
     fix_clusters(point, il::io, cluster, centroid, point_per_centroid, engine);
 
     // Finish to compute the centroids of the clusters
-    for (int i{0}; i < nb_cluster; ++i) {
+    for (int i = 0; i < nb_cluster; ++i) {
       centroid(i, 0) /= point_per_centroid[i];
       centroid(i, 1) /= point_per_centroid[i];
       centroid(i, 2) /= point_per_centroid[i];
@@ -76,10 +76,10 @@ il::Array2C<float> kmeans_clustering_0(const il::Array2C<float>& point,
     }
 
     // Reassign points to clusters
-    for (int k{0}; k < nb_point; ++k) {
+    for (int k = 0; k < nb_point; ++k) {
       float best_distance{std::numeric_limits<float>::max()};
       int best_centroid{-1};
-      for (int i{0}; i < nb_cluster; ++i) {
+      for (int i = 0; i < nb_cluster; ++i) {
         float x{point(k, 0) - centroid(i, 0)};
         float y{point(k, 1) - centroid(i, 1)};
         float z{point(k, 2) - centroid(i, 2)};
@@ -105,7 +105,7 @@ il::Array2D<float> kmeans_clustering_1(const il::Array2D<float>& point,
   il::Array<int> cluster{nb_point};
   il::Array2D<float> centroid{nb_cluster, 3};
   il::Array<int> point_per_centroid{nb_cluster};
-  for (int k{0}; k < nb_point; ++k) {
+  for (int k = 0; k < nb_point; ++k) {
     cluster[k] = k % nb_cluster;
   }
 
@@ -113,13 +113,13 @@ il::Array2D<float> kmeans_clustering_1(const il::Array2D<float>& point,
   int iteration{-1};
   while (true) {
     // Compute the centroid of the clusters
-    for (int i{0}; i < nb_cluster; ++i) {
+    for (int i = 0; i < nb_cluster; ++i) {
       centroid(i, 0) = 0.0f;
       centroid(i, 1) = 0.0f;
       centroid(i, 2) = 0.0f;
       point_per_centroid[i] = 0;
     }
-    for (int k{0}; k < nb_point; ++k) {
+    for (int k = 0; k < nb_point; ++k) {
       int i{cluster[k]};
       ++point_per_centroid[i];
       centroid(i, 0) += point(k, 0);
@@ -131,7 +131,7 @@ il::Array2D<float> kmeans_clustering_1(const il::Array2D<float>& point,
     fix_clusters(point, il::io, cluster, centroid, point_per_centroid, engine);
 
     // Finish to compute the centroids of the clusters
-    for (int i{0}; i < nb_cluster; ++i) {
+    for (int i = 0; i < nb_cluster; ++i) {
       centroid(i, 0) /= point_per_centroid[i];
       centroid(i, 1) /= point_per_centroid[i];
       centroid(i, 2) /= point_per_centroid[i];
@@ -144,10 +144,10 @@ il::Array2D<float> kmeans_clustering_1(const il::Array2D<float>& point,
     }
 
     // Reassign points to clusters
-    for (int k{0}; k < nb_point; ++k) {
+    for (int k = 0; k < nb_point; ++k) {
       float best_distance{std::numeric_limits<float>::max()};
       int best_centroid{-1};
-      for (int i{0}; i < nb_cluster; ++i) {
+      for (int i = 0; i < nb_cluster; ++i) {
         float x{point(k, 0) - centroid(i, 0)};
         float y{point(k, 1) - centroid(i, 1)};
         float z{point(k, 2) - centroid(i, 2)};
@@ -196,7 +196,7 @@ il::Array2D<float> kmeans_clustering_2(const il::Array2D<float>& point,
     // Compute the centroid of the clusters
 #pragma omp parallel for
     for (int id = 0; id < nb_thread; ++id) {
-      for (int i{0}; i < nb_cluster; ++i) {
+      for (int i = 0; i < nb_cluster; ++i) {
         local_group[id].centroid(i, 0) = 0.0f;
         local_group[id].centroid(i, 1) = 0.0f;
         local_group[id].centroid(i, 2) = 0.0f;
@@ -219,7 +219,7 @@ il::Array2D<float> kmeans_clustering_2(const il::Array2D<float>& point,
       local_group[id].centroid(i, 2) += point(k, 2);
       local_group[id].point_per_centroid[i] += 1;
     }
-    for (int id{0}; id < nb_thread; ++id) {
+    for (int id = 0; id < nb_thread; ++id) {
 #pragma omp parallel for
       for (int i = 0; i < nb_cluster; ++i) {
         group.centroid(i, 0) += local_group[id].centroid(i, 0);
@@ -250,7 +250,7 @@ il::Array2D<float> kmeans_clustering_2(const il::Array2D<float>& point,
     for (int k = 0; k < nb_point; ++k) {
       float best_distance{std::numeric_limits<float>::max()};
       int best_centroid{-1};
-      for (int i{0}; i < nb_cluster; ++i) {
+      for (int i = 0; i < nb_cluster; ++i) {
         float x{point(k, 0) - group.centroid(i, 0)};
         float y{point(k, 1) - group.centroid(i, 1)};
         float z{point(k, 2) - group.centroid(i, 2)};
@@ -282,7 +282,7 @@ il::Array2D<float> kmeans_clustering_3(const il::Array2D<float>& point,
 
 #pragma omp parallel for
   for (int id = 0; id < nb_thread; ++id) {
-    for (int i{0}; i < nb_cluster; ++i) {
+    for (int i = 0; i < nb_cluster; ++i) {
       local_group[id].centroid(i, 0) = 0.0f;
       local_group[id].centroid(i, 1) = 0.0f;
       local_group[id].centroid(i, 2) = 0.0f;
@@ -319,7 +319,7 @@ il::Array2D<float> kmeans_clustering_3(const il::Array2D<float>& point,
       group.centroid(i, 2) = 0.0f;
       group.point_per_centroid[i] = 0;
     }
-    for (int id{0}; id < nb_thread; ++id) {
+    for (int id = 0; id < nb_thread; ++id) {
 #pragma omp parallel for
       for (int i = 0; i < nb_cluster; ++i) {
         group.centroid(i, 0) += local_group[id].centroid(i, 0);
@@ -389,7 +389,7 @@ void fix_clusters(const il::Array2C<float>& point, il::io_t,
 
   while (true) {
     il::Array<int> cluster_to_fix{};
-    for (int i{0}; i < nb_cluster; ++i) {
+    for (int i = 0; i < nb_cluster; ++i) {
       if (point_per_centroid[i] == 0) {
         cluster_to_fix.append(i);
       }
@@ -427,7 +427,7 @@ void fix_clusters(const il::Array2D<float>& point, il::io_t,
 
   while (true) {
     il::Array<int> cluster_to_fix{};
-    for (int i{0}; i < nb_cluster; ++i) {
+    for (int i = 0; i < nb_cluster; ++i) {
       if (point_per_centroid[i] == 0) {
         cluster_to_fix.append(i);
       }

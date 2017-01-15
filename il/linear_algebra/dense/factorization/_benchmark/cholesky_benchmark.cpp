@@ -33,8 +33,8 @@ static void BM_CHOLESKY_FULL(benchmark::State& state) {
     state.PauseTiming();
     const il::int_t n{state.range_x()};
     il::Array2D<double> B{n, n};
-    for (il::int_t j{0}; j < n; ++j) {
-      for (il::int_t i{0}; i < n; ++i) {
+    for (il::int_t j = 0; j < n; ++j) {
+      for (il::int_t i = 0; i < n; ++i) {
         B(i, j) = 1.0 / (1 + il::abs(i - j));
       }
     }
@@ -50,7 +50,7 @@ static void BM_CHOLESKY_PACKED(benchmark::State& state) {
     state.PauseTiming();
     const il::int_t n{state.range_x()};
     il::LowerArray2D<double> B{n};
-    for (il::int_t j{0}; j < n; ++j) {
+    for (il::int_t j = 0; j < n; ++j) {
       for (il::int_t i{j}; i < n; ++i) {
         B(i, j) = 1.0 / (1 + il::abs(i - j));
       }

@@ -64,7 +64,7 @@ class StaticArray {
   // \details Access (read only) the i-th element of the array. Bound
   // checking is done in debug mode but not in release mode.
   //
-  // il::StaticArray<il::int_t, 4> v{0};
+  // il::StaticArray<il::int_t, 4> v = 0;
   // std::cout << v[0] << std::endl;
   */
   const T& operator[](il::int_t i) const;
@@ -93,7 +93,7 @@ class StaticArray {
   /* \brief Get the size of the il::StaticArray<T, n>
   //
   // il::StaticArray<double, 4> v{};
-  // for (il::int_t i{0}; i < v.size(); ++i) {
+  // for (il::int_t i = 0; i < v.size(); ++i) {
   //     v[i] = 1 / static_cast<double>(i);
   // }
   */
@@ -132,7 +132,7 @@ template <typename T, il::int_t n>
 StaticArray<T, n>::StaticArray() {
   if (std::is_pod<T>::value) {
 #ifdef IL_DEFAULT_VALUE
-    for (il::int_t i{0}; i < n; ++i) {
+    for (il::int_t i = 0; i < n; ++i) {
       data_[i] = il::default_value<T>();
     }
 #endif
@@ -141,7 +141,7 @@ StaticArray<T, n>::StaticArray() {
 
 template <typename T, il::int_t n>
 StaticArray<T, n>::StaticArray(const T& value) {
-  for (il::int_t i{0}; i < n; ++i) {
+  for (il::int_t i = 0; i < n; ++i) {
     data_[i] = value;
   }
 }
@@ -152,7 +152,7 @@ StaticArray<T, n>::StaticArray(il::value_t, std::initializer_list<T> list) {
   if (std::is_pod<T>::value) {
     memcpy(data_, list.begin(), n * sizeof(T));
   } else {
-    for (il::int_t i{0}; i < n; ++i) {
+    for (il::int_t i = 0; i < n; ++i) {
       data_[i] = *(list.begin() + i);
     }
   }

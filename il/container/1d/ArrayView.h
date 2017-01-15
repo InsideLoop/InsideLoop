@@ -60,7 +60,7 @@ class ConstArrayView {
   /* \brief Get the size of the array view
   //
   // il::ConstArrayView<double> v{p, n};
-  // for (il::int_t k{0}; k < v.size(); ++k) {
+  // for (il::int_t k = 0; k < v.size(); ++k) {
   //   std::cout << v[k] << std::endl;
   // }
   */

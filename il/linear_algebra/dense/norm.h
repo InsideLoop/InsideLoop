@@ -101,13 +101,13 @@ inline double norm(const il::Array<double>& x, Norm norm_type, const il::Array<d
 
 template <typename T>
 double norm(const il::Array2D<T>& A, Norm norm_type) {
-  T ans{0};
+  T ans = 0;
 
   switch (norm_type) {
     case Norm::L1: {
-      for (il::int_t j{0}; j < A.size(1); ++j) {
-        T sum_column{0};
-        for (il::int_t i{0}; i < A.size(0); ++i) {
+      for (il::int_t j = 0; j < A.size(1); ++j) {
+        T sum_column = 0;
+        for (il::int_t i = 0; i < A.size(0); ++i) {
           sum_column += il::abs(A(i, j));
         }
         ans = il::max(ans, sum_column);
@@ -115,12 +115,12 @@ double norm(const il::Array2D<T>& A, Norm norm_type) {
     } break;
     case Norm::Linf: {
       il::Array<T> sum_row{A.size(0), 0};
-      for (il::int_t j{0}; j < A.size(1); ++j) {
-        for (il::int_t i{0}; i < A.size(0); ++i) {
+      for (il::int_t j = 0; j < A.size(1); ++j) {
+        for (il::int_t i = 0; i < A.size(0); ++i) {
           sum_row[i] += il::abs(A(i, j));
         }
       }
-      for (il::int_t i{0}; i < sum_row.size(); ++i) {
+      for (il::int_t i = 0; i < sum_row.size(); ++i) {
         ans = il::max(ans, sum_row[i]);
       }
     } break;
@@ -134,17 +134,17 @@ double norm(const il::Array2D<T>& A, Norm norm_type) {
 template <typename T>
 double norm(const il::TriDiagonal<T>& A, Norm norm_type) {
   il::int_t n{A.size()};
-  T ans{0};
+  T ans = 0;
 
   switch (norm_type) {
     case Norm::Linf: {
       il::Array<T> sum_row{n};
       sum_row[0] = il::abs(A(0, 0)) + il::abs(A(0, 1));
-      for (il::int_t i{1}; i < n - 1; ++i) {
+      for (il::int_t i = 1; i < n - 1; ++i) {
         sum_row[i] = il::abs(A(i, -1)) + il::abs(A(i, 0))+ il::abs(A(i, 1));
       }
       sum_row[n - 1] = il::abs(A(n - 1, -1)) + il::abs(A(n - 1, 0));
-      for (il::int_t i{0}; i < sum_row.size(); ++i) {
+      for (il::int_t i = 0; i < sum_row.size(); ++i) {
         ans = il::max(ans, sum_row[i]);
       }
     } break;

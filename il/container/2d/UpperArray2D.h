@@ -70,13 +70,13 @@ UpperArray2D<T>::UpperArray2D(il::int_t n) {
     if (std::is_pod<T>::value) {
       data_ = new T[nb_elements];
 #ifdef IL_DEFAULT_VALUE
-      for (il::int_t k{0}; k < nb_elements; ++k) {
+      for (il::int_t k = 0; k < nb_elements; ++k) {
         data_[k] = il::default_value<T>();
       }
 #endif
     } else {
       data_ = static_cast<T*>(::operator new(nb_elements * sizeof(T)));
-      for (il::int_t k{0}; k < nb_elements; ++k) {
+      for (il::int_t k = 0; k < nb_elements; ++k) {
         new (data_ + k) T{};
       }
     }
@@ -101,7 +101,7 @@ UpperArray2D<T>::UpperArray2D(const UpperArray2D<T>& A) {
       memcpy(data_, A.data_, nb_elements * sizeof(T));
     } else {
       data_ = static_cast<T*>(::operator new(nb_elements * sizeof(T)));
-      for (il::int_t k{0}; k < nb_elements; ++k) {
+      for (il::int_t k = 0; k < nb_elements; ++k) {
         new (data_ + k) T{A.data_[k]};
       }
     }
@@ -155,7 +155,7 @@ UpperArray2D<T>& UpperArray2D<T>::operator=(const UpperArray2D<T>& A) {
           ::operator delete(data_);
         }
         data_ = static_cast<T*>(::operator new(nb_elements * sizeof(T)));
-        for (il::int_t k{0}; k < nb_elements; ++k) {
+        for (il::int_t k = 0; k < nb_elements; ++k) {
           new (data_ + k) T{A.data_[k]};
         }
       }
@@ -169,7 +169,7 @@ UpperArray2D<T>& UpperArray2D<T>::operator=(const UpperArray2D<T>& A) {
       if (std::is_pod<T>::value) {
         memcpy(data_, A.data_, n * sizeof(T));
       } else {
-        for (il::int_t k{0}; k < nb_elements; ++k) {
+        for (il::int_t k = 0; k < nb_elements; ++k) {
           data_[k] = A.data_[k];
         }
         const il::int_t nb_elements_old{(size() * (size() + 1)) / 2};

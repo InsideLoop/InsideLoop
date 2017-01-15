@@ -78,7 +78,7 @@ TEST(Array3D, size_constructor_7) {
 }
 
 TEST(Array3D, size_value_constructor_0) {
-  il::int_t x{9};
+  il::int_t x = 9;
   il::Array3D<il::int_t> A{0, 0, 0, x};
 
   ASSERT_TRUE(A.size(0) == 0 && A.capacity(0) == 0 && A.size(1) == 0 &&
@@ -87,7 +87,7 @@ TEST(Array3D, size_value_constructor_0) {
 }
 
 TEST(Array3D, size_value_constructor_1) {
-  il::int_t x{9};
+  il::int_t x = 9;
   il::Array3D<il::int_t> A{0, 2, 3, x};
 
   ASSERT_TRUE(A.size(0) == 0 && A.capacity(0) == 1 && A.size(1) == 2 &&
@@ -95,7 +95,7 @@ TEST(Array3D, size_value_constructor_1) {
 }
 
 TEST(Array3D, size_value_constructor_2) {
-  il::int_t x{9};
+  il::int_t x = 9;
   il::Array3D<il::int_t> A{1, 0, 3, x};
 
   ASSERT_TRUE(A.size(0) == 1 && A.capacity(0) == 1 && A.size(1) == 0 &&
@@ -103,7 +103,7 @@ TEST(Array3D, size_value_constructor_2) {
 }
 
 TEST(Array3D, size_value_constructor_3) {
-  il::int_t x{9};
+  il::int_t x = 9;
   il::Array3D<il::int_t> A{1, 2, 0, x};
 
   ASSERT_TRUE(A.size(0) == 1 && A.capacity(0) == 1 && A.size(1) == 2 &&
@@ -111,7 +111,7 @@ TEST(Array3D, size_value_constructor_3) {
 }
 
 TEST(Array3D, size_value_constructor_4) {
-  il::int_t x{9};
+  il::int_t x = 9;
   il::Array3D<il::int_t> A{1, 0, 0, x};
 
   ASSERT_TRUE(A.size(0) == 1 && A.capacity(0) == 1 && A.size(1) == 0 &&
@@ -119,7 +119,7 @@ TEST(Array3D, size_value_constructor_4) {
 }
 
 TEST(Array3D, size_value_constructor_5) {
-  il::int_t x{9};
+  il::int_t x = 9;
   il::Array3D<il::int_t> A{0, 2, 0, x};
 
   ASSERT_TRUE(A.size(0) == 0 && A.capacity(0) == 1 && A.size(1) == 2 &&
@@ -127,7 +127,7 @@ TEST(Array3D, size_value_constructor_5) {
 }
 
 TEST(Array3D, size_value_constructor_6) {
-  il::int_t x{9};
+  il::int_t x = 9;
   il::Array3D<il::int_t> A{0, 0, 3, x};
 
   ASSERT_TRUE(A.size(0) == 0 && A.capacity(0) == 1 && A.size(1) == 0 &&
@@ -135,7 +135,7 @@ TEST(Array3D, size_value_constructor_6) {
 }
 
 TEST(Array3D, size_value_constructor_7) {
-  il::int_t x{9};
+  il::int_t x = 9;
   il::Array3D<il::int_t> A{1, 2, 3, x};
 
   ASSERT_TRUE(A.size(0) == 1 && A.capacity(0) == 1 && A.size(1) == 2 &&
@@ -143,16 +143,16 @@ TEST(Array3D, size_value_constructor_7) {
 }
 
 TEST(Array3D, size_value_constructor_8) {
-  const il::int_t n0{2};
-  const il::int_t n1{3};
-  const il::int_t n2{4};
-  const il::int_t x{9};
+  const il::int_t n0 = 2;
+  const il::int_t n1 = 3;
+  const il::int_t n2 = 4;
+  const il::int_t x = 9;
   il::Array3D<il::int_t> A{n0, n1, n2, x};
 
   bool correct_elements{true};
-  for (il::int_t k{0}; k < n2; ++k) {
-    for (il::int_t j{0}; j < n1; ++j) {
-      for (il::int_t i{0}; i < n0; ++i) {
+  for (il::int_t k = 0; k < n2; ++k) {
+    for (il::int_t j = 0; j < n1; ++j) {
+      for (il::int_t i = 0; i < n0; ++i) {
         if (A(i, j, k) != x) {
           correct_elements = false;
         }
@@ -198,13 +198,13 @@ TEST(Array3D, initializer_list_constructor_3) {
 }
 
 TEST(Array3D, copy_constructor) {
-  const il::int_t n0{2};
-  const il::int_t n1{3};
-  const il::int_t n2{4};
+  const il::int_t n0 = 2;
+  const il::int_t n1 = 3;
+  const il::int_t n2 = 4;
   il::Array3D<il::int_t> A{n0, n1, n2};
-  for (il::int_t k{0}; k < n2; ++k) {
-    for (il::int_t j{0}; j < n1; ++j) {
-      for (il::int_t i{0}; i < n0; ++i) {
+  for (il::int_t k = 0; k < n2; ++k) {
+    for (il::int_t j = 0; j < n1; ++j) {
+      for (il::int_t i = 0; i < n0; ++i) {
         A(i, j, k) = i + 17 * j + 23 * k;
       }
     }
@@ -213,9 +213,9 @@ TEST(Array3D, copy_constructor) {
 
   il::Array3D<il::int_t> B{A};
   bool same_elements{true};
-  for (il::int_t k{0}; k < n2; ++k) {
-    for (il::int_t j{0}; j < n1; ++j) {
-      for (il::int_t i{0}; i < n0; ++i) {
+  for (il::int_t k = 0; k < n2; ++k) {
+    for (il::int_t j = 0; j < n1; ++j) {
+      for (il::int_t i = 0; i < n0; ++i) {
         if (B(i, j, k) != i + 17 * j + 23 * k) {
           same_elements = false;
         }
@@ -229,13 +229,13 @@ TEST(Array3D, copy_constructor) {
 }
 
 TEST(Array3D, move_constructor) {
-  const il::int_t n0{2};
-  const il::int_t n1{3};
-  const il::int_t n2{4};
+  const il::int_t n0 = 2;
+  const il::int_t n1 = 3;
+  const il::int_t n2 = 4;
   il::Array3D<il::int_t> A{n0, n1, n2};
-  for (il::int_t k{0}; k < n2; ++k) {
-    for (il::int_t j{0}; j < n1; ++j) {
-      for (il::int_t i{0}; i < n0; ++i) {
+  for (il::int_t k = 0; k < n2; ++k) {
+    for (il::int_t j = 0; j < n1; ++j) {
+      for (il::int_t i = 0; i < n0; ++i) {
         A(i, j, k) = i + 17 * j + 23 * k;
       }
     }
@@ -245,9 +245,9 @@ TEST(Array3D, move_constructor) {
 
   il::Array3D<il::int_t> B{std::move(A)};
   bool same_elements{true};
-  for (il::int_t k{0}; k < n2; ++k) {
-    for (il::int_t j{0}; j < n1; ++j) {
-      for (il::int_t i{0}; i < n0; ++i) {
+  for (il::int_t k = 0; k < n2; ++k) {
+    for (il::int_t j = 0; j < n1; ++j) {
+      for (il::int_t i = 0; i < n0; ++i) {
         if (B(i, j, k) != i + 17 * j + 23 * k) {
           same_elements = false;
         }
@@ -264,13 +264,13 @@ TEST(Array3D, move_constructor) {
 }
 
 TEST(Array3D, copy_assignment_0) {
-  const il::int_t n0{2};
-  const il::int_t n1{3};
-  const il::int_t n2{4};
+  const il::int_t n0 = 2;
+  const il::int_t n1 = 3;
+  const il::int_t n2 = 4;
   il::Array3D<il::int_t> A{n0, n1, n2};
-  for (il::int_t k{0}; k < n2; ++k) {
-    for (il::int_t j{0}; j < n1; ++j) {
-      for (il::int_t i{0}; i < n0; ++i) {
+  for (il::int_t k = 0; k < n2; ++k) {
+    for (il::int_t j = 0; j < n1; ++j) {
+      for (il::int_t i = 0; i < n0; ++i) {
         A(i, j, k) = i + 17 * j + 23 * k;
       }
     }
@@ -280,9 +280,9 @@ TEST(Array3D, copy_assignment_0) {
   il::Array3D<il::int_t> B{};
   B = A;
   bool same_elements{true};
-  for (il::int_t k{0}; k < n2; ++k) {
-    for (il::int_t j{0}; j < n1; ++j) {
-      for (il::int_t i{0}; i < n0; ++i) {
+  for (il::int_t k = 0; k < n2; ++k) {
+    for (il::int_t j = 0; j < n1; ++j) {
+      for (il::int_t i = 0; i < n0; ++i) {
         if (B(i, j, k) != i + 17 * j + 23 * k) {
           same_elements = false;
         }
@@ -296,13 +296,13 @@ TEST(Array3D, copy_assignment_0) {
 }
 
 TEST(Array3D, copy_assignment_1) {
-  const il::int_t n0{2};
-  const il::int_t n1{3};
-  const il::int_t n2{4};
+  const il::int_t n0 = 2;
+  const il::int_t n1 = 3;
+  const il::int_t n2 = 4;
   il::Array3D<il::int_t> A{n0, n1, n2};
-  for (il::int_t k{0}; k < n2; ++k) {
-    for (il::int_t j{0}; j < n1; ++j) {
-      for (il::int_t i{0}; i < n0; ++i) {
+  for (il::int_t k = 0; k < n2; ++k) {
+    for (il::int_t j = 0; j < n1; ++j) {
+      for (il::int_t i = 0; i < n0; ++i) {
         A(i, j, k) = i + 17 * j + 23 * k;
       }
     }
@@ -312,9 +312,9 @@ TEST(Array3D, copy_assignment_1) {
   il::Array3D<il::int_t> B{3 * n0, 3 * n1, 3 * n2};
   B = A;
   bool same_elements{true};
-  for (il::int_t k{0}; k < n2; ++k) {
-    for (il::int_t j{0}; j < n1; ++j) {
-      for (il::int_t i{0}; i < n0; ++i) {
+  for (il::int_t k = 0; k < n2; ++k) {
+    for (il::int_t j = 0; j < n1; ++j) {
+      for (il::int_t i = 0; i < n0; ++i) {
         if (B(i, j, k) != i + 17 * j + 23 * k) {
           same_elements = false;
         }
@@ -359,13 +359,13 @@ TEST(Array3D, copy_assignment_object_1) {
 }
 
 TEST(Array3D, move_assignment) {
-  const il::int_t n0{2};
-  const il::int_t n1{3};
-  const il::int_t n2{4};
+  const il::int_t n0 = 2;
+  const il::int_t n1 = 3;
+  const il::int_t n2 = 4;
   il::Array3D<il::int_t> A{n0, n1, n2};
-  for (il::int_t k{0}; k < n2; ++k) {
-    for (il::int_t j{0}; j < n1; ++j) {
-      for (il::int_t i{0}; i < n0; ++i) {
+  for (il::int_t k = 0; k < n2; ++k) {
+    for (il::int_t j = 0; j < n1; ++j) {
+      for (il::int_t i = 0; i < n0; ++i) {
         A(i, j, k) = i + 17 * j + 23 * k;
       }
     }
@@ -376,9 +376,9 @@ TEST(Array3D, move_assignment) {
   il::Array3D<il::int_t> B{3 * n0, 3 * n1, 3 * n2};
   B = std::move(A);
   bool same_elements{true};
-  for (il::int_t k{0}; k < n2; ++k) {
-    for (il::int_t j{0}; j < n1; ++j) {
-      for (il::int_t i{0}; i < n0; ++i) {
+  for (il::int_t k = 0; k < n2; ++k) {
+    for (il::int_t j = 0; j < n1; ++j) {
+      for (il::int_t i = 0; i < n0; ++i) {
         if (B(i, j, k) != i + 17 * j + 23 * k) {
           same_elements = false;
         }
@@ -419,9 +419,9 @@ TEST(Array3D, destructor_object) {
 
 TEST(Array3D, bounds_checking) {
   bool test_passed{true};
-  const il::int_t n0{2};
-  const il::int_t n1{3};
-  const il::int_t n2{4};
+  const il::int_t n0 = 2;
+  const il::int_t n1 = 3;
+  const il::int_t n2 = 4;
   il::Array3D<double> A{n0, n1, n2};
   bool local_test_passed;
 
@@ -538,9 +538,9 @@ TEST(Array3D, bounds_checking_default) {
 
 TEST(Array3D, bounds_checking_const) {
   bool test_passed{true};
-  const il::int_t n0{2};
-  const il::int_t n1{3};
-  const il::int_t n2{4};
+  const il::int_t n0 = 2;
+  const il::int_t n1 = 3;
+  const il::int_t n2 = 4;
   const il::Array3D<double> A{n0, n1, n2};
   bool local_test_passed;
 
@@ -738,9 +738,9 @@ TEST(Array3D, resize_object_1) {
 }
 
 TEST(Array3D, reserve_0) {
-  const il::int_t n0{3};
-  const il::int_t n1{4};
-  const il::int_t n2{5};
+  const il::int_t n0 = 3;
+  const il::int_t n1 = 4;
+  const il::int_t n2 = 5;
   il::Array3D<il::int_t> A{n0, n1, n2};
   const il::int_t* const old_A_data{A.data()};
   A.reserve(n0 - 1, n1 - 1, n2 - 1);

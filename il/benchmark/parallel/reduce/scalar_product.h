@@ -39,9 +39,9 @@ void scalar_product() {
     auto scalar_product_serial = [&n](il::io_t, il::BState& state) {
       il::Array<float> v1{n, 0.0};
       il::Array<float> v2{n, 0.0};
-      float sum{0.0};
+      float sum = 0.0;
       while (state.keep_running()) {
-        for (il::int_t k{0}; k < v2.size(); ++k) {
+        for (il::int_t k = 0; k < v2.size(); ++k) {
           sum += v1[k] * v2[k];
         }
       }
@@ -55,13 +55,13 @@ void scalar_product() {
       il::Array<float> v2{n, 0.0};
       float* v1_data{v1.data()};
       float* v2_data{v2.data()};
-      float sum{0.0};
+      float sum = 0.0;
       while (state.keep_running()) {
         __m128 res;
         __m128 prd;
         __m128 ma;
         __m128 mb;
-        for (std::size_t k{0}; k < n; k += 4) {
+        for (std::size_t k = 0; k < n; k += 4) {
           ma = _mm_loadu_ps(&v1_data[k]);
           mb = _mm_loadu_ps(&v2_data[k]);
           prd = _mm_mul_ps(ma, mb);
@@ -82,10 +82,10 @@ void scalar_product() {
     auto scalar_product_openmp = [&n](il::io_t, il::BState& state) {
       il::Array<float> v1{n, 0.0};
       il::Array<float> v2{n, 0.0};
-      float sum{0.0};
+      float sum = 0.0;
       while (state.keep_running()) {
 #pragma omp parallel for reduction(+ : sum)
-        for (il::int_t k{0}; k < v2.size(); ++k) {
+        for (il::int_t k = 0; k < v2.size(); ++k) {
           sum += v1[k] * v2[k];
         }
       }
@@ -100,7 +100,7 @@ void scalar_product() {
     auto scalar_product_tbb = [&n](il::io_t, il::BState& state) {
       il::Array<float> v1{n, 0.0};
       il::Array<float> v2{n, 0.0};
-      float sum{0.0};
+      float sum = 0.0;
       while (state.keep_running()) {
         sum += tbb::parallel_reduce(
             tbb::blocked_range<il::int_t>(0, n), float{0.0},
@@ -124,10 +124,10 @@ void scalar_product() {
     auto scalar_product_cilk = [&n](il::io_t, il::BState& state) {
       il::Array<float> v1{n, 0.0};
       il::Array<float> v2{n, 0.0};
-      float sum{0.0};
+      float sum = 0.0;
       while (state.keep_running()) {
         cilk::reducer_opadd<float> sum{0.0};
-        cilk_for(il::int_t k{0}; k < n; ++k) { sum += v1[k] * v2[k]; }
+        cilk_for(il::int_t k = 0; k < n; ++k) { sum += v1[k] * v2[k]; }
         sum += float{sum.get_value()};
       }
       il::do_not_optimize(sum);

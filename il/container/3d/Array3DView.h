@@ -54,9 +54,9 @@ class ConstArray3DView {
   /* \brief Get the size of the array view
   //
   // il::ConstArray3DView<double> v{data, n, p, q, p, q};
-  // for (il::int_t i{0}; i < v.size(0); ++i) {
-  //   for (il::int_t j{0}; j < v.size(1); ++j) {
-  //     for (il::int_t k{0}; k < v.size(2); ++k) {
+  // for (il::int_t i = 0; i < v.size(0); ++i) {
+  //   for (il::int_t j = 0; j < v.size(1); ++j) {
+  //     for (il::int_t k = 0; k < v.size(2); ++k) {
   //       A(i, j, k) = 1.0 / (i + j + k + 3);
   //     }
   //   }

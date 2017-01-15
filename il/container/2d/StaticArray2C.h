@@ -88,8 +88,8 @@ class StaticArray2C {
 
   /* \brief Get the size of the il::StaticArray2C<T, n0, n1>
   //
-  // for (il::int_t i{0}; i < v.size(0); ++i) {
-  //   for (il::int_t j{0}; j < v.size(1); ++j) {
+  // for (il::int_t i = 0; i < v.size(0); ++i) {
+  //   for (il::int_t j = 0; j < v.size(1); ++j) {
   //     A(i, j) = 1.0 / (i + j + 2);
   //   }
   // }
@@ -112,7 +112,7 @@ template <typename T, il::int_t n0, il::int_t n1>
 StaticArray2C<T, n0, n1>::StaticArray2C() {
   if (std::is_pod<T>::value) {
 #ifdef IL_DEFAULT_VALUE
-    for (il::int_t k{0}; k < n0 * n1; ++k) {
+    for (il::int_t k = 0; k < n0 * n1; ++k) {
       data_[k] = il::default_value<T>();
     }
 #endif
@@ -121,7 +121,7 @@ StaticArray2C<T, n0, n1>::StaticArray2C() {
 
 template <typename T, il::int_t n0, il::int_t n1>
 StaticArray2C<T, n0, n1>::StaticArray2C(const T& value) {
-  for (il::int_t k{0}; k < n0 * n1; ++k) {
+  for (il::int_t k = 0; k < n0 * n1; ++k) {
     data_[k] = value;
   }
 }

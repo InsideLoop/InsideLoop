@@ -144,6 +144,7 @@ set(SOURCE_FILES
     il/linear_algebra.h
     il/LowerArray2D.h
     il/math.h
+    il/norm.h
     il/SmallArray.h
     il/SparseMatrixCSR.h
     il/StaticArray.h
@@ -192,11 +193,8 @@ set(SOURCE_FILES
     il/io/format/format.cc
     il/linear_algebra/dense/blas/blas.h
     il/linear_algebra/dense/blas/dot.h
+    il/linear_algebra/dense/norm.h
     il/linear_algebra/dense/factorization/linear_solve.h
-    il/linear_algebra/dense/blas/norm.h
-    il/linear_algebra/dense/blas/blas.h
-    il/linear_algebra/dense/blas/dot.h
-    il/linear_algebra/dense/blas/norm.h
     il/linear_algebra/dense/factorization/LU.h
     il/linear_algebra/dense/factorization/Cholesky.h
     il/linear_algebra/dense/factorization/Householder.h
@@ -231,6 +229,8 @@ set(UNIT_TEST_FILES
     il/container/2d/_test/Array2D_test.cpp
     il/container/2d/_test/Array2C_test.cpp
     il/container/3d/_test/Array3D_test.cpp
+    il/container/string/_test/String_test.cpp
+    il/linear_algebra/dense/_test/norm_test.cpp
     il/linear_algebra/dense/blas/_test/blas_test.cpp
     il/linear_algebra/dense/blas/_test/linear_solve_test.cpp
     il/linear_algebra/dense/blas/_test/dot_test.cpp

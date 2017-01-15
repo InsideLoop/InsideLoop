@@ -31,8 +31,8 @@ static void BM_LU_MKL(benchmark::State& state) {
 
     const il::int_t n{state.range_x()};
     il::Array2D<double> A{n, n};
-    for (il::int_t i{0}; i < n; ++i) {
-      for (il::int_t j{0}; j < n; ++j) {
+    for (il::int_t i = 0; i < n; ++i) {
+      for (il::int_t j = 0; j < n; ++j) {
         A(i, j) = normal(generator);
       }
     }
@@ -53,8 +53,8 @@ static void BM_LU_MKL_ALIGN(benchmark::State& state) {
 
     const il::int_t n{state.range_x()};
     il::Array2D<double> A{n, n, il::align, 256, 0};
-    for (il::int_t i{0}; i < n; ++i) {
-      for (il::int_t j{0}; j < n; ++j) {
+    for (il::int_t i = 0; i < n; ++i) {
+      for (il::int_t j = 0; j < n; ++j) {
         A(i, j) = normal(generator);
       }
     }

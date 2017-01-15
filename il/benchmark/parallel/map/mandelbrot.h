@@ -80,15 +80,15 @@
 
 namespace il {
 
-// const float x_left{-1.0};
-// const float x_right{2.0};
-// const float y_bottom{-1.5};
-// const float y_top{1.5};
+// const float x_left = -1.0;
+// const float x_right = 2.0;
+// const float y_bottom = -1.5;
+// const float y_top = 1.5;
 //
-// const il::int_t nx{10000};
-// const il::int_t ny{10000};
+// const il::int_t nx = 10000;
+// const il::int_t ny = 10000;
 //
-// const int depth{50};
+// const int depth = 50;
 
 // Mandelbrot set: No threads, no vectorization
 //
@@ -105,13 +105,13 @@ double time_mandelbrot_serial_serial(float x_left, float x_right,
   }
 
   il::Timer timer{};
-  for (il::int_t ky{0}; ky < ny; ++ky) {
+  for (il::int_t ky = 0; ky < ny; ++ky) {
     float y{y_top - ky * dy};
-    for (il::int_t kx{0}; kx < nx; ++kx) {
+    for (il::int_t kx = 0; kx < nx; ++kx) {
       float x{x_left + kx * dx};
-      float z_re{0.0};
-      float z_im{0.0};
-      int count{0};
+      float z_re = 0.0;
+      float z_im = 0.0;
+      int count = 0;
       while (count < depth) {
         if (z_re * z_re + z_im * z_im > 4.0) {
           break;
@@ -146,13 +146,13 @@ double time_mandelbrot_openmp_serial(float x_left, float x_right,
 
   il::Timer timer{};
 #pragma omp parallel for schedule(dynamic)
-  for (il::int_t ky{0}; ky < ny; ++ky) {
+  for (il::int_t ky = 0; ky < ny; ++ky) {
     auto y = float{y_top - ky * dy};
-    for (il::int_t kx{0}; kx < nx; ++kx) {
+    for (il::int_t kx = 0; kx < nx; ++kx) {
       float x{x_left + kx * dx};
-      float z_re{0.0};
-      float z_im{0.0};
-      int count{0};
+      float z_re = 0.0;
+      float z_im = 0.0;
+      int count = 0;
       while (count < depth) {
         if (z_re * z_re + z_im * z_im > 4.0) {
           break;
@@ -187,14 +187,14 @@ double time_mandelbrot_openmp_openmp(float x_left, float x_right,
 
   il::Timer timer{};
 #pragma omp parallel for schedule(dynamic)
-  for (il::int_t ky{0}; ky < ny; ++ky) {
+  for (il::int_t ky = 0; ky < ny; ++ky) {
     float y{y_top - ky * dy};
 #pragma omp simd
-    for (il::int_t kx{0}; kx < nx; ++kx) {
+    for (il::int_t kx = 0; kx < nx; ++kx) {
       float x{x_left + kx * dx};
-      float z_re{0.0};
-      float z_im{0.0};
-      int count{0};
+      float z_re = 0.0;
+      float z_im = 0.0;
+      int count = 0;
       while (count < depth) {
         if (z_re * z_re + z_im * z_im > 4.0) {
           break;
@@ -233,11 +233,11 @@ double time_mandelbrot_tbb_serial(float x_left, float x_right, float y_bottom,
                       for (il::int_t ky{range.begin()}; ky < range.end();
                            ++ky) {
                         float y{y_top - ky * dy};
-                        for (il::int_t kx{0}; kx < nx; ++kx) {
+                        for (il::int_t kx = 0; kx < nx; ++kx) {
                           float x{x_left + kx * dx};
-                          float z_re{0.0};
-                          float z_im{0.0};
-                          int count{0};
+                          float z_re = 0.0;
+                          float z_im = 0.0;
+                          int count = 0;
                           while (count < depth) {
                             if (z_re * z_re + z_im * z_im > 4.0) {
                               break;
@@ -279,11 +279,11 @@ double time_mandelbrot_tbb_openmp(float x_left, float x_right, float y_bottom,
                            ++ky) {
                         float y{y_top - ky * dy};
 #pragma omp simd
-                        for (il::int_t kx{0}; kx < nx; ++kx) {
+                        for (il::int_t kx = 0; kx < nx; ++kx) {
                           float x{x_left + kx * dx};
-                          float z_re{0.0};
-                          float z_im{0.0};
-                          int count{0};
+                          float z_re = 0.0;
+                          float z_im = 0.0;
+                          int count = 0;
                           while (count < depth) {
                             if (z_re * z_re + z_im * z_im > 4.0) {
                               break;
@@ -319,13 +319,13 @@ double time_mandelbrot_cilk_serial(float x_left, float x_right, float y_bottom,
   }
 
   il::SimpleTimer timer{};
-  cilk_for(il::int_t ky{0}; ky < ny; ++ky) {
+  cilk_for(il::int_t ky = 0; ky < ny; ++ky) {
     float y{y_top - ky * dy};
-    for (il::int_t kx{0}; kx < nx; ++kx) {
+    for (il::int_t kx = 0; kx < nx; ++kx) {
       float x{x_left + kx * dx};
-      float z_re{0.0};
-      float z_im{0.0};
-      int count{0};
+      float z_re = 0.0;
+      float z_im = 0.0;
+      int count = 0;
       while (count < depth) {
         if (z_re * z_re + z_im * z_im > 4.0) {
           break;
@@ -360,14 +360,14 @@ double time_mandelbrot_cilk_openmp(float x_left, float x_right, float y_bottom,
   }
 
   il::SimpleTimer timer{};
-  cilk_for(il::int_t ky{0}; ky < ny; ++ky) {
+  cilk_for(il::int_t ky = 0; ky < ny; ++ky) {
     float y{y_top - ky * dy};
 #pragma omp simd
-    for (il::int_t kx{0}; kx < nx; ++kx) {
+    for (il::int_t kx = 0; kx < nx; ++kx) {
       float x{x_left + kx * dx};
-      float z_re{0.0};
-      float z_im{0.0};
-      int count{0};
+      float z_re = 0.0;
+      float z_im = 0.0;
+      int count = 0;
       while (count < depth) {
         if (z_re * z_re + z_im * z_im > 4.0) {
           break;
@@ -402,14 +402,14 @@ double time_mandelbrot_cilk_cilk(float x_left, float x_right, float y_bottom,
   }
 
   il::SimpleTimer timer{};
-  cilk_for(il::int_t ky{0}; ky < ny; ++ky) {
+  cilk_for(il::int_t ky = 0; ky < ny; ++ky) {
     float y{y_top - ky * dy};
 #pragma simd
-    for (il::int_t kx{0}; kx < nx; ++kx) {
+    for (il::int_t kx = 0; kx < nx; ++kx) {
       float x{x_left + kx * dx};
-      float z_re{0.0};
-      float z_im{0.0};
-      int count{0};
+      float z_re = 0.0;
+      float z_im = 0.0;
+      int count = 0;
       while (count < depth) {
         if (z_re * z_re + z_im * z_im > 4.0) {
           break;

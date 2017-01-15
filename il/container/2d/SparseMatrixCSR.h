@@ -14,7 +14,7 @@
 #include <il/Array2C.h>
 #include <il/SmallArray.h>
 #include <il/StaticArray.h>
-#include <il/linear_algebra/dense/blas/norm.h>
+#include <il/linear_algebra/dense/norm.h>
 #include <il/math.h>
 
 namespace il {
@@ -93,16 +93,16 @@ SparseMatrixCSR<Index, T>::SparseMatrixCSR(
     il::int_t width, il::int_t height,
     const il::Array<il::SmallArray<Index, n>> &column)
     : n1_{width}, n0_{height}, element_{}, column_{}, row_{height + 1} {
-  Index nb_nonzero{0};
-  for (Index i{0}; i < column.size(); ++i) {
+  Index nb_nonzero = 0;
+  for (Index i = 0; i < column.size(); ++i) {
     nb_nonzero += column[i].size();
   }
 
   element_.resize(nb_nonzero);
   column_.resize(nb_nonzero);
   row_[0] = 0;
-  for (Index i{0}; i < column.size(); ++i) {
-    for (Index k{0}; k < column[i].size(); ++k) {
+  for (Index i = 0; i < column.size(); ++i) {
+    for (Index k = 0; k < column[i].size(); ++k) {
       column_[row_[i] + k] = column[i][k];
     }
     row_[i + 1] = row_[i] + column[i].size();

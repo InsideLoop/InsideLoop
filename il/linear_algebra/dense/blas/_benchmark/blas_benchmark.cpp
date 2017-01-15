@@ -28,8 +28,8 @@ static void BM_LU_ARRAY2D_NOTALIGNED(benchmark::State& state) {
     il::Array2D<double> A{n, n};
     il::Array2D<double> B{n, n};
     il::Array2D<double> C{n, n};
-    for (il::int_t i{0}; i < n; ++i) {
-      for (il::int_t j{0}; j < n; ++j) {
+    for (il::int_t i = 0; i < n; ++i) {
+      for (il::int_t j = 0; j < n; ++j) {
         A(i, j) = 0.0;
         B(i, j) = 0.0;
         C(i, j) = 0.0;
@@ -47,8 +47,8 @@ static void BM_LU_ARRAY2D(benchmark::State& state) {
     il::Array2D<double> A{n, n, il::align, 256, 0};
     il::Array2D<double> B{n, n, il::align, 256, 0};
     il::Array2D<double> C{n, n, il::align, 256, 0};
-    for (il::int_t i{0}; i < n; ++i) {
-      for (il::int_t j{0}; j < n; ++j) {
+    for (il::int_t i = 0; i < n; ++i) {
+      for (il::int_t j = 0; j < n; ++j) {
         A(i, j) = 0.0;
         B(i, j) = 0.0;
         C(i, j) = 0.0;
@@ -66,8 +66,8 @@ static void BM_LU_ARRAY2D_SHIFT(benchmark::State& state) {
     il::Array2D<double> A{n, n, il::align, 256, 0};
     il::Array2D<double> B{n, n, il::align, 256, 128};
     il::Array2D<double> C{n, n, il::align, 256, 64};
-    for (il::int_t i{0}; i < n; ++i) {
-      for (il::int_t j{0}; j < n; ++j) {
+    for (il::int_t i = 0; i < n; ++i) {
+      for (il::int_t j = 0; j < n; ++j) {
         A(i, j) = 0.0;
         B(i, j) = 0.0;
         C(i, j) = 0.0;

@@ -155,9 +155,9 @@ class Array3D {
   // optimizations from the compiler, including automatic vectorization.
   //
   // il::Array3D<double> A{n, p, q};
-  // for (il::int_t i{0}; i < v.size(0); ++i) {
-  //   for (il::int_t j{0}; j < v.size(1); ++j) {
-  //     for (il::int_t k{0}; k < v.size(2); ++k) {
+  // for (il::int_t i = 0; i < v.size(0); ++i) {
+  //   for (il::int_t j = 0; j < v.size(1); ++j) {
+  //     for (il::int_t k = 0; k < v.size(2); ++k) {
   //       A(i, j, k) = 1.0 / (i + j + k + 3);
   //     }
   //   }
@@ -497,9 +497,9 @@ Array3D<T>::Array3D(
   if (r > 0) {
     if (std::is_pod<T>::value) {
       data_ = new T[r];
-      for (il::int_t i2{0}; i2 < n2; ++i2) {
+      for (il::int_t i2 = 0; i2 < n2; ++i2) {
         IL_ASSERT(static_cast<il::int_t>((list.begin() + i2)->size()) == n1);
-        for (il::int_t i1{0}; i1 < n1; ++i1) {
+        for (il::int_t i1 = 0; i1 < n1; ++i1) {
           IL_ASSERT(static_cast<il::int_t>(
                         ((list.begin() + i2)->begin() + i1)->size()) == n0);
           memcpy(data_ + (i2 * r1 + i1) * r0,
@@ -508,12 +508,12 @@ Array3D<T>::Array3D(
       }
     } else {
       data_ = static_cast<T*>(::operator new(r * sizeof(T)));
-      for (il::int_t i2{0}; i2 < n2; ++i2) {
+      for (il::int_t i2 = 0; i2 < n2; ++i2) {
         IL_ASSERT(static_cast<il::int_t>((list.begin() + i2)->size()) == n1);
-        for (il::int_t i1{0}; i1 < n1; ++i1) {
+        for (il::int_t i1 = 0; i1 < n1; ++i1) {
           IL_ASSERT(static_cast<il::int_t>(
                         ((list.begin() + i2)->begin() + i1)->size()) == n0);
-          for (il::int_t i0{0}; i1 < n0; ++i0) {
+          for (il::int_t i0 = 0; i1 < n0; ++i0) {
             new (data_ + (i2 * r1 + i1) * r0 + i0)
                 T(*(((list.begin() + i2)->begin() + i1)->begin() + i0));
           }
@@ -566,17 +566,17 @@ Array3D<T>::Array3D(const Array3D<T>& A) {
   il::int_t r = r0 * r1 * r2;
   if (std::is_pod<T>::value) {
     data_ = new T[r];
-    for (il::int_t i2{0}; i2 < n2; ++i2) {
-      for (il::int_t i1{0}; i1 < n1; ++i1) {
+    for (il::int_t i2 = 0; i2 < n2; ++i2) {
+      for (il::int_t i1 = 0; i1 < n1; ++i1) {
         memcpy(data_ + (i2 * r1 + i1) * r0,
                A.data_ + i2 * A.stride(2) + i1 * A.stride(1), n0 * sizeof(T));
       }
     }
   } else {
     data_ = static_cast<T*>(::operator new(r * sizeof(T)));
-    for (il::int_t i2{0}; i2 < n2; ++i2) {
-      for (il::int_t i1{0}; i1 < n1; ++i1) {
-        for (il::int_t i0{0}; i0 < n0; ++i0) {
+    for (il::int_t i2 = 0; i2 < n2; ++i2) {
+      for (il::int_t i1 = 0; i1 < n1; ++i1) {
+        for (il::int_t i0 = 0; i0 < n0; ++i0) {
           new (data_ + (i2 * r1 + i1) * r0) T(A(i0, i1, i2));
         }
       }
@@ -672,8 +672,8 @@ Array3D<T>& Array3D<T>::operator=(const Array3D<T>& A) {
           delete[] data_;
         }
         data_ = new T[r];
-        for (il::int_t i2{0}; i2 < n2; ++i2) {
-          for (il::int_t i1{0}; i1 < n1; ++i1) {
+        for (il::int_t i2 = 0; i2 < n2; ++i2) {
+          for (il::int_t i1 = 0; i1 < n1; ++i1) {
             memcpy(data_ + (i2 * r1 + i1) * r0,
                    A.data_ + i2 * A.stride(2) + i1 * A.stride(1),
                    n0 * sizeof(T));
@@ -691,9 +691,9 @@ Array3D<T>& Array3D<T>::operator=(const Array3D<T>& A) {
           ::operator delete(data_);
         }
         data_ = static_cast<T*>(::operator new(r * sizeof(T)));
-        for (il::int_t i2{0}; i2 < n2; ++i2) {
-          for (il::int_t i1{0}; i1 < n1; ++i1) {
-            for (il::int_t i0{0}; i0 < n0; ++i0) {
+        for (il::int_t i2 = 0; i2 < n2; ++i2) {
+          for (il::int_t i1 = 0; i1 < n1; ++i1) {
+            for (il::int_t i0 = 0; i0 < n0; ++i0) {
               new (data_ + (i2 * r1 + i1) * r0 + i0) T(A(i0, i1, i2));
             }
           }
@@ -715,17 +715,17 @@ Array3D<T>& Array3D<T>::operator=(const Array3D<T>& A) {
       capacity_[2] = data_ + r2;
     } else {
       if (std::is_pod<T>::value) {
-        for (il::int_t i2{0}; i2 < n2; ++i2) {
-          for (il::int_t i1{0}; i1 < n1; ++i1) {
+        for (il::int_t i2 = 0; i2 < n2; ++i2) {
+          for (il::int_t i1 = 0; i1 < n1; ++i1) {
             memcpy(data_ + i2 * stride(2) + i1 * stride(1),
                    A.data_ + i2 * A.stride(2) + i1 * A.stride(1),
                    n0 * sizeof(T));
           }
         }
       } else {
-        for (il::int_t i2{0}; i2 < n2; ++i2) {
-          for (il::int_t i1{0}; i1 < n1; ++i1) {
-            for (il::int_t i0{0}; i0 < n0; ++i0) {
+        for (il::int_t i2 = 0; i2 < n2; ++i2) {
+          for (il::int_t i1 = 0; i1 < n1; ++i1) {
+            for (il::int_t i0 = 0; i0 < n0; ++i0) {
               data_[i2 * stride(2) + i1 * stride(1) + i0] = A(i0, i1, i2);
             }
           }
@@ -872,8 +872,8 @@ void Array3D<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2) {
   if (n0 <= capacity(0) && n1 <= capacity(1) && n2 <= capacity(2)) {
     if (std::is_pod<T>::value) {
 #ifdef IL_DEFAULT_VALUE
-      for (il::int_t i2{0}; i2 < n2; ++i2) {
-        for (il::int_t i1{0}; i1 < n1; ++i1) {
+      for (il::int_t i2 = 0; i2 < n2; ++i2) {
+        for (il::int_t i1 = 0; i1 < n1; ++i1) {
           for (il::int_t i0{i2 < size(2) && i1 < size(1) ? size(0) : 0};
                i0 < n0; ++i0) {
             data_[i2 * stride(2) + i1 * stride(1) + i0] =
@@ -891,8 +891,8 @@ void Array3D<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2) {
           }
         }
       }
-      for (il::int_t i2{0}; i2 < n2; ++i2) {
-        for (il::int_t i1{0}; i1 < n1; ++i1) {
+      for (il::int_t i2 = 0; i2 < n2; ++i2) {
+        for (il::int_t i1 = 0; i1 < n1; ++i1) {
           for (il::int_t i0{i2 < size(2) && i1 < size(1) ? size(0) : 0};
                i0 < n0; ++i0) {
             new (data_ + i2 * stride(2) + i1 * stride(1) + i0) T{};
@@ -926,8 +926,8 @@ void Array3D<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2) {
     }
     if (data_) {
       if (std::is_pod<T>::value) {
-        for (il::int_t i2{0}; i2 < (n2 < n2_old ? n2 : n2_old); ++i2) {
-          for (il::int_t i1{0}; i1 < (n1 < n1_old ? n1 : n1_old); ++i1) {
+        for (il::int_t i2 = 0; i2 < (n2 < n2_old ? n2 : n2_old); ++i2) {
+          for (il::int_t i1 = 0; i1 < (n1 < n1_old ? n1 : n1_old); ++i1) {
             memcpy(new_data + (i2 * r1 + i1) * r0,
                    data_ + i2 * stride(2) + i1 * stride(1),
                    (n0 < n0_old ? n0 : n0_old) * sizeof(T));
@@ -951,8 +951,8 @@ void Array3D<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2) {
     }
     if (std::is_pod<T>::value) {
 #ifndef NDEBUG
-      for (il::int_t i2{0}; i2 < n2; ++i2) {
-        for (il::int_t i1{0}; i1 < n1; ++i1) {
+      for (il::int_t i2 = 0; i2 < n2; ++i2) {
+        for (il::int_t i1 = 0; i1 < n1; ++i1) {
           for (il::int_t i0{i2 < size(2) && i1 < size(1) ? size(0) : 0};
                i0 < n0; ++i0) {
             new_data[(i2 * r1 + i1) * r0 + i0] = il::default_value<T>();
@@ -961,8 +961,8 @@ void Array3D<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2) {
       }
 #endif
     } else {
-      for (il::int_t i2{0}; i2 < n2; ++i2) {
-        for (il::int_t i1{0}; i1 < n1; ++i1) {
+      for (il::int_t i2 = 0; i2 < n2; ++i2) {
+        for (il::int_t i1 = 0; i1 < n1; ++i1) {
           for (il::int_t i0{i2 < size(2) && i1 < size(1) ? size(0) : 0};
                i0 < n0; ++i0) {
             new (new_data + (i2 * r1 + i1) * r0 + i0) T{};
@@ -1020,8 +1020,8 @@ void Array3D<T>::reserve(il::int_t r0, il::int_t r1, il::int_t r2) {
     }
     if (data_) {
       if (std::is_pod<T>::value) {
-        for (il::int_t i2{0}; i2 < n2_old; ++i2) {
-          for (il::int_t i1{0}; i1 < n1_old; ++i1) {
+        for (il::int_t i2 = 0; i2 < n2_old; ++i2) {
+          for (il::int_t i1 = 0; i1 < n1_old; ++i1) {
             memcpy(new_data + (i2 * r1 + i1) * r0,
                    data_ + i2 * stride(2) + i1 * stride(1),
                    n0_old * sizeof(T));

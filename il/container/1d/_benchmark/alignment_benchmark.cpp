@@ -13,12 +13,12 @@
 #include <benchmark/benchmark.h>
 
 static void BM_UNALIGNED(benchmark::State& state) {
-  const int n{35};
+  const int n = 35;
   while (state.KeepRunning()) {
     state.PauseTiming();
     il::Array<float> v{n, 0.0f, il::align, 32, 16};
     state.ResumeTiming();
-    for (il::int_t i{0}; i < v.size(); ++i) {
+    for (il::int_t i = 0; i < v.size(); ++i) {
       v[i] = (v[i] / 5.3f) * (v[i] * v[i] + v[i]) - (12.5f / (v[i] + 0.3f)) +
              (v[i] / (14.3f / (v[i] + 1.4f))) - (v[i] / 23.0f) +
              (14.8f / (2.4f + v[i]));
@@ -27,14 +27,14 @@ static void BM_UNALIGNED(benchmark::State& state) {
 }
 
 static void BM_ALIGNED(benchmark::State& state) {
-  const int n{35};
+  const int n = 35;
   while (state.KeepRunning()) {
     state.PauseTiming();
     il::Array<float> v{n, 0.0f, il::align, 32, 0};
     state.ResumeTiming();
     float* const w{v.data()};
 #pragma omp simd aligned(w : 32)
-    for (il::int_t i{0}; i < v.size(); ++i) {
+    for (il::int_t i = 0; i < v.size(); ++i) {
       w[i] = (w[i] / 5.3f) * (w[i] * w[i] + w[i]) - (12.5f / (w[i] + 0.3f)) +
              (w[i] / (14.3f / (w[i] + 1.4f))) - (w[i] / 23.0f) +
              (14.8f / (2.4f + w[i]));
@@ -43,7 +43,7 @@ static void BM_ALIGNED(benchmark::State& state) {
 }
 
 static void BM_ALIGNED_NOREMAINDER(benchmark::State& state) {
-  const int n{40};
+  const int n = 40;
   while (state.KeepRunning()) {
     //    state.PauseTiming();
     //    il::Array<float> v{n, 0.0f, il::align, 32, 0};

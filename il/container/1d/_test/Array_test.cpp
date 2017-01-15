@@ -25,26 +25,26 @@ TEST(Array, size_constructor_0) {
 }
 
 TEST(Array, size_constructor_1) {
-  const il::int_t n{3};
+  const il::int_t n = 3;
   il::Array<il::int_t> v{n};
 
   ASSERT_TRUE(v.size() == n && v.capacity() == n);
 }
 
 TEST(Array, size_value_constructor_0) {
-  const il::int_t x{5};
+  const il::int_t x = 5;
   il::Array<il::int_t> v{0, x};
 
   ASSERT_TRUE(v.size() == 0 && v.capacity() == 0 && v.data() == nullptr);
 }
 
 TEST(Array, size_value_constructor_1) {
-  const il::int_t n{3};
-  const il::int_t x{5};
+  const il::int_t n = 3;
+  const il::int_t x = 5;
   il::Array<il::int_t> v{n, x};
 
   bool correct_elements{true};
-  for (il::int_t i{0}; i < n; ++i) {
+  for (il::int_t i = 0; i < n; ++i) {
     if (v[i] != x) {
       correct_elements = false;
     }
@@ -67,16 +67,16 @@ TEST(Array, initializer_list_constructor_1) {
 }
 
 TEST(Array, copy_constructor) {
-  const il::int_t n{3};
+  const il::int_t n = 3;
   il::Array<il::int_t> v{n};
-  for (il::int_t i{0}; i < n; ++i) {
+  for (il::int_t i = 0; i < n; ++i) {
     v[i] = i;
   }
   v.reserve(2 * n);
 
   il::Array<il::int_t> w{v};
   bool same_elements{true};
-  for (il::int_t i{0}; i < n; ++i) {
+  for (il::int_t i = 0; i < n; ++i) {
     if (w[i] != i) {
       same_elements = false;
     }
@@ -86,9 +86,9 @@ TEST(Array, copy_constructor) {
 }
 
 TEST(Array, move_constructor) {
-  const il::int_t n{3};
+  const il::int_t n = 3;
   il::Array<il::int_t> v{n};
-  for (il::int_t i{0}; i < n; ++i) {
+  for (il::int_t i = 0; i < n; ++i) {
     v[i] = i;
   }
   v.reserve(2 * n);
@@ -96,7 +96,7 @@ TEST(Array, move_constructor) {
 
   il::Array<il::int_t> w{std::move(v)};
   bool same_elements{true};
-  for (il::int_t i{0}; i < n; ++i) {
+  for (il::int_t i = 0; i < n; ++i) {
     if (w[i] != i) {
       same_elements = false;
     }
@@ -108,9 +108,9 @@ TEST(Array, move_constructor) {
 }
 
 TEST(Array, copy_assignment_0) {
-  const il::int_t n{3};
+  const il::int_t n = 3;
   il::Array<il::int_t> v{n};
-  for (il::int_t i{0}; i < n; ++i) {
+  for (il::int_t i = 0; i < n; ++i) {
     v[i] = i;
   }
   v.reserve(2 * n);
@@ -118,7 +118,7 @@ TEST(Array, copy_assignment_0) {
   il::Array<il::int_t> w{};
   w = v;
   bool same_elements{true};
-  for (il::int_t i{0}; i < n; ++i) {
+  for (il::int_t i = 0; i < n; ++i) {
     if (w[i] != i) {
       same_elements = false;
     }
@@ -128,9 +128,9 @@ TEST(Array, copy_assignment_0) {
 }
 
 TEST(Array, copy_assignment_1) {
-  const il::int_t n{3};
+  const il::int_t n = 3;
   il::Array<il::int_t> v{n};
-  for (il::int_t i{0}; i < n; ++i) {
+  for (il::int_t i = 0; i < n; ++i) {
     v[i] = i;
   }
   v.reserve(2 * n);
@@ -138,7 +138,7 @@ TEST(Array, copy_assignment_1) {
   il::Array<il::int_t> w{3 * n};
   w = v;
   bool same_elements{true};
-  for (il::int_t i{0}; i < n; ++i) {
+  for (il::int_t i = 0; i < n; ++i) {
     if (w[i] != i) {
       same_elements = false;
     }
@@ -170,9 +170,9 @@ TEST(Array, copy_assignment_object_1) {
 }
 
 TEST(Array, move_assignment) {
-  const il::int_t n{3};
+  const il::int_t n = 3;
   il::Array<il::int_t> v{n};
-  for (il::int_t i{0}; i < n; ++i) {
+  for (il::int_t i = 0; i < n; ++i) {
     v[i] = i;
   }
   v.reserve(2 * n);
@@ -181,7 +181,7 @@ TEST(Array, move_assignment) {
   il::Array<il::int_t> w{3 * n};
   w = std::move(v);
   bool same_elements{true};
-  for (il::int_t i{0}; i < n; ++i) {
+  for (il::int_t i = 0; i < n; ++i) {
     if (w[i] != i) {
       same_elements = false;
     }
@@ -206,7 +206,7 @@ TEST(Array, move_assignment_object_0) {
 TEST(Array, destructor_object) {
   Dummy::reset();
   {
-    const il::int_t n{3};
+    const il::int_t n = 3;
     il::Array<Dummy> v{n};
   }
 

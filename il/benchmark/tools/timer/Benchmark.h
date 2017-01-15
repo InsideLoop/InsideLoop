@@ -28,12 +28,12 @@ class BStateShort {
 
 template<typename P>
 double benchmark_short(const P &program, double time_goal = 1.0) {
-  double total_time{0.0};
-  il::int_t nb_iterations{1};
+  double total_time = 0.0;
+  il::int_t nb_iterations = 1;
 
-  il::int_t count{0};
-  const il::int_t max_count{20};
-  const il::int_t growth_factor{10};
+  il::int_t count = 0;
+  const il::int_t max_count = 20;
+  const il::int_t growth_factor = 10;
 
   while (total_time <= 0.5 * time_goal && count <= max_count) {
     il::BStateShort state{nb_iterations};
@@ -100,12 +100,12 @@ class BState {
 
 template<typename P>
 double benchmark(const P &program, double time_goal = 1.0) {
-  double total_time{0.0};
-  il::int_t nb_iterations{1};
+  double total_time = 0.0;
+  il::int_t nb_iterations = 1;
 
-  il::int_t count{0};
-  const il::int_t max_count{20};
-  const il::int_t growth_factor{10};
+  il::int_t count = 0;
+  const il::int_t max_count = 20;
+  const il::int_t growth_factor = 10;
 
   while (total_time <= 0.5 * time_goal && count <= max_count) {
     il::BState state{nb_iterations};

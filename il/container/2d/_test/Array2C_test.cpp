@@ -48,7 +48,7 @@ TEST(Array2C, size_constructor_3) {
 }
 
 TEST(Array2C, size_value_constructor_0) {
-  const il::int_t x{9};
+  const il::int_t x = 9;
   il::Array2C<il::int_t> A{0, 0, x};
 
   ASSERT_TRUE(A.size(0) == 0 && A.capacity(0) == 0 && A.size(1) == 0 &&
@@ -56,7 +56,7 @@ TEST(Array2C, size_value_constructor_0) {
 }
 
 TEST(Array2C, size_value_constructor_1) {
-  const il::int_t x{9};
+  const il::int_t x = 9;
   il::Array2C<il::int_t> A{0, 3, x};
 
   ASSERT_TRUE(A.size(0) == 0 && A.capacity(0) == 1 && A.size(1) == 3 &&
@@ -64,7 +64,7 @@ TEST(Array2C, size_value_constructor_1) {
 }
 
 TEST(Array2C, size_value_constructor_2) {
-  const il::int_t x{9};
+  const il::int_t x = 9;
   il::Array2C<il::int_t> A{3, 0, x};
 
   ASSERT_TRUE(A.size(0) == 3 && A.capacity(0) == 3 && A.size(1) == 0 &&
@@ -72,14 +72,14 @@ TEST(Array2C, size_value_constructor_2) {
 }
 
 TEST(Array2C, size_value_constructor_3) {
-  const il::int_t n{3};
-  const il::int_t m{5};
-  const il::int_t x{9};
+  const il::int_t n = 3;
+  const il::int_t m = 5;
+  const il::int_t x = 9;
   il::Array2C<il::int_t> A{n, m, x};
 
   bool correct_elements{true};
-  for (il::int_t j{0}; j < m; ++j) {
-    for (il::int_t i{0}; i < n; ++i) {
+  for (il::int_t j = 0; j < m; ++j) {
+    for (il::int_t i = 0; i < n; ++i) {
       if (A(i, j) != x) {
         correct_elements = false;
       }
@@ -113,11 +113,11 @@ TEST(Array2C, initializer_list_constructor_2) {
 }
 
 TEST(Array2C, copy_constructor) {
-  const il::int_t n{3};
-  const il::int_t m{5};
+  const il::int_t n = 3;
+  const il::int_t m = 5;
   il::Array2C<il::int_t> A{n, m};
-  for (il::int_t j{0}; j < m; ++j) {
-    for (il::int_t i{0}; i < n; ++i) {
+  for (il::int_t j = 0; j < m; ++j) {
+    for (il::int_t i = 0; i < n; ++i) {
       A(i, j) = i + 2 * j;
     }
   }
@@ -125,8 +125,8 @@ TEST(Array2C, copy_constructor) {
 
   il::Array2C<il::int_t> B{A};
   bool same_elements{true};
-  for (il::int_t j{0}; j < m; ++j) {
-    for (il::int_t i{0}; i < n; ++i) {
+  for (il::int_t j = 0; j < m; ++j) {
+    for (il::int_t i = 0; i < n; ++i) {
       if (B(i, j) != i + 2 * j) {
         same_elements = false;
       }
@@ -138,11 +138,11 @@ TEST(Array2C, copy_constructor) {
 }
 
 TEST(Array2C, move_constructor) {
-  const il::int_t n{3};
-  const il::int_t m{5};
+  const il::int_t n = 3;
+  const il::int_t m = 5;
   il::Array2C<il::int_t> A{n, m};
-  for (il::int_t j{0}; j < m; ++j) {
-    for (il::int_t i{0}; i < n; ++i) {
+  for (il::int_t j = 0; j < m; ++j) {
+    for (il::int_t i = 0; i < n; ++i) {
       A(i, j) = i + 2 * j;
     }
   }
@@ -151,8 +151,8 @@ TEST(Array2C, move_constructor) {
 
   il::Array2C<il::int_t> B{std::move(A)};
   bool same_elements{true};
-  for (il::int_t j{0}; j < m; ++j) {
-    for (il::int_t i{0}; i < n; ++i) {
+  for (il::int_t j = 0; j < m; ++j) {
+    for (il::int_t i = 0; i < n; ++i) {
       if (B(i, j) != i + 2 * j) {
         same_elements = false;
       }
@@ -167,11 +167,11 @@ TEST(Array2C, move_constructor) {
 }
 
 TEST(Array2C, copy_assignment_0) {
-  const il::int_t n{3};
-  const il::int_t m{5};
+  const il::int_t n = 3;
+  const il::int_t m = 5;
   il::Array2C<il::int_t> A{n, m};
-  for (il::int_t j{0}; j < m; ++j) {
-    for (il::int_t i{0}; i < n; ++i) {
+  for (il::int_t j = 0; j < m; ++j) {
+    for (il::int_t i = 0; i < n; ++i) {
       A(i, j) = i + 2 * j;
     }
   }
@@ -180,8 +180,8 @@ TEST(Array2C, copy_assignment_0) {
   il::Array2C<il::int_t> B{};
   B = A;
   bool same_elements{true};
-  for (il::int_t j{0}; j < m; ++j) {
-    for (il::int_t i{0}; i < n; ++i) {
+  for (il::int_t j = 0; j < m; ++j) {
+    for (il::int_t i = 0; i < n; ++i) {
       if (B(i, j) != i + 2 * j) {
         same_elements = false;
       }
@@ -193,11 +193,11 @@ TEST(Array2C, copy_assignment_0) {
 }
 
 TEST(Array2C, copy_assignment_1) {
-  const il::int_t n{3};
-  const il::int_t m{5};
+  const il::int_t n = 3;
+  const il::int_t m = 5;
   il::Array2C<il::int_t> A{n, m};
-  for (il::int_t j{0}; j < m; ++j) {
-    for (il::int_t i{0}; i < n; ++i) {
+  for (il::int_t j = 0; j < m; ++j) {
+    for (il::int_t i = 0; i < n; ++i) {
       A(i, j) = i + 2 * j;
     }
   }
@@ -206,8 +206,8 @@ TEST(Array2C, copy_assignment_1) {
   il::Array2C<il::int_t> B{3 * n, 3 * m};
   B = A;
   bool same_elements{true};
-  for (il::int_t j{0}; j < m; ++j) {
-    for (il::int_t i{0}; i < n; ++i) {
+  for (il::int_t j = 0; j < m; ++j) {
+    for (il::int_t i = 0; i < n; ++i) {
       if (B(i, j) != i + 2 * j) {
         same_elements = false;
       }
@@ -246,11 +246,11 @@ TEST(Array2C, copy_assignment_object_1) {
 }
 
 TEST(Array2C, move_assignment) {
-  const il::int_t n{3};
-  const il::int_t m{5};
+  const il::int_t n = 3;
+  const il::int_t m = 5;
   il::Array2C<il::int_t> A{n, m};
-  for (il::int_t j{0}; j < m; ++j) {
-    for (il::int_t i{0}; i < n; ++i) {
+  for (il::int_t j = 0; j < m; ++j) {
+    for (il::int_t i = 0; i < n; ++i) {
       A(i, j) = i + 2 * j;
     }
   }
@@ -260,8 +260,8 @@ TEST(Array2C, move_assignment) {
   il::Array2C<il::int_t> B{3 * n, 3 * m};
   B = std::move(A);
   bool same_elements{true};
-  for (il::int_t j{0}; j < m; ++j) {
-    for (il::int_t i{0}; i < n; ++i) {
+  for (il::int_t j = 0; j < m; ++j) {
+    for (il::int_t i = 0; i < n; ++i) {
       if (B(i, j) != i + 2 * j) {
         same_elements = false;
       }
@@ -299,8 +299,8 @@ TEST(Array2C, destructor_object) {
 
 TEST(Array2C, bounds_checking) {
   bool test_passed{true};
-  const il::int_t n{3};
-  const il::int_t m{5};
+  const il::int_t n = 3;
+  const il::int_t m = 5;
   il::Array2C<double> A{n, m};
   bool local_test_passed;
 
@@ -397,8 +397,8 @@ TEST(Array2C, bounds_checking_default) {
 
 TEST(Array2C, bounds_checking_const) {
   bool test_passed{true};
-  const il::int_t n{3};
-  const il::int_t m{5};
+  const il::int_t n = 3;
+  const il::int_t m = 5;
   const il::Array2C<double> A{n, m};
   bool local_test_passed;
 
@@ -563,8 +563,8 @@ TEST(Array2C, resize_object_1) {
 }
 
 TEST(Array2C, reserve_0) {
-  const il::int_t n{3};
-  const il::int_t m{5};
+  const il::int_t n = 3;
+  const il::int_t m = 5;
   il::Array2C<il::int_t> A{n, m};
   const il::int_t* const old_A_data{A.data()};
   A.reserve(n - 1, m - 1);

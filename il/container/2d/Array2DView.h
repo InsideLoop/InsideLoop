@@ -58,8 +58,8 @@ class ConstArray2DView {
   /* \brief Get the size of the array view
   //
   // il::ConstArrayView<double> v{data, n, p, p};
-  // for (il::int_t i{0}; i < v.size(0); ++i) {
-  //   for (il::int_t j{0}; j < v.size(1); ++j) {
+  // for (il::int_t i = 0; i < v.size(0); ++i) {
+  //   for (il::int_t j = 0; j < v.size(1); ++j) {
   //     A(i, j) = 1.0 / (i + j + 2);
   //   }
   // }

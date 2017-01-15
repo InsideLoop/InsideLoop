@@ -274,13 +274,13 @@ Array<T>::Array(il::int_t n) {
     if (std::is_pod<T>::value) {
       data_ = new T[n];
 #ifdef IL_DEFAULT_VALUE
-      for (il::int_t i{0}; i < n; ++i) {
+      for (il::int_t i = 0; i < n; ++i) {
         data_[i] = il::default_value<T>();
       }
 #endif
     } else {
       data_ = static_cast<T*>(::operator new(n * sizeof(T)));
-      for (il::int_t i{0}; i < n; ++i) {
+      for (il::int_t i = 0; i < n; ++i) {
         new (data_ + i) T{};
       }
     }
@@ -319,7 +319,7 @@ Array<T>::Array(il::int_t n, il::align_t, short align_r, short align_mod) {
         align_r_ = align_r;
       }
 #ifdef IL_DEFAULT_VALUE
-      for (il::int_t i{0}; i < n; ++i) {
+      for (il::int_t i = 0; i < n; ++i) {
         data_[i] = il::default_value<T>();
       }
 #endif
@@ -328,7 +328,7 @@ Array<T>::Array(il::int_t n, il::align_t, short align_r, short align_mod) {
       align_mod_ = 0;
       align_r_ = 0;
       new_shift_ = 0;
-      for (il::int_t i{0}; i < n; ++i) {
+      for (il::int_t i = 0; i < n; ++i) {
         new (data_ + i) T{};
       }
     }
@@ -356,12 +356,12 @@ Array<T>::Array(il::int_t n, const T& x) {
   if (n > 0) {
     if (std::is_pod<T>::value) {
       data_ = new T[n];
-      for (il::int_t i{0}; i < n; ++i) {
+      for (il::int_t i = 0; i < n; ++i) {
         data_[i] = x;
       }
     } else {
       data_ = static_cast<T*>(::operator new(n * sizeof(T)));
-      for (il::int_t i{0}; i < n; ++i) {
+      for (il::int_t i = 0; i < n; ++i) {
         new (data_ + i) T(x);
       }
     }
@@ -400,7 +400,7 @@ Array<T>::Array(il::int_t n, const T& x, il::align_t, short align_r,
         align_mod_ = align_mod;
         align_r_ = align_r;
       }
-      for (il::int_t i{0}; i < n; ++i) {
+      for (il::int_t i = 0; i < n; ++i) {
         data_[i] = x;
       }
     } else {
@@ -408,7 +408,7 @@ Array<T>::Array(il::int_t n, const T& x, il::align_t, short align_r,
       align_mod_ = 0;
       align_r_ = 0;
       new_shift_ = 0;
-      for (il::int_t i{0}; i < n; ++i) {
+      for (il::int_t i = 0; i < n; ++i) {
         new (data_ + i) T(x);
       }
     }
@@ -435,7 +435,7 @@ Array<T>::Array(il::value_t, std::initializer_list<T> list) {
       memcpy(data_, list.begin(), n * sizeof(T));
     } else {
       data_ = static_cast<T*>(::operator new(n * sizeof(T)));
-      for (il::int_t i{0}; i < n; ++i) {
+      for (il::int_t i = 0; i < n; ++i) {
         new (data_ + i) T(*(list.begin() + i));
       }
     }
@@ -475,7 +475,7 @@ Array<T>::Array(const Array<T>& v) {
     align_mod_ = 0;
     align_r_ = 0;
     new_shift_ = 0;
-    for (il::int_t i{0}; i < n; ++i) {
+    for (il::int_t i = 0; i < n; ++i) {
       new (data_ + i) T(v.data_[i]);
     }
   }
@@ -545,7 +545,7 @@ Array<T>& Array<T>::operator=(const Array<T>& v) {
         align_mod_ = 0;
         align_r_ = 0;
         new_shift_ = 0;
-        for (il::int_t i{0}; i < n; ++i) {
+        for (il::int_t i = 0; i < n; ++i) {
           new (data_ + i) T(v.data_[i]);
         }
       }
@@ -559,7 +559,7 @@ Array<T>& Array<T>::operator=(const Array<T>& v) {
       if (std::is_pod<T>::value) {
         memcpy(data_, v.data_, n * sizeof(T));
       } else {
-        for (il::int_t i{0}; i < n; ++i) {
+        for (il::int_t i = 0; i < n; ++i) {
           data_[i] = v.data_[i];
         }
         for (il::int_t i{size() - 1}; i >= n; --i) {

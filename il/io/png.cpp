@@ -73,7 +73,7 @@ il::Array3D<unsigned char> load(const std::string &filename, il::png_t,
 
   png_bytep *row_pointers{(png_bytep *)malloc(sizeof(png_bytep) * height)};
   unsigned long nb_colors{png_get_rowbytes(png_ptr, info_ptr) / width};
-  for (int ky{0}; ky < height; ++ky) {
+  for (int ky = 0; ky < height; ++ky) {
     row_pointers[ky] = (png_byte *)malloc(png_get_rowbytes(png_ptr, info_ptr));
   }
 
@@ -81,17 +81,17 @@ il::Array3D<unsigned char> load(const std::string &filename, il::png_t,
 
   image.resize(static_cast<il::int_t>(width), static_cast<il::int_t>(height),
                static_cast<il::int_t>(nb_colors));
-  for (int ky{0}; ky < height; ++ky) {
+  for (int ky = 0; ky < height; ++ky) {
     png_bytep row{row_pointers[ky]};
-    for (int kx{0}; kx < width; ++kx) {
-      for (int kc{0}; kc < image.size(2); ++kc) {
+    for (int kx = 0; kx < width; ++kx) {
+      for (int kc = 0; kc < image.size(2); ++kc) {
         image(kx, ky, kc) = row[nb_colors * kx + kc];
       }
     }
   }
 
   png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
-  for (int ky{0}; ky < image.size(1); ky++) {
+  for (int ky = 0; ky < image.size(1); ky++) {
     free(row_pointers[ky]);
   }
   free(row_pointers);
@@ -136,7 +136,7 @@ void save(const il::Array3D<unsigned char> &image, const std::string &filename,
 
   const png_uint_32 width{static_cast<png_uint_32>(image.size(0))};
   const png_uint_32 height{static_cast<png_uint_32>(image.size(1))};
-  const int bit_depth{8};
+  const int bit_depth = 8;
   int color_type;
   switch (image.size(2)) {
     case 3:
@@ -158,14 +158,14 @@ void save(const il::Array3D<unsigned char> &image, const std::string &filename,
   }
 
   png_bytep *row_pointers{(png_bytep *)malloc(sizeof(png_bytep) * height)};
-  for (il::int_t ky{0}; ky < image.size(1); ++ky) {
+  for (il::int_t ky = 0; ky < image.size(1); ++ky) {
     row_pointers[ky] = (png_byte *)malloc(png_get_rowbytes(png_ptr, info_ptr));
   }
 
-  for (il::int_t ky{0}; ky < image.size(1); ++ky) {
+  for (il::int_t ky = 0; ky < image.size(1); ++ky) {
     png_bytep row{row_pointers[ky]};
-    for (il::int_t kx{0}; kx < image.size(0); ++kx) {
-      for (il::int_t kc{0}; kc < image.size(2); ++kc) {
+    for (il::int_t kx = 0; kx < image.size(0); ++kx) {
+      for (il::int_t kc = 0; kc < image.size(2); ++kc) {
         row[image.size(2) * kx + kc] = image(kx, ky, kc);
       }
     }
@@ -181,7 +181,7 @@ void save(const il::Array3D<unsigned char> &image, const std::string &filename,
 
   png_write_end(png_ptr, nullptr);
 
-  for (il::int_t ky{0}; ky < image.size(1); ky++) {
+  for (il::int_t ky = 0; ky < image.size(1); ky++) {
     free(row_pointers[ky]);
   }
   free(row_pointers);

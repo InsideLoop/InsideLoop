@@ -31,7 +31,7 @@ struct epsilon<long double> {
   static constexpr double value = 2.7105054312137610850e-20;
 };
 
-const double pi{3.1415926535897932385};
+const double pi = 3.1415926535897932385;
 
 template <typename T>
 T min(T a, T b) {
@@ -47,7 +47,7 @@ template <typename T>
 T min(const il::Array<T>& A) {
   IL_ASSERT(A.size() > 0);
   T ans{A[0]};
-  for (il::int_t k{0}; k < A.size(); ++k) {
+  for (il::int_t k = 0; k < A.size(); ++k) {
     if (A[k] < ans) {
       ans = A[k];
     }
@@ -86,8 +86,8 @@ T max(const il::Array<T>& v) {
 template <typename T>
 T mean(const il::Array<T>& v) {
   IL_ASSERT(v.size() > 0);
-  T ans{0};
-  for (il::int_t i{0}; i < v.size(); ++i) {
+  T ans = 0;
+  for (il::int_t i = 0; i < v.size(); ++i) {
     ans += v[i];
   }
   ans /= v.size();
@@ -97,13 +97,13 @@ T mean(const il::Array<T>& v) {
 template <typename T>
 T sigma(const il::Array<T>& v) {
   IL_ASSERT(v.size() > 1);
-  T mean{0};
-  for (il::int_t i{0}; i < v.size(); ++i) {
+  T mean = 0;
+  for (il::int_t i = 0; i < v.size(); ++i) {
     mean += v[i];
   }
   mean /= v.size();
-  T sigma{0};
-  for (il::int_t i{0}; i < v.size(); ++i) {
+  T sigma = 0;
+  for (il::int_t i = 0; i < v.size(); ++i) {
     sigma += (v[i] - mean) * (v[i] - mean);
   }
   sigma /= v.size() - 1;

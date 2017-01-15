@@ -18,16 +18,16 @@
 namespace il {
 
 inline void alignment() {
-  const il::int_t n{8000};
-  const il::int_t nb_loops{10000000};
+  const il::int_t n = 8000;
+  const il::int_t nb_loops = 10000000;
 
   {
     il::Array<char> a{n, 0};
     il::Array<char> b{n, 1};
     il::Array<char> c{n, 0};
     il::Timer timer{};
-    for (il::int_t k{0}; k < nb_loops; ++k) {
-      for (il::int_t i{0}; i < n; ++i) {
+    for (il::int_t k = 0; k < nb_loops; ++k) {
+      for (il::int_t i = 0; i < n; ++i) {
         b[i] = a[i] + b[i] + c[i];
       }
     }
@@ -43,9 +43,9 @@ inline void alignment() {
     char* const b_data{b.data()};
     char* const c_data{c.data()};
     il::Timer timer{};
-    for (il::int_t k{0}; k < nb_loops; ++k) {
+    for (il::int_t k = 0; k < nb_loops; ++k) {
 #pragma omp simd aligned(a_data, b_data, c_data : IL_SIMD)
-      for (il::int_t i{0}; i < n; ++i) {
+      for (il::int_t i = 0; i < n; ++i) {
         b_data[i] = a_data[i] + b_data[i] + c_data[i];
       }
     }
@@ -61,9 +61,9 @@ inline void alignment() {
     char* const b_data{b.data()};
     char* const c_data{c.data()};
     il::Timer timer{};
-    for (il::int_t k{0}; k < nb_loops; ++k) {
+    for (il::int_t k = 0; k < nb_loops; ++k) {
 #pragma omp simd aligned(a_data, b_data, c_data : IL_CACHE)
-      for (il::int_t i{0}; i < n; ++i) {
+      for (il::int_t i = 0; i < n; ++i) {
         b_data[i] = a_data[i] + b_data[i] + c_data[i];
       }
     }
@@ -73,8 +73,8 @@ inline void alignment() {
 }
 
 inline void conditional_assignment() {
-  const il::int_t n{12000};
-  const il::int_t nb_loops{100000};
+  const il::int_t n = 12000;
+  const il::int_t nb_loops = 100000;
 
   {
     il::Array<unsigned char> a{n};

@@ -74,7 +74,7 @@ class String {
   void append(const char* data0, const String& s, const char* data1);
   il::int_t size() const;
   il::int_t capacity() const;
-  const char* c_str() const;
+  const char* c_string() const;
 
   bool is_small() const;
   void set_small_size(il::int_t n);
@@ -86,6 +86,8 @@ inline String::String() {
 }
 
 inline String::String(const char* data) {
+  IL_EXPECT_AXIOM("data must be a null terminated string");
+
   il::int_t size = 0;
   while (data[size] != '\0') {
     ++size;
@@ -104,11 +106,11 @@ inline String::String(const char* data) {
 inline String::String(const String& s) {
   const il::int_t size = s.size();
   if (size <= max_small_size_) {
-    std::memcpy(small_, s.c_str(), static_cast<std::size_t>(size) + 1);
+    std::memcpy(small_, s.c_string(), static_cast<std::size_t>(size) + 1);
     set_small_size(size);
   } else {
     large_.data = new char[size + 1];
-    std::memcpy(large_.data, s.c_str(), static_cast<std::size_t>(size) + 1);
+    std::memcpy(large_.data, s.c_string(), static_cast<std::size_t>(size) + 1);
     large_.size = static_cast<std::size_t>(size);
     large_.set_capacity(size);
   }
@@ -117,7 +119,7 @@ inline String::String(const String& s) {
 inline String::String(String&& s) {
   const il::int_t size = s.size();
   if (size <= max_small_size_) {
-    std::memcpy(small_, s.c_str(), static_cast<std::size_t>(size) + 1);
+    std::memcpy(small_, s.c_string(), static_cast<std::size_t>(size) + 1);
     set_small_size(size);
   } else {
     large_.data = s.large_.data;
@@ -134,16 +136,18 @@ inline String& String::operator=(const String& s) {
     if (!is_small()) {
       delete[] large_.data;
     }
-    std::memcpy(small_, s.c_str(), static_cast<std::size_t>(size) + 1);
+    std::memcpy(small_, s.c_string(), static_cast<std::size_t>(size) + 1);
     set_small_size(size);
   } else {
     if (size <= capacity()) {
-      std::memcpy(large_.data, s.c_str(), static_cast<std::size_t>(size) + 1);
+      std::memcpy(large_.data, s.c_string(),
+                  static_cast<std::size_t>(size) + 1);
       large_.size = static_cast<std::size_t>(size);
     } else {
       delete[] large_.data;
       large_.data = new char[size + 1];
-      std::memcpy(large_.data, s.c_str(), static_cast<std::size_t>(size) + 1);
+      std::memcpy(large_.data, s.c_string(),
+                  static_cast<std::size_t>(size) + 1);
       large_.size = static_cast<std::size_t>(size);
       large_.set_capacity(size);
     }
@@ -158,7 +162,7 @@ inline String& String::operator=(String&& s) {
       if (!is_small()) {
         delete[] large_.data;
       }
-      std::memcpy(small_, s.c_str(), static_cast<std::size_t>(size) + 1);
+      std::memcpy(small_, s.c_string(), static_cast<std::size_t>(size) + 1);
       set_small_size(size);
     } else {
       large_.data = s.large_.data;
@@ -178,7 +182,7 @@ inline String::~String() {
 }
 
 inline void String::reserve(il::int_t r) {
-  IL_ASSERT_PRECOND(r >= 0);
+  IL_EXPECT_FAST(r >= 0);
 
   const bool old_is_small = is_small();
   if (old_is_small && r <= max_small_size_) {
@@ -190,14 +194,16 @@ inline void String::reserve(il::int_t r) {
   }
 
   const il::int_t old_size = size();
-  char* new_data = new char[r + 1];
-  std::memcpy(new_data, c_str(), static_cast<std::size_t>(old_size) + 1);
+  char* const new_data = new char[r + 1];
+  std::memcpy(new_data, c_string(), static_cast<std::size_t>(old_size) + 1);
   large_.data = new_data;
   large_.size = old_size;
   large_.set_capacity(r);
 }
 
 inline void String::append(const char* data) {
+  IL_EXPECT_AXIOM("data must be a null terminated string");
+
   const il::int_t old_size = size();
   il::int_t size = 0;
   while (data[size] != '\0') {
@@ -243,17 +249,18 @@ inline void String::append(const char* data) {
 }
 
 inline void String::append(const String& s) {
-  append(s.c_str());
+  append(s.c_string());
 }
 
 inline void String::append(const char* data, const String& s) {
   append(data);
-  append(s.c_str());
+  append(s.c_string());
 }
 
-inline void String::append(const char* data0, const String& s, const char* data1) {
+inline void String::append(const char* data0, const String& s,
+                           const char* data1) {
   append(data0);
-  append(s.c_str());
+  append(s.c_string());
   append(data1);
 }
 
@@ -273,7 +280,7 @@ inline il::int_t String::capacity() const {
   }
 }
 
-inline const char* String::c_str() const {
+inline const char* String::c_string() const {
   if (is_small()) {
     return small_;
   } else {
@@ -286,11 +293,12 @@ inline bool String::is_small() const {
 }
 
 inline void String::set_small_size(il::int_t n) {
-  IL_ASSERT_PRECOND(static_cast<il::uint_t>(n) <=
-                    static_cast<il::uint_t>(max_small_size_));
+  IL_EXPECT_MEDIUM(static_cast<il::uint_t>(n) <=
+                   static_cast<il::uint_t>(max_small_size_));
 
   small_[max_small_size_] = static_cast<char>(max_small_size_ - n);
 }
+
 }
 
 #endif  // IL_STRING_H

@@ -80,7 +80,7 @@ void integrate() {
       il::Array<double> f{n, 0.0};
       while (state.keep_running()) {
         f[0] = 0.0;
-        for (il::int_t k{1}; k < f.size(); ++k) {
+        for (il::int_t k = 1; k < f.size(); ++k) {
           f[k] += il::ipow<2>(static_cast<double>(k) / n);
         }
       }
