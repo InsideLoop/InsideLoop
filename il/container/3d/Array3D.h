@@ -833,11 +833,11 @@ Array3D<T>::~Array3D() {
 template <typename T>
 const T& Array3D<T>::operator()(il::int_t i0, il::int_t i1,
                                 il::int_t i2) const {
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i0) <
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(i0) <
                    static_cast<il::uint_t>(size(0)));
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i1) <
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(i1) <
                    static_cast<il::uint_t>(size(1)));
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i2) <
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(i2) <
                    static_cast<il::uint_t>(size(2)));
   return data_[(i2 * (capacity_[1] - data_) + i1) * (capacity_[0] - data_) +
                i0];
@@ -845,11 +845,11 @@ const T& Array3D<T>::operator()(il::int_t i0, il::int_t i1,
 
 template <typename T>
 T& Array3D<T>::operator()(il::int_t i0, il::int_t i1, il::int_t i2) {
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i0) <
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(i0) <
                    static_cast<il::uint_t>(size(0)));
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i1) <
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(i1) <
                    static_cast<il::uint_t>(size(1)));
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i2) <
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(i2) <
                    static_cast<il::uint_t>(size(2)));
   return data_[(i2 * (capacity_[1] - data_) + i1) * (capacity_[0] - data_) +
                i0];

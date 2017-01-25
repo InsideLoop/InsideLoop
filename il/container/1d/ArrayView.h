@@ -107,8 +107,8 @@ ConstArrayView<T>::ConstArrayView(const T* data, il::int_t n, short align_mod,
 
 template <typename T>
 const T& ConstArrayView<T>::operator[](il::int_t i) const {
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i) <
-                   static_cast<il::uint_t>(size()));
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(i) <
+                  static_cast<il::uint_t>(size()));
   return data_[i];
 }
 
@@ -201,7 +201,7 @@ ArrayView<T>::ArrayView(T* data, il::int_t n, short align_mod, short align_r)
 
 template <typename T>
 T& ArrayView<T>::operator[](il::int_t i) {
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i) <
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(i) <
                    static_cast<il::uint_t>(this->size()));
   return this->data_[i];
 }

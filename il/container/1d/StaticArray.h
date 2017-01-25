@@ -160,13 +160,13 @@ StaticArray<T, n>::StaticArray(il::value_t, std::initializer_list<T> list) {
 
 template <typename T, il::int_t n>
 const T& StaticArray<T, n>::operator[](il::int_t i) const {
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i) < static_cast<il::uint_t>(n));
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(i) < static_cast<il::uint_t>(n));
   return data_[i];
 }
 
 template <typename T, il::int_t n>
 T& StaticArray<T, n>::operator[](il::int_t i) {
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i) < static_cast<il::uint_t>(n));
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(i) < static_cast<il::uint_t>(n));
   return data_[i];
 }
 

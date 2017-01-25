@@ -75,7 +75,7 @@ Cholesky<il::Array2D<double>>::Cholesky(il::Array2D<double> A, il::io_t,
 }
 
 il::int_t Cholesky<il::Array2D<double>>::size(il::int_t d) const {
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(d) < static_cast<il::uint_t>(2));
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(d) < static_cast<il::uint_t>(2));
 
   return l_.size(d);
 }

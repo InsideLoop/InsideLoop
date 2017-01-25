@@ -370,7 +370,7 @@ void HashMap<K, V, F>::erase(il::int_t i) {
 
 template <typename K, typename V, typename F>
 const K& HashMap<K, V, F>::key(il::int_t i) const {
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i) <
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(i) <
                    static_cast<il::uint_t>((p_ >= 0) ? (1 << p_) : 0));
 
   return slot_[i].key;
@@ -378,7 +378,7 @@ const K& HashMap<K, V, F>::key(il::int_t i) const {
 
 template <typename K, typename V, typename F>
 const V& HashMap<K, V, F>::value(il::int_t i) const {
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i) <
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(i) <
                    static_cast<il::uint_t>((p_ >= 0) ? (1 << p_) : 0));
 
   return slot_[i].value;
@@ -386,7 +386,7 @@ const V& HashMap<K, V, F>::value(il::int_t i) const {
 
 template <typename K, typename V, typename F>
 V& HashMap<K, V, F>::value(il::int_t i) {
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i) <
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(i) <
                    static_cast<il::uint_t>((p_ >= 0) ? (1 << p_) : 0));
 
   return slot_[i].value;

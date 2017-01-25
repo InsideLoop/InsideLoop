@@ -69,6 +69,17 @@ struct abort_exception {};
   (condition) ? ((void) 0) : ::abort();
 #endif
 
+#ifdef IL_UNIT_TEST
+#define IL_EXPECT_BOUND(condition) \
+  (condition) ? ((void)0) : throw il::abort_exception {}
+#elif NDEBUG
+#define IL_EXPECT_BOUND(condition) ((void)0)
+#else
+#define IL_EXPECT_BOUND(condition) (condition) ? ((void)0) : abort()
+#endif
+
+
+
 #define IL_EXPECT_AXIOM(message) (void)0
 
 // This one is not check and can contain code that is not run
@@ -109,21 +120,12 @@ struct abort_exception {};
 #define IL_ASSERT_PRECOND(condition) (condition) ? ((void)0) : ::abort()
 #endif
 
-// IL_ASSERT_BOUNDS is used for bounds checking in Array containers
+// IL_EXPECT_BOUND is used for bounds checking in Array containers
 // - in debug mode, the program is aborted
 // - in release mode, no bounds checking is done
 // - in unit test mode, an exception is thrown so our unit test can check that
 //   bounds checking is done correctly
 //
-#ifdef IL_UNIT_TEST
-#define IL_ASSERT_BOUNDS(condition) \
-  (condition) ? ((void)0) : throw il::abort_exception {}
-#elif NDEBUG
-#define IL_ASSERT_BOUNDS(condition) ((void)0)
-#else
-#define IL_ASSERT_BOUNDS(condition) (condition) ? ((void)0) : abort()
-#endif
-
 #define IL_UNUSED(var) (void)var
 
 #define IL_UNREACHABLE abort()

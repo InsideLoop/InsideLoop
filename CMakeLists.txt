@@ -216,7 +216,7 @@ set(SOURCE_FILES
 
 add_executable(InsideLoop ${SOURCE_FILES} main.cpp)
 target_link_libraries(InsideLoop ${CMAKE_MKL_LIBRARIES} ${CMAKE_PNG_LIBRARIES})
-target_include_directories(InsideLoop PRIVATE ${CMAKE_SOURCE_DIR} /opt/llvm-3.9.0/include /opt/google-hash/include /opt/blaze-3.0 /opt/cuda-8.0/include)
+target_include_directories(InsideLoop PRIVATE ${CMAKE_SOURCE_DIR} /opt/eigen-3.3.2 /opt/blaze-3.0 /opt/cuda-8.0/include)
 
 ################################################################################
 # For Unit Tests
@@ -230,6 +230,7 @@ set(UNIT_TEST_FILES
     il/container/2d/_test/Array2C_test.cpp
     il/container/3d/_test/Array3D_test.cpp
     il/container/string/_test/String_test.cpp
+    il/math/_test/safe_arithmetic_test.cpp
     il/linear_algebra/dense/_test/norm_test.cpp
     il/linear_algebra/dense/blas/_test/blas_test.cpp
     il/linear_algebra/dense/blas/_test/linear_solve_test.cpp

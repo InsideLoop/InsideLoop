@@ -127,16 +127,16 @@ ConstArray2DView<T>::ConstArray2DView(const T* data, il::int_t n0, il::int_t n1,
 
 template <typename T>
 const T& ConstArray2DView<T>::operator()(il::int_t i0, il::int_t i1) const {
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i0) <
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(i0) <
                    static_cast<il::uint_t>(size(0)));
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i1) <
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(i1) <
                    static_cast<il::uint_t>(size(1)));
   return data_[i1 * (stride_ - data_) + i0];
 }
 
 template <typename T>
 il::int_t ConstArray2DView<T>::size(il::int_t d) const {
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(d) < static_cast<il::uint_t>(2));
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(d) < static_cast<il::uint_t>(2));
   return static_cast<il::int_t>(size_[d] - data_);
 }
 
@@ -196,9 +196,9 @@ Array2DView<T>::Array2DView(T* data, il::int_t n0, il::int_t n1,
 
 template <typename T>
 T& Array2DView<T>::operator()(il::int_t i0, il::int_t i1) {
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i0) <
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(i0) <
                    static_cast<il::uint_t>(this->size(0)));
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i1) <
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(i1) <
                    static_cast<il::uint_t>(this->size(1)));
   return this->data_[i1 * (this->stride_ - this->data_) + i0];
 }

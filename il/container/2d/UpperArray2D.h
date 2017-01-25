@@ -235,21 +235,21 @@ UpperArray2D<T>::~UpperArray2D() {
 
 template <typename T>
 const T& UpperArray2D<T>::operator()(il::int_t i0, il::int_t i1) const {
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i0) <
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(i0) <
                    static_cast<il::uint_t>(size()));
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i1) <
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(i1) <
                    static_cast<il::uint_t>(size()));
-  IL_ASSERT_BOUNDS(i0 <= i1);
+  IL_EXPECT_BOUND(i0 <= i1);
   return data_[(i1 * (i1 + 1)) / 2 + i0];
 }
 
 template <typename T>
 T& UpperArray2D<T>::operator()(il::int_t i0, il::int_t i1) {
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i0) <
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(i0) <
                    static_cast<il::uint_t>(size()));
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i1) <
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(i1) <
                    static_cast<il::uint_t>(size()));
-  IL_ASSERT_BOUNDS(i0 <= i1);
+  IL_EXPECT_BOUND(i0 <= i1);
   return data_[(i1 * (i1 + 1)) / 2 + i0];
 }
 

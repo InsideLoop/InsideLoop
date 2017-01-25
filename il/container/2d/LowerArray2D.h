@@ -235,21 +235,21 @@ LowerArray2D<T>::~LowerArray2D() {
 
 template <typename T>
 const T& LowerArray2D<T>::operator()(il::int_t i0, il::int_t i1) const {
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i0) <
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(i0) <
                    static_cast<il::uint_t>(size()));
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i1) <
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(i1) <
                    static_cast<il::uint_t>(size()));
-  IL_ASSERT_BOUNDS(i1 <= i0);
+  IL_EXPECT_BOUND(i1 <= i0);
   return data_[(i1 * (2 * (size_ - data_) - (1 + i1))) / 2 + i0];
 }
 
 template <typename T>
 T& LowerArray2D<T>::operator()(il::int_t i0, il::int_t i1) {
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i0) <
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(i0) <
                    static_cast<il::uint_t>(size()));
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i1) <
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(i1) <
                    static_cast<il::uint_t>(size()));
-  IL_ASSERT_BOUNDS(i1 <= i0);
+  IL_EXPECT_BOUND(i1 <= i0);
   return data_[(i1 * (2 * (size_ - data_) - (1 + i1))) / 2 + i0];
 }
 

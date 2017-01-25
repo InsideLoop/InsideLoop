@@ -522,14 +522,14 @@ SmallArray<T, small_size>::~SmallArray() {
 
 template <typename T, il::int_t small_size>
 const T& SmallArray<T, small_size>::operator[](il::int_t i) const {
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i) <
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(i) <
                    static_cast<il::uint_t>(size()));
   return data_[i];
 }
 
 template <typename T, il::int_t small_size>
 T& SmallArray<T, small_size>::operator[](il::int_t i) {
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i) <
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(i) <
                    static_cast<il::uint_t>(size()));
   return data_[i];
 }

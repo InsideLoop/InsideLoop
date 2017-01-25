@@ -7,11 +7,11 @@
 //
 //==============================================================================
 
-#include <il/Array.h>
+#include <Eigen/Dense>
 
 int main() {
-  const il::int_t n = 5;
-  il::Array<double> v{n};
+  const Eigen::Index n = 5;
+  Eigen::Matrix<float, 1, Eigen::Dynamic> A(n);
 
   return 0;
 }

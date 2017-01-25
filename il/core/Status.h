@@ -22,6 +22,8 @@ enum class ErrorCode {
   failed_precondition,
   already_there,
   not_found,
+  integer_overflow,
+  not_enough_memory,
   division_by_zero,
   negative_number,
   nonpositive_number,

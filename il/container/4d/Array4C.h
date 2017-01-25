@@ -713,13 +713,13 @@ Array4C<T>::~Array4C() {
 template <typename T>
 const T& Array4C<T>::operator()(il::int_t i0, il::int_t i1, il::int_t i2,
                                 il::int_t i3) const {
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i0) <
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(i0) <
                    static_cast<il::uint_t>(size(0)));
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i1) <
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(i1) <
                    static_cast<il::uint_t>(size(1)));
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i2) <
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(i2) <
                    static_cast<il::uint_t>(size(2)));
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i3) <
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(i3) <
                    static_cast<il::uint_t>(size(3)));
   return data_[((i0 * (capacity_[1] - data_) + i1) * (capacity_[2] - data_) +
                 i2) *
@@ -730,13 +730,13 @@ const T& Array4C<T>::operator()(il::int_t i0, il::int_t i1, il::int_t i2,
 template <typename T>
 T& Array4C<T>::operator()(il::int_t i0, il::int_t i1, il::int_t i2,
                           il::int_t i3) {
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i0) <
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(i0) <
                    static_cast<il::uint_t>(size(0)));
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i1) <
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(i1) <
                    static_cast<il::uint_t>(size(1)));
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i2) <
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(i2) <
                    static_cast<il::uint_t>(size(2)));
-  IL_ASSERT_BOUNDS(static_cast<il::uint_t>(i3) <
+  IL_EXPECT_BOUND(static_cast<il::uint_t>(i3) <
                    static_cast<il::uint_t>(size(3)));
   return data_[((i0 * (capacity_[1] - data_) + i1) * (capacity_[2] - data_) +
                 i2) *
