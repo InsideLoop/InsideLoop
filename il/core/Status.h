@@ -23,7 +23,7 @@ enum class ErrorCode {
   already_there,
   not_found,
   integer_overflow,
-  not_enough_memory,
+  bad_allocation,
   division_by_zero,
   negative_number,
   nonpositive_number,

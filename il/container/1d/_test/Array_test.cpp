@@ -480,7 +480,7 @@ TEST(Array, append_object) {
 TEST(Array, emplace_back) {
   Dummy::reset();
   il::Array<Dummy> v{3};
-  v.append(il::emplace, il::arg());
+  v.append(il::emplace);
 
   ASSERT_TRUE(Dummy::destroyed.size() == 3 && Dummy::destroyed[0] == -(1 + 2) &&
               Dummy::destroyed[1] == -(1 + 1) &&

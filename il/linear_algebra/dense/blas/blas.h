@@ -17,6 +17,7 @@
 #include <il/StaticArray2D.h>
 #include <il/StaticArray3D.h>
 #include <il/StaticArray4D.h>
+#include <il/linear_algebra/blas_info.h>
 
 #ifdef IL_MKL
 #include <mkl_cblas.h>
@@ -26,21 +27,23 @@
 
 namespace il {
 
-enum class Blas {
-  regular,
-  transpose,
-  conjugate_transpose,
-  symmetric_upper,
-  symmetric_lower,
-  hermitian_upper,
-  hermitian_lower
-};
-
-#ifdef IL_MKL
 ////////////////////////////////////////////////////////////////////////////////
 // BLAS Level 1
 ////////////////////////////////////////////////////////////////////////////////
 
+template <typename T, il::int_t n0, il::int_t n1, il::int_t n2>
+void blas(T alpha, const il::StaticArray3D<T, n0, n1, n2>& A, T beta, il::io_t,
+          il::StaticArray3D<T, n0, n1, n2>& B) {
+  for (il::int_t i2 = 0; i2 < n2; ++i2) {
+    for (il::int_t i1 = 0; i1 < n1; ++i1) {
+      for (il::int_t i0 = 0; i0 < n0; ++i0) {
+        B(i0, i1, i2) = alpha * A(i0, i1, i2) + beta * B(i0, i1, i2);
+      }
+    }
+  }
+};
+
+#ifdef IL_MKL
 // x, y are vectors
 // y <- alpha x + y
 inline void blas(double alpha, const il::Array<double>& x, il::io_t,
@@ -350,7 +353,6 @@ void blas(double alpha, const il::StaticArray4D<T, n0, n1, n2, n>& A,
     }
   }
 }
-
 }
 
 #endif  // IL_BLAS_H

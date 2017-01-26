@@ -7,13 +7,21 @@
 //
 //==============================================================================
 
-#include <il/linear_algebra/dense/blas/dot.h>
+#ifndef IL_BLAS_INFO_H
+#define IL_BLAS_INFO_H
 
-int main() {
-  il::StaticArray2D<double, 2, 3> A{0.0};
-  il::StaticArray<double, 2> x{0.0};
+namespace il {
 
-  auto y = il::dot(A, il::Blas::transpose, x);
+enum class Blas {
+  regular,
+  transpose,
+  conjugate_transpose,
+  symmetric_upper,
+  symmetric_lower,
+  hermitian_upper,
+  hermitian_lower
+};
 
-  return 0;
 }
+
+#endif  // IL_BLAS_INFO_H

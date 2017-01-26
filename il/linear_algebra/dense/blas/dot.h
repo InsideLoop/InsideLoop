@@ -13,8 +13,9 @@
 #include <il/StaticArray.h>
 #include <il/StaticArray2D.h>
 #include <il/StaticArray3D.h>
+#include <il/StaticArray4D.h>
 
-#include <il/container/1d/StaticArray.h>
+#include <il/linear_algebra/blas_info.h>
 #include <il/linear_algebra/dense/blas/blas.h>
 
 namespace il {
@@ -106,24 +107,36 @@ inline il::Array2C<double> dot(const il::Array2C<double>& A,
 #endif
 
 template <typename T, il::int_t n0, il::int_t n>
-inline il::StaticArray<T, n0> dot(const il::StaticArray2D<T, n0, n>& A,
-                                  const il::StaticArray<T, n>& B) {
-  il::StaticArray<T, n0> C = 0;
-
+il::StaticArray<T, n0> dot(const il::StaticArray2D<T, n0, n>& A,
+                           const il::StaticArray<T, n>& B) {
+  il::StaticArray<T, n0> C{0};
   for (il::int_t i = 0; i < n; ++i) {
     for (il::int_t i0 = 0; i0 < n0; ++i0) {
       C[i0] += A(i0, i) * B[i];
     }
   }
+  return C;
+}
 
+template <typename T, il::int_t n0, il::int_t n>
+il::StaticArray<T, n0> dot(const il::StaticArray2D<T, n, n0>& A,
+                           il::Blas A_info, const il::StaticArray<T, n>& B) {
+  IL_EXPECT_FAST(A_info == il::Blas::transpose);
+
+  il::StaticArray<T, n0> C{};
+  for (il::int_t i0 = 0; i0 < n0; ++i0) {
+    C[i0] = 0;
+    for (il::int_t i = 0; i < n; ++i) {
+      C[i0] += A(i, i0) * B[i];
+    }
+  }
   return C;
 }
 
 template <typename T, il::int_t n, il::int_t n1>
-inline il::StaticArray<T, n1> dot(const il::StaticArray<T, n>& A,
-                                  const il::StaticArray2D<T, n, n1>& B) {
-  il::StaticArray<T, n1> C = 0;
-
+il::StaticArray<T, n1> dot(const il::StaticArray<T, n>& A,
+                           const il::StaticArray2D<T, n, n1>& B) {
+  il::StaticArray<T, n1> C{0};
   for (il::int_t i1 = 0; i1 < n1; ++i1) {
     for (il::int_t i = 0; i < n; ++i) {
       C[i1] += A[i] * B(i, i1);
@@ -134,10 +147,9 @@ inline il::StaticArray<T, n1> dot(const il::StaticArray<T, n>& A,
 }
 
 template <typename T, il::int_t n0, il::int_t n, il::int_t n1>
-inline il::StaticArray2D<T, n0, n1> dot(const il::StaticArray2D<T, n0, n>& A,
-                                        const il::StaticArray2D<T, n, n1>& B) {
-  il::StaticArray2D<T, n0, n1> C = 0;
-
+il::StaticArray2D<T, n0, n1> dot(const il::StaticArray2D<T, n0, n>& A,
+                                 const il::StaticArray2D<T, n, n1>& B) {
+  il::StaticArray2D<T, n0, n1> C{0};
   for (il::int_t i1 = 0; i1 < n1; ++i1) {
     for (il::int_t i = 0; i < n; ++i) {
       for (il::int_t i0 = 0; i0 < n0; ++i0) {
@@ -145,15 +157,47 @@ inline il::StaticArray2D<T, n0, n1> dot(const il::StaticArray2D<T, n0, n>& A,
       }
     }
   }
+  return C;
+}
 
+template <typename T, il::int_t n0, il::int_t n, il::int_t n1>
+il::StaticArray2D<T, n0, n1> dot(const il::StaticArray2D<T, n, n0>& A,
+                                 il::Blas A_info,
+                                 const il::StaticArray2D<T, n, n1>& B) {
+  IL_EXPECT_FAST(A_info == il::Blas::transpose);
+
+  il::StaticArray2D<T, n0, n1> C{};
+  for (il::int_t i1 = 0; i1 < n1; ++i1) {
+    for (il::int_t i0 = 0; i0 < n0; ++i0) {
+      C(i0, i1) = 0;
+      for (il::int_t i = 0; i < n; ++i) {
+        C(i0, i1) += A(i, i0) * B(i, i1);
+      }
+    }
+  }
+  return C;
+}
+
+template <typename T, il::int_t n0, il::int_t n, il::int_t n1, il::int_t n2>
+il::StaticArray3D<T, n0, n1, n2> dot(const il::StaticArray2D<T, n0, n>& A,
+                                     const il::StaticArray3D<T, n, n1, n2>& B) {
+  il::StaticArray3D<T, n0, n1, n2> C{0};
+  for (il::int_t i = 0; i < n; ++i) {
+    for (il::int_t i2 = 0; i2 < n2; ++i2) {
+      for (il::int_t i1 = 0; i1 < n1; ++i1) {
+        for (il::int_t i0 = 0; i0 < n0; ++i0) {
+          C(i0, i1, i2) += A(i0, i) * B(i, i1, i2);
+        }
+      }
+    }
+  }
   return C;
 }
 
 template <typename T, il::int_t n0, il::int_t n1, il::int_t n>
-inline il::StaticArray2D<T, n0, n1> dot(
-    const il::StaticArray3D<T, n0, n1, n>& A, const il::StaticArray<T, n>& B) {
+il::StaticArray2D<T, n0, n1> dot(const il::StaticArray3D<T, n0, n1, n>& A,
+                                 const il::StaticArray<T, n>& B) {
   il::StaticArray2D<T, n0, n1> C{};
-
   for (il::int_t i1 = 0; i1 < n1; ++i1) {
     for (il::int_t i0 = 0; i0 < n0; ++i0) {
       C(i0, i1) = 0;
@@ -162,29 +206,40 @@ inline il::StaticArray2D<T, n0, n1> dot(
       }
     }
   }
-
   return C;
 }
 
-template <typename T, il::int_t n0, il::int_t n, il::int_t n1, il::int_t n2>
-inline il::StaticArray3D<T, n0, n1, n2> dot(
-    const il::StaticArray2D<T, n0, n>& A,
-    const il::StaticArray3D<T, n, n1, n2>& B) {
+template <typename T, il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n>
+il::StaticArray3D<T, n0, n1, n2> dot(
+    const il::StaticArray4D<T, n0, n1, n2, n>& A,
+    const il::StaticArray<T, n>& B) {
   il::StaticArray3D<T, n0, n1, n2> C{};
-
   for (il::int_t i0 = 0; i0 < n0; ++i0) {
     for (il::int_t i1 = 0; i1 < n1; ++i1) {
       for (il::int_t i2 = 0; i2 < n2; ++i2) {
         C(i0, i1, i2) = 0.0;
         for (il::int_t i = 0; i < n; ++i) {
-          C(i0, i1, i2) += A(i0, i) * B(i, i1, i2);
+          C(i0, i1, i2) += A(i0, i1, i2, i) * B[i];
         }
       }
     }
   }
-
   return C;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// Cross product
+////////////////////////////////////////////////////////////////////////////////
+
+template <typename T>
+il::StaticArray<T, 3> cross(const il::StaticArray<T, 3>& x,
+                            const il::StaticArray<T, 3>& y) {
+  il::StaticArray<T, 3> ans{};
+  ans[0] = x[1] * y[2] - x[2] * y[1];
+  ans[1] = x[2] * y[0] - x[0] * y[2];
+  ans[2] = x[0] * y[1] - x[1] * y[0];
+  return ans;
+};
 }
 
 #endif  // IL_DOT_H
