@@ -39,9 +39,9 @@ class Singular<il::Array2D<double>> {
 Singular<il::Array2D<double>>::Singular(il::Array2D<double> A, il::io_t,
                                         il::Status& status)
     : singular_value_{} {
-  IL_ASSERT_PRECOND(A.size(0) > 0);
-  IL_ASSERT_PRECOND(A.size(1) > 0);
-  IL_ASSERT_PRECOND(A.size(0) == A.size(1));
+  IL_EXPECT_FAST(A.size(0) > 0);
+  IL_EXPECT_FAST(A.size(1) > 0);
+  IL_EXPECT_FAST(A.size(0) == A.size(1));
 
   const int layout = LAPACK_COL_MAJOR;
   const lapack_int m = static_cast<lapack_int>(A.size(0));
@@ -55,7 +55,7 @@ Singular<il::Array2D<double>>::Singular(il::Array2D<double> A, il::io_t,
   lapack_int lapack_error =
       LAPACKE_dgebrd(layout, m, n, A.data(), lda, d.data(), e.data(),
                      tauq.data(), taup.data());
-  IL_ASSERT(lapack_error >= 0);
+  IL_EXPECT_FAST(lapack_error >= 0);
 
   const char uplo = (m >= n) ? 'U' : 'L';
   const lapack_int ncvt = 0;
@@ -71,7 +71,7 @@ Singular<il::Array2D<double>>::Singular(il::Array2D<double> A, il::io_t,
       LAPACKE_dbdsqr(layout, uplo, n, ncvt, nru, ncc, d.data(), e.data(),
                      vt.data(), ldvt, u.data(), ldu, c.data(), ldc);
 
-  IL_ASSERT(lapack_error >= 0);
+  IL_EXPECT_FAST(lapack_error >= 0);
   if (lapack_error == 0) {
     status.set(ErrorCode::ok);
     singular_value_ = std::move(d);

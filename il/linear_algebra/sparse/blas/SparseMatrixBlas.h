@@ -43,25 +43,25 @@ SparseMatrixBlas<Index, T>::SparseMatrixBlas(il::io_t,
   sparse_status_t status =
       mkl_sparse_d_create_csr(&sparse_matrix_handle_, indexing, rows, cols,
                               rows_start, rows_end, col_indx, values);
-  IL_ASSERT(status == SPARSE_STATUS_SUCCESS);
+  IL_EXPECT_FAST(status == SPARSE_STATUS_SUCCESS);
 }
 
 template <typename Index, typename T>
 SparseMatrixBlas<Index, T>::~SparseMatrixBlas() {
   sparse_status_t status = mkl_sparse_destroy(sparse_matrix_handle_);
-  IL_ASSERT(status == SPARSE_STATUS_SUCCESS);
+  IL_EXPECT_FAST(status == SPARSE_STATUS_SUCCESS);
 }
 
 template <typename Index, typename T>
 void SparseMatrixBlas<Index, T>::set_nb_matrix_vector(il::int_t n) {
-  IL_ASSERT_PRECOND(n > 0);
+  IL_EXPECT_FAST(n > 0);
 
   const sparse_operation_t operation = SPARSE_OPERATION_NON_TRANSPOSE;
   matrix_descr descr;
   descr.type = SPARSE_MATRIX_TYPE_GENERAL;
   sparse_status_t status =
       mkl_sparse_set_mv_hint(sparse_matrix_handle_, operation, descr, n);
-  IL_ASSERT(status == SPARSE_STATUS_SUCCESS);
+  IL_EXPECT_FAST(status == SPARSE_STATUS_SUCCESS);
 }
 
 template <typename Index, typename T>
@@ -97,25 +97,25 @@ SparseMatrixBlas<Index, float>::SparseMatrixBlas(
   sparse_status_t status =
       mkl_sparse_s_create_csr(&sparse_matrix_handle_, indexing, rows, cols,
                               rows_start, rows_end, col_indx, values);
-  IL_ASSERT(status == SPARSE_STATUS_SUCCESS);
+  IL_EXPECT_FAST(status == SPARSE_STATUS_SUCCESS);
 }
 
 template <typename Index>
 SparseMatrixBlas<Index, float>::~SparseMatrixBlas() {
   sparse_status_t status = mkl_sparse_destroy(sparse_matrix_handle_);
-  IL_ASSERT(status == SPARSE_STATUS_SUCCESS);
+  IL_EXPECT_FAST(status == SPARSE_STATUS_SUCCESS);
 }
 
 template <typename Index>
 void SparseMatrixBlas<Index, float>::set_nb_matrix_vector(il::int_t n) {
-  IL_ASSERT_PRECOND(n > 0);
+  IL_EXPECT_FAST(n > 0);
 
   const sparse_operation_t operation = SPARSE_OPERATION_NON_TRANSPOSE;
   matrix_descr descr;
   descr.type = SPARSE_MATRIX_TYPE_GENERAL;
   sparse_status_t status =
       mkl_sparse_set_mv_hint(sparse_matrix_handle_, operation, descr, n);
-  IL_ASSERT(status == SPARSE_STATUS_SUCCESS);
+  IL_EXPECT_FAST(status == SPARSE_STATUS_SUCCESS);
 }
 
 template <typename Index>

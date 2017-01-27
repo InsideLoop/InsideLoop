@@ -95,7 +95,7 @@ ConstArrayView<T>::ConstArrayView() {
 template <typename T>
 ConstArrayView<T>::ConstArrayView(const T* data, il::int_t n, short align_mod,
                                   short align_r) {
-  IL_ASSERT(n >= 0);
+  IL_EXPECT_FAST(n >= 0);
 #ifdef IL_DEBUG_VISUALIZER
   debug_size_ = n;
 #endif
@@ -114,7 +114,7 @@ const T& ConstArrayView<T>::operator[](il::int_t i) const {
 
 template <typename T>
 const T& ConstArrayView<T>::back() const {
-  IL_ASSERT(size() > 0);
+  IL_EXPECT_FAST(size() > 0);
   return size_[-1];
 }
 
@@ -208,7 +208,7 @@ T& ArrayView<T>::operator[](il::int_t i) {
 
 template <typename T>
 T& ArrayView<T>::back() {
-  IL_ASSERT(this->size() > 0);
+  IL_EXPECT_FAST(this->size() > 0);
   return this->size_[-1];
 }
 

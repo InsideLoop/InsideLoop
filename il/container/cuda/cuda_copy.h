@@ -35,7 +35,7 @@ class Copy<il::CudaArray<T>, il::Array<T>> {
     cudaError_t error =
         cudaMemcpy(dest.data(), src.data(), src.size() * sizeof(T),
                    cudaMemcpyHostToDevice);
-    IL_ASSERT(error == 0);
+    IL_EXPECT_FAST(error == 0);
     return dest;
   }
 };
@@ -48,7 +48,7 @@ class Copy<il::Array<T>, il::CudaArray<T>> {
     cudaError_t error =
         cudaMemcpy(dest.data(), src.data(), src.size() * sizeof(T),
                    cudaMemcpyDeviceToHost);
-    IL_ASSERT(error == 0);
+    IL_EXPECT_FAST(error == 0);
     return dest;
   }
 };
@@ -61,7 +61,7 @@ class Copy<il::CudaArray2D<T>, il::Array2D<T>> {
     cudaError_t error = cudaMemcpy(dest.data(), src.data(),
                                    src.size(0) * src.size(1) * sizeof(T),
                                    cudaMemcpyHostToDevice);
-    IL_ASSERT(error == 0);
+    IL_EXPECT_FAST(error == 0);
     return dest;
   }
 };
@@ -74,7 +74,7 @@ class Copy<il::Array2D<T>, il::CudaArray2D<T>> {
     cudaError_t error = cudaMemcpy(dest.data(), src.data(),
                                    src.size(0) * src.size(1) * sizeof(T),
                                    cudaMemcpyDeviceToHost);
-    IL_ASSERT(error == 0);
+    IL_EXPECT_FAST(error == 0);
     return dest;
   }
 };
@@ -90,13 +90,13 @@ class Copy<il::CudaSparseMatrixCSR<T>, il::SparseMatrixCSR<int, T>> {
     cudaError_t error;
     error = cudaMemcpy(row.data(), src.row_data(),
                        (src.size(0) + 1) * sizeof(int), cudaMemcpyHostToDevice);
-    IL_ASSERT(error == 0);
+    IL_EXPECT_FAST(error == 0);
     error = cudaMemcpy(column.data(), src.column_data(),
                        src.nb_nonzeros() * sizeof(int), cudaMemcpyHostToDevice);
-    IL_ASSERT(error == 0);
+    IL_EXPECT_FAST(error == 0);
     error = cudaMemcpy(element.data(), src.element_data(),
                        src.nb_nonzeros() * sizeof(T), cudaMemcpyHostToDevice);
-    IL_ASSERT(error == 0);
+    IL_EXPECT_FAST(error == 0);
 
     return il::CudaSparseMatrixCSR<T>{src.size(0), src.size(1), std::move(row),
                                       std::move(column), std::move(element)};

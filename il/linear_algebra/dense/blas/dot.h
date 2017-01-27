@@ -21,7 +21,7 @@
 namespace il {
 
 inline float dot(const il::Array<float>& x, const il::Array<float>& y) {
-  IL_ASSERT(x.size() == y.size());
+  IL_EXPECT_FAST(x.size() == y.size());
 
   float sum = 0.0f;
   for (il::int_t i = 0; i < x.size(); ++i) {
@@ -32,7 +32,7 @@ inline float dot(const il::Array<float>& x, const il::Array<float>& y) {
 }
 
 inline double dot(const il::Array<double>& x, const il::Array<double>& y) {
-  IL_ASSERT(x.size() == y.size());
+  IL_EXPECT_FAST(x.size() == y.size());
 
   double sum = 0.0;
   for (il::int_t i = 0; i < x.size(); ++i) {
@@ -45,7 +45,7 @@ inline double dot(const il::Array<double>& x, const il::Array<double>& y) {
 #ifdef IL_MKL
 inline il::Array<double> dot(const il::Array2D<double>& A,
                              const il::Array<double>& x) {
-  IL_ASSERT(A.size(1) == x.size());
+  IL_EXPECT_FAST(A.size(1) == x.size());
 
   il::Array<double> y{A.size(0)};
   il::blas(1.0, A, x, 0.0, il::io, y);
@@ -55,7 +55,7 @@ inline il::Array<double> dot(const il::Array2D<double>& A,
 
 inline il::Array<double> dot(const il::Array2C<double>& A,
                              const il::Array<double>& x) {
-  IL_ASSERT(A.size(1) == x.size());
+  IL_EXPECT_FAST(A.size(1) == x.size());
 
   il::Array<double> y{A.size(0)};
   il::blas(1.0, A, x, 0.0, il::io, y);
@@ -65,7 +65,7 @@ inline il::Array<double> dot(const il::Array2C<double>& A,
 
 inline il::Array2D<double> dot(const il::Array2D<double>& A,
                                const il::Array2D<double>& B) {
-  IL_ASSERT(A.size(1) == B.size(0));
+  IL_EXPECT_FAST(A.size(1) == B.size(0));
 
   il::Array2D<double> C{A.size(0), B.size(1)};
   const IL_CBLAS_LAYOUT layout{CblasColMajor};
@@ -86,7 +86,7 @@ inline il::Array2D<double> dot(const il::Array2D<double>& A,
 
 inline il::Array2C<double> dot(const il::Array2C<double>& A,
                                const il::Array2C<double>& B) {
-  IL_ASSERT(A.size(1) == B.size(0));
+  IL_EXPECT_FAST(A.size(1) == B.size(0));
 
   il::Array2C<double> C{A.size(0), B.size(1)};
   const IL_CBLAS_LAYOUT layout{CblasRowMajor};

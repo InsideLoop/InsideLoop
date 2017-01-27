@@ -27,7 +27,7 @@ namespace il {
 inline il::SparseMatrixCSR<int, double> dot(il::io_t,
                                           il::SparseMatrixCSR<int, double> &A,
                                           il::SparseMatrixCSR<int, double> &B) {
-  IL_ASSERT_PRECOND(A.size(1) == B.size(0));
+  IL_EXPECT_FAST(A.size(1) == B.size(0));
 
   const char trans = 'n';
   const MKL_INT sort = 0;
@@ -65,7 +65,7 @@ inline il::SparseMatrixCSR<int, double> dot(il::io_t,
                   A.column_data(), A.row_data(), B.element_data(),
                   B.column_data(), B.row_data(), element.data(), column.data(),
                   row.data(), &nzmax, &info);
-  IL_ASSERT(info == 0);
+  IL_EXPECT_FAST(info == 0);
 
   element.resize(row[m] - 1);
   column.resize(row[m] - 1);
@@ -74,7 +74,7 @@ inline il::SparseMatrixCSR<int, double> dot(il::io_t,
                   A.column_data(), A.row_data(), B.element_data(),
                   B.column_data(), B.row_data(), element.data(), column.data(),
                   row.data(), &nzmax, &info);
-  IL_ASSERT(info == 0);
+  IL_EXPECT_FAST(info == 0);
 
   for (int i = 0; i <= A.size(0); ++i) {
     --A_row_data[i];

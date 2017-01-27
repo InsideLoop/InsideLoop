@@ -53,7 +53,7 @@ class CudaArray {
 
 template <typename T>
 CudaArray<T>::CudaArray(il::int_t n) {
-  IL_ASSERT_PRECOND(n >= 0);
+  IL_EXPECT_FAST(n >= 0);
 
   cudaMalloc(&data_, n * sizeof(T));
   size_ = n;
@@ -66,9 +66,9 @@ CudaArray<T>::CudaArray(const il::CudaArray<T>& x) {
 
   cudaError_t error;
   error = cudaMalloc(&data_, n * sizeof(T));
-  IL_ASSERT(error == 0);
+  IL_EXPECT_FAST(error == 0);
   error = cudaMemcpy(data_, x.data_, n * sizeof(T), cudaMemcpyDeviceToDevice);
-  IL_ASSERT(error == 0);
+  IL_EXPECT_FAST(error == 0);
 
   size_ = n;
   capacity_ = n;

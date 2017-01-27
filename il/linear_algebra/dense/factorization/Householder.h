@@ -48,8 +48,8 @@ class Householder<il::Array2D<double>> {
 
 Householder<il::Array2D<double>>::Householder(il::Array2D<double> A)
     : house_holder_{} {
-  IL_ASSERT_PRECOND(A.size(0) > 0);
-  IL_ASSERT_PRECOND(A.size(1) > 0);
+  IL_EXPECT_FAST(A.size(0) > 0);
+  IL_EXPECT_FAST(A.size(1) > 0);
 
   const int layout = LAPACK_COL_MAJOR;
   const char trans = 'N';
@@ -59,7 +59,7 @@ Householder<il::Array2D<double>>::Householder(il::Array2D<double> A)
   il::Array<double> reflexion{m < n ? m : n};
   const lapack_int lapack_error =
       LAPACKE_dgeqrf(layout, m, n, A.data(), lda, reflexion.data());
-  IL_ASSERT(lapack_error >= 0);
+  IL_EXPECT_FAST(lapack_error >= 0);
 }
 
 }

@@ -43,7 +43,7 @@ void write_double(double value, int precision, il::FloatStyle style, il::io_t,
       c_letter = 'f';
       break;
     default:
-      IL_ASSERT(false);
+      IL_EXPECT_FAST(false);
   }
 
   std::string spec{};
@@ -90,7 +90,7 @@ class FormatProvider<double> {
         s = FloatStyle::Exponent;
         break;
       default:
-        IL_ASSERT(false);
+        IL_EXPECT_FAST(false);
     }
 
     int precision;
@@ -119,7 +119,7 @@ class FormatProvider<int> {
         value ? stream.append("yes") : stream.append("no");
         break;
       default:
-        IL_ASSERT(false);
+        IL_EXPECT_FAST(false);
     }
   }
 };

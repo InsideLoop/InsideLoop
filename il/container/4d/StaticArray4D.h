@@ -53,7 +53,7 @@ StaticArray4D<T, n0, n1, n2, n3>::StaticArray4D() {
   if (std::is_pod<T>::value) {
 #ifndef NDEBUG
     for (il::int_t l = 0; l < n0 * n1 * n2 * n3; ++l) {
-      data_[l] = il::default_value<T>();
+      data_[l] = il::default_value<T>::value;
     }
 #endif
   }
@@ -71,26 +71,26 @@ const T& StaticArray4D<T, n0, n1, n2, n3>::operator()(il::int_t i0,
                                                       il::int_t i1,
                                                       il::int_t i2,
                                                       il::int_t i3) const {
-  IL_ASSERT(static_cast<il::uint_t>(i0) < static_cast<il::uint_t>(n0));
-  IL_ASSERT(static_cast<il::uint_t>(i1) < static_cast<il::uint_t>(n1));
-  IL_ASSERT(static_cast<il::uint_t>(i2) < static_cast<il::uint_t>(n2));
-  IL_ASSERT(static_cast<il::uint_t>(i3) < static_cast<il::uint_t>(n3));
+  IL_EXPECT_FAST(static_cast<il::uint_t>(i0) < static_cast<il::uint_t>(n0));
+  IL_EXPECT_FAST(static_cast<il::uint_t>(i1) < static_cast<il::uint_t>(n1));
+  IL_EXPECT_FAST(static_cast<il::uint_t>(i2) < static_cast<il::uint_t>(n2));
+  IL_EXPECT_FAST(static_cast<il::uint_t>(i3) < static_cast<il::uint_t>(n3));
   return data_[((i3 * n2 + i2) * n1 + i1) * n0 + i0];
 }
 
 template <typename T, il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3>
 T& StaticArray4D<T, n0, n1, n2, n3>::operator()(il::int_t i0, il::int_t i1,
                                                 il::int_t i2, il::int_t i3) {
-  IL_ASSERT(static_cast<il::uint_t>(i0) < static_cast<il::uint_t>(n0));
-  IL_ASSERT(static_cast<il::uint_t>(i1) < static_cast<il::uint_t>(n1));
-  IL_ASSERT(static_cast<il::uint_t>(i2) < static_cast<il::uint_t>(n2));
-  IL_ASSERT(static_cast<il::uint_t>(i3) < static_cast<il::uint_t>(n3));
+  IL_EXPECT_FAST(static_cast<il::uint_t>(i0) < static_cast<il::uint_t>(n0));
+  IL_EXPECT_FAST(static_cast<il::uint_t>(i1) < static_cast<il::uint_t>(n1));
+  IL_EXPECT_FAST(static_cast<il::uint_t>(i2) < static_cast<il::uint_t>(n2));
+  IL_EXPECT_FAST(static_cast<il::uint_t>(i3) < static_cast<il::uint_t>(n3));
   return data_[((i3 * n2 + i2) * n1 + i1) * n0 + i0];
 }
 
 template <typename T, il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3>
 il::int_t StaticArray4D<T, n0, n1, n2, n3>::size(il::int_t d) const {
-  IL_ASSERT(static_cast<il::uint_t>(d) < static_cast<il::uint_t>(4));
+  IL_EXPECT_FAST(static_cast<il::uint_t>(d) < static_cast<il::uint_t>(4));
   return d == 0 ? n0 : (d == 1 ? n1 : (d == 2 ? n2 : n3));
 }
 

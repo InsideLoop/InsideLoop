@@ -57,7 +57,7 @@ class Cholesky<il::Array2D<double>> {
 Cholesky<il::Array2D<double>>::Cholesky(il::Array2D<double> A, il::io_t,
                                         il::Status& status)
     : l_{} {
-  IL_ASSERT_PRECOND(A.size(0) == A.size(1));
+  IL_EXPECT_FAST(A.size(0) == A.size(1));
 
   const int layout = LAPACK_COL_MAJOR;
   const char uplo = 'L';
@@ -65,7 +65,7 @@ Cholesky<il::Array2D<double>>::Cholesky(il::Array2D<double> A, il::io_t,
   const lapack_int lda = static_cast<lapack_int>(A.stride(1));
   const lapack_int lapack_error =
       LAPACKE_dpotrf(layout, uplo, n, A.data(), lda);
-  IL_ASSERT(lapack_error >= 0);
+  IL_EXPECT_FAST(lapack_error >= 0);
   if (lapack_error == 0) {
     status.set(ErrorCode::ok);
     l_ = std::move(A);
@@ -82,7 +82,7 @@ il::int_t Cholesky<il::Array2D<double>>::size(il::int_t d) const {
 
 il::Array<double> Cholesky<il::Array2D<double>>::solve(
     il::Array<double> y) const {
-  IL_ASSERT_PRECOND(l_.size(0) == y.size());
+  IL_EXPECT_FAST(l_.size(0) == y.size());
 
   const int layout = LAPACK_COL_MAJOR;
   const char uplo = 'L';
@@ -92,7 +92,7 @@ il::Array<double> Cholesky<il::Array2D<double>>::solve(
   const lapack_int ldy = n;
   const lapack_int lapack_error =
       LAPACKE_dpotrs(layout, uplo, n, nrhs, l_.data(), lda, y.data(), ldy);
-  IL_ASSERT(lapack_error == 0);
+  IL_EXPECT_FAST(lapack_error == 0);
 
   return y;
 }
@@ -105,14 +105,14 @@ il::Array2D<double> Cholesky<il::Array2D<double>>::inverse() const {
   const lapack_int lda = static_cast<lapack_int>(inverse.stride(1));
   const lapack_int lapack_error =
       LAPACKE_dpotri(layout, uplo, n, inverse.data(), lda);
-  IL_ASSERT(lapack_error == 0);
+  IL_EXPECT_FAST(lapack_error == 0);
 
   return inverse;
 }
 
 double Cholesky<il::Array2D<double>>::condition_number(il::Norm norm_type,
                                                        double norm_a) const {
-  IL_ASSERT_PRECOND(norm_type == il::Norm::L1 || norm_type == il::Norm::Linf);
+  IL_EXPECT_FAST(norm_type == il::Norm::L1 || norm_type == il::Norm::Linf);
 
   const int layout = LAPACK_COL_MAJOR;
   const char uplo = 'L';
@@ -122,7 +122,7 @@ double Cholesky<il::Array2D<double>>::condition_number(il::Norm norm_type,
   double rcond;
   const lapack_int lapack_error =
       LAPACKE_dpocon(layout, lapack_norm, n, l_.data(), lda, norm_a, &rcond);
-  IL_ASSERT(lapack_error == 0);
+  IL_EXPECT_FAST(lapack_error == 0);
 
   return 1.0 / rcond;
 }
@@ -143,7 +143,7 @@ Cholesky<LowerArray2D<double>>::Cholesky(il::LowerArray2D<double> A, il::io_t,
   const char uplo = 'L';
   const lapack_int n = static_cast<lapack_int>(A.size());
   const lapack_int lapack_error = LAPACKE_dpptrf(layout, uplo, n, A.data());
-  IL_ASSERT(lapack_error >= 0);
+  IL_EXPECT_FAST(lapack_error >= 0);
   if (lapack_error == 0) {
     status.set(ErrorCode::ok);
     l_ = std::move(A);

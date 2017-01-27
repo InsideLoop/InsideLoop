@@ -47,9 +47,9 @@ class Eigen<il::Array2D<double>> {
 Eigen<il::Array2D<double>>::Eigen(il::Array2D<double> A, il::io_t,
                                   il::Status& status)
     : eigen_value_{}, eigen_value_r_{}, eigen_value_i_{} {
-  IL_ASSERT_PRECOND(A.size(0) > 0);
-  IL_ASSERT_PRECOND(A.size(1) > 0);
-  IL_ASSERT_PRECOND(A.size(0) == A.size(1));
+  IL_EXPECT_FAST(A.size(0) > 0);
+  IL_EXPECT_FAST(A.size(1) > 0);
+  IL_EXPECT_FAST(A.size(0) == A.size(1));
 
   const int layout = LAPACK_COL_MAJOR;
   const lapack_int n = static_cast<lapack_int>(A.size(0));
@@ -59,7 +59,7 @@ Eigen<il::Array2D<double>>::Eigen(il::Array2D<double> A, il::io_t,
   il::Array<double> tau{n > 1 ? (n - 1) : 1};
   lapack_int lapack_error =
       LAPACKE_dgehrd(layout, n, ilo, ihi, A.data(), lda, tau.data());
-  IL_ASSERT(lapack_error == 0);
+  IL_EXPECT_FAST(lapack_error == 0);
 
   const char job = 'E';
   const char compz = 'N';
@@ -71,7 +71,7 @@ Eigen<il::Array2D<double>>::Eigen(il::Array2D<double> A, il::io_t,
   lapack_error = LAPACKE_dhseqr(layout, job, compz, n, ilo, ihi, A.data(), lda,
                                 wr.data(), wi.data(), z.data(), ldz);
 
-  IL_ASSERT(lapack_error >= 0);
+  IL_EXPECT_FAST(lapack_error >= 0);
   if (lapack_error == 0) {
     status.set(ErrorCode::ok);
     eigen_value_ = std::move(w);

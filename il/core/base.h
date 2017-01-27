@@ -12,6 +12,8 @@
 
 // <cstddef> is needed for std::size_t and std::ptrdiff_t
 #include <cstddef>
+// <cstddef> is needed for integers of different sizes
+#include <cstdint>
 // <cstdlib> is needed for std::malloc, std::abort, etc
 #include <cstdlib>
 // <limits> is needed for std::numeric_limits
@@ -41,10 +43,8 @@ struct abort_exception {};
 #elif NDEBUG
 #define IL_EXPECT_FAST(condition) ((void)0)
 #else
-#define IL_EXPECT_FAST(condition) \
-  (condition) ? ((void) 0) : ::abort();
+#define IL_EXPECT_FAST(condition) (condition) ? ((void)0) : std::abort();
 #endif
-
 
 // Use this when the the expectation is as expensive to compute as the function
 #ifdef IL_UNIT_TEST
@@ -53,8 +53,7 @@ struct abort_exception {};
 #elif NDEBUG
 #define IL_EXPECT_MEDIUM(condition) ((void)0)
 #else
-#define IL_EXPECT_MEDIUM(condition) \
-  (condition) ? ((void) 0) : ::abort();
+#define IL_EXPECT_MEDIUM(condition) (condition) ? ((void)0) : std::abort();
 #endif
 
 // Use this when the the expectation is more expensive to compute than the
@@ -65,8 +64,7 @@ struct abort_exception {};
 #elif NDEBUG
 #define IL_EXPECT_SLOW(condition) ((void)0)
 #else
-#define IL_EXPECT_SLOW(condition) \
-  (condition) ? ((void) 0) : ::abort();
+#define IL_EXPECT_SLOW(condition) (condition) ? ((void)0) : std::abort();
 #endif
 
 #ifdef IL_UNIT_TEST
@@ -75,12 +73,10 @@ struct abort_exception {};
 #elif NDEBUG
 #define IL_EXPECT_BOUND(condition) ((void)0)
 #else
-#define IL_EXPECT_BOUND(condition) (condition) ? ((void)0) : abort()
+#define IL_EXPECT_BOUND(condition) (condition) ? ((void)0) : std::abort()
 #endif
 
-
-
-#define IL_EXPECT_AXIOM(message) (void)0
+#define IL_EXPECT_AXIOM(message) ((void)0)
 
 // This one is not check and can contain code that is not run
 #ifdef IL_UNIT_TEST
@@ -89,46 +85,16 @@ struct abort_exception {};
 #elif NDEBUG
 #define IL_ENSURE(condition) ((void)0)
 #else
-#define IL_ENSURE(condition) \
-  (condition) ? ((void) 0) : ::abort();
+#define IL_ENSURE(condition) (condition) ? ((void)0) : std::abort();
 #endif
 
+#define IL_UNREACHABLE std::abort()
 
-//#ifndef NDEBUG
-//#define IL_DEBUG_VISUALIZER
-//#endif
+#define IL_UNUSED(var) ((void)var)
 
 #ifndef NDEBUG
 #define IL_DEFAULT_VALUE
 #endif
-
-#ifndef NDEBUG
-#define IL_INVARIANCE
-#endif
-
-#ifdef IL_UNIT_TEST
-#define IL_ASSERT(condition) \
-  (condition) ? ((void)0) : throw il::abort_exception {}
-#else
-#define IL_ASSERT(condition) (condition) ? ((void)0) : ::abort()
-#endif
-
-#ifdef IL_UNIT_TEST
-#define IL_ASSERT_PRECOND(condition) \
-  (condition) ? ((void)0) : throw il::abort_exception {}
-#else
-#define IL_ASSERT_PRECOND(condition) (condition) ? ((void)0) : ::abort()
-#endif
-
-// IL_EXPECT_BOUND is used for bounds checking in Array containers
-// - in debug mode, the program is aborted
-// - in release mode, no bounds checking is done
-// - in unit test mode, an exception is thrown so our unit test can check that
-//   bounds checking is done correctly
-//
-#define IL_UNUSED(var) (void)var
-
-#define IL_UNREACHABLE abort()
 
 ////////////////////////////////////////////////////////////////////////////////
 // Namespace il
@@ -170,55 +136,79 @@ const short page = 4096;
 ////////////////////////////////////////////////////////////////////////////////
 
 template <typename T>
-T default_value() {
-  return T{};
-}
+struct default_value {
+  static constexpr T value = T{};
+};
 
 template <>
-inline float default_value<float>() {
-  return std::numeric_limits<float>::quiet_NaN();
-}
+struct default_value<bool> {
+  static constexpr bool value = false;
+};
 
 template <>
-inline double default_value<double>() {
-  return std::numeric_limits<double>::quiet_NaN();
-}
+struct default_value<char> {
+  static constexpr char value = '\0';
+};
 
 template <>
-inline long double default_value<long double>() {
-  return std::numeric_limits<long double>::quiet_NaN();
-}
+struct default_value<std::int8_t> {
+  static constexpr std::int8_t value = 123;
+};
 
 template <>
-inline char default_value<char>() {
-  return 123;
-}
+struct default_value<std::uint8_t> {
+  static constexpr std::uint8_t value = 123;
+};
 
 template <>
-inline unsigned char default_value<unsigned char>() {
-  return 123;
-}
+struct default_value<std::int16_t> {
+  static constexpr std::int16_t value = 12345;
+};
 
 template <>
-inline int default_value<int>() {
-  return 1234567891;
-}
+struct default_value<std::uint16_t> {
+  static constexpr std::uint16_t value = 12345;
+};
 
 template <>
-inline unsigned int default_value<unsigned int>() {
-  return 1234567891;
-}
+struct default_value<std::int32_t> {
+  static constexpr std::int32_t value = 1234567891;
+};
 
 template <>
-inline long int default_value<long int>() {
-  return (sizeof(long int) == 8) ? 1234567891234567891 : 1234567891;
-}
+struct default_value<std::uint32_t> {
+  static constexpr std::uint32_t value = 1234567891;
+};
+
+#ifdef INT64_MAX
+template <>
+struct default_value<std::int64_t> {
+  static constexpr std::int64_t value = 1234567891234567891;
+};
+#endif
+
+#ifdef UINT64_MAX
+template <>
+struct default_value<std::uint64_t> {
+  static constexpr std::uint64_t value = 1234567891234567891;
+};
+#endif
 
 template <>
-inline unsigned long int default_value<unsigned long int>() {
-  return (sizeof(long int) == 8) ? 1234567891234567891 : 1234567891;
-}
+struct default_value<float> {
+  static constexpr float value = std::numeric_limits<float>::quiet_NaN();
+};
 
+template <>
+struct default_value<double> {
+  static constexpr double value = std::numeric_limits<double>::quiet_NaN();
+};
+
+template <>
+struct default_value<long double> {
+  static constexpr long double value =
+      std::numeric_limits<long double>::quiet_NaN();
+};
 }
 
 #endif  // IL_BASE_H

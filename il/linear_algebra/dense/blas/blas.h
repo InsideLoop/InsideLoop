@@ -48,7 +48,7 @@ void blas(T alpha, const il::StaticArray3D<T, n0, n1, n2>& A, T beta, il::io_t,
 // y <- alpha x + y
 inline void blas(double alpha, const il::Array<double>& x, il::io_t,
                  il::Array<double>& y) {
-  IL_ASSERT(x.size() == y.size());
+  IL_EXPECT_FAST(x.size() == y.size());
 
   const IL_CBLAS_INT n{static_cast<IL_CBLAS_INT>(x.size())};
   const IL_CBLAS_INT incx{1};
@@ -60,7 +60,7 @@ inline void blas(double alpha, const il::Array<double>& x, il::io_t,
 // y <- alpha x + beta y
 inline void blas(float alpha, const il::Array<float>& x, float beta, il::io_t,
                  il::Array<float>& y) {
-  IL_ASSERT(x.size() == y.size());
+  IL_EXPECT_FAST(x.size() == y.size());
 
   const IL_CBLAS_INT n{static_cast<IL_CBLAS_INT>(x.size())};
   const IL_CBLAS_INT incx{1};
@@ -72,7 +72,7 @@ inline void blas(float alpha, const il::Array<float>& x, float beta, il::io_t,
 // y <- alpha x + beta y
 inline void blas(double alpha, const il::Array<double>& x, double beta,
                  il::io_t, il::Array<double>& y) {
-  IL_ASSERT(x.size() == y.size());
+  IL_EXPECT_FAST(x.size() == y.size());
 
   const IL_CBLAS_INT n{static_cast<IL_CBLAS_INT>(x.size())};
   const IL_CBLAS_INT incx{1};
@@ -89,9 +89,9 @@ inline void blas(double alpha, const il::Array<double>& x, double beta,
 inline void blas(float alpha, const il::Array2D<float>& A,
                  const il::Array<float>& x, float beta, il::io_t,
                  il::Array<float>& y) {
-  IL_ASSERT(A.size(0) == y.size());
-  IL_ASSERT(A.size(1) == x.size());
-  IL_ASSERT(&x != &y);
+  IL_EXPECT_FAST(A.size(0) == y.size());
+  IL_EXPECT_FAST(A.size(1) == x.size());
+  IL_EXPECT_FAST(&x != &y);
 
   const IL_CBLAS_LAYOUT layout{CblasColMajor};
   const CBLAS_TRANSPOSE transa{CblasNoTrans};
@@ -110,9 +110,9 @@ inline void blas(float alpha, const il::Array2D<float>& A,
 inline void blas(double alpha, const il::Array2D<double>& A,
                  const il::Array<double>& x, double beta, il::io_t,
                  il::Array<double>& y) {
-  IL_ASSERT(A.size(0) == y.size());
-  IL_ASSERT(A.size(1) == x.size());
-  IL_ASSERT(&x != &y);
+  IL_EXPECT_FAST(A.size(0) == y.size());
+  IL_EXPECT_FAST(A.size(1) == x.size());
+  IL_EXPECT_FAST(&x != &y);
 
   const IL_CBLAS_LAYOUT layout{CblasColMajor};
   const CBLAS_TRANSPOSE transa{CblasNoTrans};
@@ -131,9 +131,9 @@ inline void blas(double alpha, const il::Array2D<double>& A,
 inline void blas(double alpha, const il::Array2C<double>& A,
                  const il::Array<double>& x, double beta, il::io_t,
                  il::Array<double>& y) {
-  IL_ASSERT(A.size(0) == y.size());
-  IL_ASSERT(A.size(1) == x.size());
-  IL_ASSERT(&x != &y);
+  IL_EXPECT_FAST(A.size(0) == y.size());
+  IL_EXPECT_FAST(A.size(1) == x.size());
+  IL_EXPECT_FAST(&x != &y);
 
   const IL_CBLAS_LAYOUT layout{CblasRowMajor};
   const CBLAS_TRANSPOSE transa{CblasNoTrans};
@@ -156,11 +156,11 @@ inline void blas(double alpha, const il::Array2C<double>& A,
 inline void blas(float alpha, const il::Array2D<float>& A,
                  const il::Array2D<float>& B, float beta, il::io_t,
                  il::Array2D<float>& C) {
-  IL_ASSERT(A.size(1) == B.size(0));
-  IL_ASSERT(C.size(0) == A.size(0));
-  IL_ASSERT(C.size(1) == B.size(1));
-  IL_ASSERT(&A != &C);
-  IL_ASSERT(&B != &C);
+  IL_EXPECT_FAST(A.size(1) == B.size(0));
+  IL_EXPECT_FAST(C.size(0) == A.size(0));
+  IL_EXPECT_FAST(C.size(1) == B.size(1));
+  IL_EXPECT_FAST(&A != &C);
+  IL_EXPECT_FAST(&B != &C);
 
   const IL_CBLAS_LAYOUT layout{CblasColMajor};
   const CBLAS_TRANSPOSE transa{CblasNoTrans};
@@ -180,11 +180,11 @@ inline void blas(float alpha, const il::Array2D<float>& A,
 inline void blas(double alpha, const il::Array2D<double>& A,
                  const il::Array2D<double>& B, double beta, il::io_t,
                  il::Array2D<double>& C) {
-  IL_ASSERT(A.size(1) == B.size(0));
-  IL_ASSERT(C.size(0) == A.size(0));
-  IL_ASSERT(C.size(1) == B.size(1));
-  IL_ASSERT(&A != &C);
-  IL_ASSERT(&B != &C);
+  IL_EXPECT_FAST(A.size(1) == B.size(0));
+  IL_EXPECT_FAST(C.size(0) == A.size(0));
+  IL_EXPECT_FAST(C.size(1) == B.size(1));
+  IL_EXPECT_FAST(&A != &C);
+  IL_EXPECT_FAST(&B != &C);
 
   const IL_CBLAS_LAYOUT layout{CblasColMajor};
   const CBLAS_TRANSPOSE transa{CblasNoTrans};
@@ -202,11 +202,11 @@ inline void blas(double alpha, const il::Array2D<double>& A,
 inline void blas(double alpha, const il::Array2D<double>& A, Blas info_a,
                  const il::Array2D<double>& B, Blas info_b, double beta,
                  il::io_t, il::Array2D<double>& C) {
-  IL_ASSERT(A.size(1) == B.size(0));
-  IL_ASSERT(C.size(0) == A.size(0));
-  IL_ASSERT(C.size(1) == B.size(1));
-  IL_ASSERT(&A != &C);
-  IL_ASSERT(&B != &C);
+  IL_EXPECT_FAST(A.size(1) == B.size(0));
+  IL_EXPECT_FAST(C.size(0) == A.size(0));
+  IL_EXPECT_FAST(C.size(1) == B.size(1));
+  IL_EXPECT_FAST(&A != &C);
+  IL_EXPECT_FAST(&B != &C);
 
   const IL_CBLAS_LAYOUT layout{CblasColMajor};
   const CBLAS_TRANSPOSE transa{CblasNoTrans};
@@ -218,7 +218,7 @@ inline void blas(double alpha, const il::Array2D<double>& A, Blas info_a,
   const IL_CBLAS_INT ldb{static_cast<IL_CBLAS_INT>(B.stride(1))};
   const IL_CBLAS_INT ldc{static_cast<IL_CBLAS_INT>(C.stride(1))};
   if (info_a == il::Blas::symmetric_upper && info_b == il::Blas::regular) {
-    IL_ASSERT(A.size(0) == A.size(1));
+    IL_EXPECT_FAST(A.size(0) == A.size(1));
     const CBLAS_SIDE side{CblasLeft};
     const CBLAS_UPLO uplo{CblasUpper};
     cblas_dsymm(layout, side, uplo, m, n, alpha, A.data(), lda, B.data(), ldb,
@@ -236,11 +236,11 @@ inline void blas(double alpha, const il::Array2D<double>& A, Blas info_a,
 inline void blas(float alpha, const il::Array2C<float>& A,
                  const il::Array2C<float>& B, float beta, il::io_t,
                  il::Array2C<float>& C) {
-  IL_ASSERT(A.size(1) == B.size(0));
-  IL_ASSERT(C.size(0) == A.size(0));
-  IL_ASSERT(C.size(1) == B.size(1));
-  IL_ASSERT(&A != &C);
-  IL_ASSERT(&B != &C);
+  IL_EXPECT_FAST(A.size(1) == B.size(0));
+  IL_EXPECT_FAST(C.size(0) == A.size(0));
+  IL_EXPECT_FAST(C.size(1) == B.size(1));
+  IL_EXPECT_FAST(&A != &C);
+  IL_EXPECT_FAST(&B != &C);
 
   const IL_CBLAS_LAYOUT layout{CblasRowMajor};
   const CBLAS_TRANSPOSE transa{CblasNoTrans};
@@ -260,11 +260,11 @@ inline void blas(float alpha, const il::Array2C<float>& A,
 inline void blas(double alpha, const il::Array2C<double>& A,
                  const il::Array2C<double>& B, double beta, il::io_t,
                  il::Array2C<double>& C) {
-  IL_ASSERT(A.size(1) == B.size(0));
-  IL_ASSERT(C.size(0) == A.size(0));
-  IL_ASSERT(C.size(1) == B.size(1));
-  IL_ASSERT(&A != &C);
-  IL_ASSERT(&B != &C);
+  IL_EXPECT_FAST(A.size(1) == B.size(0));
+  IL_EXPECT_FAST(C.size(0) == A.size(0));
+  IL_EXPECT_FAST(C.size(1) == B.size(1));
+  IL_EXPECT_FAST(&A != &C);
+  IL_EXPECT_FAST(&B != &C);
 
   const IL_CBLAS_LAYOUT layout{CblasRowMajor};
   const CBLAS_TRANSPOSE transa{CblasNoTrans};
@@ -282,11 +282,11 @@ inline void blas(double alpha, const il::Array2C<double>& A,
 inline void blas(double alpha, const il::Array2C<double>& A, Blas info_a,
                  const il::Array2C<double>& B, Blas info_b, double beta,
                  il::io_t, il::Array2C<double>& C) {
-  IL_ASSERT(A.size(1) == B.size(0));
-  IL_ASSERT(C.size(0) == A.size(0));
-  IL_ASSERT(C.size(1) == B.size(1));
-  IL_ASSERT(&A != &C);
-  IL_ASSERT(&B != &C);
+  IL_EXPECT_FAST(A.size(1) == B.size(0));
+  IL_EXPECT_FAST(C.size(0) == A.size(0));
+  IL_EXPECT_FAST(C.size(1) == B.size(1));
+  IL_EXPECT_FAST(&A != &C);
+  IL_EXPECT_FAST(&B != &C);
 
   const IL_CBLAS_LAYOUT layout{CblasRowMajor};
   const CBLAS_TRANSPOSE transa{CblasNoTrans};
@@ -298,7 +298,7 @@ inline void blas(double alpha, const il::Array2C<double>& A, Blas info_a,
   const IL_CBLAS_INT ldb{static_cast<IL_CBLAS_INT>(B.stride(0))};
   const IL_CBLAS_INT ldc{static_cast<IL_CBLAS_INT>(C.stride(0))};
   if (info_a == il::Blas::symmetric_upper && info_b == il::Blas::regular) {
-    IL_ASSERT(A.size(0) == A.size(1));
+    IL_EXPECT_FAST(A.size(0) == A.size(1));
     const CBLAS_SIDE side{CblasLeft};
     const CBLAS_UPLO uplo{CblasUpper};
     cblas_dsymm(layout, side, uplo, m, n, alpha, A.data(), lda, B.data(), ldb,

@@ -28,8 +28,8 @@ namespace il {
 inline il::Array<double> linear_solve(il::Array2D<double> A,
                                       il::Array<double> y, il::io_t,
                                       il::Status &status) {
-  IL_ASSERT(A.size(0) == A.size(1));
-  IL_ASSERT(y.size() == A.size(0));
+  IL_EXPECT_FAST(A.size(0) == A.size(1));
+  IL_EXPECT_FAST(y.size() == A.size(0));
 
   il::Array<lapack_int> ipiv{A.size(0)};
 
@@ -41,7 +41,7 @@ inline il::Array<double> linear_solve(il::Array2D<double> A,
   const lapack_int lapack_error{LAPACKE_dgesv(layout, n, nrhs, A.data(), lda,
                                               ipiv.data(), y.data(), ldx)};
 
-  IL_ASSERT(lapack_error >= 0);
+  IL_EXPECT_FAST(lapack_error >= 0);
   if (lapack_error == 0) {
     status.set(il::ErrorCode::ok);
   } else {
@@ -54,8 +54,8 @@ inline il::Array<double> linear_solve(il::Array2D<double> A,
 inline il::Array<double> linear_solve(il::Array2C<double> A,
                                       il::Array<double> y, il::io_t,
                                       il::Status &status) {
-  IL_ASSERT(A.size(0) == A.size(1));
-  IL_ASSERT(y.size() == A.size(1));
+  IL_EXPECT_FAST(A.size(0) == A.size(1));
+  IL_EXPECT_FAST(y.size() == A.size(1));
 
   il::Array<lapack_int> ipiv{A.size(0)};
 
@@ -67,7 +67,7 @@ inline il::Array<double> linear_solve(il::Array2C<double> A,
   const lapack_int lapack_error{LAPACKE_dgesv(layout, n, nrhs, A.data(), lda,
                                               ipiv.data(), y.data(), ldx)};
 
-  IL_ASSERT(lapack_error >= 0);
+  IL_EXPECT_FAST(lapack_error >= 0);
   if (lapack_error == 0) {
     status.set(il::ErrorCode::ok);
   } else {
@@ -80,9 +80,9 @@ inline il::Array<double> linear_solve(il::Array2C<double> A,
 inline il::Array<double> linear_solve(il::BandArray2C<double> A,
                                       il::Array<double> y, il::io_t,
                                       il::Status &status) {
-  IL_ASSERT(A.size(0) == A.size(1));
-  IL_ASSERT(y.size() == A.size(1));
-  IL_ASSERT(A.capacity_right() >= A.width_left() + A.width_right());
+  IL_EXPECT_FAST(A.size(0) == A.size(1));
+  IL_EXPECT_FAST(y.size() == A.size(1));
+  IL_EXPECT_FAST(A.capacity_right() >= A.width_left() + A.width_right());
 
   il::Array<lapack_int> ipiv{A.size(1)};
 
@@ -97,7 +97,7 @@ inline il::Array<double> linear_solve(il::BandArray2C<double> A,
   const lapack_int lapack_error{LAPACKE_dgbsv(
       layout, n, kl, ku, nrhs, A.data(), ldab, ipiv.data(), y.data(), ldb)};
 
-  IL_ASSERT(lapack_error >= 0);
+  IL_EXPECT_FAST(lapack_error >= 0);
   if (lapack_error == 0) {
     status.set(il::ErrorCode::ok);
   } else {
@@ -110,7 +110,7 @@ inline il::Array<double> linear_solve(il::BandArray2C<double> A,
 inline il::Array<double> linear_solve(il::TriDiagonal<double> A,
                                       il::Array<double> y, il::io_t,
                                       il::Status &status) {
-  IL_ASSERT(A.size() == y.size());
+  IL_EXPECT_FAST(A.size() == y.size());
 
   const int layout{LAPACK_ROW_MAJOR};
   const lapack_int n{static_cast<lapack_int>(A.size())};
@@ -120,7 +120,7 @@ inline il::Array<double> linear_solve(il::TriDiagonal<double> A,
                                               A.data_diagonal(), A.data_upper(),
                                               y.data(), ldb)};
 
-  IL_ASSERT(lapack_error >= 0);
+  IL_EXPECT_FAST(lapack_error >= 0);
   if (lapack_error == 0) {
     status.set(il::ErrorCode::ok);
   } else {

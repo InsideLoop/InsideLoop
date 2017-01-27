@@ -43,7 +43,7 @@ inline Timer::Timer() : point_begin_{} {
 }
 
 inline void Timer::start() {
-  IL_ASSERT(!launched_);
+  IL_EXPECT_FAST(!launched_);
   launched_ = true;
   point_begin_ = std::chrono::high_resolution_clock::now();
 }
@@ -51,7 +51,7 @@ inline void Timer::start() {
 inline void Timer::stop() {
   std::chrono::time_point<std::chrono::high_resolution_clock> point_end =
       std::chrono::high_resolution_clock::now();
-  IL_ASSERT(launched_);
+  IL_EXPECT_FAST(launched_);
   launched_ = false;
   time_ += 1.0e-9 *
            std::chrono::duration_cast<std::chrono::nanoseconds>(point_end -

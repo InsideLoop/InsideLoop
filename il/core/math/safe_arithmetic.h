@@ -18,65 +18,66 @@
 namespace il {
 
 ////////////////////////////////////////////////////////////////////////////////
-// int
+// 32-bit integer
 ////////////////////////////////////////////////////////////////////////////////
 
-// We use the fact that long long is stricly wider than int which is not part
-// of the standard.
-// - The C++11 standard states that long long is at least 64 bits
-// - All data models (LP32, ILP32, LLP64, LP64) work with an int that is 32 bits
-//   or less
-inline int safe_sum(int a, int b, il::io_t, bool& error) {
-  const long long ll_a = a;
-  const long long ll_b = b;
-  const long long ll_sum = ll_a + ll_b;
-  if (ll_sum > std::numeric_limits<int>::max()) {
+#ifdef INT64_MAX
+inline std::int32_t safe_sum(std::int32_t a, std::int32_t b, il::io_t,
+                             bool& error) {
+  const std::int64_t a_64 = a;
+  const std::int64_t b_64 = b;
+  const std::int64_t sum_64 = a_64 + b_64;
+  if (sum_64 > std::numeric_limits<std::int32_t>::max()) {
     error = true;
     return 0;
-  } else if (ll_sum < std::numeric_limits<int>::min()) {
+  } else if (sum_64 < std::numeric_limits<std::int32_t>::min()) {
     error = true;
     return 0;
   } else {
-    return static_cast<int>(ll_sum);
+    return static_cast<std::int32_t>(sum_64);
   }
 }
+#endif
 
-// We use the fact that long long is stricly wider than int (check comment on
-// safe_add).
-inline int safe_substraction(int a, int b, il::io_t, bool& error) {
-  const long long ll_a = a;
-  const long long ll_b = b;
-  const long long ll_sum = ll_a - ll_b;
-  if (ll_sum > std::numeric_limits<int>::max()) {
+#ifdef INT64_MAX
+inline std::int32_t safe_difference(std::int32_t a, std::int32_t b, il::io_t,
+                                      bool& error) {
+  const std::int64_t a_64 = a;
+  const std::int64_t b_64 = b;
+  const std::int64_t difference_64 = a_64 - b_64;
+  if (difference_64 > std::numeric_limits<std::int32_t>::max()) {
     error = true;
     return 0;
-  } else if (ll_sum < std::numeric_limits<int>::min()) {
+  } else if (difference_64 < std::numeric_limits<std::int32_t>::min()) {
     error = true;
     return 0;
   } else {
-    return static_cast<int>(ll_sum);
+    return static_cast<std::int32_t>(difference_64);
   }
 }
+#endif
 
-// We use the fact that long long is stricly wider than int (check comment on
-// safe_add).
-inline int safe_product(int a, int b, il::io_t, bool& error) {
-  const long long ll_a = a;
-  const long long ll_b = b;
-  const long long ll_sum = ll_a * ll_b;
-  if (ll_sum > std::numeric_limits<int>::max()) {
+#ifdef INT64_MAX
+inline std::int32_t safe_product(std::int32_t a, std::int32_t b, il::io_t,
+                                 bool& error) {
+  const std::int64_t a_64 = a;
+  const std::int64_t b_64 = b;
+  const std::int64_t product_64 = a_64 * b_64;
+  if (product_64 > std::numeric_limits<std::int32_t>::max()) {
     error = true;
     return 0;
-  } else if (ll_sum < std::numeric_limits<int>::min()) {
+  } else if (product_64 < std::numeric_limits<std::int32_t>::min()) {
     error = true;
     return 0;
   } else {
-    return static_cast<int>(ll_sum);
+    return static_cast<std::int32_t>(product_64);
   }
 }
+#endif
 
-inline int safe_division(int a, int b, il::io_t, bool& error) {
-  if (b == 0 || (b == -1 && a == std::numeric_limits<int>::min())) {
+inline std::int32_t safe_division(std::int32_t a, std::int32_t b, il::io_t,
+                                  bool& error) {
+  if (b == 0 || (b == -1 && a == std::numeric_limits<std::int32_t>::min())) {
     error = true;
     return 0;
   } else {
@@ -85,51 +86,58 @@ inline int safe_division(int a, int b, il::io_t, bool& error) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// il::int_t
+// 64-bit integer
 ////////////////////////////////////////////////////////////////////////////////
 
-inline il::int_t safe_sum(il::int_t a, il::int_t b, il::io_t, bool& error) {
-  if ((b > 0 && a > std::numeric_limits<il::int_t>::max() - b) ||
-      (b < 0 && a < std::numeric_limits<il::int_t>::min() - b)) {
+#ifdef INT64_MAX
+inline std::int64_t safe_sum(std::int64_t a, std::int64_t b, il::io_t,
+                             bool& error) {
+  if ((b > 0 && a > std::numeric_limits<std::int64_t>::max() - b) ||
+      (b < 0 && a < std::numeric_limits<std::int64_t>::min() - b)) {
     error = true;
     return 0;
   } else {
     return a + b;
   }
 }
+#endif
 
-inline il::int_t safe_substraction(il::int_t a, il::int_t b, il::io_t,
-                                   bool& error) {
-  if ((b > 0 && a < std::numeric_limits<il::int_t>::min() + b) ||
-      (b < 0 && a > std::numeric_limits<il::int_t>::max() + b)) {
+#ifdef INT64_MAX
+inline std::int64_t safe_difference(std::int64_t a, std::int64_t b, il::io_t,
+                                      bool& error) {
+  if ((b > 0 && a < std::numeric_limits<std::int64_t>::min() + b) ||
+      (b < 0 && a > std::numeric_limits<std::int64_t>::max() + b)) {
     error = true;
     return 0;
   } else {
     return a - b;
   }
 }
+#endif
 
-inline il::int_t safe_product(il::int_t a, il::int_t b, il::io_t, bool& error) {
+#ifdef INT64_MAX
+inline std::int64_t safe_product(std::int64_t a, std::int64_t b, il::io_t,
+                                 bool& error) {
   if (a > 0) {
     if (b > 0) {
-      if (a > std::numeric_limits<il::int_t>::max() / b) {
+      if (a > std::numeric_limits<std::int64_t>::max() / b) {
         error = true;
         return 0;
       }
     } else {
-      if (b < std::numeric_limits<il::int_t>::min() / a) {
+      if (b < std::numeric_limits<std::int64_t>::min() / a) {
         error = true;
         return 0;
       }
     }
   } else {
     if (b > 0) {
-      if (a < std::numeric_limits<il::int_t>::min() / b) {
+      if (a < std::numeric_limits<std::int64_t>::min() / b) {
         error = true;
         return 0;
       }
     } else {
-      if (a != 0 && b < std::numeric_limits<il::int_t>::max() / a) {
+      if (a != 0 && b < std::numeric_limits<std::int64_t>::max() / a) {
         error = true;
         return 0;
       }
@@ -137,34 +145,36 @@ inline il::int_t safe_product(il::int_t a, il::int_t b, il::io_t, bool& error) {
   }
   return a * b;
 }
+#endif
 
-inline il::int_t safe_division(il::int_t a, il::int_t b, il::io_t,
-                               bool& error) {
-  if (b == 0 || (b == -1 && a == std::numeric_limits<il::int_t>::min())) {
+#ifdef INT64_MAX
+inline std::int64_t safe_division(std::int64_t a, std::int64_t b, il::io_t,
+                                  bool& error) {
+  if (b == 0 || (b == -1 && a == std::numeric_limits<std::int64_t>::min())) {
     error = true;
     return 0;
   } else {
     return a / b;
   }
 }
+#endif
 
-////////////////////////////////////////////////////////////////////////////////
-// std::size_t
-////////////////////////////////////////////////////////////////////////////////
-
-inline std::size_t safe_sum(std::size_t a, std::size_t b, il::io_t,
-                            bool& error) {
-  if (a > (std::numeric_limits<std::size_t>::max() - b)) {
+#ifdef UINT64_MAX
+inline std::uint64_t safe_sum(std::uint64_t a, std::uint64_t b, il::io_t,
+                              bool& error) {
+  if (a > (std::numeric_limits<std::uint64_t>::max() - b)) {
     error = true;
     return 0;
   }
   return a + b;
 }
+#endif
 
-inline std::size_t safe_product(std::size_t a, std::size_t b, il::io_t,
-                                bool& error) {
+#ifdef UINT64_MAX
+inline std::uint64_t safe_product(std::uint64_t a, std::uint64_t b, il::io_t,
+                                  bool& error) {
   if (b > 0) {
-    if (a > std::numeric_limits<std::size_t>::max() / b) {
+    if (a > std::numeric_limits<std::uint64_t>::max() / b) {
       error = true;
       return 0;
     }
@@ -172,6 +182,7 @@ inline std::size_t safe_product(std::size_t a, std::size_t b, il::io_t,
   error = error || false;
   return a * b;
 }
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -183,22 +194,27 @@ T1 safe_convert(T2 n, il::io_t, bool& error) {
   return T1{};
 };
 
+#ifdef INT64_MAX
 template <>
-inline il::int_t safe_convert(std::size_t n, il::io_t, bool& error) {
-  if (n > std::numeric_limits<il::int_t>::max()) {
+inline std::int64_t safe_convert(std::uint64_t n, il::io_t, bool& error) {
+  if (n > std::numeric_limits<std::int64_t>::max()) {
     error = true;
     return 0;
   }
-  return static_cast<il::int_t>(n);
+  return static_cast<std::int64_t>(n);
 }
+#endif
 
+#ifdef INT64_MAX
 template <>
-inline std::size_t safe_convert(il::int_t n, il::io_t, bool& error) {
+inline std::uint64_t safe_convert(std::int64_t n, il::io_t, bool& error) {
   if (n < 0) {
     error = true;
     return 0;
   }
-  return static_cast<std::size_t>(n);
+  return static_cast<std::uint64_t>(n);
 }
+#endif
+
 }
 #endif  // IL_SAFE_ARITHMETIC_H

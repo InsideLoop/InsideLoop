@@ -16,9 +16,9 @@ namespace il {
 void matrix_multiplication_0(const il::Array2C<double> &A,
                              const il::Array2C<double> &B,
                              il::Array2C<double> &C) {
-  IL_ASSERT_PRECOND(C.size(0) == A.size(0));
-  IL_ASSERT_PRECOND(C.size(1) == B.size(1));
-  IL_ASSERT_PRECOND(A.size(1) == B.size(0));
+  IL_EXPECT_FAST(C.size(0) == A.size(0));
+  IL_EXPECT_FAST(C.size(1) == B.size(1));
+  IL_EXPECT_FAST(A.size(1) == B.size(0));
 
   for (il::int_t i = 0; i < C.size(0); ++i) {
     for (il::int_t j = 0; j < C.size(1); ++j) {
@@ -33,9 +33,9 @@ void matrix_multiplication_0(const il::Array2C<double> &A,
 void matrix_multiplication_1(const il::Array2C<double> &A,
                              const il::Array2C<double> &B,
                              il::Array2C<double> &C) {
-  IL_ASSERT_PRECOND(C.size(0) == A.size(0));
-  IL_ASSERT_PRECOND(C.size(1) == B.size(1));
-  IL_ASSERT_PRECOND(A.size(1) == B.size(0));
+  IL_EXPECT_FAST(C.size(0) == A.size(0));
+  IL_EXPECT_FAST(C.size(1) == B.size(1));
+  IL_EXPECT_FAST(A.size(1) == B.size(0));
 
   for (il::int_t i = 0; i < C.size(0); ++i) {
     for (il::int_t k = 0; k < A.size(1); ++k) {
@@ -49,9 +49,9 @@ void matrix_multiplication_1(const il::Array2C<double> &A,
 void matrix_multiplication_2(const il::Array2C<double> &A,
                              const il::Array2C<double> &B,
                              il::Array2C<double> &C) {
-  IL_ASSERT_PRECOND(C.size(0) == A.size(0));
-  IL_ASSERT_PRECOND(C.size(1) == B.size(1));
-  IL_ASSERT_PRECOND(A.size(1) == B.size(0));
+  IL_EXPECT_FAST(C.size(0) == A.size(0));
+  IL_EXPECT_FAST(C.size(1) == B.size(1));
+  IL_EXPECT_FAST(A.size(1) == B.size(0));
 
   for (il::int_t i = 0; i < C.size(0); ++i) {
     for (il::int_t k = 0; k < A.size(1); ++k) {
@@ -66,9 +66,9 @@ void matrix_multiplication_2(const il::Array2C<double> &A,
 void matrix_multiplication_3(const il::Array2C<double> &A,
                              const il::Array2C<double> &B,
                              il::Array2C<double> &C) {
-  IL_ASSERT_PRECOND(C.size(0) == A.size(0));
-  IL_ASSERT_PRECOND(C.size(1) == B.size(1));
-  IL_ASSERT_PRECOND(A.size(1) == B.size(0));
+  IL_EXPECT_FAST(C.size(0) == A.size(0));
+  IL_EXPECT_FAST(C.size(1) == B.size(1));
+  IL_EXPECT_FAST(A.size(1) == B.size(0));
 
 #pragma omp parallel for
   for (il::int_t i = 0; i < C.size(0); ++i) {
@@ -87,12 +87,12 @@ void matrix_multiplication_4(const il::Array2C<double> &A,
                              const il::Array2C<double> &B,
                              il::Array2C<double> &C) {
   const il::int_t n = A.size(0);
-  IL_ASSERT_PRECOND(A.size(0) == n);
-  IL_ASSERT_PRECOND(A.size(1) == n);
-  IL_ASSERT_PRECOND(B.size(0) == n);
-  IL_ASSERT_PRECOND(B.size(1) == n);
-  IL_ASSERT_PRECOND(C.size(0) == n);
-  IL_ASSERT_PRECOND(C.size(1) == n);
+  IL_EXPECT_FAST(A.size(0) == n);
+  IL_EXPECT_FAST(A.size(1) == n);
+  IL_EXPECT_FAST(B.size(0) == n);
+  IL_EXPECT_FAST(B.size(1) == n);
+  IL_EXPECT_FAST(C.size(0) == n);
+  IL_EXPECT_FAST(C.size(1) == n);
 
   const il::int_t block_size = 64;
 #pragma omp parallel for
@@ -146,9 +146,9 @@ void aux_matrix_multiplication(const double *a, const double *b, double *c,
 void matrix_multiplication_5(const il::Array2C<double> &A,
                              const il::Array2C<double> &B,
                              il::Array2C<double> &C) {
-  IL_ASSERT_PRECOND(C.size(0) == A.size(0));
-  IL_ASSERT_PRECOND(C.size(1) == B.size(1));
-  IL_ASSERT_PRECOND(A.size(1) == B.size(0));
+  IL_EXPECT_FAST(C.size(0) == A.size(0));
+  IL_EXPECT_FAST(C.size(1) == B.size(1));
+  IL_EXPECT_FAST(A.size(1) == B.size(0));
 
   aux_matrix_multiplication(A.data(), B.data(), C.data(), A.size(0), A.size(1),
                             B.size(1), A.capacity(1), B.capacity(1),
@@ -158,12 +158,12 @@ void matrix_multiplication_5(const il::Array2C<double> &A,
 void matrix_multiplication_6(const il::Array2C<double> &A,
                              const il::Array2C<double> &B,
                              il::Array2C<double> &C) {
-  IL_ASSERT_PRECOND(A.size(0) % 128 == 0);
-  IL_ASSERT_PRECOND(A.size(1) % 128 == 0);
-  IL_ASSERT_PRECOND(B.size(0) % 128 == 0);
-  IL_ASSERT_PRECOND(A.alignment() % 32 == 0);
-  IL_ASSERT_PRECOND(B.alignment() % 32 == 0);
-  IL_ASSERT_PRECOND(C.alignment() % 32 == 0);
+  IL_EXPECT_FAST(A.size(0) % 128 == 0);
+  IL_EXPECT_FAST(A.size(1) % 128 == 0);
+  IL_EXPECT_FAST(B.size(0) % 128 == 0);
+  IL_EXPECT_FAST(A.alignment() % 32 == 0);
+  IL_EXPECT_FAST(B.alignment() % 32 == 0);
+  IL_EXPECT_FAST(C.alignment() % 32 == 0);
 
   const il::int_t m = A.size(0);
   const il::int_t p = A.size(1);
@@ -172,8 +172,8 @@ void matrix_multiplication_6(const il::Array2C<double> &A,
   const il::int_t k_block_size = 128;
   const il::int_t j_block_size = 128;
 
-  IL_ASSERT(i_block_size % 2 == 0);
-  IL_ASSERT(j_block_size % 16 == 0);
+  IL_EXPECT_FAST(i_block_size % 2 == 0);
+  IL_EXPECT_FAST(j_block_size % 16 == 0);
 
 #pragma omp parallel for collapse(3) schedule(guided)
   for (il::int_t ii = 0; ii < m; ii += i_block_size) {

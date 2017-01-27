@@ -32,7 +32,7 @@ class StaticArray {
  public:
   /* \brief The default constructor
   // \details If T is a numeric value, the memory is
-  // - (Debug mode) initialized to il::default_value<T>(). It is usually NaN
+  // - (Debug mode) initialized to il::default_value<T>::value. It is usually NaN
   //   if T is a floating point number or 666..666 if T is an integer.
   // - (Release mode) left uninitialized. This behavior is different from
   //   std::vector from the standard library which initializes all numeric
@@ -133,7 +133,7 @@ StaticArray<T, n>::StaticArray() {
   if (std::is_pod<T>::value) {
 #ifdef IL_DEFAULT_VALUE
     for (il::int_t i = 0; i < n; ++i) {
-      data_[i] = il::default_value<T>();
+      data_[i] = il::default_value<T>::value;
     }
 #endif
   }
@@ -148,7 +148,7 @@ StaticArray<T, n>::StaticArray(const T& value) {
 
 template <typename T, il::int_t n>
 StaticArray<T, n>::StaticArray(il::value_t, std::initializer_list<T> list) {
-  IL_ASSERT(n == static_cast<il::int_t>(list.size()));
+  IL_EXPECT_FAST(n == static_cast<il::int_t>(list.size()));
   if (std::is_pod<T>::value) {
     memcpy(data_, list.begin(), n * sizeof(T));
   } else {

@@ -95,9 +95,9 @@ template <typename T>
 ConstArray2DView<T>::ConstArray2DView(const T* data, il::int_t n0, il::int_t n1,
                                       il::int_t stride, short align_mod,
                                       short align_r) {
-  IL_ASSERT(n0 >= 0);
-  IL_ASSERT(n1 >= 0);
-  IL_ASSERT(stride > 0);
+  IL_EXPECT_FAST(n0 >= 0);
+  IL_EXPECT_FAST(n1 >= 0);
+  IL_EXPECT_FAST(stride > 0);
   if (n0 > 0 && n1 > 0) {
     data_ = const_cast<T*>(data);
 #ifdef IL_DEBUG_VISUALIZER
@@ -147,7 +147,7 @@ const T* ConstArray2DView<T>::data() const {
 
 template <typename T>
 il::int_t ConstArray2DView<T>::stride(il::int_t d) const {
-  IL_ASSERT(static_cast<il::uint_t>(d) < static_cast<il::uint_t>(2));
+  IL_EXPECT_FAST(static_cast<il::uint_t>(d) < static_cast<il::uint_t>(2));
   return (d == 0) ? 1 : static_cast<il::int_t>(stride_ - data_);
 }
 

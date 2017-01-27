@@ -29,10 +29,10 @@ void fix_clusters(const il::Array2D<float>& point, il::io_t,
 
 il::Array2C<float> kmeans_clustering_0(const il::Array2C<float>& point,
                                        int nb_cluster, int nb_iteration) {
-  IL_ASSERT(point.size(1) == 3);
+  IL_EXPECT_FAST(point.size(1) == 3);
   const int nb_point{point.size(0)};
-  IL_ASSERT(nb_point >= nb_cluster);
-  IL_ASSERT(nb_iteration >= 0);
+  IL_EXPECT_FAST(nb_point >= nb_cluster);
+  IL_EXPECT_FAST(nb_iteration >= 0);
 
   il::Array2C<float> centroid{nb_cluster, 3};
   il::Array<int> point_per_centroid{nb_cluster};
@@ -97,10 +97,10 @@ il::Array2C<float> kmeans_clustering_0(const il::Array2C<float>& point,
 
 il::Array2D<float> kmeans_clustering_1(const il::Array2D<float>& point,
                                        int nb_cluster, int nb_iteration) {
-  IL_ASSERT(point.size(1) == 3);
+  IL_EXPECT_FAST(point.size(1) == 3);
   const int nb_point{point.size(0)};
-  IL_ASSERT(nb_point >= nb_cluster);
-  IL_ASSERT(nb_iteration >= 0);
+  IL_EXPECT_FAST(nb_point >= nb_cluster);
+  IL_EXPECT_FAST(nb_iteration >= 0);
 
   il::Array<int> cluster{nb_point};
   il::Array2D<float> centroid{nb_cluster, 3};
@@ -175,10 +175,10 @@ struct Group {
 
 il::Array2D<float> kmeans_clustering_2(const il::Array2D<float>& point,
                                        int nb_cluster, int nb_iteration) {
-  IL_ASSERT(point.size(1) == 3);
+  IL_EXPECT_FAST(point.size(1) == 3);
   const int nb_point{point.size(0)};
-  IL_ASSERT(nb_point >= nb_cluster);
-  IL_ASSERT(nb_iteration >= 0);
+  IL_EXPECT_FAST(nb_point >= nb_cluster);
+  IL_EXPECT_FAST(nb_iteration >= 0);
 
   const int nb_thread{omp_get_max_threads()};
 
@@ -269,10 +269,10 @@ il::Array2D<float> kmeans_clustering_2(const il::Array2D<float>& point,
 
 il::Array2D<float> kmeans_clustering_3(const il::Array2D<float>& point,
                                        int nb_cluster, int nb_iteration) {
-  IL_ASSERT(point.size(1) == 3);
+  IL_EXPECT_FAST(point.size(1) == 3);
   const int nb_point{point.size(0)};
-  IL_ASSERT(nb_point >= nb_cluster);
-  IL_ASSERT(nb_iteration >= 0);
+  IL_EXPECT_FAST(nb_point >= nb_cluster);
+  IL_EXPECT_FAST(nb_iteration >= 0);
 
   const int nb_thread{omp_get_max_threads()};
 

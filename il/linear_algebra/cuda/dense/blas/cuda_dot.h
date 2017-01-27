@@ -20,7 +20,7 @@ namespace il {
 
 inline float dot(const il::CudaArray<float>& x, const il::CudaArray<float>& y,
                  il::io_t, il::CublasHandle& handle) {
-  IL_ASSERT_PRECOND(x.size() == y.size());
+  IL_EXPECT_FAST(x.size() == y.size());
 
   const int n = x.size();
   const int incx = 1;

@@ -17,8 +17,8 @@ namespace il {
 inline void blas(float alpha, const il::CudaSparseMatrixCSR<float> &A,
                  const il::CudaArray<float> &x, float beta, il::io_t,
                  il::CudaArray<float> &y, il::CusparseHandle &handle) {
-  IL_ASSERT_PRECOND(A.size(1) == x.size());
-  IL_ASSERT_PRECOND(A.size(0) == y.size());
+  IL_EXPECT_FAST(A.size(1) == x.size());
+  IL_EXPECT_FAST(A.size(0) == y.size());
 
   const cusparseOperation_t transA = CUSPARSE_OPERATION_NON_TRANSPOSE;
   const int m = static_cast<int>(A.size(0));
@@ -32,7 +32,7 @@ inline void blas(float alpha, const il::CudaSparseMatrixCSR<float> &A,
   const cusparseStatus_t status = cusparseScsrmv(
       handle.handle(), transA, m, n, nnz, &alpha, descrA, A.element_data(),
       A.row_data(), A.column_data(), x.data(), &beta, y.data());
-  IL_ASSERT(status == CUSPARSE_STATUS_SUCCESS);
+  IL_EXPECT_FAST(status == CUSPARSE_STATUS_SUCCESS);
 }
 
 }

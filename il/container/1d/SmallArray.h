@@ -50,7 +50,7 @@ class SmallArray {
   /* \brief Construct a small array of n elements
   // \details The size and the capacity of the array are set to n.
   // - If T is a numeric value, the memory is
-  //   - (Debug mode) initialized to il::default_value<T>(). It is usually NaN
+  //   - (Debug mode) initialized to il::default_value<T>::value. It is usually NaN
   //     if T is a floating point number or 666..666 if T is an integer.
   //   - (Release mode) left uninitialized. This behavior is different from
   //     std::vector from the standard library which initializes all numeric
@@ -232,7 +232,7 @@ SmallArray<T, small_size>::SmallArray() {
 
 template <typename T, il::int_t small_size>
 SmallArray<T, small_size>::SmallArray(il::int_t n) {
-  IL_ASSERT(n >= 0);
+  IL_EXPECT_FAST(n >= 0);
   if (n <= small_size) {
 #ifdef IL_DEBUG_VISUALIZER
     debug_size_ = n;
@@ -255,7 +255,7 @@ SmallArray<T, small_size>::SmallArray(il::int_t n) {
   if (std::is_pod<T>::value) {
 #ifdef IL_DEFAULT_VALUE
     for (il::int_t i = 0; i < n; ++i) {
-      data_[i] = il::default_value<T>();
+      data_[i] = il::default_value<T>::value;
     }
 #endif
   } else {
@@ -267,7 +267,7 @@ SmallArray<T, small_size>::SmallArray(il::int_t n) {
 
 template <typename T, il::int_t small_size>
 SmallArray<T, small_size>::SmallArray(il::int_t n, const T& x) {
-  IL_ASSERT(n >= 0);
+  IL_EXPECT_FAST(n >= 0);
   if (n <= small_size) {
 #ifdef IL_DEBUG_VISUALIZER
     debug_size_ = n;
@@ -536,13 +536,13 @@ T& SmallArray<T, small_size>::operator[](il::int_t i) {
 
 template <typename T, il::int_t small_size>
 const T& SmallArray<T, small_size>::back() const {
-  IL_ASSERT(size() > 0);
+  IL_EXPECT_FAST(size() > 0);
   return size_[-1];
 }
 
 template <typename T, il::int_t small_size>
 T& SmallArray<T, small_size>::back() {
-  IL_ASSERT(size() > 0);
+  IL_EXPECT_FAST(size() > 0);
   return size_[-1];
 }
 
@@ -553,12 +553,12 @@ il::int_t SmallArray<T, small_size>::size() const {
 
 template <typename T, il::int_t small_size>
 void SmallArray<T, small_size>::resize(il::int_t n) {
-  IL_ASSERT(n >= 0);
+  IL_EXPECT_FAST(n >= 0);
   if (n <= capacity()) {
     if (std::is_pod<T>::value) {
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t i{size()}; i < n; ++i) {
-        data_[i] = il::default_value<T>();
+        data_[i] = il::default_value<T>::value;
       }
 #endif
     } else {
@@ -575,7 +575,7 @@ void SmallArray<T, small_size>::resize(il::int_t n) {
     if (std::is_pod<T>::value) {
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t i{n_old}; i < n; ++i) {
-        data_[i] = il::default_value<T>();
+        data_[i] = il::default_value<T>::value;
       }
 #endif
     } else {
@@ -597,7 +597,7 @@ il::int_t SmallArray<T, small_size>::capacity() const {
 
 template <typename T, il::int_t small_size>
 void SmallArray<T, small_size>::reserve(il::int_t r) {
-  IL_ASSERT(r >= 0);
+  IL_EXPECT_FAST(r >= 0);
   if (r > capacity()) {
     increase_capacity(r);
   }
@@ -657,7 +657,7 @@ bool SmallArray<T, small_size>::small_data_used() const {
 
 template <typename T, il::int_t small_size>
 void SmallArray<T, small_size>::increase_capacity(il::int_t r) {
-  IL_ASSERT(size() <= r);
+  IL_EXPECT_FAST(size() <= r);
   const il::int_t n{size()};
   T* new_data;
   if (std::is_pod<T>::value) {
@@ -689,9 +689,9 @@ void SmallArray<T, small_size>::increase_capacity(il::int_t r) {
 
 template <typename T, il::int_t small_size>
 void SmallArray<T, small_size>::check_invariance() const {
-  IL_ASSERT(size_ - data_ >= 0);
-  IL_ASSERT(capacity_ - data_ >= 0);
-  IL_ASSERT((size_ - data_) <= (capacity_ - data_));
+  IL_EXPECT_FAST(size_ - data_ >= 0);
+  IL_EXPECT_FAST(capacity_ - data_ >= 0);
+  IL_EXPECT_FAST((size_ - data_) <= (capacity_ - data_));
 }
 }
 

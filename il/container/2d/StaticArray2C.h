@@ -37,7 +37,7 @@ class StaticArray2C {
  public:
   /* \brief The default constructor
   // \details If T is a numeric value, the memory is
-  // - (Debug mode) initialized to il::default_value<T>(). It is usually NaN
+  // - (Debug mode) initialized to il::default_value<T>::value. It is usually NaN
   //   if T is a floating point number or 666..666 if T is an integer.
   // - (Release mode) left uninitialized. This behavior is different from
   //   std::vector from the standard library which initializes all numeric
@@ -113,7 +113,7 @@ StaticArray2C<T, n0, n1>::StaticArray2C() {
   if (std::is_pod<T>::value) {
 #ifdef IL_DEFAULT_VALUE
     for (il::int_t k = 0; k < n0 * n1; ++k) {
-      data_[k] = il::default_value<T>();
+      data_[k] = il::default_value<T>::value;
     }
 #endif
   }
@@ -129,9 +129,9 @@ StaticArray2C<T, n0, n1>::StaticArray2C(const T& value) {
 template <typename T, il::int_t n0, il::int_t n1>
 StaticArray2C<T, n0, n1>::StaticArray2C(
     il::value_t, std::initializer_list<std::initializer_list<T>> list) {
-  IL_ASSERT(n0 == static_cast<il::int_t>(list.size()));
+  IL_EXPECT_FAST(n0 == static_cast<il::int_t>(list.size()));
   for (il::int_t i0 = 0; i0 < n0; ++i0) {
-    IL_ASSERT(n1 == (list.begin() + i0)->size());
+    IL_EXPECT_FAST(n1 == (list.begin() + i0)->size());
     for (il::int_t i1 = 0; i1 < n1; ++i1) {
       data_[i0 * n1 + i1] = *((list.begin() + i0)->begin() + i1);
     }

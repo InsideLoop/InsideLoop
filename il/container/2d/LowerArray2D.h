@@ -64,14 +64,14 @@ LowerArray2D<T>::LowerArray2D() {
 
 template <typename T>
 LowerArray2D<T>::LowerArray2D(il::int_t n) {
-  IL_ASSERT(n >= 0);
+  IL_EXPECT_FAST(n >= 0);
   if (n > 0) {
     const il::int_t nb_elements{(n * (n + 1)) / 2};
     if (std::is_pod<T>::value) {
       data_ = new T[nb_elements];
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t k = 0; k < nb_elements; ++k) {
-        data_[k] = il::default_value<T>();
+        data_[k] = il::default_value<T>::value;
       }
 #endif
     } else {

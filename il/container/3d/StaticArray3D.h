@@ -39,7 +39,7 @@ class StaticArray3D {
  public:
   /* \brief The default constructor
   // \details If T is a numeric value, the memory is
-  // - (Debug mode) initialized to il::default_value<T>(). It is usually NaN
+  // - (Debug mode) initialized to il::default_value<T>::value. It is usually NaN
   //   if T is a floating point number or 666..666 if T is an integer.
   // - (Release mode) left uninitialized. This behavior is different from
   //   std::vector from the standard library which initializes all numeric
@@ -141,7 +141,7 @@ StaticArray3D<T, n0, n1, n2>::StaticArray3D() {
   if (std::is_pod<T>::value) {
 #ifndef NDEBUG
     for (il::int_t l = 0; l < n0 * n1 * n2; ++l) {
-      data_[l] = il::default_value<T>();
+      data_[l] = il::default_value<T>::value;
     }
 #endif
   }
@@ -159,11 +159,11 @@ StaticArray3D<T, n0, n1, n2>::StaticArray3D(
     il::value_t,
     std::initializer_list<std::initializer_list<std::initializer_list<T>>>
         list) {
-  IL_ASSERT(n2 == static_cast<il::int_t>(list.size()));
+  IL_EXPECT_FAST(n2 == static_cast<il::int_t>(list.size()));
   for (il::int_t i2 = 0; i2 < n2; ++i2) {
-    IL_ASSERT(n1 == (list.begin() + i2)->size());
+    IL_EXPECT_FAST(n1 == (list.begin() + i2)->size());
     for (il::int_t i1 = 0; i1 < n1; ++i1) {
-      IL_ASSERT(n0 == ((list.begin() + i2)->begin() + i1)->size());
+      IL_EXPECT_FAST(n0 == ((list.begin() + i2)->begin() + i1)->size());
       for (il::int_t i0 = 0; i0 < n0; ++i0) {
         data_[(i2 * n1 + i1) * n0 + i0] =
             *(((list.begin() + i2)->begin() + i1)->begin() + i0);
@@ -175,24 +175,24 @@ StaticArray3D<T, n0, n1, n2>::StaticArray3D(
 template <typename T, il::int_t n0, il::int_t n1, il::int_t n2>
 const T& StaticArray3D<T, n0, n1, n2>::operator()(il::int_t i0, il::int_t i1,
                                                   il::int_t i2) const {
-  IL_ASSERT(static_cast<il::uint_t>(i0) < static_cast<il::uint_t>(n0));
-  IL_ASSERT(static_cast<il::uint_t>(i1) < static_cast<il::uint_t>(n1));
-  IL_ASSERT(static_cast<il::uint_t>(i2) < static_cast<il::uint_t>(n2));
+  IL_EXPECT_FAST(static_cast<il::uint_t>(i0) < static_cast<il::uint_t>(n0));
+  IL_EXPECT_FAST(static_cast<il::uint_t>(i1) < static_cast<il::uint_t>(n1));
+  IL_EXPECT_FAST(static_cast<il::uint_t>(i2) < static_cast<il::uint_t>(n2));
   return data_[(i2 * n1 + i1) * n0 + i0];
 }
 
 template <typename T, il::int_t n0, il::int_t n1, il::int_t n2>
 T& StaticArray3D<T, n0, n1, n2>::operator()(il::int_t i0, il::int_t i1,
                                             il::int_t i2) {
-  IL_ASSERT(static_cast<il::uint_t>(i0) < static_cast<il::uint_t>(n0));
-  IL_ASSERT(static_cast<il::uint_t>(i1) < static_cast<il::uint_t>(n1));
-  IL_ASSERT(static_cast<il::uint_t>(i2) < static_cast<il::uint_t>(n2));
+  IL_EXPECT_FAST(static_cast<il::uint_t>(i0) < static_cast<il::uint_t>(n0));
+  IL_EXPECT_FAST(static_cast<il::uint_t>(i1) < static_cast<il::uint_t>(n1));
+  IL_EXPECT_FAST(static_cast<il::uint_t>(i2) < static_cast<il::uint_t>(n2));
   return data_[(i2 * n1 + i1) * n0 + i0];
 }
 
 template <typename T, il::int_t n0, il::int_t n1, il::int_t n2>
 il::int_t StaticArray3D<T, n0, n1, n2>::size(il::int_t d) const {
-  IL_ASSERT(static_cast<il::uint_t>(d) < static_cast<il::uint_t>(3));
+  IL_EXPECT_FAST(static_cast<il::uint_t>(d) < static_cast<il::uint_t>(3));
   return d == 0 ? n0 : (d == 1 ? n1 : n2);
 }
 

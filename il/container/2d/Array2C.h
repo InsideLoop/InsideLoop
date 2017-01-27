@@ -52,7 +52,7 @@ class Array2C {
   // \details The row size and the row capacity of the array are set to n. The
   // column size and the column capacity of the array are set to p.
   // - If T is a numeric value, the memory is
-  //   - (Debug mode) initialized to il::default_value<T>(). It is usually NaN
+  //   - (Debug mode) initialized to il::default_value<T>::value. It is usually NaN
   //     if T is a floating point number or 666..666 if T is an integer.
   //   - (Release mode) left uninitialized. This behavior is different from
   //     std::vector from the standard library which initializes all numeric
@@ -238,8 +238,8 @@ Array2C<T>::Array2C() {
 
 template <typename T>
 Array2C<T>::Array2C(il::int_t n0, il::int_t n1) {
-  IL_ASSERT(n0 >= 0);
-  IL_ASSERT(n1 >= 0);
+  IL_EXPECT_FAST(n0 >= 0);
+  IL_EXPECT_FAST(n1 >= 0);
   il::int_t r0;
   il::int_t r1;
   if (n0 > 0 && n1 > 0) {
@@ -259,7 +259,7 @@ Array2C<T>::Array2C(il::int_t n0, il::int_t n1) {
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t i0 = 0; i0 < n0; ++i0) {
         for (il::int_t i1 = 0; i1 < n1; ++i1) {
-          data_[i0 * r1 + i1] = il::default_value<T>();
+          data_[i0 * r1 + i1] = il::default_value<T>::value;
         }
       }
 #endif
@@ -292,13 +292,13 @@ Array2C<T>::Array2C(il::int_t n0, il::int_t n1) {
 template <typename T>
 Array2C<T>::Array2C(il::int_t n0, il::int_t n1, il::align_t, short align_r,
                     short align_mod) {
-  IL_ASSERT(n0 >= 0);
-  IL_ASSERT(n1 >= 0);
-  IL_ASSERT(align_mod >= 0);
-  IL_ASSERT(align_mod % sizeof(T) == 0);
-  IL_ASSERT(align_r >= 0);
-  IL_ASSERT(align_r < align_mod);
-  IL_ASSERT(align_r % sizeof(T) == 0);
+  IL_EXPECT_FAST(n0 >= 0);
+  IL_EXPECT_FAST(n1 >= 0);
+  IL_EXPECT_FAST(align_mod >= 0);
+  IL_EXPECT_FAST(align_mod % sizeof(T) == 0);
+  IL_EXPECT_FAST(align_r >= 0);
+  IL_EXPECT_FAST(align_r < align_mod);
+  IL_EXPECT_FAST(align_r % sizeof(T) == 0);
   align_mod_ = align_mod;
   align_r_ = align_r;
   il::int_t r0;
@@ -331,7 +331,7 @@ Array2C<T>::Array2C(il::int_t n0, il::int_t n1, il::align_t, short align_r,
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t i0 = 0; i0 < n0; ++i0) {
         for (il::int_t i1 = 0; i1 < n1; ++i1) {
-          data_[i0 * r1 + i1] = il::default_value<T>();
+          data_[i0 * r1 + i1] = il::default_value<T>::value;
         }
       }
 #endif
@@ -366,8 +366,8 @@ Array2C<T>::Array2C(il::int_t n0, il::int_t n1, il::align_t, short align_mod)
 
 template <typename T>
 Array2C<T>::Array2C(il::int_t n0, il::int_t n1, const T& x) {
-  IL_ASSERT(n0 >= 0);
-  IL_ASSERT(n1 >= 0);
+  IL_EXPECT_FAST(n0 >= 0);
+  IL_EXPECT_FAST(n1 >= 0);
   il::int_t r0;
   il::int_t r1;
   if (n0 > 0 && n1 > 0) {
@@ -418,13 +418,13 @@ Array2C<T>::Array2C(il::int_t n0, il::int_t n1, const T& x) {
 template <typename T>
 Array2C<T>::Array2C(il::int_t n0, il::int_t n1, const T& x, il::align_t,
                     short align_r, short align_mod) {
-  IL_ASSERT(n0 >= 0);
-  IL_ASSERT(n1 >= 0);
-  IL_ASSERT(align_mod >= 0);
-  IL_ASSERT(align_mod % sizeof(T) == 0);
-  IL_ASSERT(align_r >= 0);
-  IL_ASSERT(align_r < align_mod);
-  IL_ASSERT(align_r % sizeof(T) == 0);
+  IL_EXPECT_FAST(n0 >= 0);
+  IL_EXPECT_FAST(n1 >= 0);
+  IL_EXPECT_FAST(align_mod >= 0);
+  IL_EXPECT_FAST(align_mod % sizeof(T) == 0);
+  IL_EXPECT_FAST(align_r >= 0);
+  IL_EXPECT_FAST(align_r < align_mod);
+  IL_EXPECT_FAST(align_r % sizeof(T) == 0);
   align_mod_ = align_mod;
   align_r_ = align_r;
   il::int_t r0;
@@ -503,13 +503,13 @@ Array2C<T>::Array2C(il::value_t,
     if (std::is_pod<T>::value) {
       data_ = new T[r];
       for (il::int_t i0 = 0; i0 < n0; ++i0) {
-        IL_ASSERT(static_cast<il::int_t>((list.begin() + i0)->size()) == n1);
+        IL_EXPECT_FAST(static_cast<il::int_t>((list.begin() + i0)->size()) == n1);
         memcpy(data_ + i0 * r1, (list.begin() + i0)->begin(), n1 * sizeof(T));
       }
     } else {
       data_ = static_cast<T*>(::operator new(r * sizeof(T)));
       for (il::int_t i0 = 0; i0 < n0; ++i0) {
-        IL_ASSERT(static_cast<il::int_t>((list.begin() + i0)->size()) == n1);
+        IL_EXPECT_FAST(static_cast<il::int_t>((list.begin() + i0)->size()) == n1);
         for (il::int_t i1 = 0; i1 < n1; ++i1) {
           new (data_ + i0 * r1 + i1) T(*((list.begin() + i0)->begin() + i1));
         }
@@ -822,8 +822,8 @@ il::int_t Array2C<T>::size(il::int_t d) const {
 
 template <typename T>
 void Array2C<T>::resize(il::int_t n0, il::int_t n1) {
-  IL_ASSERT(n0 >= 0);
-  IL_ASSERT(n1 >= 0);
+  IL_EXPECT_FAST(n0 >= 0);
+  IL_EXPECT_FAST(n1 >= 0);
   const il::int_t n0_old{size(0)};
   const il::int_t n1_old{size(1)};
   if (n0 > capacity(0) || n1 > capacity(1)) {
@@ -866,7 +866,7 @@ void Array2C<T>::resize(il::int_t n0, il::int_t n1) {
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t i0 = 0; i0 < n0; ++i0) {
         for (il::int_t i1{i0 < n0_old ? n1_old : 0}; i1 < n1; ++i1) {
-          new_data[i0 * r1 + i1] = il::default_value<T>();
+          new_data[i0 * r1 + i1] = il::default_value<T>::value;
         }
       }
 #endif
@@ -907,7 +907,7 @@ void Array2C<T>::resize(il::int_t n0, il::int_t n1) {
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t i0 = 0; i0 < n0; ++i0) {
         for (il::int_t i1{i0 < n0_old ? n1_old : 0}; i1 < n1; ++i1) {
-          data_[i0 * stride(0) + i1] = il::default_value<T>();
+          data_[i0 * stride(0) + i1] = il::default_value<T>::value;
         }
       }
 #endif
@@ -934,14 +934,14 @@ void Array2C<T>::resize(il::int_t n0, il::int_t n1) {
 
 template <typename T>
 il::int_t Array2C<T>::capacity(il::int_t d) const {
-  IL_ASSERT(static_cast<il::uint_t>(d) < static_cast<il::uint_t>(2));
+  IL_EXPECT_FAST(static_cast<il::uint_t>(d) < static_cast<il::uint_t>(2));
   return static_cast<il::int_t>(capacity_[d] - data_);
 }
 
 template <typename T>
 void Array2C<T>::reserve(il::int_t r0, il::int_t r1) {
-  IL_ASSERT(r0 >= 0);
-  IL_ASSERT(r1 >= 0);
+  IL_EXPECT_FAST(r0 >= 0);
+  IL_EXPECT_FAST(r1 >= 0);
   r0 = r0 > capacity(0) ? r0 : capacity(0);
   r1 = r1 > capacity(1) ? r1 : capacity(1);
   if (r0 > capacity(0) || r1 > capacity(1)) {
@@ -1022,7 +1022,7 @@ T* Array2C<T>::data(il::int_t i0) {
 
 template <typename T>
 il::int_t Array2C<T>::stride(il::int_t d) const {
-  IL_ASSERT(static_cast<il::uint_t>(d) < static_cast<il::uint_t>(2));
+  IL_EXPECT_FAST(static_cast<il::uint_t>(d) < static_cast<il::uint_t>(2));
   return (d == 0) ? static_cast<il::int_t>(capacity_[1] - data_) : 1;
 }
 
@@ -1042,29 +1042,29 @@ T* Array2C<T>::allocate(il::int_t n, short align_mod, short align_r, il::io_t,
 template <typename T>
 void Array2C<T>::check_invariance() const {
   if (data_ == nullptr) {
-    IL_ASSERT(size_[0] == nullptr);
-    IL_ASSERT(size_[1] == nullptr);
-    IL_ASSERT(capacity_[0] == nullptr);
-    IL_ASSERT(capacity_[1] == nullptr);
-    IL_ASSERT(align_mod_ == 0);
-    IL_ASSERT(align_r_ == 0);
-    IL_ASSERT(new_shift_ == 0);
+    IL_EXPECT_FAST(size_[0] == nullptr);
+    IL_EXPECT_FAST(size_[1] == nullptr);
+    IL_EXPECT_FAST(capacity_[0] == nullptr);
+    IL_EXPECT_FAST(capacity_[1] == nullptr);
+    IL_EXPECT_FAST(align_mod_ == 0);
+    IL_EXPECT_FAST(align_r_ == 0);
+    IL_EXPECT_FAST(new_shift_ == 0);
   } else {
-    IL_ASSERT(size_[0] != nullptr);
-    IL_ASSERT(size_[1] != nullptr);
-    IL_ASSERT(capacity_[0] != nullptr);
-    IL_ASSERT(capacity_[1] != nullptr);
-    IL_ASSERT((size_[0] - data_) <= (capacity_[0] - data_));
-    IL_ASSERT((size_[1] - data_) <= (capacity_[1] - data_));
+    IL_EXPECT_FAST(size_[0] != nullptr);
+    IL_EXPECT_FAST(size_[1] != nullptr);
+    IL_EXPECT_FAST(capacity_[0] != nullptr);
+    IL_EXPECT_FAST(capacity_[1] != nullptr);
+    IL_EXPECT_FAST((size_[0] - data_) <= (capacity_[0] - data_));
+    IL_EXPECT_FAST((size_[1] - data_) <= (capacity_[1] - data_));
     if (!std::is_pod<T>::value) {
-      IL_ASSERT(align_mod_ == 0);
+      IL_EXPECT_FAST(align_mod_ == 0);
     }
     if (align_mod_ == 0) {
-      IL_ASSERT(align_r_ == 0);
-      IL_ASSERT(new_shift_ == 0);
+      IL_EXPECT_FAST(align_r_ == 0);
+      IL_EXPECT_FAST(new_shift_ == 0);
     } else {
-      IL_ASSERT(align_r_ < align_mod_);
-      IL_ASSERT(((std::size_t)data_) % ((std::size_t)align_mod_) ==
+      IL_EXPECT_FAST(align_r_ < align_mod_);
+      IL_EXPECT_FAST(((std::size_t)data_) % ((std::size_t)align_mod_) ==
                 ((std::size_t)align_r_));
     }
   }

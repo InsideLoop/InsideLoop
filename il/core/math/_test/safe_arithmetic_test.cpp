@@ -56,7 +56,7 @@ TEST(safe_arithmetic, substraction_int_0) {
   const int b = -1;
   bool error = false;
 
-  const int sum = il::safe_substraction(a, b, il::io, error);
+  const int sum = il::safe_difference(a, b, il::io, error);
 
   ASSERT_TRUE(error);
 }
@@ -66,7 +66,7 @@ TEST(safe_arithmetic, substraction_int_1) {
   const int b = 1;
   bool error = false;
 
-  const int sum = il::safe_substraction(a, b, il::io, error);
+  const int sum = il::safe_difference(a, b, il::io, error);
 
   ASSERT_TRUE(error);
 }
@@ -76,7 +76,7 @@ TEST(safe_arithmetic, substraction_int_2) {
   const int b = std::numeric_limits<int>::min();
   bool error = false;
 
-  const int sum = il::safe_substraction(a, b, il::io, error);
+  const int sum = il::safe_difference(a, b, il::io, error);
 
   ASSERT_TRUE(error);
 }
@@ -86,7 +86,7 @@ TEST(safe_arithmetic, substraction_int_3) {
   const int b = std::numeric_limits<int>::max();
   bool error = false;
 
-  const int sum = il::safe_substraction(a, b, il::io, error);
+  const int sum = il::safe_difference(a, b, il::io, error);
 
   ASSERT_TRUE(error);
 }

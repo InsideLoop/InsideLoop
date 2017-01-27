@@ -45,7 +45,7 @@ T min(T a, T b, T c, T d) {
 
 template <typename T>
 T min(const il::Array<T>& A) {
-  IL_ASSERT(A.size() > 0);
+  IL_EXPECT_FAST(A.size() > 0);
   T ans{A[0]};
   for (il::int_t k = 0; k < A.size(); ++k) {
     if (A[k] < ans) {
@@ -73,7 +73,7 @@ T max(T a, T b, T c, T d) {
 
 template <typename T>
 T max(const il::Array<T>& v) {
-  IL_ASSERT(v.size() > 0);
+  IL_EXPECT_FAST(v.size() > 0);
   T max{v[0]};
   for (il::int_t k = 0; k < v.size(); ++k) {
     if (v[k] > max) {
@@ -85,7 +85,7 @@ T max(const il::Array<T>& v) {
 
 template <typename T>
 T mean(const il::Array<T>& v) {
-  IL_ASSERT(v.size() > 0);
+  IL_EXPECT_FAST(v.size() > 0);
   T ans = 0;
   for (il::int_t i = 0; i < v.size(); ++i) {
     ans += v[i];
@@ -96,7 +96,7 @@ T mean(const il::Array<T>& v) {
 
 template <typename T>
 T sigma(const il::Array<T>& v) {
-  IL_ASSERT(v.size() > 1);
+  IL_EXPECT_FAST(v.size() > 1);
   T mean = 0;
   for (il::int_t i = 0; i < v.size(); ++i) {
     mean += v[i];
@@ -185,7 +185,7 @@ static T ipow(T x) {
 
 template <typename T>
 double ipow(T x, il::int_t n) {
-  IL_ASSERT(n >= 0);
+  IL_EXPECT_FAST(n >= 0);
   T ans = 1;
   while (n != 0) {
     if (n & 1) {

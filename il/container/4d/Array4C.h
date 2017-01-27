@@ -48,7 +48,7 @@ class Array4C {
   // column size and the column capacity of the array are set to p. The slice
   // size and the slice capacity of the array are set to q.
   // - If T is a numeric value, the memory is
-  //   - (Debug mode) initialized to il::default_value<T>(). It is usually NaN
+  //   - (Debug mode) initialized to il::default_value<T>::value. It is usually NaN
   //     if T is a floating point number or 666..666 if T is an integer.
   //   - (Release mode) left uninitialized. This behavior is different from
   //     std::vector from the standard library which initializes all numeric
@@ -207,10 +207,10 @@ Array4C<T>::Array4C() {
 
 template <typename T>
 Array4C<T>::Array4C(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3) {
-  IL_ASSERT_PRECOND(n0 >= 0);
-  IL_ASSERT_PRECOND(n1 >= 0);
-  IL_ASSERT_PRECOND(n2 >= 0);
-  IL_ASSERT_PRECOND(n3 >= 0);
+  IL_EXPECT_FAST(n0 >= 0);
+  IL_EXPECT_FAST(n1 >= 0);
+  IL_EXPECT_FAST(n2 >= 0);
+  IL_EXPECT_FAST(n3 >= 0);
   il::int_t r0;
   il::int_t r1;
   il::int_t r2;
@@ -241,7 +241,7 @@ Array4C<T>::Array4C(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3) {
           for (il::int_t i2 = 0; i2 < n2; ++i2) {
             for (il::int_t i3 = 0; i3 < n3; ++i3) {
               data_[((i0 * r1 + i1) * r2 + i2) * r3 + i3] =
-                  il::default_value<T>();
+                  il::default_value<T>::value;
             }
           }
         }
@@ -285,10 +285,10 @@ Array4C<T>::Array4C(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3) {
 template <typename T>
 Array4C<T>::Array4C(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3,
                     il::value_t, const T& x) {
-  IL_ASSERT_PRECOND(n0 >= 0);
-  IL_ASSERT_PRECOND(n1 >= 0);
-  IL_ASSERT_PRECOND(n2 >= 0);
-  IL_ASSERT_PRECOND(n3 >= 0);
+  IL_EXPECT_FAST(n0 >= 0);
+  IL_EXPECT_FAST(n1 >= 0);
+  IL_EXPECT_FAST(n2 >= 0);
+  IL_EXPECT_FAST(n3 >= 0);
   il::int_t r0;
   il::int_t r1;
   il::int_t r2;
@@ -318,7 +318,7 @@ Array4C<T>::Array4C(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3,
           for (il::int_t i2 = 0; i2 < n2; ++i2) {
             for (il::int_t i3 = 0; i3 < n3; ++i3) {
               data_[((i0 * r1 + i1) * r2 + i2) * r3 + i3] = x;
-              il::default_value<T>();
+              il::default_value<T>::value;
             }
           }
         }
@@ -746,17 +746,17 @@ T& Array4C<T>::operator()(il::int_t i0, il::int_t i1, il::int_t i2,
 
 template <typename T>
 il::int_t Array4C<T>::size(il::int_t d) const {
-  IL_ASSERT(static_cast<il::uint_t>(d) < static_cast<il::uint_t>(4));
+  IL_EXPECT_FAST(static_cast<il::uint_t>(d) < static_cast<il::uint_t>(4));
   return static_cast<il::int_t>(size_[d] - data_);
 }
 
 template <typename T>
 void Array4C<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2,
                         il::int_t n3) {
-  IL_ASSERT_PRECOND(n0 >= 0);
-  IL_ASSERT_PRECOND(n1 >= 0);
-  IL_ASSERT_PRECOND(n2 >= 0);
-  IL_ASSERT_PRECOND(n3 >= 0);
+  IL_EXPECT_FAST(n0 >= 0);
+  IL_EXPECT_FAST(n1 >= 0);
+  IL_EXPECT_FAST(n2 >= 0);
+  IL_EXPECT_FAST(n3 >= 0);
   if (n0 <= capacity(0) && n1 <= capacity(1) && n2 <= capacity(2) &&
       n3 <= capacity(3)) {
     if (std::is_pod<T>::value) {
@@ -769,7 +769,7 @@ void Array4C<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2,
                                                                      : 0);
                  i3 < n3; ++i3) {
               data_[((i0 * capacity(1) + i1) * capacity(2) + i2) * capacity(3) +
-                    i3] = il::default_value<T>();
+                    i3] = il::default_value<T>::value;
             }
           }
         }
@@ -864,7 +864,7 @@ void Array4C<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2,
                      ((i0 < n0_old && i1 < n1_old && i2 < n2_old) ? n3_old : 0);
                  i3 < n3; ++i3) {
               new_data[((i0 * r1 + i1) * r2 + i2) * r3 + i3] =
-                  il::default_value<T>();
+                  il::default_value<T>::value;
             }
           }
         }
@@ -909,17 +909,17 @@ void Array4C<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2,
 
 template <typename T>
 il::int_t Array4C<T>::capacity(il::int_t d) const {
-  IL_ASSERT(static_cast<il::uint_t>(d) < static_cast<il::uint_t>(4));
+  IL_EXPECT_FAST(static_cast<il::uint_t>(d) < static_cast<il::uint_t>(4));
   return static_cast<il::int_t>(capacity_[d] - data_);
 }
 
 template <typename T>
 void Array4C<T>::reserve(il::int_t r0, il::int_t r1, il::int_t r2,
                          il::int_t r3) {
-  IL_ASSERT_PRECOND(r0 >= 0);
-  IL_ASSERT_PRECOND(r1 >= 0);
-  IL_ASSERT_PRECOND(r2 >= 0);
-  IL_ASSERT_PRECOND(r3 >= 0);
+  IL_EXPECT_FAST(r0 >= 0);
+  IL_EXPECT_FAST(r1 >= 0);
+  IL_EXPECT_FAST(r2 >= 0);
+  IL_EXPECT_FAST(r3 >= 0);
   if (r0 > capacity(0) || r1 > capacity(1) || r2 > capacity(2) ||
       r3 > capacity(3)) {
     const il::int_t n0_old = size(0);
@@ -1002,27 +1002,27 @@ T* Array4C<T>::data() {
 template <typename T>
 void Array4C<T>::check_invariance() const {
   if (data_ == nullptr) {
-    IL_ASSERT(size_[0] == nullptr);
-    IL_ASSERT(size_[1] == nullptr);
-    IL_ASSERT(size_[2] == nullptr);
-    IL_ASSERT(size_[3] == nullptr);
-    IL_ASSERT(capacity_[0] == nullptr);
-    IL_ASSERT(capacity_[1] == nullptr);
-    IL_ASSERT(capacity_[2] == nullptr);
-    IL_ASSERT(capacity_[3] == nullptr);
+    IL_EXPECT_FAST(size_[0] == nullptr);
+    IL_EXPECT_FAST(size_[1] == nullptr);
+    IL_EXPECT_FAST(size_[2] == nullptr);
+    IL_EXPECT_FAST(size_[3] == nullptr);
+    IL_EXPECT_FAST(capacity_[0] == nullptr);
+    IL_EXPECT_FAST(capacity_[1] == nullptr);
+    IL_EXPECT_FAST(capacity_[2] == nullptr);
+    IL_EXPECT_FAST(capacity_[3] == nullptr);
   } else {
-    IL_ASSERT(size_[0] != nullptr);
-    IL_ASSERT(size_[1] != nullptr);
-    IL_ASSERT(size_[2] != nullptr);
-    IL_ASSERT(size_[3] != nullptr);
-    IL_ASSERT(capacity_[0] != nullptr);
-    IL_ASSERT(capacity_[1] != nullptr);
-    IL_ASSERT(capacity_[2] != nullptr);
-    IL_ASSERT(capacity_[3] != nullptr);
-    IL_ASSERT((size_[0] - data_) <= (capacity_[0] - data_));
-    IL_ASSERT((size_[1] - data_) <= (capacity_[1] - data_));
-    IL_ASSERT((size_[2] - data_) <= (capacity_[2] - data_));
-    IL_ASSERT((size_[3] - data_) <= (capacity_[3] - data_));
+    IL_EXPECT_FAST(size_[0] != nullptr);
+    IL_EXPECT_FAST(size_[1] != nullptr);
+    IL_EXPECT_FAST(size_[2] != nullptr);
+    IL_EXPECT_FAST(size_[3] != nullptr);
+    IL_EXPECT_FAST(capacity_[0] != nullptr);
+    IL_EXPECT_FAST(capacity_[1] != nullptr);
+    IL_EXPECT_FAST(capacity_[2] != nullptr);
+    IL_EXPECT_FAST(capacity_[3] != nullptr);
+    IL_EXPECT_FAST((size_[0] - data_) <= (capacity_[0] - data_));
+    IL_EXPECT_FAST((size_[1] - data_) <= (capacity_[1] - data_));
+    IL_EXPECT_FAST((size_[2] - data_) <= (capacity_[2] - data_));
+    IL_EXPECT_FAST((size_[3] - data_) <= (capacity_[3] - data_));
   }
 }
 }

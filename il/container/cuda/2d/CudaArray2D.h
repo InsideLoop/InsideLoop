@@ -51,8 +51,8 @@ class CudaArray2D {
 
 template<typename T>
 CudaArray2D<T>::CudaArray2D(il::int_t n0, il::int_t n1) {
-  IL_ASSERT_PRECOND(n0 >= 0);
-  IL_ASSERT_PRECOND(n1 >= 0);
+  IL_EXPECT_FAST(n0 >= 0);
+  IL_EXPECT_FAST(n1 >= 0);
 
   cudaMalloc(&data_, n0 * n1 * sizeof(T));
   size_[0] = n0;

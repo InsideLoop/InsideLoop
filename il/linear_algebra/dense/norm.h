@@ -125,7 +125,7 @@ double norm(const il::Array2D<T>& A, Norm norm_type) {
       }
     } break;
     default:
-      IL_ASSERT(false);
+      IL_EXPECT_FAST(false);
   }
 
   return ans;
@@ -149,7 +149,7 @@ double norm(const il::TriDiagonal<T>& A, Norm norm_type) {
       }
     } break;
     default:
-      IL_ASSERT(false);
+      IL_EXPECT_FAST(false);
   }
 
   return ans;

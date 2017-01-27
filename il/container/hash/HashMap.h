@@ -184,7 +184,7 @@ HashMap<K, V, F>::HashMap(il::value_t,
   nb_tombstone_ = 0;
   for (il::int_t k = 0; k < n; ++k) {
     il::int_t i = search((list.begin() + k)->key);
-    IL_ASSERT(!found(i));
+    IL_EXPECT_FAST(!found(i));
     insert((list.begin() + k)->key, (list.begin() + k)->value, il::io, i);
   }
 }
@@ -339,7 +339,7 @@ bool HashMap<K, V, F>::found(il::int_t i) const {
 template <typename K, typename V, typename F>
 void HashMap<K, V, F>::insert(const K& key, const V& value, il::io_t,
                               il::int_t& i) {
-  IL_ASSERT_PRECOND(!found(i));
+  IL_EXPECT_FAST(!found(i));
 
   // FIXME: What it the place is a tombstone. We should update the number of
   // tombstones in the hash table.
@@ -358,7 +358,7 @@ void HashMap<K, V, F>::insert(const K& key, const V& value, il::io_t,
 
 template <typename K, typename V, typename F>
 void HashMap<K, V, F>::erase(il::int_t i) {
-  IL_ASSERT_PRECOND(found(i));
+  IL_EXPECT_FAST(found(i));
 
   (&((slot_ + i)->key))->~K();
   F::construct_tombstone(il::io, reinterpret_cast<K*>(slot_ + i));
@@ -404,7 +404,7 @@ il::int_t HashMap<K, V, F>::capacity() const {
 
 template <typename K, typename V, typename F>
 void HashMap<K, V, F>::reserve(il::int_t r) {
-  IL_ASSERT_PRECOND(r >= 0);
+  IL_EXPECT_FAST(r >= 0);
 
   grow(il::next_power_of_2_32(r));
 }
@@ -499,7 +499,7 @@ void HashMap<K, V, F>::grow(il::int_t r) {
       if (!F::is_empty(old_slot_[i].key) &&
           !F::is_tombstone(old_slot_[i].key)) {
         il::int_t new_i = search(old_slot_[i].key);
-        IL_ASSERT(found(new_i));
+        IL_EXPECT_FAST(found(new_i));
         insert(old_slot_[i].key, old_slot_[i].value, il::io, new_i);
         (&((old_slot_ + i)->value))->~V();
       }

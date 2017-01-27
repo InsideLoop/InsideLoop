@@ -71,7 +71,7 @@ SparseMatrixCSR<Index, T>::SparseMatrixCSR(il::int_t height, il::int_t width,
       element_{column.size()},
       column_{std::move(column)},
       row_{std::move(row)} {
-  IL_ASSERT(row_.size() == height + 1);
+  IL_EXPECT_FAST(row_.size() == height + 1);
 }
 
 template <typename Index, typename T>
@@ -84,7 +84,7 @@ SparseMatrixCSR<Index, T>::SparseMatrixCSR(il::int_t height, il::int_t width,
       element_{std::move(element)},
       column_{std::move(column)},
       row_{std::move(row)} {
-  IL_ASSERT(row_.size() == height + 1);
+  IL_EXPECT_FAST(row_.size() == height + 1);
 }
 
 template <typename Index, typename T>
@@ -114,7 +114,7 @@ SparseMatrixCSR<Index, T>::SparseMatrixCSR(
     il::int_t n, const il::Array<il::StaticArray<Index, 2>> &position, il::io_t,
     il::Array<Index> &index)
     : element_{}, column_{}, row_{} {
-  IL_ASSERT(n >= 0);
+  IL_EXPECT_FAST(n >= 0);
   //
   // element_
   // column_
@@ -240,16 +240,16 @@ T &SparseMatrixCSR<Index, T>::operator[](il::int_t k) {
 
 template <typename Index, typename T>
 T const &SparseMatrixCSR<Index, T>::operator()(il::int_t i, il::int_t k) const {
-  IL_ASSERT(static_cast<il::uint_t>(i) < static_cast<il::uint_t>(n0_));
-  IL_ASSERT(static_cast<il::uint_t>(row_[i] + k) <
+  IL_EXPECT_FAST(static_cast<il::uint_t>(i) < static_cast<il::uint_t>(n0_));
+  IL_EXPECT_FAST(static_cast<il::uint_t>(row_[i] + k) <
             static_cast<il::uint_t>(row_[i + 1]));
   return element_[row_[i] + k];
 }
 
 template <typename Index, typename T>
 T &SparseMatrixCSR<Index, T>::operator()(il::int_t i, il::int_t k) {
-  IL_ASSERT(static_cast<il::uint_t>(i) < static_cast<il::uint_t>(n0_));
-  IL_ASSERT(static_cast<il::uint_t>(row_[i] + k) <
+  IL_EXPECT_FAST(static_cast<il::uint_t>(i) < static_cast<il::uint_t>(n0_));
+  IL_EXPECT_FAST(static_cast<il::uint_t>(row_[i] + k) <
             static_cast<il::uint_t>(row_[i + 1]));
   return element_[row_[i] + k];
 }
@@ -314,8 +314,8 @@ template <typename Index>
 inline double norm(const il::SparseMatrixCSR<Index, double> &A, Norm norm_type,
                    const il::Array<double> &beta,
                    const il::Array<double> &alpha) {
-  IL_ASSERT(alpha.size() == A.size(0));
-  IL_ASSERT(beta.size() == A.size(1));
+  IL_EXPECT_FAST(alpha.size() == A.size(0));
+  IL_EXPECT_FAST(beta.size() == A.size(1));
 
   double norm = 0.0;
   switch (norm_type) {
@@ -329,7 +329,7 @@ inline double norm(const il::SparseMatrixCSR<Index, double> &A, Norm norm_type,
       }
       break;
     default:
-      IL_ASSERT(false);
+      IL_EXPECT_FAST(false);
   }
 
   return norm;

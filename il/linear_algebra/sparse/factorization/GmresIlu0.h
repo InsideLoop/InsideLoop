@@ -97,7 +97,7 @@ inline void GmresIlu0::set_restart_iteration(il::int_t restart_iteration) {
 inline void
 GmresIlu0::compute_preconditionner(il::io_t,
                                    il::SparseMatrixCSR<int, double> &A) {
-  IL_ASSERT(A.size(0) == A.size(1));
+  IL_EXPECT_FAST(A.size(0) == A.size(1));
 
   const int n = A.size(0);
   bilu0_.resize(A.nb_nonzeros());
@@ -118,7 +118,7 @@ GmresIlu0::compute_preconditionner(il::io_t,
   int ierr = 0;
   dcsrilu0(&n, A.element_data(), A.row_data(), A.column_data(), bilu0_.data(),
            ipar_.data(), dpar_.data(), &ierr);
-  IL_ASSERT(ierr == 0);
+  IL_EXPECT_FAST(ierr == 0);
   preconditionner_computed_ = true;
 
   convert_fortran_to_c(il::io, A);
@@ -128,9 +128,9 @@ GmresIlu0::compute_preconditionner(il::io_t,
 inline il::Array<double>
 il::GmresIlu0::solve(const il::Array<double> &y, il::io_t,
                      il::SparseMatrixCSR<int, double> &A) {
-  IL_ASSERT(matrix_element_ == A.element_data());
-  IL_ASSERT(preconditionner_computed_);
-  IL_ASSERT(A.size(0) == y.size());
+  IL_EXPECT_FAST(matrix_element_ == A.element_data());
+  IL_EXPECT_FAST(preconditionner_computed_);
+  IL_EXPECT_FAST(A.size(0) == y.size());
 
   const int n = A.size(0);
 
@@ -157,7 +157,7 @@ il::GmresIlu0::solve(const il::Array<double> &y, il::io_t,
 
   dfgmres_init(&n, x.data(), yloc.data(), &RCI_request, ipar_.data(),
                dpar_.data(), tmp.data());
-  IL_ASSERT(RCI_request == 0);
+  IL_EXPECT_FAST(RCI_request == 0);
 
   // ipar_[0]: The size of the matrix
   // ipar_[1]: The default value is 6 and specifies that the errors are reported
@@ -208,7 +208,7 @@ il::GmresIlu0::solve(const il::Array<double> &y, il::io_t,
 
   dfgmres_check(&n, x.data(), yloc.data(), &RCI_request, ipar_.data(),
                 dpar_.data(), tmp.data());
-  IL_ASSERT(RCI_request == 0);
+  IL_EXPECT_FAST(RCI_request == 0);
   bool stop_iteration = false;
   double y_norm = dnrm2(&n, yloc.data(), &one_int);
   while (!stop_iteration) {
@@ -267,7 +267,7 @@ il::GmresIlu0::solve(const il::Array<double> &y, il::io_t,
       }
       break;
     default:
-      IL_ASSERT(false);
+      IL_EXPECT_FAST(false);
       break;
     }
   }

@@ -59,7 +59,7 @@ inline Status::Status() {
 
 inline Status::~Status() {
   if (!status_has_been_checked_) {
-    IL_ASSERT(false);
+    std::abort();
   }
 }
 
@@ -88,7 +88,7 @@ inline void Status::ignore_error() {
 inline void Status::abort_on_error() {
   status_has_been_checked_ = true;
   if (error_code_ != il::ErrorCode::ok) {
-    IL_ASSERT(false);
+    std::abort();
   }
 }
 

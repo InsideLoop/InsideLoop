@@ -60,7 +60,7 @@ il::Array3D<unsigned char> load(const std::string &filename, il::png_t,
   int height{static_cast<int>(png_get_image_height(png_ptr, info_ptr))};
 //  png_byte color_type{png_get_color_type(png_ptr, info_ptr)};
   png_byte bit_depth{png_get_bit_depth(png_ptr, info_ptr)};
-  IL_ASSERT(bit_depth == 8);
+  IL_EXPECT_FAST(bit_depth == 8);
 
 //  int number_of_passes{png_set_interlace_handling(png_ptr)};
   png_read_update_info(png_ptr, info_ptr);
@@ -143,7 +143,7 @@ void save(const il::Array3D<unsigned char> &image, const std::string &filename,
       color_type = 2;
       break;
     default:
-      IL_ASSERT(false);
+      IL_EXPECT_FAST(false);
   }
   png_set_IHDR(png_ptr, info_ptr, width, height, bit_depth, color_type,
                PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE,

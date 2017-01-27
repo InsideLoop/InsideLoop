@@ -364,8 +364,8 @@ inline il::Array<int> load(const std::string& filename, il::io_t,
     size *= shape[i];
   }
 
-  IL_ASSERT(ndims == 1);
-  IL_ASSERT(word_size == sizeof(int));
+  IL_EXPECT_FAST(ndims == 1);
+  IL_EXPECT_FAST(word_size == sizeof(int));
 
   il::Array<int> v{static_cast<il::int_t>(size)};
   std::size_t nread = fread(v.data(), word_size, size, fp);
@@ -401,8 +401,8 @@ inline il::Array<double> load(const std::string& filename, il::io_t,
     size *= shape[i];
   }
 
-  IL_ASSERT(ndims == 1);
-  IL_ASSERT(word_size == sizeof(double));
+  IL_EXPECT_FAST(ndims == 1);
+  IL_EXPECT_FAST(word_size == sizeof(double));
 
   il::Array<double> v{static_cast<il::int_t>(size)};
   std::size_t nread = fread(v.data(), word_size, size, fp);
@@ -442,9 +442,9 @@ inline il::Array2D<int> load(const std::string& filename, il::io_t,
     size *= shape[i];
   }
 
-  IL_ASSERT(ndims == 2);
-  IL_ASSERT(word_size == sizeof(int));
-  IL_ASSERT(fortran_order);
+  IL_EXPECT_FAST(ndims == 2);
+  IL_EXPECT_FAST(word_size == sizeof(int));
+  IL_EXPECT_FAST(fortran_order);
 
   il::Array2D<int> A{static_cast<il::int_t>(shape[0]),
                      static_cast<il::int_t>(shape[1])};
@@ -485,9 +485,9 @@ inline il::Array2D<double> load(const std::string& filename, il::io_t,
     size *= shape[i];
   }
 
-  IL_ASSERT(ndims == 2);
-  IL_ASSERT(word_size == sizeof(double));
-  IL_ASSERT(fortran_order);
+  IL_EXPECT_FAST(ndims == 2);
+  IL_EXPECT_FAST(word_size == sizeof(double));
+  IL_EXPECT_FAST(fortran_order);
 
   il::Array2D<double> A{static_cast<il::int_t>(shape[0]),
                         static_cast<il::int_t>(shape[1])};

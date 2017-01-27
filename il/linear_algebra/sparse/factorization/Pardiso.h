@@ -53,7 +53,7 @@ void PardisoSizeIntSelector<Int>::pardiso_int_t(
   (void)b;
   (void)x;
   (void)error;
-  IL_ASSERT(false);
+  IL_EXPECT_FAST(false);
 }
 
 template <>
@@ -74,7 +74,7 @@ void PardisoSizeIntSelector<std::ptrdiff_t>::pardiso_int_t(
     const std::ptrdiff_t *ia, const std::ptrdiff_t *ja, std::ptrdiff_t *perm,
     const std::ptrdiff_t *nrhs, std::ptrdiff_t *iparm,
     const std::ptrdiff_t *msglvl, void *b, void *x, std::ptrdiff_t *error) {
-  IL_ASSERT(sizeof(long long int) == sizeof(std::ptrdiff_t));
+  IL_EXPECT_FAST(sizeof(long long int) == sizeof(std::ptrdiff_t));
   pardiso_64(pt, reinterpret_cast<const long long int *>(maxfct),
              reinterpret_cast<const long long int *>(mnum),
              reinterpret_cast<const long long int *>(mtype),
@@ -282,7 +282,7 @@ inline Pardiso::Pardiso() {
 inline Pardiso::~Pardiso() { release(); }
 
 void Pardiso::symbolic_factorization(const il::SparseMatrixCSR<il::int_t, double> &A) {
-  IL_ASSERT(A.size(0) == A.size(1));
+  IL_EXPECT_FAST(A.size(0) == A.size(1));
   n_ = A.size(0);
 
   const il::int_t phase = 11;
@@ -297,7 +297,7 @@ void Pardiso::symbolic_factorization(const il::SparseMatrixCSR<il::int_t, double
       &n_, A.element_data(), A.row_data(), A.column_data(), &i_dummy,
       &pardiso_nrhs_, pardiso_iparm_, &pardiso_msglvl_, nullptr, nullptr,
       &error);
-  IL_ASSERT(error == 0);
+  IL_EXPECT_FAST(error == 0);
 
   is_symbolic_factorization_ = true;
   matrix_element_ = A.element_data();
@@ -305,10 +305,10 @@ void Pardiso::symbolic_factorization(const il::SparseMatrixCSR<il::int_t, double
 
 void Pardiso::numerical_factorization(
     const il::SparseMatrixCSR<il::int_t, double> &A) {
-  IL_ASSERT(matrix_element_ = A.element_data());
-  IL_ASSERT(is_symbolic_factorization_);
-  IL_ASSERT(A.size(0) == n_);
-  IL_ASSERT(A.size(1) == n_);
+  IL_EXPECT_FAST(matrix_element_ = A.element_data());
+  IL_EXPECT_FAST(is_symbolic_factorization_);
+  IL_EXPECT_FAST(A.size(0) == n_);
+  IL_EXPECT_FAST(A.size(1) == n_);
 
   const il::int_t phase = 22;
   il::int_t error = 0;
@@ -319,18 +319,18 @@ void Pardiso::numerical_factorization(
       &n_, A.element_data(), A.row_data(), A.column_data(), &i_dummy,
       &pardiso_nrhs_, pardiso_iparm_, &pardiso_msglvl_, nullptr, nullptr,
       &error);
-  IL_ASSERT(error == 0);
+  IL_EXPECT_FAST(error == 0);
 
   is_numerical_factorization_ = true;
 }
 
 inline il::Array<double> Pardiso::solve(
     const il::SparseMatrixCSR<il::int_t, double> &A, const il::Array<double> &y) {
-  IL_ASSERT(matrix_element_ = A.element_data());
-  IL_ASSERT(is_numerical_factorization_);
-  IL_ASSERT(A.size(0) == n_);
-  IL_ASSERT(A.size(1) == n_);
-  IL_ASSERT(y.size() == n_);
+  IL_EXPECT_FAST(matrix_element_ = A.element_data());
+  IL_EXPECT_FAST(is_numerical_factorization_);
+  IL_EXPECT_FAST(A.size(0) == n_);
+  IL_EXPECT_FAST(A.size(1) == n_);
+  IL_EXPECT_FAST(y.size() == n_);
   il::Array<double> x{n_};
 
   const il::int_t phase = 33;
@@ -342,18 +342,18 @@ inline il::Array<double> Pardiso::solve(
       &pardiso_nrhs_, pardiso_iparm_, &pardiso_msglvl_,
       const_cast<double *>(y.data()), x.data(), &error);
 
-  IL_ASSERT(error == 0);
+  IL_EXPECT_FAST(error == 0);
 
   return x;
 }
 
 inline il::Array<double> Pardiso::solve_iterative(
     const il::SparseMatrixCSR<il::int_t, double> &A, const il::Array<double> &y) {
-  IL_ASSERT(matrix_element_ = A.element_data());
-  IL_ASSERT(is_numerical_factorization_);
-  IL_ASSERT(A.size(0) == n_);
-  IL_ASSERT(A.size(1) == n_);
-  IL_ASSERT(y.size() == n_);
+  IL_EXPECT_FAST(matrix_element_ = A.element_data());
+  IL_EXPECT_FAST(is_numerical_factorization_);
+  IL_EXPECT_FAST(A.size(0) == n_);
+  IL_EXPECT_FAST(A.size(1) == n_);
+  IL_EXPECT_FAST(y.size() == n_);
   il::Array<double> x{n_};
 
   const il::int_t old_solver = pardiso_iparm_[3];
@@ -368,7 +368,7 @@ inline il::Array<double> Pardiso::solve_iterative(
       &n_, A.element_data(), A.row_data(), A.column_data(), &i_dummy,
       &pardiso_nrhs_, pardiso_iparm_, &pardiso_msglvl_,
       const_cast<double *>(y.data()), x.data(), &error);
-  IL_ASSERT(error == 0);
+  IL_EXPECT_FAST(error == 0);
 
   pardiso_iparm_[3] = old_solver;
 
@@ -384,7 +384,7 @@ inline void Pardiso::release() {
         pardiso_pt_, &pardiso_max_fact_, &pardiso_mnum_, &pardiso_mtype_,
         &phase, &n_, nullptr, nullptr, nullptr, &i_dummy, &pardiso_nrhs_,
         pardiso_iparm_, &pardiso_msglvl_, nullptr, nullptr, &error);
-    IL_ASSERT(error == 0);
+    IL_EXPECT_FAST(error == 0);
 
     is_symbolic_factorization_ = false;
     is_numerical_factorization_ = false;

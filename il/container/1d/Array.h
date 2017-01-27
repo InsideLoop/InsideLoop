@@ -37,15 +37,16 @@ class Array {
 
  public:
   /* \brief Default constructor
-  // \details The size and the capacity of the array are set to 0 and no memory
-  // allocation is done during the process.
+  // \details The size and the capacity of the array are set to 0. The alignment
+  // is undefined. No memory allocation is done during the process.
   */
   Array();
 
   /* \brief Construct an array of n elements
   // \details The size and the capacity of the array are set to n.
   // - If T is a numeric value, the memory is
-  //   - (Debug mode) initialized to il::default_value<T>(). It is usually NaN
+  //   - (Debug mode) initialized to il::default_value<T>::value. It is usually
+  NaN
   //     if T is a floating point number or 666..666 if T is an integer.
   //   - (Release mode) left uninitialized. This behavior is different from
   //     std::vector from the standard library which initializes all numeric
@@ -268,7 +269,7 @@ Array<T>::Array(il::int_t n) {
     if (std::is_pod<T>::value) {
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t i = 0; i < n; ++i) {
-        data_[i] = il::default_value<T>();
+        data_[i] = il::default_value<T>::value;
       }
 #endif
     } else {
@@ -308,7 +309,7 @@ Array<T>::Array(il::int_t n, il::align_t, il::int_t align_r,
     shift_ = static_cast<short>(shift);
 #ifdef IL_DEFAULT_VALUE
     for (il::int_t i = 0; i < n; ++i) {
-      data_[i] = il::default_value<T>();
+      data_[i] = il::default_value<T>::value;
     }
 #endif
   } else {
@@ -587,7 +588,7 @@ void Array<T>::resize(il::int_t n) {
     if (std::is_pod<T>::value) {
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t i = size(); i < n; ++i) {
-        data_[i] = il::default_value<T>();
+        data_[i] = il::default_value<T>::value;
       }
 #endif
     } else {
@@ -604,7 +605,7 @@ void Array<T>::resize(il::int_t n) {
     if (std::is_pod<T>::value) {
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t i = n_old; i < n; ++i) {
-        data_[i] = il::default_value<T>();
+        data_[i] = il::default_value<T>::value;
       }
 #endif
     } else {

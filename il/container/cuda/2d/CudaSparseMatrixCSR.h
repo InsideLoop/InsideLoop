@@ -45,7 +45,7 @@ CudaSparseMatrixCSR<T>::CudaSparseMatrixCSR(il::int_t n0, il::int_t n1,
 
 template <typename T>
 il::int_t CudaSparseMatrixCSR<T>::size(il::int_t d) const {
-  IL_ASSERT_PRECOND(d >= 0 && d < 2);
+  IL_EXPECT_FAST(d >= 0 && d < 2);
 
   return d == 0 ? n0_ : n1_;
 }
