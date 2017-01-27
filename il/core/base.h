@@ -142,7 +142,7 @@ struct is_trivial<bool> {
 template <>
 inline bool default_value<bool>() {
   return false;
-};
+}
 
 template <>
 struct is_trivial<char> {
@@ -152,7 +152,7 @@ struct is_trivial<char> {
 template <>
 inline char default_value<char>() {
   return '\0';
-};
+}
 
 template <>
 struct is_trivial<std::int8_t> {
@@ -162,7 +162,7 @@ struct is_trivial<std::int8_t> {
 template <>
 inline std::int8_t default_value<std::int8_t>() {
   return 123;
-};
+}
 
 template <>
 struct is_trivial<std::uint8_t> {
@@ -172,7 +172,7 @@ struct is_trivial<std::uint8_t> {
 template <>
 inline std::uint8_t default_value<std::uint8_t>() {
   return 123;
-};
+}
 
 template <>
 struct is_trivial<std::int16_t> {
@@ -182,7 +182,7 @@ struct is_trivial<std::int16_t> {
 template <>
 inline std::int16_t default_value<std::int16_t>() {
   return 12345;
-};
+}
 
 template <>
 struct is_trivial<std::uint16_t> {
@@ -192,7 +192,7 @@ struct is_trivial<std::uint16_t> {
 template <>
 inline std::uint16_t default_value<std::uint16_t>() {
   return 12345;
-};
+}
 
 template <>
 struct is_trivial<std::int32_t> {
@@ -202,7 +202,7 @@ struct is_trivial<std::int32_t> {
 template <>
 inline std::int32_t default_value<std::int32_t>() {
   return 1234567891;
-};
+}
 
 template <>
 struct is_trivial<std::uint32_t> {
@@ -212,7 +212,7 @@ struct is_trivial<std::uint32_t> {
 template <>
 inline std::uint32_t default_value<std::uint32_t>() {
   return 1234567891;
-};
+}
 
 #ifdef INT64_MAX
 template <>
@@ -223,7 +223,7 @@ struct is_trivial<std::int64_t> {
 template <>
 inline std::int64_t default_value<std::int64_t>() {
   return 1234567891234567891;
-};
+}
 #endif
 
 #ifdef UINT64_MAX
@@ -235,7 +235,7 @@ struct is_trivial<std::uint64_t> {
 template <>
 inline std::uint64_t default_value<std::uint64_t>() {
   return 1234567891234567891;
-};
+}
 #endif
 
 template <>
@@ -246,7 +246,7 @@ struct is_trivial<float> {
 template <>
 inline float default_value<float>() {
   return std::numeric_limits<float>::quiet_NaN();
-};
+}
 
 template <>
 struct is_trivial<double> {
@@ -256,7 +256,7 @@ struct is_trivial<double> {
 template <>
 inline double default_value<double>() {
   return std::numeric_limits<double>::quiet_NaN();
-};
+}
 
 template <>
 struct is_trivial<long double> {
@@ -266,7 +266,7 @@ struct is_trivial<long double> {
 template <>
 inline long double default_value<long double>() {
   return std::numeric_limits<long double>::quiet_NaN();
-};
+}
 
 }
 

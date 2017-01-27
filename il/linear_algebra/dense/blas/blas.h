@@ -41,7 +41,7 @@ void blas(T alpha, const il::StaticArray3D<T, n0, n1, n2>& A, T beta, il::io_t,
       }
     }
   }
-};
+}
 
 #ifdef IL_MKL
 // x, y are vectors

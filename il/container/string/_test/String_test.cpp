@@ -24,7 +24,7 @@ TEST(String, c_string_constructor_0) {
   const char* p = s.c_string();
 
   ASSERT_TRUE(s.size() == 23 && s.is_small() && s.capacity() == 23 &&
-              0 == std::strcmp(s.c_string(), "A quite small string !!"));
+              0 == std::strcmp(p, "A quite small string !!"));
 }
 
 TEST(String, c_string_constructor_1) {
@@ -32,7 +32,7 @@ TEST(String, c_string_constructor_1) {
   const char* p = s.c_string();
 
   ASSERT_TRUE(s.size() == 24 && !s.is_small() &&
-              0 == std::strcmp(s.c_string(), "A quite large string !!!"));
+              0 == std::strcmp(p, "A quite large string !!!"));
 }
 
 TEST(String, c_string_constructor_2) {
@@ -40,7 +40,7 @@ TEST(String, c_string_constructor_2) {
   const char* p = s.c_string();
 
   ASSERT_TRUE(s.size() == 7 && s.is_small() &&
-              0 == std::strcmp(s.c_string(), "A quite"));
+              0 == std::strcmp(p, "A quite"));
 }
 
 TEST(String, reserve_0) {

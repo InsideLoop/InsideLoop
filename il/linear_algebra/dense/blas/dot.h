@@ -239,7 +239,7 @@ il::StaticArray<T, 3> cross(const il::StaticArray<T, 3>& x,
   ans[1] = x[2] * y[0] - x[0] * y[2];
   ans[2] = x[0] * y[1] - x[1] * y[0];
   return ans;
-};
+}
 }
 
 #endif  // IL_DOT_H

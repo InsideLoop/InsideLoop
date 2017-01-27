@@ -228,7 +228,7 @@ template <typename T1, typename T2>
 T1 safe_convert(T2 n, il::io_t, bool& error) {
   error = true;
   return T1{};
-};
+}
 
 #ifdef INT64_MAX
 template <>
