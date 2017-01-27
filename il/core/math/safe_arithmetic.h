@@ -41,7 +41,7 @@ inline std::int32_t safe_sum(std::int32_t a, std::int32_t b, il::io_t,
 
 #ifdef INT64_MAX
 inline std::int32_t safe_difference(std::int32_t a, std::int32_t b, il::io_t,
-                                      bool& error) {
+                                    bool& error) {
   const std::int64_t a_64 = a;
   const std::int64_t b_64 = b;
   const std::int64_t difference_64 = a_64 - b_64;
@@ -85,6 +85,42 @@ inline std::int32_t safe_division(std::int32_t a, std::int32_t b, il::io_t,
   }
 }
 
+#ifdef UINT64_MAX
+inline std::uint32_t safe_sum(std::uint32_t a, std::uint32_t b, il::io_t,
+                              bool& error) {
+  const std::uint64_t a_64 = a;
+  const std::uint64_t b_64 = b;
+  const std::uint64_t sum_64 = a_64 + b_64;
+  if (sum_64 > std::numeric_limits<std::uint32_t>::max()) {
+    error = true;
+    return 0;
+  } else if (sum_64 < std::numeric_limits<std::uint32_t>::min()) {
+    error = true;
+    return 0;
+  } else {
+    return static_cast<std::uint32_t>(sum_64);
+  }
+}
+#endif
+
+#ifdef UINT64_MAX
+inline std::uint32_t safe_product(std::uint32_t a, std::uint32_t b, il::io_t,
+                                  bool& error) {
+  const std::uint64_t a_64 = a;
+  const std::uint64_t b_64 = b;
+  const std::uint64_t product_64 = a_64 * b_64;
+  if (product_64 > std::numeric_limits<std::uint32_t>::max()) {
+    error = true;
+    return 0;
+  } else if (product_64 < std::numeric_limits<std::uint32_t>::min()) {
+    error = true;
+    return 0;
+  } else {
+    return static_cast<std::uint32_t>(product_64);
+  }
+}
+#endif
+
 ////////////////////////////////////////////////////////////////////////////////
 // 64-bit integer
 ////////////////////////////////////////////////////////////////////////////////
@@ -104,7 +140,7 @@ inline std::int64_t safe_sum(std::int64_t a, std::int64_t b, il::io_t,
 
 #ifdef INT64_MAX
 inline std::int64_t safe_difference(std::int64_t a, std::int64_t b, il::io_t,
-                                      bool& error) {
+                                    bool& error) {
   if ((b > 0 && a < std::numeric_limits<std::int64_t>::min() + b) ||
       (b < 0 && a > std::numeric_limits<std::int64_t>::max() + b)) {
     error = true;
@@ -215,6 +251,5 @@ inline std::uint64_t safe_convert(std::int64_t n, il::io_t, bool& error) {
   return static_cast<std::uint64_t>(n);
 }
 #endif
-
 }
 #endif  // IL_SAFE_ARITHMETIC_H
