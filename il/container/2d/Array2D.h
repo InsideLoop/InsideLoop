@@ -50,7 +50,7 @@ class Array2D {
   // \details The row size and the row capacity of the array are set to n0. The
   // column size and the column capacity of the array are set to n1.
   // - If T is a numeric value, the memory is
-  //   - (Debug mode) initialized to il::default_value<T>::value. It is usually NaN
+  //   - (Debug mode) initialized to il::default_value<T>(). It is usually NaN
   //     if T is a floating point number or 666..666 if T is an integer.
   //   - (Release mode) left uninitialized. This behavior is different from
   //     std::vector from the standard library which initializes all numeric
@@ -252,12 +252,12 @@ Array2D<T>::Array2D(il::int_t n0, il::int_t n1) {
   }
   il::int_t r{r0 * r1};
   if (r > 0) {
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
       data_ = new T[r];
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t i1 = 0; i1 < n1; ++i1) {
         for (il::int_t i0 = 0; i0 < n0; ++i0) {
-          data_[i1 * r0 + i0] = il::default_value<T>::value;
+          data_[i1 * r0 + i0] = il::default_value<T>();
         }
       }
 #endif
@@ -302,7 +302,7 @@ Array2D<T>::Array2D(il::int_t n0, il::int_t n1, il::align_t, short align_r,
   il::int_t r0;
   il::int_t r1;
   if (n0 > 0 && n1 > 0) {
-    if (std::is_pod<T>::value && align_mod != 0) {
+    if (il::is_trivial<T>::value && align_mod != 0) {
       const il::int_t nb_lanes{static_cast<il::int_t>(alignment() / sizeof(T))};
       r0 = ((n0 - 1) / nb_lanes + 1) * nb_lanes;
       r1 = n1;
@@ -319,7 +319,7 @@ Array2D<T>::Array2D(il::int_t n0, il::int_t n1, il::align_t, short align_r,
   }
   il::int_t r{r0 * r1};
   if (r > 0) {
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
       if (align_mod == 0) {
         data_ = new T[r];
         new_shift_ = 0;
@@ -329,7 +329,7 @@ Array2D<T>::Array2D(il::int_t n0, il::int_t n1, il::align_t, short align_r,
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t i1 = 0; i1 < n1; ++i1) {
         for (il::int_t i0 = 0; i0 < n0; ++i0) {
-          data_[i1 * r0 + i0] = il::default_value<T>::value;
+          data_[i1 * r0 + i0] = il::default_value<T>();
         }
       }
 #endif
@@ -380,7 +380,7 @@ Array2D<T>::Array2D(il::int_t n0, il::int_t n1, const T& x) {
   }
   il::int_t r{r0 * r1};
   if (r > 0) {
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
       data_ = new T[r];
       for (il::int_t i1 = 0; i1 < n1; ++i1) {
         for (il::int_t i0 = 0; i0 < n0; ++i0) {
@@ -424,7 +424,7 @@ Array2D<T>::Array2D(il::value_t,
     r0 = n0;
     r1 = n1;
     il::int_t r{r0 * r1};
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
       data_ = new T[r];
       for (il::int_t i1 = 0; i1 < n1; ++i1) {
         IL_EXPECT_FAST(static_cast<il::int_t>((list.begin() + i1)->size()) == n0);
@@ -447,7 +447,7 @@ Array2D<T>::Array2D(il::value_t,
     r0 = (n0 == 0) ? 1 : n0;
     r1 = (n1 == 0) ? 1 : n1;
     il::int_t r{r0 * r1};
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
       data_ = new T[r];
     } else {
       data_ = static_cast<T*>(::operator new(r * sizeof(T)));
@@ -475,7 +475,7 @@ Array2D<T>::Array2D(const Array2D<T>& A) {
   il::int_t r0;
   il::int_t r1;
   if (n0 > 0 && n1 > 0) {
-    if (std::is_pod<T>::value && A.align_mod_ != 0) {
+    if (il::is_trivial<T>::value && A.align_mod_ != 0) {
       const il::int_t nb_lanes{
           static_cast<il::int_t>(A.alignment() / sizeof(T))};
       r0 = ((n0 - 1) / nb_lanes + 1) * nb_lanes;
@@ -492,7 +492,7 @@ Array2D<T>::Array2D(const Array2D<T>& A) {
     r1 = (n1 == 0) ? 1 : n1;
   }
   const il::int_t r{r0 * r1};
-  if (std::is_pod<T>::value) {
+  if (il::is_trivial<T>::value) {
     if (A.align_mod_ == 0) {
       data_ = new T[r];
       new_shift_ = 0;
@@ -569,7 +569,7 @@ Array2D<T>& Array2D<T>::operator=(const Array2D<T>& A) {
       il::int_t r0;
       il::int_t r1;
       if (n0 > 0 && n1 > 0) {
-        if (std::is_pod<T>::value && align_mod != 0) {
+        if (il::is_trivial<T>::value && align_mod != 0) {
           const il::int_t nb_lanes{
               static_cast<il::int_t>(A.alignment() / sizeof(T))};
           r0 = (n0 / nb_lanes + 1) * nb_lanes;
@@ -583,7 +583,7 @@ Array2D<T>& Array2D<T>::operator=(const Array2D<T>& A) {
         r1 = (n1 == 0) ? 1 : n1;
       }
       const il::int_t r{r0 * r1};
-      if (std::is_pod<T>::value) {
+      if (il::is_trivial<T>::value) {
         if (data_) {
           delete[](data_ - new_shift_);
         }
@@ -626,7 +626,7 @@ Array2D<T>& Array2D<T>::operator=(const Array2D<T>& A) {
       align_mod_ = align_mod;
       align_r_ = align_r;
     } else {
-      if (std::is_pod<T>::value) {
+      if (il::is_trivial<T>::value) {
         for (il::int_t i1 = 0; i1 < n1; ++i1) {
           memcpy(data_ + i1 * stride(1), A.data_ + i1 * A.stride(1),
                  n0 * sizeof(T));
@@ -658,7 +658,7 @@ template <typename T>
 Array2D<T>& Array2D<T>::operator=(Array2D<T>&& A) {
   if (this != &A) {
     if (data_) {
-      if (std::is_pod<T>::value) {
+      if (il::is_trivial<T>::value) {
         delete[](data_ - new_shift_);
       } else {
         for (il::int_t i1{size(1) - 1}; i1 >= 0; --i1) {
@@ -707,7 +707,7 @@ Array2D<T>::~Array2D() {
   check_invariance();
 #endif
   if (data_) {
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
       delete[](data_ - new_shift_);
     } else {
       for (il::int_t i1{size(1) - 1}; i1 >= 0; --i1) {
@@ -722,25 +722,25 @@ Array2D<T>::~Array2D() {
 
 template <typename T>
 const T& Array2D<T>::operator()(il::int_t i0, il::int_t i1) const {
-  IL_EXPECT_BOUND(static_cast<il::uint_t>(i0) <
-                   static_cast<il::uint_t>(size(0)));
-  IL_EXPECT_BOUND(static_cast<il::uint_t>(i1) <
-                   static_cast<il::uint_t>(size(1)));
+  IL_EXPECT_BOUND(static_cast<std::size_t>(i0) <
+                   static_cast<std::size_t>(size(0)));
+  IL_EXPECT_BOUND(static_cast<std::size_t>(i1) <
+                   static_cast<std::size_t>(size(1)));
   return data_[i1 * (capacity_[0] - data_) + i0];
 }
 
 template <typename T>
 T& Array2D<T>::operator()(il::int_t i0, il::int_t i1) {
-  IL_EXPECT_BOUND(static_cast<il::uint_t>(i0) <
-                   static_cast<il::uint_t>(size(0)));
-  IL_EXPECT_BOUND(static_cast<il::uint_t>(i1) <
-                   static_cast<il::uint_t>(size(1)));
+  IL_EXPECT_BOUND(static_cast<std::size_t>(i0) <
+                   static_cast<std::size_t>(size(0)));
+  IL_EXPECT_BOUND(static_cast<std::size_t>(i1) <
+                   static_cast<std::size_t>(size(1)));
   return data_[i1 * (capacity_[0] - data_) + i0];
 }
 
 template <typename T>
 il::int_t Array2D<T>::size(il::int_t d) const {
-  IL_EXPECT_BOUND(static_cast<il::uint_t>(d) < static_cast<il::uint_t>(2));
+  IL_EXPECT_BOUND(static_cast<std::size_t>(d) < static_cast<std::size_t>(2));
   return static_cast<il::int_t>(size_[d] - data_);
 }
 
@@ -754,7 +754,7 @@ void Array2D<T>::resize(il::int_t n0, il::int_t n1) {
     il::int_t r0;
     il::int_t r1;
     if (n0 > 0 && n1 > 0) {
-      if (std::is_pod<T>::value && align_mod_ != 0) {
+      if (il::is_trivial<T>::value && align_mod_ != 0) {
         const il::int_t nb_lanes{
             static_cast<il::int_t>(alignment() / sizeof(T))};
         r0 = (n0 / nb_lanes + 1) * nb_lanes;
@@ -773,7 +773,7 @@ void Array2D<T>::resize(il::int_t n0, il::int_t n1) {
     const il::int_t r{r0 * r1};
     T* new_data;
     short new_shift;
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
       if (align_mod_ == 0) {
         new_data = new T[r];
         new_shift = 0;
@@ -790,7 +790,7 @@ void Array2D<T>::resize(il::int_t n0, il::int_t n1) {
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t i1 = 0; i1 < n1; ++i1) {
         for (il::int_t i0{i1 < n1_old ? n0_old : 0}; i0 < n0; ++i0) {
-          new_data[i1 * r0 + i0] = il::default_value<T>::value;
+          new_data[i1 * r0 + i0] = il::default_value<T>();
         }
       }
 #endif
@@ -827,11 +827,11 @@ void Array2D<T>::resize(il::int_t n0, il::int_t n1) {
     capacity_[1] = data_ + r1;
     new_shift_ = new_shift;
   } else {
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t i1 = 0; i1 < n1; ++i1) {
         for (il::int_t i0{i1 < n1_old ? n0_old : 0}; i0 < n1; ++i0) {
-          data_[i1 * stride(1) + i0] = il::default_value<T>::value;
+          data_[i1 * stride(1) + i0] = il::default_value<T>();
         }
       }
 #endif
@@ -858,7 +858,7 @@ void Array2D<T>::resize(il::int_t n0, il::int_t n1) {
 
 template <typename T>
 il::int_t Array2D<T>::capacity(il::int_t d) const {
-  IL_EXPECT_FAST(static_cast<il::uint_t>(d) < static_cast<il::uint_t>(2));
+  IL_EXPECT_FAST(static_cast<std::size_t>(d) < static_cast<std::size_t>(2));
   return static_cast<il::int_t>((d == 0 ? capacity_[0] : capacity_[1]) - data_);
 }
 
@@ -871,14 +871,14 @@ void Array2D<T>::reserve(il::int_t r0, il::int_t r1) {
   if (r0 > capacity(0) || r1 > capacity(1)) {
     il::int_t n0_old{size(0)};
     il::int_t n1_old{size(1)};
-    if (std::is_pod<T>::value && align_mod_ != 0) {
+    if (il::is_trivial<T>::value && align_mod_ != 0) {
       const il::int_t nb_lanes{static_cast<il::int_t>(alignment() / sizeof(T))};
       r0 = (r0 / nb_lanes + 1) * nb_lanes;
     }
     il::int_t r{r0 * r1};
     T* new_data;
     short new_shift;
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
       if (align_mod_ == 0) {
         new_data = new T[r];
         new_shift = 0;
@@ -951,7 +951,7 @@ T* Array2D<T>::data(il::int_t i1) {
 
 template <typename T>
 il::int_t Array2D<T>::stride(il::int_t d) const {
-  IL_EXPECT_FAST(static_cast<il::uint_t>(d) < static_cast<il::uint_t>(2));
+  IL_EXPECT_FAST(static_cast<std::size_t>(d) < static_cast<std::size_t>(2));
   return (d == 0) ? 1 : static_cast<il::int_t>(capacity_[0] - data_);
 }
 
@@ -991,7 +991,7 @@ void Array2D<T>::check_invariance() const {
     IL_EXPECT_FAST(capacity_[1] != nullptr);
     IL_EXPECT_FAST((size_[0] - data_) <= (capacity_[0] - data_));
     IL_EXPECT_FAST((size_[1] - data_) <= (capacity_[1] - data_));
-    if (!std::is_pod<T>::value) {
+    if (!il::is_trivial<T>::value) {
       IL_EXPECT_FAST(align_mod_ == 0);
     }
     if (align_mod_ == 0) {

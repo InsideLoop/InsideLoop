@@ -240,23 +240,23 @@ T &SparseMatrixCSR<Index, T>::operator[](il::int_t k) {
 
 template <typename Index, typename T>
 T const &SparseMatrixCSR<Index, T>::operator()(il::int_t i, il::int_t k) const {
-  IL_EXPECT_FAST(static_cast<il::uint_t>(i) < static_cast<il::uint_t>(n0_));
-  IL_EXPECT_FAST(static_cast<il::uint_t>(row_[i] + k) <
-            static_cast<il::uint_t>(row_[i + 1]));
+  IL_EXPECT_FAST(static_cast<std::size_t>(i) < static_cast<std::size_t>(n0_));
+  IL_EXPECT_FAST(static_cast<std::size_t>(row_[i] + k) <
+            static_cast<std::size_t>(row_[i + 1]));
   return element_[row_[i] + k];
 }
 
 template <typename Index, typename T>
 T &SparseMatrixCSR<Index, T>::operator()(il::int_t i, il::int_t k) {
-  IL_EXPECT_FAST(static_cast<il::uint_t>(i) < static_cast<il::uint_t>(n0_));
-  IL_EXPECT_FAST(static_cast<il::uint_t>(row_[i] + k) <
-            static_cast<il::uint_t>(row_[i + 1]));
+  IL_EXPECT_FAST(static_cast<std::size_t>(i) < static_cast<std::size_t>(n0_));
+  IL_EXPECT_FAST(static_cast<std::size_t>(row_[i] + k) <
+            static_cast<std::size_t>(row_[i + 1]));
   return element_[row_[i] + k];
 }
 
 template <typename Index, typename T>
 il::int_t SparseMatrixCSR<Index, T>::size(il::int_t d) const {
-  IL_EXPECT_BOUND(static_cast<il::uint_t>(d) < static_cast<il::uint_t>(2));
+  IL_EXPECT_BOUND(static_cast<std::size_t>(d) < static_cast<std::size_t>(2));
   return (d == 0) ? n0_ : n1_;
 }
 

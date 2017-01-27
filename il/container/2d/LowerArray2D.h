@@ -67,11 +67,11 @@ LowerArray2D<T>::LowerArray2D(il::int_t n) {
   IL_EXPECT_FAST(n >= 0);
   if (n > 0) {
     const il::int_t nb_elements{(n * (n + 1)) / 2};
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
       data_ = new T[nb_elements];
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t k = 0; k < nb_elements; ++k) {
-        data_[k] = il::default_value<T>::value;
+        data_[k] = il::default_value<T>();
       }
 #endif
     } else {
@@ -96,7 +96,7 @@ LowerArray2D<T>::LowerArray2D(const LowerArray2D<T>& A) {
   const il::int_t n{A.size()};
   if (n > 0) {
     const il::int_t nb_elements{(n * (n + 1)) / 2};
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
       data_ = new T[nb_elements];
       memcpy(data_, A.data_, nb_elements * sizeof(T));
     } else {
@@ -141,7 +141,7 @@ LowerArray2D<T>& LowerArray2D<T>::operator=(const LowerArray2D<T>& A) {
     const il::int_t nb_elements{(n * (n + 1)) / 2};
     const bool needs_memory{n > capacity()};
     if (needs_memory) {
-      if (std::is_pod<T>::value) {
+      if (il::is_trivial<T>::value) {
         if (data_) {
           delete[] data_;
         }
@@ -166,7 +166,7 @@ LowerArray2D<T>& LowerArray2D<T>::operator=(const LowerArray2D<T>& A) {
       size_ = data_ + n;
       capacity_ = data_ + n;
     } else {
-      if (std::is_pod<T>::value) {
+      if (il::is_trivial<T>::value) {
         memcpy(data_, A.data_, n * sizeof(T));
       } else {
         for (il::int_t k = 0; k < nb_elements; ++k) {
@@ -190,7 +190,7 @@ template <typename T>
 LowerArray2D<T>& LowerArray2D<T>::operator=(LowerArray2D<T>&& A) {
   if (this != &A) {
     if (data_) {
-      if (std::is_pod<T>::value) {
+      if (il::is_trivial<T>::value) {
         delete[] data_;
       } else {
         const il::int_t nb_elements{(size() * (size() + 1)) / 2};
@@ -221,7 +221,7 @@ LowerArray2D<T>& LowerArray2D<T>::operator=(LowerArray2D<T>&& A) {
 template <typename T>
 LowerArray2D<T>::~LowerArray2D() {
   if (data_) {
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
       delete[] data_;
     } else {
       const il::int_t nb_elements{(size() * (size() + 1)) / 2};
@@ -235,20 +235,20 @@ LowerArray2D<T>::~LowerArray2D() {
 
 template <typename T>
 const T& LowerArray2D<T>::operator()(il::int_t i0, il::int_t i1) const {
-  IL_EXPECT_BOUND(static_cast<il::uint_t>(i0) <
-                   static_cast<il::uint_t>(size()));
-  IL_EXPECT_BOUND(static_cast<il::uint_t>(i1) <
-                   static_cast<il::uint_t>(size()));
+  IL_EXPECT_BOUND(static_cast<std::size_t>(i0) <
+                   static_cast<std::size_t>(size()));
+  IL_EXPECT_BOUND(static_cast<std::size_t>(i1) <
+                   static_cast<std::size_t>(size()));
   IL_EXPECT_BOUND(i1 <= i0);
   return data_[(i1 * (2 * (size_ - data_) - (1 + i1))) / 2 + i0];
 }
 
 template <typename T>
 T& LowerArray2D<T>::operator()(il::int_t i0, il::int_t i1) {
-  IL_EXPECT_BOUND(static_cast<il::uint_t>(i0) <
-                   static_cast<il::uint_t>(size()));
-  IL_EXPECT_BOUND(static_cast<il::uint_t>(i1) <
-                   static_cast<il::uint_t>(size()));
+  IL_EXPECT_BOUND(static_cast<std::size_t>(i0) <
+                   static_cast<std::size_t>(size()));
+  IL_EXPECT_BOUND(static_cast<std::size_t>(i1) <
+                   static_cast<std::size_t>(size()));
   IL_EXPECT_BOUND(i1 <= i0);
   return data_[(i1 * (2 * (size_ - data_) - (1 + i1))) / 2 + i0];
 }

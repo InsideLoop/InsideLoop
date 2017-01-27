@@ -51,7 +51,7 @@ class Array3D {
   // column size and the column capacity of the array are set to n1. The slice
   // size and the slice capacity of the array are set to n2.
   // - If T is a numeric value, the memory is
-  //   - (Debug mode) initialized to il::default_value<T>::value. It is usually NaN
+  //   - (Debug mode) initialized to il::default_value<T>(). It is usually NaN
   //     if T is a floating point number or 666..666 if T is an integer.
   //   - (Release mode) left uninitialized. This behavior is different from
   //     std::vector from the standard library which initializes all numeric
@@ -271,13 +271,13 @@ Array3D<T>::Array3D(il::int_t n0, il::int_t n1, il::int_t n2) {
   }
   il::int_t r = r0 * r1 * r2;
   if (r > 0) {
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
       data_ = new T[r];
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t i2 = 0; i2 < n2; ++i2) {
         for (il::int_t i1 = 0; i1 < n1; ++i1) {
           for (il::int_t i0 = 0; i0 < n0; ++i0) {
-            data_[(i2 * r1 + i1) * r0 + i0] = il::default_value<T>::value;
+            data_[(i2 * r1 + i1) * r0 + i0] = il::default_value<T>();
           }
         }
       }
@@ -331,7 +331,7 @@ Array3D<T>::Array3D(il::int_t n0, il::int_t n1, il::int_t n2, il::align_t,
   il::int_t r1;
   il::int_t r2;
   if (n0 > 0 && n1 > 0 && n2 > 0) {
-    if (std::is_pod<T>::value && align_mod != 0) {
+    if (il::is_trivial<T>::value && align_mod != 0) {
       const il::int_t nb_lanes =
           static_cast<il::int_t>(alignment() / sizeof(T));
       r0 = ((n0 - 1) / nb_lanes + 1) * nb_lanes;
@@ -353,7 +353,7 @@ Array3D<T>::Array3D(il::int_t n0, il::int_t n1, il::int_t n2, il::align_t,
   }
   il::int_t r = r0 * r1 * r2;
   if (r > 0) {
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
       if (align_mod == 0) {
         data_ = new T[r];
         new_shift_ = 0;
@@ -364,7 +364,7 @@ Array3D<T>::Array3D(il::int_t n0, il::int_t n1, il::int_t n2, il::align_t,
       for (il::int_t i2 = 0; i2 < n2; ++i2) {
         for (il::int_t i1 = 0; i1 < n1; ++i1) {
           for (il::int_t i0 = 0; i0 < n0; ++i0) {
-            data_[(i2 * r1 + i1) * r0 + i0] = il::default_value<T>::value;
+            data_[(i2 * r1 + i1) * r0 + i0] = il::default_value<T>();
           }
         }
       }
@@ -427,7 +427,7 @@ Array3D<T>::Array3D(il::int_t n0, il::int_t n1, il::int_t n2, const T& x) {
   }
   il::int_t r = r0 * r1 * r2;
   if (r > 0) {
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
       data_ = new T[r];
       for (il::int_t i2 = 0; i2 < n2; ++i2) {
         for (il::int_t i1 = 0; i1 < n1; ++i1) {
@@ -495,7 +495,7 @@ Array3D<T>::Array3D(
   }
   il::int_t r = r0 * r1 * r2;
   if (r > 0) {
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
       data_ = new T[r];
       for (il::int_t i2 = 0; i2 < n2; ++i2) {
         IL_EXPECT_FAST(static_cast<il::int_t>((list.begin() + i2)->size()) == n1);
@@ -564,7 +564,7 @@ Array3D<T>::Array3D(const Array3D<T>& A) {
     r2 = (n2 == 0) ? 1 : n2;
   }
   il::int_t r = r0 * r1 * r2;
-  if (std::is_pod<T>::value) {
+  if (il::is_trivial<T>::value) {
     data_ = new T[r];
     for (il::int_t i2 = 0; i2 < n2; ++i2) {
       for (il::int_t i1 = 0; i1 < n1; ++i1) {
@@ -667,7 +667,7 @@ Array3D<T>& Array3D<T>::operator=(const Array3D<T>& A) {
     const bool needs_memory{r0 > capacity(0) || r1 > capacity(1) ||
                             r2 > capacity(2)};
     if (needs_memory) {
-      if (std::is_pod<T>::value) {
+      if (il::is_trivial<T>::value) {
         if (data_) {
           delete[] data_;
         }
@@ -714,7 +714,7 @@ Array3D<T>& Array3D<T>::operator=(const Array3D<T>& A) {
       capacity_[1] = data_ + r1;
       capacity_[2] = data_ + r2;
     } else {
-      if (std::is_pod<T>::value) {
+      if (il::is_trivial<T>::value) {
         for (il::int_t i2 = 0; i2 < n2; ++i2) {
           for (il::int_t i1 = 0; i1 < n1; ++i1) {
             memcpy(data_ + i2 * stride(2) + i1 * stride(1),
@@ -756,7 +756,7 @@ template <typename T>
 Array3D<T>& Array3D<T>::operator=(Array3D<T>&& A) {
   if (this != &A) {
     if (data_) {
-      if (std::is_pod<T>::value) {
+      if (il::is_trivial<T>::value) {
         delete[] data_;
       } else {
         for (il::int_t i2{size(2) - 1}; i2 >= 0; --i2) {
@@ -815,7 +815,7 @@ Array3D<T>::~Array3D() {
   check_invariance();
 #endif
   if (data_) {
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
       delete[] data_;
     } else {
       for (il::int_t i2{size(2) - 1}; i2 >= 0; --i2) {
@@ -833,31 +833,31 @@ Array3D<T>::~Array3D() {
 template <typename T>
 const T& Array3D<T>::operator()(il::int_t i0, il::int_t i1,
                                 il::int_t i2) const {
-  IL_EXPECT_BOUND(static_cast<il::uint_t>(i0) <
-                   static_cast<il::uint_t>(size(0)));
-  IL_EXPECT_BOUND(static_cast<il::uint_t>(i1) <
-                   static_cast<il::uint_t>(size(1)));
-  IL_EXPECT_BOUND(static_cast<il::uint_t>(i2) <
-                   static_cast<il::uint_t>(size(2)));
+  IL_EXPECT_BOUND(static_cast<std::size_t>(i0) <
+                   static_cast<std::size_t>(size(0)));
+  IL_EXPECT_BOUND(static_cast<std::size_t>(i1) <
+                   static_cast<std::size_t>(size(1)));
+  IL_EXPECT_BOUND(static_cast<std::size_t>(i2) <
+                   static_cast<std::size_t>(size(2)));
   return data_[(i2 * (capacity_[1] - data_) + i1) * (capacity_[0] - data_) +
                i0];
 }
 
 template <typename T>
 T& Array3D<T>::operator()(il::int_t i0, il::int_t i1, il::int_t i2) {
-  IL_EXPECT_BOUND(static_cast<il::uint_t>(i0) <
-                   static_cast<il::uint_t>(size(0)));
-  IL_EXPECT_BOUND(static_cast<il::uint_t>(i1) <
-                   static_cast<il::uint_t>(size(1)));
-  IL_EXPECT_BOUND(static_cast<il::uint_t>(i2) <
-                   static_cast<il::uint_t>(size(2)));
+  IL_EXPECT_BOUND(static_cast<std::size_t>(i0) <
+                   static_cast<std::size_t>(size(0)));
+  IL_EXPECT_BOUND(static_cast<std::size_t>(i1) <
+                   static_cast<std::size_t>(size(1)));
+  IL_EXPECT_BOUND(static_cast<std::size_t>(i2) <
+                   static_cast<std::size_t>(size(2)));
   return data_[(i2 * (capacity_[1] - data_) + i1) * (capacity_[0] - data_) +
                i0];
 }
 
 template <typename T>
 il::int_t Array3D<T>::size(il::int_t d) const {
-  IL_EXPECT_FAST(static_cast<il::uint_t>(d) < static_cast<il::uint_t>(3));
+  IL_EXPECT_FAST(static_cast<std::size_t>(d) < static_cast<std::size_t>(3));
   return static_cast<il::int_t>(size_[d] - data_);
 }
 
@@ -870,14 +870,14 @@ void Array3D<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2) {
   const il::int_t n1_old{size(1)};
   const il::int_t n2_old{size(2)};
   if (n0 <= capacity(0) && n1 <= capacity(1) && n2 <= capacity(2)) {
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t i2 = 0; i2 < n2; ++i2) {
         for (il::int_t i1 = 0; i1 < n1; ++i1) {
           for (il::int_t i0{i2 < size(2) && i1 < size(1) ? size(0) : 0};
                i0 < n0; ++i0) {
             data_[i2 * stride(2) + i1 * stride(1) + i0] =
-                il::default_value<T>::value;
+                il::default_value<T>();
           }
         }
       }
@@ -919,13 +919,13 @@ void Array3D<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2) {
     }
     const il::int_t r = r0 * r1 * r2;
     T* new_data;
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
       new_data = new T[r];
     } else {
       new_data = static_cast<T*>(::operator new(r * sizeof(T)));
     }
     if (data_) {
-      if (std::is_pod<T>::value) {
+      if (il::is_trivial<T>::value) {
         for (il::int_t i2 = 0; i2 < (n2 < n2_old ? n2 : n2_old); ++i2) {
           for (il::int_t i1 = 0; i1 < (n1 < n1_old ? n1 : n1_old); ++i1) {
             memcpy(new_data + (i2 * r1 + i1) * r0,
@@ -949,13 +949,13 @@ void Array3D<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2) {
         ::operator delete(data_);
       }
     }
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
 #ifndef NDEBUG
       for (il::int_t i2 = 0; i2 < n2; ++i2) {
         for (il::int_t i1 = 0; i1 < n1; ++i1) {
           for (il::int_t i0{i2 < size(2) && i1 < size(1) ? size(0) : 0};
                i0 < n0; ++i0) {
-            new_data[(i2 * r1 + i1) * r0 + i0] = il::default_value<T>::value;
+            new_data[(i2 * r1 + i1) * r0 + i0] = il::default_value<T>();
           }
         }
       }
@@ -992,7 +992,7 @@ void Array3D<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2) {
 
 template <typename T>
 il::int_t Array3D<T>::capacity(il::int_t d) const {
-  IL_EXPECT_FAST(static_cast<il::uint_t>(d) < static_cast<il::uint_t>(3));
+  IL_EXPECT_FAST(static_cast<std::size_t>(d) < static_cast<std::size_t>(3));
   return static_cast<il::int_t>(capacity_[d] - data_);
 }
 
@@ -1013,13 +1013,13 @@ void Array3D<T>::reserve(il::int_t r0, il::int_t r1, il::int_t r2) {
     r2 = (r2 == 0) ? 1 : r2;
     const il::int_t r = r0 * r1 * r2;
     T* new_data;
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
       new_data = new T[r];
     } else {
       new_data = static_cast<T*>(::operator new(r * sizeof(T)));
     }
     if (data_) {
-      if (std::is_pod<T>::value) {
+      if (il::is_trivial<T>::value) {
         for (il::int_t i2 = 0; i2 < n2_old; ++i2) {
           for (il::int_t i1 = 0; i1 < n1_old; ++i1) {
             memcpy(new_data + (i2 * r1 + i1) * r0,
@@ -1068,7 +1068,7 @@ T* Array3D<T>::data() {
 
 template <typename T>
 il::int_t Array3D<T>::stride(il::int_t d) const {
-  IL_EXPECT_FAST(static_cast<il::uint_t>(d) < static_cast<il::uint_t>(3));
+  IL_EXPECT_FAST(static_cast<std::size_t>(d) < static_cast<std::size_t>(3));
   return (d == 0)
              ? 1
              : static_cast<il::int_t>((capacity_[0] - data_) *
@@ -1103,7 +1103,7 @@ void Array3D<T>::check_invariance() const {
     IL_EXPECT_FAST((size_[1] - data_) <= (capacity_[1] - data_));
     IL_EXPECT_FAST((size_[2] - data_) <= (capacity_[2] - data_));
   }
-  if (!std::is_pod<T>::value) {
+  if (!il::is_trivial<T>::value) {
     IL_EXPECT_FAST(align_mod_ == 0);
   }
   if (align_mod_ == 0) {

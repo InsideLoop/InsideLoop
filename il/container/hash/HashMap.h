@@ -370,24 +370,24 @@ void HashMap<K, V, F>::erase(il::int_t i) {
 
 template <typename K, typename V, typename F>
 const K& HashMap<K, V, F>::key(il::int_t i) const {
-  IL_EXPECT_BOUND(static_cast<il::uint_t>(i) <
-                   static_cast<il::uint_t>((p_ >= 0) ? (1 << p_) : 0));
+  IL_EXPECT_BOUND(static_cast<std::size_t>(i) <
+                   static_cast<std::size_t>((p_ >= 0) ? (1 << p_) : 0));
 
   return slot_[i].key;
 }
 
 template <typename K, typename V, typename F>
 const V& HashMap<K, V, F>::value(il::int_t i) const {
-  IL_EXPECT_BOUND(static_cast<il::uint_t>(i) <
-                   static_cast<il::uint_t>((p_ >= 0) ? (1 << p_) : 0));
+  IL_EXPECT_BOUND(static_cast<std::size_t>(i) <
+                   static_cast<std::size_t>((p_ >= 0) ? (1 << p_) : 0));
 
   return slot_[i].value;
 }
 
 template <typename K, typename V, typename F>
 V& HashMap<K, V, F>::value(il::int_t i) {
-  IL_EXPECT_BOUND(static_cast<il::uint_t>(i) <
-                   static_cast<il::uint_t>((p_ >= 0) ? (1 << p_) : 0));
+  IL_EXPECT_BOUND(static_cast<std::size_t>(i) <
+                   static_cast<std::size_t>((p_ >= 0) ? (1 << p_) : 0));
 
   return slot_[i].value;
 }

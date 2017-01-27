@@ -293,8 +293,8 @@ inline bool String::is_small() const {
 }
 
 inline void String::set_small_size(il::int_t n) {
-  IL_EXPECT_MEDIUM(static_cast<il::uint_t>(n) <=
-                   static_cast<il::uint_t>(max_small_size_));
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(n) <=
+                   static_cast<std::size_t>(max_small_size_));
 
   small_[max_small_size_] = static_cast<char>(max_small_size_ - n);
 }

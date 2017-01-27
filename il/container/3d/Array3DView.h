@@ -118,15 +118,15 @@ ConstArray3DView<T>::ConstArray3DView(const T* data, il::int_t n, il::int_t p,
 template <typename T>
 const T& ConstArray3DView<T>::operator()(il::int_t i, il::int_t j,
                                          il::int_t k) const {
-  IL_EXPECT_FAST(static_cast<il::uint_t>(i) < static_cast<il::uint_t>(size(0)));
-  IL_EXPECT_FAST(static_cast<il::uint_t>(j) < static_cast<il::uint_t>(size(1)));
-  IL_EXPECT_FAST(static_cast<il::uint_t>(k) < static_cast<il::uint_t>(size(2)));
+  IL_EXPECT_FAST(static_cast<std::size_t>(i) < static_cast<std::size_t>(size(0)));
+  IL_EXPECT_FAST(static_cast<std::size_t>(j) < static_cast<std::size_t>(size(1)));
+  IL_EXPECT_FAST(static_cast<std::size_t>(k) < static_cast<std::size_t>(size(2)));
   return data_[(i * stride(0) + j) * stride(1) + k];
 }
 
 template <typename T>
 il::int_t ConstArray3DView<T>::size(il::int_t d) const {
-  IL_EXPECT_FAST(static_cast<il::uint_t>(d) < static_cast<il::uint_t>(3));
+  IL_EXPECT_FAST(static_cast<std::size_t>(d) < static_cast<std::size_t>(3));
   return static_cast<il::int_t>(size_[d] - data_);
 }
 
@@ -137,7 +137,7 @@ const T* ConstArray3DView<T>::data() const {
 
 template <typename T>
 il::int_t ConstArray3DView<T>::stride(il::int_t d) const {
-  IL_EXPECT_FAST(static_cast<il::uint_t>(d) < static_cast<il::uint_t>(2));
+  IL_EXPECT_FAST(static_cast<std::size_t>(d) < static_cast<std::size_t>(2));
   return static_cast<il::int_t>(stride_[d] - data_);
 }
 
@@ -185,12 +185,12 @@ Array3DView<T>::Array3DView(T* data, il::int_t n, il::int_t p, il::int_t q,
 
 template <typename T>
 T& Array3DView<T>::operator()(il::int_t i, il::int_t j, il::int_t k) {
-  IL_EXPECT_FAST(static_cast<il::uint_t>(i) <
-            static_cast<il::uint_t>(this->size(0)));
-  IL_EXPECT_FAST(static_cast<il::uint_t>(j) <
-            static_cast<il::uint_t>(this->size(1)));
-  IL_EXPECT_FAST(static_cast<il::uint_t>(k) <
-            static_cast<il::uint_t>(this->size(2)));
+  IL_EXPECT_FAST(static_cast<std::size_t>(i) <
+            static_cast<std::size_t>(this->size(0)));
+  IL_EXPECT_FAST(static_cast<std::size_t>(j) <
+            static_cast<std::size_t>(this->size(1)));
+  IL_EXPECT_FAST(static_cast<std::size_t>(k) <
+            static_cast<std::size_t>(this->size(2)));
   return this->data_[(i * this->stride(0) + j) * this->stride(1) + k];
 }
 

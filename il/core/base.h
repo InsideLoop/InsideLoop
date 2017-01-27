@@ -23,9 +23,6 @@
 // Configuration
 ////////////////////////////////////////////////////////////////////////////////
 
-#define IL_INTEGER_PTRDIFF
-//#define IL_INTEGER_INT
-
 //#define IL_BLAS_ATLAS
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -102,15 +99,7 @@ struct abort_exception {};
 
 namespace il {
 
-#ifdef IL_INTEGER_INT
-typedef int int_t;
-typedef unsigned int uint_t;
-const int_t int_t_max = std::numeric_limits<int>::max();
-#else
 typedef std::ptrdiff_t int_t;
-typedef std::size_t uint_t;
-const int_t int_t_max = std::numeric_limits<std::ptrdiff_t>::max();
-#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 // For arrays
@@ -136,79 +125,149 @@ const short page = 4096;
 ////////////////////////////////////////////////////////////////////////////////
 
 template <typename T>
-struct default_value {
-  static constexpr T value = T{};
-};
-
-template <>
-struct default_value<bool> {
+struct is_trivial {
   static constexpr bool value = false;
 };
 
+template <typename T>
+T default_value() {
+  return T{};
+}
+
 template <>
-struct default_value<char> {
-  static constexpr char value = '\0';
+struct is_trivial<bool> {
+  static constexpr bool value = true;
 };
 
 template <>
-struct default_value<std::int8_t> {
-  static constexpr std::int8_t value = 123;
+inline bool default_value<bool>() {
+  return false;
 };
 
 template <>
-struct default_value<std::uint8_t> {
-  static constexpr std::uint8_t value = 123;
+struct is_trivial<char> {
+  static constexpr bool value = true;
 };
 
 template <>
-struct default_value<std::int16_t> {
-  static constexpr std::int16_t value = 12345;
+inline char default_value<char>() {
+  return '\0';
 };
 
 template <>
-struct default_value<std::uint16_t> {
-  static constexpr std::uint16_t value = 12345;
+struct is_trivial<std::int8_t> {
+  static constexpr bool value = true;
 };
 
 template <>
-struct default_value<std::int32_t> {
-  static constexpr std::int32_t value = 1234567891;
+inline std::int8_t default_value<std::int8_t>() {
+  return 123;
 };
 
 template <>
-struct default_value<std::uint32_t> {
-  static constexpr std::uint32_t value = 1234567891;
+struct is_trivial<std::uint8_t> {
+  static constexpr bool value = true;
+};
+
+template <>
+inline std::uint8_t default_value<std::uint8_t>() {
+  return 123;
+};
+
+template <>
+struct is_trivial<std::int16_t> {
+  static constexpr bool value = true;
+};
+
+template <>
+inline std::int16_t default_value<std::int16_t>() {
+  return 12345;
+};
+
+template <>
+struct is_trivial<std::uint16_t> {
+  static constexpr bool value = true;
+};
+
+template <>
+inline std::uint16_t default_value<std::uint16_t>() {
+  return 12345;
+};
+
+template <>
+struct is_trivial<std::int32_t> {
+  static constexpr bool value = true;
+};
+
+template <>
+inline std::int32_t default_value<std::int32_t>() {
+  return 1234567891;
+};
+
+template <>
+struct is_trivial<std::uint32_t> {
+  static constexpr bool value = true;
+};
+
+template <>
+inline std::uint32_t default_value<std::uint32_t>() {
+  return 1234567891;
 };
 
 #ifdef INT64_MAX
 template <>
-struct default_value<std::int64_t> {
-  static constexpr std::int64_t value = 1234567891234567891;
+struct is_trivial<std::int64_t> {
+  static constexpr bool value = true;
+};
+
+template <>
+inline std::int64_t default_value<std::int64_t>() {
+  return 1234567891234567891;
 };
 #endif
 
 #ifdef UINT64_MAX
 template <>
-struct default_value<std::uint64_t> {
-  static constexpr std::uint64_t value = 1234567891234567891;
+struct is_trivial<std::uint64_t> {
+  static constexpr bool value = true;
+};
+
+template <>
+inline std::uint64_t default_value<std::uint64_t>() {
+  return 1234567891234567891;
 };
 #endif
 
 template <>
-struct default_value<float> {
-  static constexpr float value = std::numeric_limits<float>::quiet_NaN();
+struct is_trivial<float> {
+  static constexpr bool value = true;
 };
 
 template <>
-struct default_value<double> {
-  static constexpr double value = std::numeric_limits<double>::quiet_NaN();
+inline float default_value<float>() {
+  return std::numeric_limits<float>::quiet_NaN();
 };
 
 template <>
-struct default_value<long double> {
-  static constexpr long double value =
-      std::numeric_limits<long double>::quiet_NaN();
+struct is_trivial<double> {
+  static constexpr bool value = true;
 };
+
+template <>
+inline double default_value<double>() {
+  return std::numeric_limits<double>::quiet_NaN();
+};
+
+template <>
+struct is_trivial<long double> {
+  static constexpr bool value = true;
+};
+
+template <>
+inline long double default_value<long double>() {
+  return std::numeric_limits<long double>::quiet_NaN();
+};
+
 }
 
 #endif  // IL_BASE_H

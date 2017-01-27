@@ -50,7 +50,7 @@ class SmallArray {
   /* \brief Construct a small array of n elements
   // \details The size and the capacity of the array are set to n.
   // - If T is a numeric value, the memory is
-  //   - (Debug mode) initialized to il::default_value<T>::value. It is usually NaN
+  //   - (Debug mode) initialized to il::default_value<T>(). It is usually NaN
   //     if T is a floating point number or 666..666 if T is an integer.
   //   - (Release mode) left uninitialized. This behavior is different from
   //     std::vector from the standard library which initializes all numeric
@@ -252,10 +252,10 @@ SmallArray<T, small_size>::SmallArray(il::int_t n) {
     size_ = data_ + n;
     capacity_ = data_ + n;
   }
-  if (std::is_pod<T>::value) {
+  if (il::is_trivial<T>::value) {
 #ifdef IL_DEFAULT_VALUE
     for (il::int_t i = 0; i < n; ++i) {
-      data_[i] = il::default_value<T>::value;
+      data_[i] = il::default_value<T>();
     }
 #endif
   } else {
@@ -315,7 +315,7 @@ SmallArray<T, small_size>::SmallArray(il::value_t,
     size_ = data_ + n;
     capacity_ = size_;
   }
-  if (std::is_pod<T>::value) {
+  if (il::is_trivial<T>::value) {
     memcpy(data_, list.begin(), n * sizeof(T));
   } else {
     for (il::int_t i = 0; i < n; ++i) {
@@ -346,7 +346,7 @@ SmallArray<T, small_size>::SmallArray(const SmallArray<T, small_size>& A) {
     size_ = data_ + n;
     capacity_ = size_;
   }
-  if (std::is_pod<T>::value) {
+  if (il::is_trivial<T>::value) {
     memcpy(data_, A.data_, n * sizeof(T));
   } else {
     for (il::int_t i = 0; i < n; ++i) {
@@ -360,7 +360,7 @@ SmallArray<T, small_size>::SmallArray(SmallArray<T, small_size>&& A) {
   const il::int_t n{A.size()};
   if (A.small_data_used()) {
     data_ = reinterpret_cast<T*>(small_data_);
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
       memcpy(data_, A.data_, n * sizeof(T));
     } else {
       for (il::int_t i = 0; i < n; ++i) {
@@ -402,7 +402,7 @@ SmallArray<T, small_size>& SmallArray<T, small_size>::operator=(
     const il::int_t n{A.size()};
     const bool needs_memory{capacity() < n};
     if (needs_memory) {
-      if (std::is_pod<T>::value) {
+      if (il::is_trivial<T>::value) {
         if (!small_data_used()) {
           delete[] data_;
         }
@@ -428,7 +428,7 @@ SmallArray<T, small_size>& SmallArray<T, small_size>::operator=(
       size_ = data_ + n;
       capacity_ = data_ + n;
     } else {
-      if (!std::is_pod<T>::value) {
+      if (!il::is_trivial<T>::value) {
         for (il::int_t i{n}; i < size(); ++i) {
           (data_ + i)->~T();
         }
@@ -449,7 +449,7 @@ template <typename T, il::int_t small_size>
 SmallArray<T, small_size>& SmallArray<T, small_size>::operator=(
     SmallArray<T, small_size>&& A) {
   if (this != &A) {
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
       if (!small_data_used()) {
         delete[] data_;
       }
@@ -464,7 +464,7 @@ SmallArray<T, small_size>& SmallArray<T, small_size>::operator=(
     const il::int_t n{A.size()};
     if (A.small_data_used()) {
       data_ = reinterpret_cast<T*>(small_data_);
-      if (std::is_pod<T>::value) {
+      if (il::is_trivial<T>::value) {
         memcpy(data_, A.data_, n * sizeof(T));
       } else {
         for (il::int_t i = 0; i < n; ++i) {
@@ -506,7 +506,7 @@ SmallArray<T, small_size>::~SmallArray() {
 #ifdef IL_INVARIANCE
   check_invariance();
 #endif
-  if (std::is_pod<T>::value) {
+  if (il::is_trivial<T>::value) {
     if (!small_data_used()) {
       delete[] data_;
     }
@@ -522,15 +522,15 @@ SmallArray<T, small_size>::~SmallArray() {
 
 template <typename T, il::int_t small_size>
 const T& SmallArray<T, small_size>::operator[](il::int_t i) const {
-  IL_EXPECT_BOUND(static_cast<il::uint_t>(i) <
-                   static_cast<il::uint_t>(size()));
+  IL_EXPECT_BOUND(static_cast<std::size_t>(i) <
+                   static_cast<std::size_t>(size()));
   return data_[i];
 }
 
 template <typename T, il::int_t small_size>
 T& SmallArray<T, small_size>::operator[](il::int_t i) {
-  IL_EXPECT_BOUND(static_cast<il::uint_t>(i) <
-                   static_cast<il::uint_t>(size()));
+  IL_EXPECT_BOUND(static_cast<std::size_t>(i) <
+                   static_cast<std::size_t>(size()));
   return data_[i];
 }
 
@@ -555,10 +555,10 @@ template <typename T, il::int_t small_size>
 void SmallArray<T, small_size>::resize(il::int_t n) {
   IL_EXPECT_FAST(n >= 0);
   if (n <= capacity()) {
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t i{size()}; i < n; ++i) {
-        data_[i] = il::default_value<T>::value;
+        data_[i] = il::default_value<T>();
       }
 #endif
     } else {
@@ -572,10 +572,10 @@ void SmallArray<T, small_size>::resize(il::int_t n) {
   } else {
     const il::int_t n_old{size()};
     increase_capacity(n);
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t i{n_old}; i < n; ++i) {
-        data_[i] = il::default_value<T>::value;
+        data_[i] = il::default_value<T>();
       }
 #endif
     } else {
@@ -660,12 +660,12 @@ void SmallArray<T, small_size>::increase_capacity(il::int_t r) {
   IL_EXPECT_FAST(size() <= r);
   const il::int_t n{size()};
   T* new_data;
-  if (std::is_pod<T>::value) {
+  if (il::is_trivial<T>::value) {
     new_data = new T[r];
   } else {
     new_data = static_cast<T*>(::operator new(r * sizeof(T)));
   }
-  if (std::is_pod<T>::value) {
+  if (il::is_trivial<T>::value) {
     memcpy(new_data, data_, n * sizeof(T));
     if (!small_data_used()) {
       delete[] data_;

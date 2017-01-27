@@ -36,7 +36,7 @@ class StaticArray2D {
  public:
   /* \brief The default constructor
   // \details If T is a numeric value, the memory is
-  // - (Debug mode) initialized to il::default_value<T>::value. It is usually NaN
+  // - (Debug mode) initialized to il::default_value<T>(). It is usually NaN
   //   if T is a floating point number or 666..666 if T is an integer.
   // - (Release mode) left uninitialized. This behavior is different from
   //   std::vector from the standard library which initializes all numeric
@@ -134,10 +134,10 @@ class StaticArray2D {
 
 template <typename T, il::int_t n0, il::int_t n1>
 StaticArray2D<T, n0, n1>::StaticArray2D() {
-  if (std::is_pod<T>::value) {
+  if (il::is_trivial<T>::value) {
 #ifdef IL_DEFAULT_VALUE
     for (il::int_t k = 0; k < n0 * n1; ++k) {
-      data_[k] = il::default_value<T>::value;
+      data_[k] = il::default_value<T>();
     }
 #endif
   }
@@ -165,21 +165,21 @@ StaticArray2D<T, n0, n1>::StaticArray2D(
 template <typename T, il::int_t n0, il::int_t n1>
 const T& StaticArray2D<T, n0, n1>::operator()(il::int_t i0,
                                               il::int_t i1) const {
-  IL_EXPECT_BOUND(static_cast<il::uint_t>(i0) < static_cast<il::uint_t>(n0));
-  IL_EXPECT_BOUND(static_cast<il::uint_t>(i1) < static_cast<il::uint_t>(n1));
+  IL_EXPECT_BOUND(static_cast<std::size_t>(i0) < static_cast<std::size_t>(n0));
+  IL_EXPECT_BOUND(static_cast<std::size_t>(i1) < static_cast<std::size_t>(n1));
   return data_[i1 * n0 + i0];
 }
 
 template <typename T, il::int_t n0, il::int_t n1>
 T& StaticArray2D<T, n0, n1>::operator()(il::int_t i0, il::int_t i1) {
-  IL_EXPECT_BOUND(static_cast<il::uint_t>(i0) < static_cast<il::uint_t>(n0));
-  IL_EXPECT_BOUND(static_cast<il::uint_t>(i1) < static_cast<il::uint_t>(n1));
+  IL_EXPECT_BOUND(static_cast<std::size_t>(i0) < static_cast<std::size_t>(n0));
+  IL_EXPECT_BOUND(static_cast<std::size_t>(i1) < static_cast<std::size_t>(n1));
   return data_[i1 * n0 + i0];
 }
 
 template <typename T, il::int_t n0, il::int_t n1>
 il::int_t StaticArray2D<T, n0, n1>::size(il::int_t d) const {
-  IL_EXPECT_BOUND(static_cast<il::uint_t>(d) < static_cast<il::uint_t>(2));
+  IL_EXPECT_BOUND(static_cast<std::size_t>(d) < static_cast<std::size_t>(2));
   return d == 0 ? n0 : n1;
 }
 

@@ -14,13 +14,10 @@
 #include <cstring>
 // <initializer_list> is needed for std::initializer_list<T>
 #include <initializer_list>
-// <type_traits> is needed for std::is_pod
-#include <type_traits>
 // <utility> is needed for std::move
 #include <utility>
 
 #include <il/base.h>
-
 #include <il/core/memory/allocate.h>
 
 namespace il {
@@ -45,7 +42,7 @@ class Array {
   /* \brief Construct an array of n elements
   // \details The size and the capacity of the array are set to n.
   // - If T is a numeric value, the memory is
-  //   - (Debug mode) initialized to il::default_value<T>::value. It is usually
+  //   - (Debug mode) initialized to il::default_value<T>(). It is usually
   NaN
   //     if T is a floating point number or 666..666 if T is an integer.
   //   - (Release mode) left uninitialized. This behavior is different from
@@ -266,10 +263,10 @@ Array<T>::Array(il::int_t n) {
 
   if (n > 0) {
     data_ = il::allocate_array<T>(n);
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t i = 0; i < n; ++i) {
-        data_[i] = il::default_value<T>::value;
+        data_[i] = il::default_value<T>();
       }
 #endif
     } else {
@@ -290,7 +287,7 @@ Array<T>::Array(il::int_t n) {
 template <typename T>
 Array<T>::Array(il::int_t n, il::align_t, il::int_t align_r,
                 il::int_t align_mod) {
-  IL_EXPECT_FAST(std::is_pod<T>::value);
+  IL_EXPECT_FAST(il::is_trivial<T>::value);
   IL_EXPECT_FAST(sizeof(T) == alignof(T));
   IL_EXPECT_FAST(n >= 0);
   IL_EXPECT_FAST(align_mod > 0);
@@ -309,7 +306,7 @@ Array<T>::Array(il::int_t n, il::align_t, il::int_t align_r,
     shift_ = static_cast<short>(shift);
 #ifdef IL_DEFAULT_VALUE
     for (il::int_t i = 0; i < n; ++i) {
-      data_[i] = il::default_value<T>::value;
+      data_[i] = il::default_value<T>();
     }
 #endif
   } else {
@@ -348,7 +345,7 @@ Array<T>::Array(il::int_t n, const T& x) {
 template <typename T>
 Array<T>::Array(il::int_t n, const T& x, il::align_t, il::int_t align_r,
                 il::int_t align_mod) {
-  IL_EXPECT_FAST(std::is_pod<T>::value);
+  IL_EXPECT_FAST(il::is_trivial<T>::value);
   IL_EXPECT_FAST(sizeof(T) == alignof(T));
   IL_EXPECT_FAST(n >= 0);
   IL_EXPECT_FAST(align_mod > 0);
@@ -388,7 +385,7 @@ Array<T>::Array(il::value_t, std::initializer_list<T> list) {
 
   if (n > 0) {
     data_ = il::allocate_array<T>(n);
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
       memcpy(data_, list.begin(), n * sizeof(T));
     } else {
       for (il::int_t i = 0; i < n; ++i) {
@@ -422,7 +419,7 @@ Array<T>::Array(const Array<T>& v) {
     align_mod_ = static_cast<short>(align_mod);
     shift_ = static_cast<short>(shift);
   }
-  if (std::is_pod<T>::value) {
+  if (il::is_trivial<T>::value) {
     memcpy(data_, v.data_, n * sizeof(T));
   } else {
     for (il::int_t i = 0; i < n; ++i) {
@@ -462,7 +459,7 @@ Array<T>& Array<T>::operator=(const Array<T>& v) {
       n > capacity() || align_mod_ != align_mod || align_r_ != align_r;
   if (needs_memory) {
     if (data_) {
-      if (!std::is_pod<T>::value) {
+      if (!il::is_trivial<T>::value) {
         for (il::int_t i = size() - 1; i >= 0; --i) {
           (data_ + i)->~T();
         }
@@ -481,7 +478,7 @@ Array<T>& Array<T>::operator=(const Array<T>& v) {
       align_mod_ = static_cast<short>(align_mod);
       shift_ = static_cast<short>(shift);
     }
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
       memcpy(data_, v.data_, n * sizeof(T));
     } else {
       for (il::int_t i = 0; i < n; ++i) {
@@ -491,7 +488,7 @@ Array<T>& Array<T>::operator=(const Array<T>& v) {
     size_ = data_ + n;
     capacity_ = data_ + n;
   } else {
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
       memcpy(data_, v.data_, n * sizeof(T));
     } else {
       for (il::int_t i = 0; i < n; ++i) {
@@ -513,7 +510,7 @@ Array<T>& Array<T>::operator=(Array<T>&& v) {
   }
 
   if (data_) {
-    if (!std::is_pod<T>::value) {
+    if (!il::is_trivial<T>::value) {
       for (il::int_t i = size() - 1; i >= 0; --i) {
         (data_ + i)->~T();
       }
@@ -540,7 +537,7 @@ Array<T>::~Array() {
   IL_EXPECT_FAST(invariance());
 
   if (data_) {
-    if (!std::is_pod<T>::value) {
+    if (!il::is_trivial<T>::value) {
       for (il::int_t i = size() - 1; i >= 0; --i) {
         (data_ + i)->~T();
       }
@@ -551,15 +548,15 @@ Array<T>::~Array() {
 
 template <typename T>
 const T& Array<T>::operator[](il::int_t i) const {
-  IL_EXPECT_MEDIUM(static_cast<il::uint_t>(i) <
-                   static_cast<il::uint_t>(size()));
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
+                   static_cast<std::size_t>(size()));
   return data_[i];
 }
 
 template <typename T>
 T& Array<T>::operator[](il::int_t i) {
-  IL_EXPECT_MEDIUM(static_cast<il::uint_t>(i) <
-                   static_cast<il::uint_t>(size()));
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
+                   static_cast<std::size_t>(size()));
   return data_[i];
 }
 
@@ -585,10 +582,10 @@ void Array<T>::resize(il::int_t n) {
   IL_EXPECT_FAST(n >= 0);
 
   if (n <= capacity()) {
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t i = size(); i < n; ++i) {
-        data_[i] = il::default_value<T>::value;
+        data_[i] = il::default_value<T>();
       }
 #endif
     } else {
@@ -602,10 +599,10 @@ void Array<T>::resize(il::int_t n) {
   } else {
     const il::int_t n_old = size();
     increase_capacity(n);
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t i = n_old; i < n; ++i) {
-        data_[i] = il::default_value<T>::value;
+        data_[i] = il::default_value<T>();
       }
 #endif
     } else {
@@ -637,13 +634,13 @@ void Array<T>::append(const T& x) {
     const il::int_t n = size();
     T x_copy = x;
     increase_capacity(n > 1 ? (3 * n) / 2 : n + 1);
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
       *size_ = x_copy;
     } else {
       new (size_) T(std::move(x_copy));
     }
   } else {
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
       *size_ = x;
     } else {
       new (size_) T(x);
@@ -668,7 +665,7 @@ void Array<T>::append(T&& x) {
     }
     increase_capacity(new_capacity);
   }
-  if (std::is_pod<T>::value) {
+  if (il::is_trivial<T>::value) {
     *size_ = std::move(x);
   } else {
     new (size_) T(std::move(x));
@@ -755,7 +752,7 @@ void Array<T>::increase_capacity(il::int_t r) {
     new_shift = static_cast<short>(shift);
   }
   if (data_) {
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
       memcpy(new_data, data_, n * sizeof(T));
     } else {
       for (il::int_t i = n - 1; i >= 0; --i) {
@@ -783,7 +780,7 @@ bool Array<T>::invariance() const {
     ans = ans && (capacity_ != nullptr);
     ans = ans && ((size_ - data_) <= (capacity_ - data_));
   }
-  if (!std::is_pod<T>::value) {
+  if (!il::is_trivial<T>::value) {
     ans = ans && (align_mod_ == 0);
   }
   if (align_mod_ == 0) {

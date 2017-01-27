@@ -48,7 +48,7 @@ class Array4C {
   // column size and the column capacity of the array are set to p. The slice
   // size and the slice capacity of the array are set to q.
   // - If T is a numeric value, the memory is
-  //   - (Debug mode) initialized to il::default_value<T>::value. It is usually NaN
+  //   - (Debug mode) initialized to il::default_value<T>(). It is usually NaN
   //     if T is a floating point number or 666..666 if T is an integer.
   //   - (Release mode) left uninitialized. This behavior is different from
   //     std::vector from the standard library which initializes all numeric
@@ -233,7 +233,7 @@ Array4C<T>::Array4C(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3) {
   }
   const il::int_t r = r0 * r1 * r2 * r3;
   if (r > 0) {
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
       data_ = new T[r];
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t i0 = 0; i0 < n0; ++i0) {
@@ -241,7 +241,7 @@ Array4C<T>::Array4C(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3) {
           for (il::int_t i2 = 0; i2 < n2; ++i2) {
             for (il::int_t i3 = 0; i3 < n3; ++i3) {
               data_[((i0 * r1 + i1) * r2 + i2) * r3 + i3] =
-                  il::default_value<T>::value;
+                  il::default_value<T>();
             }
           }
         }
@@ -311,14 +311,14 @@ Array4C<T>::Array4C(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3,
   }
   const il::int_t r = r0 * r1 * r2 * r3;
   if (r > 0) {
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
       data_ = new T[r];
       for (il::int_t i0 = 0; i0 < n0; ++i0) {
         for (il::int_t i1 = 0; i1 < n1; ++i1) {
           for (il::int_t i2 = 0; i2 < n2; ++i2) {
             for (il::int_t i3 = 0; i3 < n3; ++i3) {
               data_[((i0 * r1 + i1) * r2 + i2) * r3 + i3] = x;
-              il::default_value<T>::value;
+              il::default_value<T>();
             }
           }
         }
@@ -385,7 +385,7 @@ Array4C<T>::Array4C(const Array4C<T>& A) {
     r3 = (n3 == 0) ? 1 : n3;
   }
   const il::int_t r = r0 * r1 * r2 * r3;
-  if (std::is_pod<T>::value) {
+  if (il::is_trivial<T>::value) {
     data_ = new T[r];
     for (il::int_t i0 = 0; i0 < n0; ++i0) {
       for (il::int_t i1 = 0; i1 < n1; ++i1) {
@@ -504,7 +504,7 @@ Array4C<T>& Array4C<T>::operator=(const Array4C<T>& A) {
     const bool needs_memory = r0 > capacity(0) || r1 > capacity(1) ||
                               r2 > capacity(2) || r3 > capacity(3);
     if (needs_memory) {
-      if (std::is_pod<T>::value) {
+      if (il::is_trivial<T>::value) {
         if (data_) {
           delete[] data_;
         }
@@ -567,7 +567,7 @@ Array4C<T>& Array4C<T>::operator=(const Array4C<T>& A) {
       capacity_[2] = data_ + r2;
       capacity_[3] = data_ + r3;
     } else {
-      if (std::is_pod<T>::value) {
+      if (il::is_trivial<T>::value) {
         for (il::int_t i0 = 0; i0 < n0; ++i0) {
           for (il::int_t i1 = 0; i1 < n1; ++i1) {
             for (il::int_t i2 = 0; i2 < n2; ++i2) {
@@ -626,7 +626,7 @@ template <typename T>
 Array4C<T>& Array4C<T>::operator=(Array4C<T>&& A) {
   if (this != &A) {
     if (data_) {
-      if (std::is_pod<T>::value) {
+      if (il::is_trivial<T>::value) {
         delete[] data_;
       } else {
         for (il::int_t i0 = size(0) - 1; i0 >= 0; --i0) {
@@ -691,7 +691,7 @@ Array4C<T>::~Array4C() {
   check_invariance();
 #endif
   if (data_) {
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
       delete[] data_;
     } else {
       for (il::int_t i0 = size(0) - 1; i0 >= 0; --i0) {
@@ -713,14 +713,14 @@ Array4C<T>::~Array4C() {
 template <typename T>
 const T& Array4C<T>::operator()(il::int_t i0, il::int_t i1, il::int_t i2,
                                 il::int_t i3) const {
-  IL_EXPECT_BOUND(static_cast<il::uint_t>(i0) <
-                   static_cast<il::uint_t>(size(0)));
-  IL_EXPECT_BOUND(static_cast<il::uint_t>(i1) <
-                   static_cast<il::uint_t>(size(1)));
-  IL_EXPECT_BOUND(static_cast<il::uint_t>(i2) <
-                   static_cast<il::uint_t>(size(2)));
-  IL_EXPECT_BOUND(static_cast<il::uint_t>(i3) <
-                   static_cast<il::uint_t>(size(3)));
+  IL_EXPECT_BOUND(static_cast<std::size_t>(i0) <
+                   static_cast<std::size_t>(size(0)));
+  IL_EXPECT_BOUND(static_cast<std::size_t>(i1) <
+                   static_cast<std::size_t>(size(1)));
+  IL_EXPECT_BOUND(static_cast<std::size_t>(i2) <
+                   static_cast<std::size_t>(size(2)));
+  IL_EXPECT_BOUND(static_cast<std::size_t>(i3) <
+                   static_cast<std::size_t>(size(3)));
   return data_[((i0 * (capacity_[1] - data_) + i1) * (capacity_[2] - data_) +
                 i2) *
                    (capacity_[3] - data_) +
@@ -730,14 +730,14 @@ const T& Array4C<T>::operator()(il::int_t i0, il::int_t i1, il::int_t i2,
 template <typename T>
 T& Array4C<T>::operator()(il::int_t i0, il::int_t i1, il::int_t i2,
                           il::int_t i3) {
-  IL_EXPECT_BOUND(static_cast<il::uint_t>(i0) <
-                   static_cast<il::uint_t>(size(0)));
-  IL_EXPECT_BOUND(static_cast<il::uint_t>(i1) <
-                   static_cast<il::uint_t>(size(1)));
-  IL_EXPECT_BOUND(static_cast<il::uint_t>(i2) <
-                   static_cast<il::uint_t>(size(2)));
-  IL_EXPECT_BOUND(static_cast<il::uint_t>(i3) <
-                   static_cast<il::uint_t>(size(3)));
+  IL_EXPECT_BOUND(static_cast<std::size_t>(i0) <
+                   static_cast<std::size_t>(size(0)));
+  IL_EXPECT_BOUND(static_cast<std::size_t>(i1) <
+                   static_cast<std::size_t>(size(1)));
+  IL_EXPECT_BOUND(static_cast<std::size_t>(i2) <
+                   static_cast<std::size_t>(size(2)));
+  IL_EXPECT_BOUND(static_cast<std::size_t>(i3) <
+                   static_cast<std::size_t>(size(3)));
   return data_[((i0 * (capacity_[1] - data_) + i1) * (capacity_[2] - data_) +
                 i2) *
                    (capacity_[3] - data_) +
@@ -746,7 +746,7 @@ T& Array4C<T>::operator()(il::int_t i0, il::int_t i1, il::int_t i2,
 
 template <typename T>
 il::int_t Array4C<T>::size(il::int_t d) const {
-  IL_EXPECT_FAST(static_cast<il::uint_t>(d) < static_cast<il::uint_t>(4));
+  IL_EXPECT_FAST(static_cast<std::size_t>(d) < static_cast<std::size_t>(4));
   return static_cast<il::int_t>(size_[d] - data_);
 }
 
@@ -759,7 +759,7 @@ void Array4C<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2,
   IL_EXPECT_FAST(n3 >= 0);
   if (n0 <= capacity(0) && n1 <= capacity(1) && n2 <= capacity(2) &&
       n3 <= capacity(3)) {
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t i0 = 0; i0 < n0; ++i0) {
         for (il::int_t i1 = 0; i1 < n1; ++i1) {
@@ -769,7 +769,7 @@ void Array4C<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2,
                                                                      : 0);
                  i3 < n3; ++i3) {
               data_[((i0 * capacity(1) + i1) * capacity(2) + i2) * capacity(3) +
-                    i3] = il::default_value<T>::value;
+                    i3] = il::default_value<T>();
             }
           }
         }
@@ -816,13 +816,13 @@ void Array4C<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2,
     }
     const il::int_t r = r0 * r1 * r2 * r3;
     T* new_data;
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
       new_data = new T[r];
     } else {
       new_data = static_cast<T*>(::operator new(r * sizeof(T)));
     }
     if (data_) {
-      if (std::is_pod<T>::value) {
+      if (il::is_trivial<T>::value) {
         for (il::int_t i0 = 0; i0 < n0; ++i0) {
           for (il::int_t i1 = 0; i1 < n1; ++i1) {
             for (il::int_t i2 = 0; i2 < n2; ++i2) {
@@ -855,7 +855,7 @@ void Array4C<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2,
         ::operator delete(data_);
       }
     }
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t i0 = 0; i0 < n0; ++i0) {
         for (il::int_t i1 = 0; i1 < n1; ++i1) {
@@ -864,7 +864,7 @@ void Array4C<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2,
                      ((i0 < n0_old && i1 < n1_old && i2 < n2_old) ? n3_old : 0);
                  i3 < n3; ++i3) {
               new_data[((i0 * r1 + i1) * r2 + i2) * r3 + i3] =
-                  il::default_value<T>::value;
+                  il::default_value<T>();
             }
           }
         }
@@ -909,7 +909,7 @@ void Array4C<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2,
 
 template <typename T>
 il::int_t Array4C<T>::capacity(il::int_t d) const {
-  IL_EXPECT_FAST(static_cast<il::uint_t>(d) < static_cast<il::uint_t>(4));
+  IL_EXPECT_FAST(static_cast<std::size_t>(d) < static_cast<std::size_t>(4));
   return static_cast<il::int_t>(capacity_[d] - data_);
 }
 
@@ -932,13 +932,13 @@ void Array4C<T>::reserve(il::int_t r0, il::int_t r1, il::int_t r2,
     r3 = (r3 == 0) ? 1 : r3;
     const il::int_t r = r0 * r1 * r2 * r3;
     T* new_data;
-    if (std::is_pod<T>::value) {
+    if (il::is_trivial<T>::value) {
       new_data = new T[r];
     } else {
       new_data = static_cast<T*>(::operator new(r * sizeof(T)));
     }
     if (data_) {
-      if (std::is_pod<T>::value) {
+      if (il::is_trivial<T>::value) {
         for (il::int_t i0 = 0; i0 < n0_old; ++i0) {
           for (il::int_t i1 = 0; i1 < n1_old; ++i1) {
             for (il::int_t i2 = 0; i2 < n2_old; ++i2) {
