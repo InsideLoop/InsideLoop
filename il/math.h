@@ -11,6 +11,7 @@
 #define IL_MATH_H
 
 #include <cmath>
+#include <complex>
 
 #include <il/container/1d/Array.h>
 
@@ -32,6 +33,7 @@ struct epsilon<long double> {
 };
 
 const double pi = 3.1415926535897932385;
+const std::complex<double> I = std::complex<double>{0.0, 1.0};
 
 template <typename T>
 T min(T a, T b) {

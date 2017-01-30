@@ -17,41 +17,9 @@ library has been designed to provide you with:
 - An **Open Source** licence allowing its integration in both **free software**
   and **commercial** products
 
-Before creating this library, we have looked for available solutions but all
-of them have been discarded. Even though the following comments might seem quite
-harsh for the libraries we have tried, most of the problems raised here have
-their historical reasons and are due to their longevity and success. They just
-don't solve our problems even though they have been recognized to solve
-problems many people face.
-
-- **C++ Standard Library**: The only way to customize the containers from the
-standard library such as `std::vector` involved custom
-allocators which are very difficult to work with because they have never been
-designed to allocate memory. The standard library is crippled with containers
-useless for our work such as `std::list` (which is the enemy of data locality
-and performance). In order to cope with all those containers, iterators are
-central to the standard library, and make its usage more difficult. Scientific
-software developers mainly deal with arrays. As a consequence, we let them work
-with indices which are much more friendly to use for their work. The standard library also
-lacks multi-dimensional arrays and an efficient hash table. Moreover, its usage
-of error handling is strange: opening a file that does not exist does not throw
-any exception whereas accessing an array out of bounds might throw one. Any
-decent programmer would throw an exception in the first situation and abort
-the program for an out of bound array access which is not an exceptional
-situation but a programming error.
-
-- **Linear Algebra libraries**: Those libraires such as Eigen were also not a good solution for us.
-They rely on expression templates which allow you to write linear algebra in a
-very friendly manner, but make the optimization of the computation very
-difficult to handle for the library maintainer. Although they do an amazing work
-for this, it is very difficult to understand what is done under the hood.
-As these libraries are all template based, their complexity will come to
-you one day or another. That's the reason we prefer, to avoid
-expression templates and template meta-programming techniques. It allows us to have a code
-base which is much more simple and easy to understand.
 
 In a few words, **InsideLoop** should appeal to **scientific programmers** looking for
-easy to use containers and wrappers around the best numerical libraries
+easy-to-use containers and wrappers around the best numerical libraries
 available today. It should be very **friendly** to **C** and **Fortran**
 programmers who still represent an important share of High Performance coders.
 
@@ -86,14 +54,12 @@ differs from the standard library container on the following points:
 - **Bounds checking**: By default, bound checking is available for all our
   containers in debug mode. For `il::Array<T>`, `v[i]` are bounds checked in
   debug mode but not in release mode. 
-- **Indices**: Our containers use signed integers for indices. By default, we
-  use `std::ptrdiff_t` which is typedefed to `il::int_t` (it is a 64 bit signed
-  integer on 64-bit macOS, Linux and Windows
-  platforms), but the type might be changed to `int` (which is
-  a 32-bit signed integer on those platforms).
-- **Initialization**: When T is a numeric type (int, float, double, etc), the
-  construction of an `il::Array<T>` of size n does not initialize its memory in
-  release mode.
+- **Indices**: Our containers use signed integers for indices. We use
+  `std::ptrdiff_t` which is typedefed to `il::int_t` (it is a 64 bit signed
+  integer on 64-bit macOS, Linux and Windows platforms).
+- **Initialization**: When T is a trivial type (`int`, `float`, `double`, etc),
+  the construction of an `il::Array<T>` of size n does not initialize its memory
+  in release mode.
 - **Vectorization**: InsideLoop library has been designed to allow many
   loops to be vectorized automatically by the compiler, and to allow easy
   access to the underlying structure of the objects when guided or manual
@@ -108,8 +74,8 @@ equal to 0. With signed integers, the code is straightforward:
 #include <il/Array.h>
 
 il::int_t f(const il::Array<double>& v, a, b) {
-  IL_ASSERT_PRECOND(a >= 0);
-  IL_ASSERT_PRECOND(b <= v.size());
+  IL_EXPECT_FAST(a >= 0);
+  IL_EXPECT_FAST(b <= v.size());
   
   for (il::int_t k = b - 1; k >= a; --k) {
     if (v[k] == 0.0) {
@@ -131,7 +97,8 @@ Bjarne Stroustrup, Herb Sutter and Chandler Carruth in this
 [video](https://www.youtube.com/watch?v=Puio5dly9N8) at 42:38 and 1:02:50. Using
 InsideLoop's library allows programmers to stay away from them. Moreover, the fact
 that signed overflow is undefined behaviour in C/C++ allows optimizations which
-are not available to the compiler when dealing with unsigned integers.
+are not available to the compiler when dealing with unsigned integers as can be
+seen on this [video](https://www.youtube.com/watch?v=yG1OZ69H_-o) at 39:16.
 
 We don't enforce **initialization** of numeric types for debugability and
 performance reason. Let's look at the following code which stores the cosine
@@ -143,7 +110,7 @@ of various numbers in an array. It has an obvious bug as `v[n - 1]` is not set.
 #include <il/Array.h>
 
 int main() {
-  const il::int_t n = 2000000000;
+  const il::int_t n = 2'000'000'000;
   const double x = 0.001;
   il::Array<double> v(n);
   for (il::int_t i = 0; i < n - 1; ++i) {

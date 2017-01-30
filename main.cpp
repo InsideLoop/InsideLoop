@@ -7,13 +7,11 @@
 //
 //==============================================================================
 
-#include <il/linear_algebra/dense/blas/dot.h>
+#include <il/Array.h>
 
 int main() {
-  il::StaticArray2D<double, 2, 3> A{0.0};
-  il::StaticArray<double, 2> x{0.0};
-
-  auto y = il::dot(A, il::Blas::transpose, x);
+  const il::int_t n = 10;
+  il::Array<unsigned char> A{n};
 
   return 0;
 }
