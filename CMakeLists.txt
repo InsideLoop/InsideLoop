@@ -27,6 +27,15 @@ set(IL_PNG 1)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++11")
 
+#if (UNIX)
+#    if (UNIX)
+#        if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+#            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
+#        endif()
+#    endif()
+#endif()
+
+
 # We want all possible warnings and treat them as errors
 if (UNIX)
     if (UNIX)

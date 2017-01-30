@@ -14,14 +14,11 @@
 #include <cstring>
 // <initializer_list> is needed for std::initializer_list<T>
 #include <initializer_list>
-// <new> is needed for ::operator new
-#include <new>
-// <type_traits> is needed for std::is_pod
-#include <type_traits>
 // <utility> is needed for std::move
 #include <utility>
 
 #include <il/base.h>
+#include <il/core/memory/allocate.h>
 
 namespace il {
 
@@ -31,11 +28,6 @@ class SmallArray {
                 "il::SmallArray<T, small_size>: small_size must be positive");
 
  private:
-#ifdef IL_DEBUG_VISUALIZER
-  il::int_t debug_size_;
-  il::int_t debug_capacity_;
-  bool debug_small_data_used_;
-#endif
   T* data_;
   T* size_;
   T* capacity_;
@@ -183,7 +175,7 @@ class SmallArray {
   // happens, then new capacity is roughly (3/2) the previous capacity.
   */
   template <typename... Args>
-  void emplace_back(Args&&... args);
+  void append(Args&&... args);
 
   /* \brief Get a pointer to const to the first element of the array
   // \details One should use this method only when using C-style API
@@ -215,16 +207,11 @@ class SmallArray {
 
   /* \brief Used internally in debug mode to check the invariance of the object
   */
-  void check_invariance() const;
+  bool invariance() const;
 };
 
 template <typename T, il::int_t small_size>
 SmallArray<T, small_size>::SmallArray() {
-#ifdef IL_DEBUG_VISUALIZER
-  debug_size_ = 0;
-  debug_capacity_ = small_size;
-  debug_small_data_used_ = true;
-#endif
   data_ = reinterpret_cast<T*>(small_data_);
   size_ = data_;
   capacity_ = data_ + small_size;
@@ -233,22 +220,13 @@ SmallArray<T, small_size>::SmallArray() {
 template <typename T, il::int_t small_size>
 SmallArray<T, small_size>::SmallArray(il::int_t n) {
   IL_EXPECT_FAST(n >= 0);
+
   if (n <= small_size) {
-#ifdef IL_DEBUG_VISUALIZER
-    debug_size_ = n;
-    debug_capacity_ = small_size;
-    debug_small_data_used_ = true;
-#endif
     data_ = reinterpret_cast<T*>(small_data_);
     size_ = data_ + n;
     capacity_ = data_ + small_size;
   } else {
-#ifdef IL_DEBUG_VISUALIZER
-    debug_size_ = n;
-    debug_capacity_ = n;
-    debug_small_data_used_ = false;
-#endif
-    data_ = static_cast<T*>(::operator new(n * sizeof(T)));
+    data_ = il::allocate_array<T>(n);
     size_ = data_ + n;
     capacity_ = data_ + n;
   }
@@ -268,22 +246,13 @@ SmallArray<T, small_size>::SmallArray(il::int_t n) {
 template <typename T, il::int_t small_size>
 SmallArray<T, small_size>::SmallArray(il::int_t n, const T& x) {
   IL_EXPECT_FAST(n >= 0);
+
   if (n <= small_size) {
-#ifdef IL_DEBUG_VISUALIZER
-    debug_size_ = n;
-    debug_capacity_ = small_size;
-    debug_small_data_used_ = true;
-#endif
     data_ = reinterpret_cast<T*>(small_data_);
     size_ = data_ + n;
     capacity_ = data_ + small_size;
   } else {
-#ifdef IL_DEBUG_VISUALIZER
-    debug_size_ = n;
-    debug_capacity_ = n;
-    debug_small_data_used_ = false;
-#endif
-    data_ = static_cast<T*>(::operator new(n * sizeof(T)));
+    data_ = il::allocate_array<T>(n);
     size_ = data_ + n;
     capacity_ = data_ + n;
   }
@@ -295,25 +264,15 @@ SmallArray<T, small_size>::SmallArray(il::int_t n, const T& x) {
 template <typename T, il::int_t small_size>
 SmallArray<T, small_size>::SmallArray(il::value_t,
                                       std::initializer_list<T> list) {
-  const il::int_t n{static_cast<il::int_t>(list.size())};
+  const il::int_t n = static_cast<il::int_t>(list.size());
   if (n <= small_size) {
-#ifdef IL_DEBUG_VISUALIZER
-    debug_size_ = n;
-    debug_capacity_ = small_size;
-    debug_small_data_used_ = true;
-#endif
     data_ = reinterpret_cast<T*>(small_data_);
     size_ = data_ + n;
     capacity_ = data_ + small_size;
   } else {
-#ifdef IL_DEBUG_VISUALIZER
-    debug_size_ = n;
-    debug_capacity_ = n;
-    debug_small_data_used_ = false;
-#endif
-    data_ = static_cast<T*>(::operator new(n * sizeof(T)));
+    data_ = il::allocate_array<T>(n);
     size_ = data_ + n;
-    capacity_ = size_;
+    capacity_ = data_ + n;
   }
   if (il::is_trivial<T>::value) {
     memcpy(data_, list.begin(), n * sizeof(T));
@@ -326,25 +285,15 @@ SmallArray<T, small_size>::SmallArray(il::value_t,
 
 template <typename T, il::int_t small_size>
 SmallArray<T, small_size>::SmallArray(const SmallArray<T, small_size>& A) {
-  const il::int_t n{A.size()};
+  const il::int_t n = A.size();
   if (n <= small_size) {
-#ifdef IL_DEBUG_VISUALIZER
-    debug_size_ = n;
-    debug_capacity_ = small_size;
-    debug_small_data_used_ = true;
-#endif
     data_ = reinterpret_cast<T*>(small_data_);
     size_ = data_ + n;
     capacity_ = data_ + small_size;
   } else {
-#ifdef IL_DEBUG_VISUALIZER
-    debug_size_ = n;
-    debug_capacity_ = n;
-    debug_small_data_used_ = false;
-#endif
-    data_ = static_cast<T*>(::operator new(n * sizeof(T)));
+    data_ = il::allocate_array<T>(n);
     size_ = data_ + n;
-    capacity_ = size_;
+    capacity_ = data_ + n;
   }
   if (il::is_trivial<T>::value) {
     memcpy(data_, A.data_, n * sizeof(T));
@@ -357,39 +306,24 @@ SmallArray<T, small_size>::SmallArray(const SmallArray<T, small_size>& A) {
 
 template <typename T, il::int_t small_size>
 SmallArray<T, small_size>::SmallArray(SmallArray<T, small_size>&& A) {
-  const il::int_t n{A.size()};
+  const il::int_t n = A.size();
   if (A.small_data_used()) {
     data_ = reinterpret_cast<T*>(small_data_);
     if (il::is_trivial<T>::value) {
       memcpy(data_, A.data_, n * sizeof(T));
     } else {
-      for (il::int_t i = 0; i < n; ++i) {
+      for (il::int_t i = n - 1; i >= 0; --i) {
         new (data_ + i) T(std::move(A.data_[i]));
-        (data_ + i)->~T();
+        (A.data_ + i)->~T();
       }
     }
-#ifdef IL_DEBUG_VISUALIZER
-    debug_size_ = n;
-    debug_capacity_ = small_size;
-    debug_small_data_used_ = true;
-#endif
     size_ = data_ + n;
     capacity_ = data_ + small_size;
   } else {
-#ifdef IL_DEBUG_VISUALIZER
-    debug_size_ = A.debug_size_;
-    debug_capacity_ = A.debug_capacity_;
-    debug_small_data_used_ = false;
-#endif
     data_ = A.data_;
     size_ = A.size_;
     capacity_ = A.capacity_;
   }
-#ifdef IL_DEBUG_VISUALIZER
-  A.debug_size_ = 0;
-  A.debug_capacity_ = 0;
-  A.debug_small_data_used_ = false;
-#endif
   A.data_ = reinterpret_cast<T*>(A.small_data_);
   A.size_ = A.data_ + 0;
   A.capacity_ = A.data_ + small_size;
@@ -399,46 +333,38 @@ template <typename T, il::int_t small_size>
 SmallArray<T, small_size>& SmallArray<T, small_size>::operator=(
     const SmallArray<T, small_size>& A) {
   if (this != &A) {
-    const il::int_t n{A.size()};
-    const bool needs_memory{capacity() < n};
+    const il::int_t n = A.size();
+    const bool needs_memory = capacity() < n;
     if (needs_memory) {
       if (il::is_trivial<T>::value) {
         if (!small_data_used()) {
-          delete[] data_;
+          il::deallocate(data_);
         }
-        data_ = new T[n];
+        data_ = il::allocate_array<T>(n);
         memcpy(data_, A.data_, n * sizeof(T));
       } else {
-        for (il::int_t i = 0; i < size(); ++i) {
+        for (il::int_t i = size() - 1; i >= 0; --i) {
           (data_ + i)->~T();
         }
         if (!small_data_used()) {
-          ::operator delete(data_);
+          il::deallocate(data_);
         }
-        data_ = static_cast<T*>(::operator new(n * sizeof(T)));
+        data_ = il::allocate_array<T>(n);
         for (il::int_t i = 0; i < n; ++i) {
           new (data_ + i) T(A.data_[i]);
         }
       }
-#ifdef IL_DEBUG_VISUALIZER
-      debug_size_ = n;
-      debug_capacity_ = n;
-      debug_small_data_used_ = false;
-#endif
       size_ = data_ + n;
       capacity_ = data_ + n;
     } else {
       if (!il::is_trivial<T>::value) {
-        for (il::int_t i{n}; i < size(); ++i) {
+        for (il::int_t i = size() - 1; i >= n; --i) {
           (data_ + i)->~T();
         }
       }
       for (il::int_t i = 0; i < n; ++i) {
         data_[i] = A.data_[i];
       }
-#ifdef IL_DEBUG_VISUALIZER
-      debug_size_ = n;
-#endif
       size_ = data_ + n;
     }
   }
@@ -451,49 +377,34 @@ SmallArray<T, small_size>& SmallArray<T, small_size>::operator=(
   if (this != &A) {
     if (il::is_trivial<T>::value) {
       if (!small_data_used()) {
-        delete[] data_;
+        il::deallocate(data_);
       }
     } else {
-      for (il::int_t i = 0; i < size(); ++i) {
+      for (il::int_t i = size() - 1; i >= 0; --i) {
         (data_ + i)->~T();
       }
       if (!small_data_used()) {
-        ::operator delete(data_);
+        il::deallocate(data_);
       }
     }
-    const il::int_t n{A.size()};
+    const il::int_t n = A.size();
     if (A.small_data_used()) {
       data_ = reinterpret_cast<T*>(small_data_);
       if (il::is_trivial<T>::value) {
         memcpy(data_, A.data_, n * sizeof(T));
       } else {
-        for (il::int_t i = 0; i < n; ++i) {
+        for (il::int_t i = n - 1; i >= 0; --i) {
           new (data_ + i) T(std::move(A.data_[i]));
           (data_ + i)->~T();
         }
       }
-#ifdef IL_DEBUG_VISUALIZER
-      debug_size_ = n;
-      debug_capacity_ = small_size;
-      debug_small_data_used_ = true;
-#endif
       size_ = data_ + n;
       capacity_ = data_ + small_size;
     } else {
-#ifdef IL_DEBUG_VISUALIZER
-      debug_size_ = A.debug_size_;
-      debug_capacity_ = A.debug_capacity_;
-      debug_small_data_used_ = false;
-#endif
       data_ = A.data_;
       size_ = A.size_;
       capacity_ = A.capacity_;
     }
-#ifdef IL_DEBUG_VISUALIZER
-    A.debug_size_ = 0;
-    A.debug_capacity_ = small_size;
-    A.debug_small_data_used_ = true;
-#endif
     data_ = reinterpret_cast<T*>(small_data_);
     A.size_ = A.data_ + 0;
     A.capacity_ = A.data_ + small_size;
@@ -503,101 +414,95 @@ SmallArray<T, small_size>& SmallArray<T, small_size>::operator=(
 
 template <typename T, il::int_t small_size>
 SmallArray<T, small_size>::~SmallArray() {
-#ifdef IL_INVARIANCE
-  check_invariance();
-#endif
-  if (il::is_trivial<T>::value) {
-    if (!small_data_used()) {
-      delete[] data_;
-    }
-  } else {
-    for (il::int_t i = 0; i <= size(); ++i) {
+  IL_EXPECT_FAST(invariance());
+
+  if (!il::is_trivial<T>::value) {
+    for (il::int_t i = size() - 1; i >= 0; --i) {
       (data_ + i)->~T();
     }
-    if (!small_data_used()) {
-      ::operator delete(data_);
-    }
+  }
+  if (!small_data_used()) {
+    il::deallocate(data_);
   }
 }
 
 template <typename T, il::int_t small_size>
 const T& SmallArray<T, small_size>::operator[](il::int_t i) const {
-  IL_EXPECT_BOUND(static_cast<std::size_t>(i) <
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
                    static_cast<std::size_t>(size()));
   return data_[i];
 }
 
 template <typename T, il::int_t small_size>
 T& SmallArray<T, small_size>::operator[](il::int_t i) {
-  IL_EXPECT_BOUND(static_cast<std::size_t>(i) <
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
                    static_cast<std::size_t>(size()));
   return data_[i];
 }
 
 template <typename T, il::int_t small_size>
 const T& SmallArray<T, small_size>::back() const {
-  IL_EXPECT_FAST(size() > 0);
+  IL_EXPECT_MEDIUM(size() > 0);
   return size_[-1];
 }
 
 template <typename T, il::int_t small_size>
 T& SmallArray<T, small_size>::back() {
-  IL_EXPECT_FAST(size() > 0);
+  IL_EXPECT_MEDIUM(size() > 0);
   return size_[-1];
 }
 
 template <typename T, il::int_t small_size>
 il::int_t SmallArray<T, small_size>::size() const {
-  return static_cast<il::int_t>(size_ - data_);
+  return size_ - data_;
 }
 
 template <typename T, il::int_t small_size>
 void SmallArray<T, small_size>::resize(il::int_t n) {
   IL_EXPECT_FAST(n >= 0);
+
   if (n <= capacity()) {
     if (il::is_trivial<T>::value) {
 #ifdef IL_DEFAULT_VALUE
-      for (il::int_t i{size()}; i < n; ++i) {
+      for (il::int_t i = size(); i < n; ++i) {
         data_[i] = il::default_value<T>();
       }
 #endif
     } else {
-      for (il::int_t i = 0; i < size(); ++i) {
+      for (il::int_t i = size() - 1; i >= 0; --i) {
         (data_ + i)->~T();
       }
-      for (il::int_t i{size()}; i < n; ++i) {
+      for (il::int_t i = size(); i < n; ++i) {
         new (data_ + i) T{};
       }
     }
   } else {
-    const il::int_t n_old{size()};
+    const il::int_t n_old = size();
     increase_capacity(n);
     if (il::is_trivial<T>::value) {
 #ifdef IL_DEFAULT_VALUE
-      for (il::int_t i{n_old}; i < n; ++i) {
+      for (il::int_t i = n_old; i < n; ++i) {
         data_[i] = il::default_value<T>();
       }
 #endif
     } else {
-      for (il::int_t i{n_old}; i < n; ++i) {
+      for (il::int_t i = n_old; i < n; ++i) {
         new (data_ + i) T{};
       }
     }
   }
-#ifdef IL_DEBUG_VISUALIZER
-  debug_size_ = n;
-#endif
   size_ = data_ + n;
 }
 
 template <typename T, il::int_t small_size>
 il::int_t SmallArray<T, small_size>::capacity() const {
-  return static_cast<il::int_t>(capacity_ - data_);
+  return capacity_ - data_;
 }
 
 template <typename T, il::int_t small_size>
 void SmallArray<T, small_size>::reserve(il::int_t r) {
   IL_EXPECT_FAST(r >= 0);
+
   if (r > capacity()) {
     increase_capacity(r);
   }
@@ -606,27 +511,38 @@ void SmallArray<T, small_size>::reserve(il::int_t r) {
 template <typename T, il::int_t small_size>
 void SmallArray<T, small_size>::append(const T& x) {
   if (size_ == capacity_) {
-    const il::int_t n{size()};
-    increase_capacity(n > 1 ? (3 * n) / 2 : n + 1);
+    const il::int_t n = size();
+    bool error = false;
+    il::int_t new_capacity =
+        n > 1 ? il::safe_sum(n, n / 2, il::io, error)
+              : il::safe_sum(n, static_cast<il::int_t>(1), il::io, error);
+    if (error) {
+      std::abort();
+    }
+    T x_copy = x;
+    increase_capacity(new_capacity);
+    new (size_) T(std::move(x_copy));
+  } else {
+    new (size_) T(x);
   }
-  new (size_) T(x);
-#ifdef IL_DEBUG_VISUALIZER
-  ++debug_size_;
-#endif
   ++size_;
 }
 
 template <typename T, il::int_t small_size>
 template <typename... Args>
-void SmallArray<T, small_size>::emplace_back(Args&&... args) {
+void SmallArray<T, small_size>::append(Args&&... args) {
   if (size_ == capacity_) {
-    const il::int_t n{size()};
-    increase_capacity(n > 1 ? (3 * n) / 2 : n + 1);
+    const il::int_t n = size();
+    bool error = false;
+    il::int_t new_capacity =
+        n > 1 ? il::safe_sum(n, n / 2, il::io, error)
+              : il::safe_sum(n, static_cast<il::int_t>(1), il::io, error);
+    if (error) {
+      std::abort();
+    }
+    increase_capacity(new_capacity);
   };
   new (size_) T(args...);
-#ifdef IL_DEBUG_VISUALIZER
-  ++debug_size_;
-#endif
   ++size_;
 }
 
@@ -658,40 +574,42 @@ bool SmallArray<T, small_size>::small_data_used() const {
 template <typename T, il::int_t small_size>
 void SmallArray<T, small_size>::increase_capacity(il::int_t r) {
   IL_EXPECT_FAST(size() <= r);
-  const il::int_t n{size()};
+
+  const il::int_t n = size();
   T* new_data;
-  if (il::is_trivial<T>::value) {
-    new_data = new T[r];
-  } else {
-    new_data = static_cast<T*>(::operator new(r * sizeof(T)));
-  }
+  new_data = il::allocate_array<T>(r);
   if (il::is_trivial<T>::value) {
     memcpy(new_data, data_, n * sizeof(T));
     if (!small_data_used()) {
-      delete[] data_;
+      il::deallocate(data_);
     }
   } else {
-    for (il::int_t i = 0; i < n; ++i) {
+    for (il::int_t i = n - 1; i >= 0; --i) {
       new (new_data + i) T(std::move(data_[i]));
       (data_ + i)->~T();
     }
     if (!small_data_used()) {
-      ::operator delete(data_);
+      il::deallocate(data_);
     }
   }
-#ifdef IL_DEBUG_VISUALIZER
-  debug_capacity_ = r;
-#endif
   data_ = new_data;
   size_ = data_ + n;
   capacity_ = data_ + r;
 }
 
 template <typename T, il::int_t small_size>
-void SmallArray<T, small_size>::check_invariance() const {
-  IL_EXPECT_FAST(size_ - data_ >= 0);
-  IL_EXPECT_FAST(capacity_ - data_ >= 0);
-  IL_EXPECT_FAST((size_ - data_) <= (capacity_ - data_));
+bool SmallArray<T, small_size>::invariance() const {
+  bool ans = true;
+
+  if (data_ == reinterpret_cast<T*>(small_data_)) {
+    ans = ans && (size_ - data_ <= small_size);
+    ans = ans && (capacity_ - data_ == small_size);
+  } else {
+    ans = ans && (size_ - data_ >= 0);
+    ans = ans && (capacity_ - data_ >= 0);
+    ans = ans && ((size_ - data_) <= (capacity_ - data_ >= 0));
+  }
+  return ans;
 }
 }
 

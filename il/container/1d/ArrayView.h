@@ -17,9 +17,6 @@ namespace il {
 template <typename T>
 class ConstArrayView {
  protected:
-#ifdef IL_DEBUG_VISUALIZER
-  il::int_t debug_size_;
-#endif
   T* data_;
   T* size_;
   short align_mod_;
@@ -39,8 +36,8 @@ class ConstArrayView {
   //   ...
   // }
   */
-  explicit ConstArrayView(const T* data, il::int_t n, short align_mod = 0,
-                          short align_r = 0);
+  explicit ConstArrayView(const T* data, il::int_t n, il::int_t align_mod = 0,
+                          il::int_t align_r = 0);
 
   /* \brief Accessor
   // \details Access (read only) the i-th element of the array view. Bound
@@ -83,9 +80,6 @@ class ConstArrayView {
 
 template <typename T>
 ConstArrayView<T>::ConstArrayView() {
-#ifdef IL_DEBUG_VISUALIZER
-  debug_size_ = 0;
-#endif
   data_ = nullptr;
   size_ = nullptr;
   align_mod_ = 0;
@@ -93,12 +87,19 @@ ConstArrayView<T>::ConstArrayView() {
 }
 
 template <typename T>
-ConstArrayView<T>::ConstArrayView(const T* data, il::int_t n, short align_mod,
-                                  short align_r) {
+ConstArrayView<T>::ConstArrayView(const T* data, il::int_t n,
+                                  il::int_t align_mod, il::int_t align_r) {
+  IL_EXPECT_FAST(il::is_trivial<T>::value);
+  IL_EXPECT_FAST(sizeof(T) == alignof(T));
   IL_EXPECT_FAST(n >= 0);
-#ifdef IL_DEBUG_VISUALIZER
-  debug_size_ = n;
-#endif
+  IL_EXPECT_FAST(align_mod > 0);
+  IL_EXPECT_FAST(align_mod % alignof(T) == 0);
+  IL_EXPECT_FAST(align_mod <= std::numeric_limits<short>::max());
+  IL_EXPECT_FAST(align_r >= 0);
+  IL_EXPECT_FAST(align_r < align_mod);
+  IL_EXPECT_FAST(align_r % alignof(T) == 0);
+  IL_EXPECT_FAST(align_r <= std::numeric_limits<short>::max());
+
   data_ = const_cast<T*>(data);
   size_ = const_cast<T*>(data) + n;
   align_mod_ = 0;
@@ -107,20 +108,20 @@ ConstArrayView<T>::ConstArrayView(const T* data, il::int_t n, short align_mod,
 
 template <typename T>
 const T& ConstArrayView<T>::operator[](il::int_t i) const {
-  IL_EXPECT_BOUND(static_cast<std::size_t>(i) <
-                  static_cast<std::size_t>(size()));
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
+                   static_cast<std::size_t>(size()));
   return data_[i];
 }
 
 template <typename T>
 const T& ConstArrayView<T>::back() const {
-  IL_EXPECT_FAST(size() > 0);
+  IL_EXPECT_MEDIUM(size() > 0);
   return size_[-1];
 }
 
 template <typename T>
 il::int_t ConstArrayView<T>::size() const {
-  return static_cast<il::int_t>(size_ - data_);
+  return size_ - data_;
 }
 
 template <typename T>
@@ -156,8 +157,8 @@ class ArrayView : public ConstArrayView<T> {
   //   ...
   // }
   */
-  explicit ArrayView(T* data, il::int_t n, short align_mod = 0,
-                     short align_r = 0);
+  explicit ArrayView(T* data, il::int_t n, il::int_t align_mod = 0,
+                     il::int_t align_r = 0);
 
   /* \brief Accessor
   // \details Access (read or write) the i-th element of the array view. Bound
@@ -192,16 +193,16 @@ class ArrayView : public ConstArrayView<T> {
 };
 
 template <typename T>
-ArrayView<T>::ArrayView()
-    : ConstArrayView<T>{} {}
+ArrayView<T>::ArrayView() : ConstArrayView<T>{} {}
 
 template <typename T>
-ArrayView<T>::ArrayView(T* data, il::int_t n, short align_mod, short align_r)
+ArrayView<T>::ArrayView(T* data, il::int_t n, il::int_t align_mod,
+                        il::int_t align_r)
     : ConstArrayView<T>{data, n, align_mod, align_r} {}
 
 template <typename T>
 T& ArrayView<T>::operator[](il::int_t i) {
-  IL_EXPECT_BOUND(static_cast<std::size_t>(i) <
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
                    static_cast<std::size_t>(this->size()));
   return this->data_[i];
 }

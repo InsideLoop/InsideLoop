@@ -1,19 +1,18 @@
 ![InsideLoop icon](http://www.insideloop.io/wp-content/uploads/2014/09/inside-loop-logo-front.png)
 
 InsideLoop is a **C++11 library** for **high performance scientific applications**
-running on processors (**Core i5/i7**, **Xeon**, **Xeon Phi KNC/KNL**) and coprocessors
-(**Cuda**). This
-library has been designed to provide you with:
+running on processors (including **Xeon** and **Xeon Phi**) and coprocessors
+(**Cuda**). This library has been designed to provide you with:
 
-- **Arrays**, **multi-dimensional arrays** and a **hash table**
-- C++ wrappers for the linear algebra libraries provided by Intel
-  (Math Kernel Library, also known as the **MKL**) and NVidia (**cuBLAS**,
-  **cuSPARSE**)
-- **Efficient debugging** mode
+- Efficient containers such as **array**, **multi-dimensional arrays**, **string** and a **hash table**
 - A **simple code** base that could be extended easily
+- **Efficient debugging** mode
 - Almost **no coupling in between classes** so you can extract from
   InsideLoop the containers or the solvers you use. For instance, if you only
   use arrays and multidimensional arrays, all you need are a few files.
+- C++ wrappers for the linear algebra libraries provided by Intel
+  (Math Kernel Library, also known as the **MKL**) and NVidia (**cuBLAS**,
+  **cuSPARSE**)
 - An **Open Source** licence allowing its integration in both **free software**
   and **commercial** products
 
@@ -23,8 +22,8 @@ easy-to-use containers and wrappers around the best numerical libraries
 available today. It should be very **friendly** to **C** and **Fortran**
 programmers who still represent an important share of High Performance coders.
 
-Note that for the time being, **InsideLoop is a work in progress which is
-experimental**. Although some parts of it have been used in production code, it is
+Note that for the time being, **InsideLoop is a work in progressl**. Although
+some parts of it have been used in production code, it is
 still experimental. Even the API is not stabilized yet.
 
 ## Debugability and efficiency for dynamic arrays
@@ -58,8 +57,7 @@ differs from the standard library container on the following points:
   `std::ptrdiff_t` which is typedefed to `il::int_t` (it is a 64 bit signed
   integer on 64-bit macOS, Linux and Windows platforms).
 - **Initialization**: When T is a trivial type (`int`, `float`, `double`, etc),
-  the construction of an `il::Array<T>` of size n does not initialize its memory
-  in release mode.
+  the construction of an `il::Array<T>` does not initialize its memory.
 - **Vectorization**: InsideLoop library has been designed to allow many
   loops to be vectorized automatically by the compiler, and to allow easy
   access to the underlying structure of the objects when guided or manual

@@ -14,8 +14,6 @@
 #include <cstring>
 // <initializer_list> is needed for std::initializer_list<T>
 #include <initializer_list>
-// <type_traits> is needed for std::is_pod
-#include <type_traits>
 
 #include <il/base.h>
 
@@ -83,12 +81,12 @@ class StaticArray {
   /* \brief Accessor on the last element for a const il::SaticArray<T, n>
   // \details This method does not compile for empty vectors
   */
-  const T& last() const;
+  const T& back() const;
 
   /* \brief Accessor on the last element
   // \details This method does not compile for empty vectors
   */
-  T& last();
+  T& back();
 
   /* \brief Get the size of the il::StaticArray<T, n>
   //
@@ -148,7 +146,8 @@ StaticArray<T, n>::StaticArray(const T& value) {
 
 template <typename T, il::int_t n>
 StaticArray<T, n>::StaticArray(il::value_t, std::initializer_list<T> list) {
-  IL_EXPECT_FAST(n == static_cast<il::int_t>(list.size()));
+  IL_EXPECT_FAST(static_cast<std::size_t>(n) == list.size());
+
   if (il::is_trivial<T>::value) {
     memcpy(data_, list.begin(), n * sizeof(T));
   } else {
@@ -160,25 +159,25 @@ StaticArray<T, n>::StaticArray(il::value_t, std::initializer_list<T> list) {
 
 template <typename T, il::int_t n>
 const T& StaticArray<T, n>::operator[](il::int_t i) const {
-  IL_EXPECT_BOUND(static_cast<std::size_t>(i) < static_cast<std::size_t>(n));
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) < static_cast<std::size_t>(n));
   return data_[i];
 }
 
 template <typename T, il::int_t n>
 T& StaticArray<T, n>::operator[](il::int_t i) {
-  IL_EXPECT_BOUND(static_cast<std::size_t>(i) < static_cast<std::size_t>(n));
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) < static_cast<std::size_t>(n));
   return data_[i];
 }
 
 template <typename T, il::int_t n>
-const T& StaticArray<T, n>::last() const {
+const T& StaticArray<T, n>::back() const {
   static_assert(n > 0,
                 "il::StaticArray<T, n>: n must be positive to call last()");
   return data_[n - 1];
 }
 
 template <typename T, il::int_t n>
-T& StaticArray<T, n>::last() {
+T& StaticArray<T, n>::back() {
   static_assert(n > 0,
                 "il::StaticArray<T, n>: n must be positive to call last()");
   return data_[n - 1];

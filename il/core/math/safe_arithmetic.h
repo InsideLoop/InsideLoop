@@ -230,6 +230,24 @@ T1 safe_convert(T2 n, il::io_t, bool& error) {
   return T1{};
 }
 
+template <>
+inline std::int32_t safe_convert(std::uint32_t n, il::io_t, bool& error) {
+  if (n > std::numeric_limits<std::int32_t>::max()) {
+    error = true;
+    return 0;
+  }
+  return static_cast<std::int32_t>(n);
+}
+
+template <>
+inline std::uint32_t safe_convert(std::int32_t n, il::io_t, bool& error) {
+  if (n < 0) {
+    error = true;
+    return 0;
+  }
+  return static_cast<std::uint32_t>(n);
+}
+
 #ifdef INT64_MAX
 template <>
 inline std::int64_t safe_convert(std::uint64_t n, il::io_t, bool& error) {

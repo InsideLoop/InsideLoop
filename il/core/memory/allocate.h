@@ -29,7 +29,7 @@ T* allocate_array(il::int_t n) {
   }
 
   T* p = static_cast<T*>(std::malloc(n_bytes));
-  if (!p && n_bytes) {
+  if (!p && n_bytes > 0) {
     std::abort();
   }
 
@@ -60,7 +60,7 @@ T* allocate_array(il::int_t n, il::int_t align_r, il::int_t align_mod, il::io_t,
   }
 
   T* p = static_cast<T*>(std::malloc(n_bytes));
-  if (!p && n_bytes) {
+  if (!p && n_bytes > 0) {
     std::abort();
   }
   const std::size_t align_r_unsigned = static_cast<std::size_t>(align_r);
@@ -70,6 +70,9 @@ T* allocate_array(il::int_t n, il::int_t align_r, il::int_t align_mod, il::io_t,
       align_r_unsigned >= r
           ? (align_r_unsigned - r) / sizeof(T)
           : (align_mod_unsigned - (r - align_r_unsigned)) / sizeof(T);
+
+  IL_ENSURE(local_shift >= 0);
+  IL_ENSURE(local_shift < align_mod);
 
   shift = local_shift;
   T* aligned_p = p + local_shift;

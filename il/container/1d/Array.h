@@ -574,7 +574,7 @@ T& Array<T>::back() {
 
 template <typename T>
 il::int_t Array<T>::size() const {
-  return static_cast<il::int_t>(size_ - data_);
+  return size_ - data_;
 }
 
 template <typename T>
@@ -632,19 +632,18 @@ template <typename T>
 void Array<T>::append(const T& x) {
   if (size_ == capacity_) {
     const il::int_t n = size();
+    bool error = false;
+    il::int_t new_capacity =
+        n > 1 ? il::safe_sum(n, n / 2, il::io, error)
+              : il::safe_sum(n, static_cast<il::int_t>(1), il::io, error);
+    if (error) {
+      std::abort();
+    }
     T x_copy = x;
-    increase_capacity(n > 1 ? (3 * n) / 2 : n + 1);
-    if (il::is_trivial<T>::value) {
-      *size_ = x_copy;
-    } else {
-      new (size_) T(std::move(x_copy));
-    }
+    increase_capacity(new_capacity);
+    new (size_) T(std::move(x_copy));
   } else {
-    if (il::is_trivial<T>::value) {
-      *size_ = x;
-    } else {
-      new (size_) T(x);
-    }
+    new (size_) T(x);
   }
   ++size_;
 }
@@ -653,15 +652,12 @@ template <typename T>
 void Array<T>::append(T&& x) {
   if (size_ == capacity_) {
     const il::int_t n = size();
-    il::int_t new_capacity;
-    if (n > 1) {
-      bool error = false;
-      new_capacity = il::safe_sum(n, n / 2, il::io, error);
-      if (error) {
-        std::abort();
-      }
-    } else {
-      new_capacity = n + 1;
+    bool error = false;
+    il::int_t new_capacity =
+        n > 1 ? il::safe_sum(n, n / 2, il::io, error)
+              : il::safe_sum(n, static_cast<il::int_t>(1), il::io, error);
+    if (error) {
+      std::abort();
     }
     increase_capacity(new_capacity);
   }
@@ -678,15 +674,12 @@ template <typename... Args>
 void Array<T>::append(il::emplace_t, Args&&... args) {
   if (size_ == capacity_) {
     const il::int_t n = size();
-    il::int_t new_capacity;
-    if (n > 1) {
-      bool error = false;
-      new_capacity = il::safe_sum(n, n / 2, il::io, error);
-      if (error) {
-        std::abort();
-      }
-    } else {
-      new_capacity = n + 1;
+    bool error = false;
+    il::int_t new_capacity =
+        n > 1 ? il::safe_sum(n, n / 2, il::io, error)
+              : il::safe_sum(n, static_cast<il::int_t>(1), il::io, error);
+    if (error) {
+      std::abort();
     }
     increase_capacity(new_capacity);
   };
