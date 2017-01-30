@@ -23,6 +23,12 @@
 // Configuration
 ////////////////////////////////////////////////////////////////////////////////
 
+#if INTPTR_MAX == INT32_MAX
+#define IL_32_BIT_ENVIRONMENT
+#elif INTPTR_MAX == INT64_MAX
+#define IL_64_BIT_ENVIRONMENT
+#endif
+
 //#define IL_BLAS_ATLAS
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -62,15 +68,6 @@ struct abort_exception {};
 #define IL_EXPECT_SLOW(condition) ((void)0)
 #else
 #define IL_EXPECT_SLOW(condition) (condition) ? ((void)0) : std::abort();
-#endif
-
-#ifdef IL_UNIT_TEST
-#define IL_EXPECT_BOUND(condition) \
-  (condition) ? ((void)0) : throw il::abort_exception {}
-#elif NDEBUG
-#define IL_EXPECT_BOUND(condition) ((void)0)
-#else
-#define IL_EXPECT_BOUND(condition) (condition) ? ((void)0) : std::abort()
 #endif
 
 #define IL_EXPECT_AXIOM(message) ((void)0)

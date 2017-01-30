@@ -798,25 +798,25 @@ Array2C<T>::~Array2C() {
 
 template <typename T>
 const T& Array2C<T>::operator()(il::int_t i0, il::int_t i1) const {
-  IL_EXPECT_BOUND(static_cast<std::size_t>(i0) <
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i0) <
                    static_cast<std::size_t>(size(0)));
-  IL_EXPECT_BOUND(static_cast<std::size_t>(i1) <
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i1) <
                    static_cast<std::size_t>(size(1)));
   return data_[i0 * (capacity_[1] - data_) + i1];
 }
 
 template <typename T>
 T& Array2C<T>::operator()(il::int_t i0, il::int_t i1) {
-  IL_EXPECT_BOUND(static_cast<std::size_t>(i0) <
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i0) <
                    static_cast<std::size_t>(size(0)));
-  IL_EXPECT_BOUND(static_cast<std::size_t>(i1) <
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i1) <
                    static_cast<std::size_t>(size(1)));
   return data_[i0 * (capacity_[1] - data_) + i1];
 }
 
 template <typename T>
 il::int_t Array2C<T>::size(il::int_t d) const {
-  IL_EXPECT_BOUND(static_cast<std::size_t>(d) < static_cast<std::size_t>(2));
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(d) < static_cast<std::size_t>(2));
   return static_cast<il::int_t>(size_[d] - data_);
 }
 

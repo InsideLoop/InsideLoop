@@ -60,23 +60,23 @@ BandArray2C<T>::BandArray2C(il::int_t n0, il::int_t n1, il::int_t width_left,
 
 template <typename T>
 const T& BandArray2C<T>::operator()(il::int_t i0, il::int_t k) const {
-  IL_EXPECT_BOUND(static_cast<std::size_t>(i0) <
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i0) <
                    static_cast<std::size_t>(size(0)));
-  IL_EXPECT_BOUND(static_cast<std::size_t>(i0 + k) <
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i0 + k) <
                    static_cast<std::size_t>(size(1)));
-  IL_EXPECT_BOUND(k <= width_right_);
-  IL_EXPECT_BOUND(k >= -width_left_);
+  IL_EXPECT_MEDIUM(k <= width_right_);
+  IL_EXPECT_MEDIUM(k >= -width_left_);
   return element_(i0, width_left_ + k);
 }
 
 template <typename T>
 T& BandArray2C<T>::operator()(il::int_t i0, il::int_t k) {
-  IL_EXPECT_BOUND(static_cast<std::size_t>(i0) <
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i0) <
                    static_cast<std::size_t>(size(0)));
-  IL_EXPECT_BOUND(static_cast<std::size_t>(i0 + k) <
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i0 + k) <
                    static_cast<std::size_t>(size(1)));
-  IL_EXPECT_BOUND(k <= width_right_);
-  IL_EXPECT_BOUND(k >= -width_left_);
+  IL_EXPECT_MEDIUM(k <= width_right_);
+  IL_EXPECT_MEDIUM(k >= -width_left_);
   return element_(i0, width_left_ + k);
 }
 

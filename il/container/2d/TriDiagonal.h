@@ -23,15 +23,15 @@ class TriDiagonal {
  public:
   TriDiagonal(il::int_t n) : data_{3 * n} { size_ = n; }
   const T& operator()(il::int_t i, il::int_t k) const {
-    IL_EXPECT_BOUND(static_cast<std::size_t>(i) <
+    IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
         static_cast<std::size_t>(size_));
-    IL_EXPECT_BOUND(k >= -1 && k <= 1);
+    IL_EXPECT_MEDIUM(k >= -1 && k <= 1);
     return data_[size_ * (k + 1) + i];
   }
   T& operator()(il::int_t i, il::int_t k) {
-    IL_EXPECT_BOUND(static_cast<std::size_t>(i) <
+    IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
                      static_cast<std::size_t>(size_));
-    IL_EXPECT_BOUND(k >= -1 && k <= 1);
+    IL_EXPECT_MEDIUM(k >= -1 && k <= 1);
     return data_[size_ * (k + 1) + i];
   }
   il::int_t size() const {

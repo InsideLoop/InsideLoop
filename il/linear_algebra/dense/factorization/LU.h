@@ -98,7 +98,7 @@ LU<il::Array2D<double>>::LU(il::Array2D<double> A, il::io_t,
 }
 
 il::int_t LU<il::Array2D<double>>::size(il::int_t d) const {
-  IL_EXPECT_BOUND(static_cast<std::size_t>(d) < static_cast<std::size_t>(2));
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(d) < static_cast<std::size_t>(2));
   return lu_.size(d);
 }
 
@@ -181,13 +181,13 @@ double LU<il::Array2D<double>>::condition_number(il::Norm norm_type,
 
 const double& LU<il::Array2D<double>>::L(il::int_t i,
                                                 il::int_t j) const {
-  IL_EXPECT_BOUND(j < i);
+  IL_EXPECT_MEDIUM(j < i);
   return lu_(i, j);
 }
 
 const double& LU<il::Array2D<double>>::U(il::int_t i,
                                                 il::int_t j) const {
-  IL_EXPECT_BOUND(j >= i);
+  IL_EXPECT_MEDIUM(j >= i);
   return lu_(i, j);
 }
 

@@ -141,21 +141,21 @@ StaticArray2C<T, n0, n1>::StaticArray2C(
 template <typename T, il::int_t n0, il::int_t n1>
 const T& StaticArray2C<T, n0, n1>::operator()(il::int_t i0,
                                               il::int_t i1) const {
-  IL_EXPECT_BOUND(static_cast<std::size_t>(i0) < static_cast<std::size_t>(n0));
-  IL_EXPECT_BOUND(static_cast<std::size_t>(i1) < static_cast<std::size_t>(n1));
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i0) < static_cast<std::size_t>(n0));
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i1) < static_cast<std::size_t>(n1));
   return data_[i0 * n1 + i1];
 }
 
 template <typename T, il::int_t n0, il::int_t n1>
 T& StaticArray2C<T, n0, n1>::operator()(il::int_t i0, il::int_t i1) {
-  IL_EXPECT_BOUND(static_cast<std::size_t>(i0) < static_cast<std::size_t>(n0));
-  IL_EXPECT_BOUND(static_cast<std::size_t>(i1) < static_cast<std::size_t>(n1));
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i0) < static_cast<std::size_t>(n0));
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i1) < static_cast<std::size_t>(n1));
   return data_[i0 * n1 + i1];
 }
 
 template <typename T, il::int_t n0, il::int_t n1>
 il::int_t StaticArray2C<T, n0, n1>::size(il::int_t d) const {
-  IL_EXPECT_BOUND(static_cast<std::size_t>(d) < static_cast<std::size_t>(2));
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(d) < static_cast<std::size_t>(2));
   return d == 0 ? n0 : n1;
 }
 
