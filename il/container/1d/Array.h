@@ -28,6 +28,7 @@ class Array {
   T* data_;
   T* size_;
   T* capacity_;
+  short alignment_;
   short align_r_;
   short align_mod_;
   short shift_;
@@ -61,14 +62,14 @@ class Array {
   // \details The pointer data, when considered as an integer, satisfies
   // data_ = 0 (Modulo align_mod)
   */
-  explicit Array(il::int_t n, il::align_t, il::int_t align_mod);
+  explicit Array(il::int_t n, il::align_t, il::int_t alignment);
 
   /* \brief Construct an aligned array of n elements
   // \details The pointer data, when considered as an integer, satisfies
   // data_ = align_r (Modulo align_mod)
   */
-  explicit Array(il::int_t n, il::align_t, il::int_t align_r,
-                 il::int_t align_mod);
+  explicit Array(il::int_t n, il::align_t, il::int_t alignment,
+                 il::int_t align_r, il::int_t align_mod);
 
   /* \brief Construct an array of n elements with a value
   //
@@ -82,8 +83,10 @@ class Array {
   // // Construct an array of double of length 5, initialized with 3.14
   // il::Array<double> v{5, 3.14};
   */
-  explicit Array(il::int_t n, const T& x, il::align_t, il::int_t align_r,
-                 il::int_t align_mod);
+  explicit Array(il::int_t n, const T& x, il::align_t, il::int_t alignment,
+                 il::int_t align_r, il::int_t align_mod);
+
+  explicit Array(il::int_t n, const T& x, il::align_t, il::int_t alignment);
 
   /* \brief Construct an array from a brace-initialized list
   // \details The size and the capacity of the il::Array<T> is adjusted
@@ -252,6 +255,7 @@ Array<T>::Array() {
   data_ = nullptr;
   size_ = nullptr;
   capacity_ = nullptr;
+  alignment_ = 0;
   align_r_ = 0;
   align_mod_ = 0;
   shift_ = 0;
@@ -279,28 +283,35 @@ Array<T>::Array(il::int_t n) {
   }
   size_ = data_ + n;
   capacity_ = data_ + n;
+  alignment_ = 0;
   align_r_ = 0;
   align_mod_ = 0;
   shift_ = 0;
 }
 
 template <typename T>
-Array<T>::Array(il::int_t n, il::align_t, il::int_t align_r,
-                il::int_t align_mod) {
+Array<T>::Array(il::int_t n, il::align_t, il::int_t alignment,
+                il::int_t align_r, il::int_t align_mod) {
   IL_EXPECT_FAST(il::is_trivial<T>::value);
   IL_EXPECT_FAST(sizeof(T) == alignof(T));
   IL_EXPECT_FAST(n >= 0);
+  IL_EXPECT_FAST(alignment > 0);
+  IL_EXPECT_FAST(alignment % alignof(T) == 0);
+  IL_EXPECT_FAST(alignment <= std::numeric_limits<short>::max());
   IL_EXPECT_FAST(align_mod > 0);
   IL_EXPECT_FAST(align_mod % alignof(T) == 0);
+  IL_EXPECT_FAST(align_mod % alignment == 0);
   IL_EXPECT_FAST(align_mod <= std::numeric_limits<short>::max());
   IL_EXPECT_FAST(align_r >= 0);
   IL_EXPECT_FAST(align_r < align_mod);
   IL_EXPECT_FAST(align_r % alignof(T) == 0);
+  IL_EXPECT_FAST(align_r % alignment == 0);
   IL_EXPECT_FAST(align_r <= std::numeric_limits<short>::max());
 
   if (n > 0) {
     il::int_t shift;
     data_ = il::allocate_array<T>(n, align_r, align_mod, il::io, shift);
+    alignment_ = static_cast<short>(alignment);
     align_r_ = static_cast<short>(align_r);
     align_mod_ = static_cast<short>(align_mod);
     shift_ = static_cast<short>(shift);
@@ -311,6 +322,7 @@ Array<T>::Array(il::int_t n, il::align_t, il::int_t align_r,
 #endif
   } else {
     data_ = nullptr;
+    alignment_ = 0;
     align_r_ = 0;
     align_mod_ = 0;
     shift_ = 0;
@@ -320,8 +332,8 @@ Array<T>::Array(il::int_t n, il::align_t, il::int_t align_r,
 }
 
 template <typename T>
-Array<T>::Array(il::int_t n, il::align_t, il::int_t align_mod)
-    : Array{n, il::align, 0, align_mod} {}
+Array<T>::Array(il::int_t n, il::align_t, il::int_t alignment)
+    : Array{n, il::align, alignment, 0, alignment} {}
 
 template <typename T>
 Array<T>::Array(il::int_t n, const T& x) {
@@ -337,28 +349,35 @@ Array<T>::Array(il::int_t n, const T& x) {
   }
   size_ = data_ + n;
   capacity_ = data_ + n;
+  alignment_ = 0;
   align_r_ = 0;
   align_mod_ = 0;
   shift_ = 0;
 }
 
 template <typename T>
-Array<T>::Array(il::int_t n, const T& x, il::align_t, il::int_t align_r,
-                il::int_t align_mod) {
+Array<T>::Array(il::int_t n, const T& x, il::align_t, il::int_t alignment,
+                il::int_t align_r, il::int_t align_mod) {
   IL_EXPECT_FAST(il::is_trivial<T>::value);
   IL_EXPECT_FAST(sizeof(T) == alignof(T));
   IL_EXPECT_FAST(n >= 0);
+  IL_EXPECT_FAST(alignment > 0);
+  IL_EXPECT_FAST(alignment % alignof(T) == 0);
+  IL_EXPECT_FAST(alignment <= std::numeric_limits<short>::max());
   IL_EXPECT_FAST(align_mod > 0);
   IL_EXPECT_FAST(align_mod % alignof(T) == 0);
+  IL_EXPECT_FAST(align_mod % alignment == 0);
   IL_EXPECT_FAST(align_mod <= std::numeric_limits<short>::max());
   IL_EXPECT_FAST(align_r >= 0);
   IL_EXPECT_FAST(align_r < align_mod);
   IL_EXPECT_FAST(align_r % alignof(T) == 0);
+  IL_EXPECT_FAST(align_r % alignment == 0);
   IL_EXPECT_FAST(align_r <= std::numeric_limits<short>::max());
 
   if (n > 0) {
     il::int_t shift;
     data_ = il::allocate_array<T>(n, align_r, align_mod, il::io, shift);
+    alignment_ = static_cast<short>(alignment);
     align_r_ = static_cast<short>(align_r);
     align_mod_ = static_cast<short>(align_mod);
     shift_ = static_cast<short>(shift);
@@ -367,6 +386,7 @@ Array<T>::Array(il::int_t n, const T& x, il::align_t, il::int_t align_r,
     }
   } else {
     data_ = nullptr;
+    alignment_ = 0;
     align_r_ = 0;
     align_mod_ = 0;
     shift_ = 0;
@@ -374,6 +394,10 @@ Array<T>::Array(il::int_t n, const T& x, il::align_t, il::int_t align_r,
   size_ = data_ + n;
   capacity_ = data_ + n;
 }
+
+template <typename T>
+Array<T>::Array(il::int_t n, const T& x, il::align_t, il::int_t alignment)
+    : Array{n, x, il::align, alignment, 0, alignment} {}
 
 template <typename T>
 Array<T>::Array(il::value_t, std::initializer_list<T> list) {
@@ -397,6 +421,7 @@ Array<T>::Array(il::value_t, std::initializer_list<T> list) {
   }
   size_ = data_ + n;
   capacity_ = data_ + n;
+  alignment_ = 0;
   align_r_ = 0;
   align_mod_ = 0;
   shift_ = 0;
@@ -405,16 +430,19 @@ Array<T>::Array(il::value_t, std::initializer_list<T> list) {
 template <typename T>
 Array<T>::Array(const Array<T>& v) {
   const il::int_t n = v.size();
+  const il::int_t alignment = v.alignment_;
   const il::int_t align_r = v.align_r_;
   const il::int_t align_mod = v.align_mod_;
-  if (align_mod == 0) {
+  if (alignment == 0) {
     data_ = il::allocate_array<T>(n);
+    alignment_ = 0;
     align_r_ = 0;
     align_mod_ = 0;
     shift_ = 0;
   } else {
     il::int_t shift;
     data_ = il::allocate_array<T>(n, align_r, align_mod, il::io, shift);
+    alignment_ = static_cast<short>(alignment);
     align_r_ = static_cast<short>(align_r);
     align_mod_ = static_cast<short>(align_mod);
     shift_ = static_cast<short>(shift);
@@ -435,12 +463,14 @@ Array<T>::Array(Array<T>&& v) {
   data_ = v.data_;
   size_ = v.size_;
   capacity_ = v.capacity_;
+  alignment_ = v.alignment_;
   align_r_ = v.align_r_;
   align_mod_ = v.align_mod_;
   shift_ = v.shift_;
   v.data_ = nullptr;
   v.size_ = nullptr;
   v.capacity_ = nullptr;
+  v.alignment_ = 0;
   v.align_r_ = 0;
   v.align_mod_ = 0;
   v.shift_ = 0;
@@ -453,10 +483,11 @@ Array<T>& Array<T>::operator=(const Array<T>& v) {
   }
 
   const il::int_t n = v.size();
+  const il::int_t alignment = v.alignment_;
   const il::int_t align_r = v.align_r_;
   const il::int_t align_mod = v.align_mod_;
-  const bool needs_memory =
-      n > capacity() || align_mod_ != align_mod || align_r_ != align_r;
+  const bool needs_memory = n > capacity() || alignment_ != alignment ||
+                            align_r_ != align_r || align_mod_ != align_mod;
   if (needs_memory) {
     if (data_) {
       if (!il::is_trivial<T>::value) {
@@ -466,14 +497,16 @@ Array<T>& Array<T>::operator=(const Array<T>& v) {
       }
       il::deallocate(data_ - shift_);
     }
-    if (align_mod == 0) {
+    if (alignment == 0) {
       data_ = il::allocate_array<T>(n);
+      alignment_ = 0;
       align_r_ = 0;
       align_mod_ = 0;
       shift_ = 0;
     } else {
       il::int_t shift;
       data_ = il::allocate_array<T>(n, align_r, align_mod, il::io, shift);
+      alignment_ = static_cast<short>(alignment);
       align_r_ = static_cast<short>(align_r);
       align_mod_ = static_cast<short>(align_mod);
       shift_ = static_cast<short>(shift);
@@ -520,12 +553,14 @@ Array<T>& Array<T>::operator=(Array<T>&& v) {
   data_ = v.data_;
   size_ = v.size_;
   capacity_ = v.capacity_;
+  alignment_ = v.alignment_;
   align_r_ = v.align_r_;
   align_mod_ = v.align_mod_;
   shift_ = v.shift_;
   v.data_ = nullptr;
   v.size_ = nullptr;
   v.capacity_ = nullptr;
+  v.alignment_ = 0;
   v.align_r_ = 0;
   v.align_mod_ = 0;
   v.shift_ = 0;
@@ -550,6 +585,7 @@ template <typename T>
 const T& Array<T>::operator[](il::int_t i) const {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
                    static_cast<std::size_t>(size()));
+
   return data_[i];
 }
 
@@ -557,18 +593,21 @@ template <typename T>
 T& Array<T>::operator[](il::int_t i) {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
                    static_cast<std::size_t>(size()));
+
   return data_[i];
 }
 
 template <typename T>
 const T& Array<T>::back() const {
   IL_EXPECT_MEDIUM(size() > 0);
+
   return size_[-1];
 }
 
 template <typename T>
 T& Array<T>::back() {
   IL_EXPECT_MEDIUM(size() > 0);
+
   return size_[-1];
 }
 
@@ -616,7 +655,7 @@ void Array<T>::resize(il::int_t n) {
 
 template <typename T>
 il::int_t Array<T>::capacity() const {
-  return static_cast<il::int_t>(capacity_ - data_);
+  return capacity_ - data_;
 }
 
 template <typename T>
@@ -689,14 +728,7 @@ void Array<T>::append(il::emplace_t, Args&&... args) {
 
 template <typename T>
 il::int_t Array<T>::alignment() const {
-  unsigned int a = static_cast<unsigned int>(align_mod_);
-  unsigned int b = static_cast<unsigned int>(align_r_);
-  while (b != 0) {
-    unsigned int c = a;
-    a = b;
-    b = c % b;
-  }
-  return static_cast<il::int_t>(a);
+  return alignment_;
 }
 
 template <typename T>
@@ -735,14 +767,13 @@ void Array<T>::increase_capacity(il::int_t r) {
 
   const il::int_t n = size();
   T* new_data;
-  short new_shift;
-  if (align_mod_ == 0) {
+  il::int_t new_shift;
+  if (alignment_ == 0) {
     new_data = il::allocate_array<T>(r);
     new_shift = 0;
   } else {
-    il::int_t shift;
-    new_data = il::allocate_array<T>(n, align_r_, align_mod_, il::io, shift);
-    new_shift = static_cast<short>(shift);
+    new_data =
+        il::allocate_array<T>(n, align_r_, align_mod_, il::io, new_shift);
   }
   if (data_) {
     if (il::is_trivial<T>::value) {
@@ -758,7 +789,7 @@ void Array<T>::increase_capacity(il::int_t r) {
   data_ = new_data;
   size_ = data_ + n;
   capacity_ = data_ + r;
-  shift_ = new_shift;
+  shift_ = static_cast<short>(new_shift);
 }
 
 template <typename T>

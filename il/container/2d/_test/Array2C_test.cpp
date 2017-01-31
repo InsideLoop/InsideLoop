@@ -47,6 +47,27 @@ TEST(Array2C, size_constructor_3) {
               A.capacity(1) == 5);
 }
 
+TEST(Array2C, alignment_constructor_0) {
+  il::Array2C<double> A{3, 8, il::align, 32};
+
+  ASSERT_TRUE(A.size(0) == 3 && A.capacity(0) == 3 && A.size(1) == 8 &&
+              A.capacity(1) == 8);
+}
+
+TEST(Array2C, alignment_constructor_1) {
+  il::Array2C<double> A{3, 9, il::align, 32};
+
+  ASSERT_TRUE(A.size(0) == 3 && A.capacity(0) == 3 && A.size(1) == 9 &&
+              A.capacity(1) == 12);
+}
+
+TEST(Array2C, alignment_constructor_2) {
+  il::Array2C<double> A{3, 11, il::align, 32};
+
+  ASSERT_TRUE(A.size(0) == 3 && A.capacity(0) == 3 && A.size(1) == 11 &&
+              A.capacity(1) == 12);
+}
+
 TEST(Array2C, size_value_constructor_0) {
   const il::int_t x = 9;
   il::Array2C<il::int_t> A{0, 0, x};

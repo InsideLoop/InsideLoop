@@ -135,7 +135,7 @@ to get efficient multithreading.
 #include <il/Array.h>
 
 int main() {
-  const il::int_t n = 2000000000;
+  const il::int_t n = 2'000'000'000;
   const double x = 0.001;
   il::Array<double> v(n);
 #pragma omp parallel for

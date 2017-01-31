@@ -38,6 +38,7 @@ class ArrayPrinter:
 	def children(self):
 		yield "size", self.size
 		yield "capacity", self.capacity
+		yield "alignment", self.val['alignment_']
 		# yield "alignment_r", self.val['align_r_']
 		# yield "alignment_mod", self.val['align_mod_']
 		for k in range(0, self.size):
@@ -133,6 +134,7 @@ class Array2DPrinter:
 		yield "size_1", self.size1
 		yield "capacity_0", self.capacity0
 		yield "capacity_1", self.capacity1
+		yield "alignment", self.val['alignment_']
 		for k1 in range(0, self.size1):
 			for k0 in range(0, self.size0):
 				dataPtr = self.data + self.capacity0 * k1 + k0

@@ -47,6 +47,27 @@ TEST(Array2D, size_constructor_3) {
               A.capacity(1) == 5);
 }
 
+TEST(Array2D, alignment_constructor_0) {
+  il::Array2D<double> A{8, 3, il::align, 32};
+
+  ASSERT_TRUE(A.size(0) == 8 && A.capacity(0) == 8 && A.size(1) == 3 &&
+              A.capacity(1) == 3);
+}
+
+TEST(Array2D, alignment_constructor_1) {
+  il::Array2D<double> A{9, 3, il::align, 32};
+
+  ASSERT_TRUE(A.size(0) == 9 && A.capacity(0) == 12 && A.size(1) == 3 &&
+              A.capacity(1) == 3);
+}
+
+TEST(Array2D, alignment_constructor_2) {
+  il::Array2D<double> A{11, 3, il::align, 32};
+
+  ASSERT_TRUE(A.size(0) == 11 && A.capacity(0) == 12 && A.size(1) == 3 &&
+              A.capacity(1) == 3);
+}
+
 TEST(Array2D, size_value_constructor_0) {
   const il::int_t x = 9;
   il::Array2D<il::int_t> A{0, 0, x};

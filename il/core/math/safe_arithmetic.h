@@ -13,7 +13,6 @@
 #include <limits>
 
 #include <il/base.h>
-#include <il/core/Status.h>
 
 namespace il {
 
@@ -279,7 +278,73 @@ inline std::uint64_t safe_product(std::uint64_t a, std::uint64_t b, il::io_t,
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
-//
+// rounding
+////////////////////////////////////////////////////////////////////////////////
+
+inline std::int32_t safe_upper_round(std::int32_t a, std::int32_t b, il::io_t,
+                                     bool& error) {
+  IL_EXPECT_FAST(a >= 0);
+  IL_EXPECT_FAST(b > 0);
+
+  const std::uint32_t q =
+      static_cast<std::uint32_t>(a) / static_cast<std::uint32_t>(b);
+  const std::uint32_t r =
+      static_cast<std::uint32_t>(a) % static_cast<std::uint32_t>(b);
+  if (r == 0) {
+    error = false;
+    return a;
+  } else {
+    bool error_sum = false;
+    bool error_product = false;
+    const std::int32_t q_plus_one =
+        il::safe_sum(static_cast<std::int32_t>(q), static_cast<std::int32_t>(1),
+                     il::io, error_sum);
+    const std::int32_t ans =
+        il::safe_product(q_plus_one, b, il::io, error_product);
+    if (error_sum || error_product) {
+      error = true;
+      return 0;
+    } else {
+      error = false;
+      return ans;
+    }
+  }
+}
+
+#ifdef IL_64_BIT_ENVIRONMENT
+inline std::int64_t safe_upper_round(std::int64_t a, std::int64_t b, il::io_t,
+                                     bool& error) {
+  IL_EXPECT_FAST(a >= 0);
+  IL_EXPECT_FAST(b > 0);
+
+  const std::uint64_t q =
+      static_cast<std::uint64_t>(a) / static_cast<std::uint64_t>(b);
+  const std::uint64_t r =
+      static_cast<std::uint64_t>(a) % static_cast<std::uint64_t>(b);
+  if (r == 0) {
+    error = false;
+    return a;
+  } else {
+    bool error_sum = false;
+    bool error_product = false;
+    const std::int64_t q_plus_one =
+        il::safe_sum(static_cast<std::int64_t>(q), static_cast<std::int64_t>(1),
+                     il::io, error_sum);
+    const std::int64_t ans =
+        il::safe_product(q_plus_one, b, il::io, error_product);
+    if (error_sum || error_product) {
+      error = true;
+      return 0;
+    } else {
+      error = false;
+      return ans;
+    }
+  }
+}
+#endif
+
+////////////////////////////////////////////////////////////////////////////////
+// convert
 ////////////////////////////////////////////////////////////////////////////////
 
 template <typename T1, typename T2>

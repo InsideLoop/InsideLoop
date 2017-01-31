@@ -7,17 +7,12 @@
 //
 //==============================================================================
 
-#include <iostream>
-
-#include <il/core/math/safe_arithmetic.h>
+#include <il/Array.h>
+#include <il/Array2D.h>
 
 int main() {
-  const int a = std::numeric_limits<int>::max();
-  const int b = 0;
-  bool error = false;
-  const int c = il::safe_sum(a, b, il::io, error);
-
-  std::cout << c << " " << error << std::endl;
+  const il::int_t n = 127;
+  il::Array2D<double> A{n, n, il::align, 32};
 
   return 0;
 }
