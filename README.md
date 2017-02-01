@@ -4,7 +4,8 @@ InsideLoop is a **C++11 library** for **high performance scientific applications
 running on processors (including **Xeon** and **Xeon Phi**) and coprocessors
 (**Cuda**). This library has been designed to provide you with:
 
-- Efficient containers such as **array**, **multi-dimensional arrays**, **string** and a **hash table**
+- Efficient containers such as **array**, **multi-dimensional arrays**,
+  **string** a **hash set** and a  **hash table**
 - A **simple code** base that could be extended easily
 - **Efficient debugging** mode
 - Almost **no coupling in between classes** so you can extract from
@@ -93,7 +94,7 @@ count all the bugs which have been discovered because of unsigned integers. Thei
 usage in the C++ standard library was a mistake as acknowledged by
 Bjarne Stroustrup, Herb Sutter and Chandler Carruth in this
 [video](https://www.youtube.com/watch?v=Puio5dly9N8) at 42:38 and 1:02:50. Using
-InsideLoop's library allows programmers to stay away from them. Moreover, the fact
+InsideLoop's library allow programmers to stay away from them. Moreover, the fact
 that signed overflow is undefined behaviour in C/C++ allows optimizations which
 are not available to the compiler when dealing with unsigned integers as can be
 seen on this [video](https://www.youtube.com/watch?v=yG1OZ69H_-o) at 39:16.
@@ -156,7 +157,7 @@ will have to go trough the Quick Path Interconnect (QPI). The performance of the
  loop will be limited. Unfortunately, there is no easy solution for this problem
  with `std::vector` (unless you really want to deal with
 custom allocators) and this is one of the many reason `std::vector` is
-not used in high performance computing programs.
+not often used in high performance computing programs.
 
 Concerning **vectorization**, unfortunately, pointer aliasing 
 makes vectorization impossible for the compiler in many situations. It has to
@@ -167,7 +168,7 @@ when such manual optimization is needed. Moreover, for efficient vectorization,
 it is sometimes useful to align memory to the vector width which is 32 bytes
 on AVX processors. This can be easily done with the constructor
 `il::Array<double> v(n, il::align, 32)`. You can even misalign arrays
-on AVX for teaching purposes with `il::Array<double> w(n, il::align, 16, 32)`.
+on AVX for teaching purposes with `il::Array<double> w(n, il::align, 16, 16, 32)`.
   
 ## Allocation on the stack for static and small arrays
 

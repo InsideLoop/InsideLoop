@@ -11,12 +11,8 @@
 #ifndef IL_STATICARRAY2C_H
 #define IL_STATICARRAY2C_H
 
-// <cstring> is needed for memcpy
-#include <cstring>
 // <initializer_list> is needed for std::initializer_list<T>
 #include <initializer_list>
-// <type_traits> is needed for std::is_pod
-#include <type_traits>
 
 #include <il/base.h>
 
@@ -130,6 +126,7 @@ template <typename T, il::int_t n0, il::int_t n1>
 StaticArray2C<T, n0, n1>::StaticArray2C(
     il::value_t, std::initializer_list<std::initializer_list<T>> list) {
   IL_EXPECT_FAST(n0 == static_cast<il::int_t>(list.size()));
+
   for (il::int_t i0 = 0; i0 < n0; ++i0) {
     IL_EXPECT_FAST(n1 == (list.begin() + i0)->size());
     for (il::int_t i1 = 0; i1 < n1; ++i1) {
@@ -143,6 +140,7 @@ const T& StaticArray2C<T, n0, n1>::operator()(il::int_t i0,
                                               il::int_t i1) const {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(i0) < static_cast<std::size_t>(n0));
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(i1) < static_cast<std::size_t>(n1));
+
   return data_[i0 * n1 + i1];
 }
 
@@ -150,12 +148,14 @@ template <typename T, il::int_t n0, il::int_t n1>
 T& StaticArray2C<T, n0, n1>::operator()(il::int_t i0, il::int_t i1) {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(i0) < static_cast<std::size_t>(n0));
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(i1) < static_cast<std::size_t>(n1));
+
   return data_[i0 * n1 + i1];
 }
 
 template <typename T, il::int_t n0, il::int_t n1>
 il::int_t StaticArray2C<T, n0, n1>::size(il::int_t d) const {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(d) < static_cast<std::size_t>(2));
+
   return d == 0 ? n0 : n1;
 }
 
@@ -168,7 +168,6 @@ template <typename T, il::int_t n0, il::int_t n1>
 T* StaticArray2C<T, n0, n1>::data() {
   return data_;
 }
-
 }
 
 #endif  // IL_STATICARRAY2C_H

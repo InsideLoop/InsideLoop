@@ -10,12 +10,8 @@
 #ifndef IL_STATICARRAY4D_H
 #define IL_STATICARRAY4D_H
 
-// <cstring> is needed for memcpy
-#include <cstring>
 // <initializer_list> is needed for std::initializer_list<T>
 #include <initializer_list>
-// <type_traits> is needed for std::is_pod
-#include <type_traits>
 
 #include <il/base.h>
 
@@ -71,26 +67,29 @@ const T& StaticArray4D<T, n0, n1, n2, n3>::operator()(il::int_t i0,
                                                       il::int_t i1,
                                                       il::int_t i2,
                                                       il::int_t i3) const {
-  IL_EXPECT_FAST(static_cast<std::size_t>(i0) < static_cast<std::size_t>(n0));
-  IL_EXPECT_FAST(static_cast<std::size_t>(i1) < static_cast<std::size_t>(n1));
-  IL_EXPECT_FAST(static_cast<std::size_t>(i2) < static_cast<std::size_t>(n2));
-  IL_EXPECT_FAST(static_cast<std::size_t>(i3) < static_cast<std::size_t>(n3));
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i0) < static_cast<std::size_t>(n0));
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i1) < static_cast<std::size_t>(n1));
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i2) < static_cast<std::size_t>(n2));
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i3) < static_cast<std::size_t>(n3));
+
   return data_[((i3 * n2 + i2) * n1 + i1) * n0 + i0];
 }
 
 template <typename T, il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3>
 T& StaticArray4D<T, n0, n1, n2, n3>::operator()(il::int_t i0, il::int_t i1,
                                                 il::int_t i2, il::int_t i3) {
-  IL_EXPECT_FAST(static_cast<std::size_t>(i0) < static_cast<std::size_t>(n0));
-  IL_EXPECT_FAST(static_cast<std::size_t>(i1) < static_cast<std::size_t>(n1));
-  IL_EXPECT_FAST(static_cast<std::size_t>(i2) < static_cast<std::size_t>(n2));
-  IL_EXPECT_FAST(static_cast<std::size_t>(i3) < static_cast<std::size_t>(n3));
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i0) < static_cast<std::size_t>(n0));
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i1) < static_cast<std::size_t>(n1));
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i2) < static_cast<std::size_t>(n2));
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i3) < static_cast<std::size_t>(n3));
+
   return data_[((i3 * n2 + i2) * n1 + i1) * n0 + i0];
 }
 
 template <typename T, il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3>
 il::int_t StaticArray4D<T, n0, n1, n2, n3>::size(il::int_t d) const {
   IL_EXPECT_FAST(static_cast<std::size_t>(d) < static_cast<std::size_t>(4));
+
   return d == 0 ? n0 : (d == 1 ? n1 : (d == 2 ? n2 : n3));
 }
 

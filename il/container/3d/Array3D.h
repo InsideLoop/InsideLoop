@@ -14,30 +14,24 @@
 #include <cstring>
 // <initializer_list> is needed for std::initializer_list<T>
 #include <initializer_list>
-// <new> is needed for ::operator new
-#include <new>
-// <type_traits> is needed for std::is_pod
-#include <type_traits>
 // <utility> is needed for std::move
 #include <utility>
 
 #include <il/base.h>
+#include <il/core/memory/allocate.h>
 
 namespace il {
 
 template <typename T>
 class Array3D {
  private:
-#ifdef IL_DEBUG_VISUALIZER
-  il::int_t debug_size_[3];
-  il::int_t debug_capacity_[3];
-#endif
   T* data_;
   T* size_[3];
   T* capacity_[3];
-  short align_mod_;
+  short alignment_;
   short align_r_;
-  short new_shift_;
+  short align_mod_;
+  short shift_;
 
  public:
   /* \brief Default constructor
@@ -70,14 +64,15 @@ class Array3D {
   // data_ = 0 (Modulo align_mod)
   */
   explicit Array3D(il::int_t n0, il::int_t n1, il::int_t n2, il::align_t,
-                   short align_mod);
+                   il::int_t alignment);
 
   /* \brief Construct an aligned array
   // \details The pointer data, when considered as an integer, satisfies
   // data_ = align_r (Modulo align_mod)
   */
   explicit Array3D(il::int_t n0, il::int_t n1, il::int_t n2, il::align_t,
-                   short align_r, short align_mod);
+                   il::int_t alignement, il::int_t align_r,
+                   il::int_t align_mod);
 
   /* \brief Construct an array of n0 rows and n1 columns and n2 slices with a
   // value
@@ -87,6 +82,13 @@ class Array3D {
   // il::Array2D<double> A{3, 5, 7, 3.14};
   */
   explicit Array3D(il::int_t n0, il::int_t n1, il::int_t n2, const T& x);
+
+  explicit Array3D(il::int_t n0, il::int_t n1, il::int_t n2, const T& x,
+                   il::align_t, il::int_t alignment);
+
+  explicit Array3D(il::int_t n0, il::int_t n1, il::int_t n2, const T& x,
+                   il::align_t, il::int_t alignement, il::int_t align_r,
+                   il::int_t align_mod);
 
   /* \brief Construct an array from a brace-initialized list
   //
@@ -190,7 +192,7 @@ class Array3D {
 
   /* \brief Get the alignment of the pointer returned by data()
   */
-  short alignment() const;
+  il::int_t alignment() const;
 
   /* \brief Get a pointer to const to the first element of the array
   // \details One should use this method only when using C-style API
@@ -218,24 +220,13 @@ class Array3D {
   il::int_t stride(il::int_t d) const;
 
  private:
-  T* allocate(il::int_t n, short align_mod, short align_r, il::io_t,
-              short& new_shift);
-
   /* \brief Used internally in debug mode to check the invariance of the object
   */
-  void check_invariance() const;
+  bool invariance() const;
 };
 
 template <typename T>
 Array3D<T>::Array3D() {
-#ifdef IL_DEBUG_VISUALIZER
-  debug_size_[0] = 0;
-  debug_size_[1] = 0;
-  debug_size_[2] = 0;
-  debug_capacity_[0] = 0;
-  debug_capacity_[1] = 0;
-  debug_capacity_[2] = 0;
-#endif
   data_ = nullptr;
   size_[0] = nullptr;
   size_[1] = nullptr;
@@ -243,9 +234,10 @@ Array3D<T>::Array3D() {
   capacity_[0] = nullptr;
   capacity_[1] = nullptr;
   capacity_[2] = nullptr;
-  align_mod_ = 0;
+  alignment_ = 0;
   align_r_ = 0;
-  new_shift_ = 0;
+  align_mod_ = 0;
+  shift_ = 0;
 }
 
 template <typename T>
@@ -253,26 +245,18 @@ Array3D<T>::Array3D(il::int_t n0, il::int_t n1, il::int_t n2) {
   IL_EXPECT_FAST(n0 >= 0);
   IL_EXPECT_FAST(n1 >= 0);
   IL_EXPECT_FAST(n2 >= 0);
-  il::int_t r0;
-  il::int_t r1;
-  il::int_t r2;
-  if (n0 > 0 && n1 > 0 && n2 > 0) {
-    r0 = n0;
-    r1 = n1;
-    r2 = n2;
-  } else if (n0 == 0 && n1 == 0 && n2 == 0) {
-    r0 = 0;
-    r1 = 0;
-    r2 = 0;
-  } else {
-    r0 = (n0 == 0) ? 1 : n0;
-    r1 = (n1 == 0) ? 1 : n1;
-    r2 = (n2 == 0) ? 1 : n2;
+
+  const il::int_t r0 = n0 > 0 ? n0 : ((n1 == 0 && n2 == 0) ? 0 : 1);
+  const il::int_t r1 = n1 > 0 ? n1 : ((n0 == 0 && n2 == 0) ? 0 : 1);
+  const il::int_t r2 = n2 > 0 ? n2 : ((n0 == 0 && n1 == 0) ? 0 : 1);
+  bool error;
+  const il::int_t r = il::safe_product(r0, r1, r2, il::io, error);
+  if (error) {
+    std::abort();
   }
-  il::int_t r = r0 * r1 * r2;
   if (r > 0) {
+    data_ = il::allocate_array<T>(r);
     if (il::is_trivial<T>::value) {
-      data_ = new T[r];
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t i2 = 0; i2 < n2; ++i2) {
         for (il::int_t i1 = 0; i1 < n1; ++i1) {
@@ -283,7 +267,6 @@ Array3D<T>::Array3D(il::int_t n0, il::int_t n1, il::int_t n2) {
       }
 #endif
     } else {
-      data_ = static_cast<T*>(::operator new(r * sizeof(T)));
       for (il::int_t i2 = 0; i2 < n2; ++i2) {
         for (il::int_t i1 = 0; i1 < n1; ++i1) {
           for (il::int_t i0 = 0; i0 < n0; ++i0) {
@@ -295,46 +278,52 @@ Array3D<T>::Array3D(il::int_t n0, il::int_t n1, il::int_t n2) {
   } else {
     data_ = nullptr;
   }
-#ifdef IL_DEBUG_VISUALIZER
-  debug_size_[0] = n0;
-  debug_size_[1] = n1;
-  debug_size_[2] = n2;
-  debug_capacity_[0] = r0;
-  debug_capacity_[1] = r1;
-  debug_capacity_[2] = r2;
-#endif
   size_[0] = data_ + n0;
   size_[1] = data_ + n1;
   size_[2] = data_ + n2;
   capacity_[0] = data_ + r0;
   capacity_[1] = data_ + r1;
   capacity_[2] = data_ + r2;
-  align_mod_ = 0;
+  alignment_ = 0;
   align_r_ = 0;
-  new_shift_ = 0;
+  align_mod_ = 0;
+  shift_ = 0;
 }
 
 template <typename T>
 Array3D<T>::Array3D(il::int_t n0, il::int_t n1, il::int_t n2, il::align_t,
-                    short align_r, short align_mod) {
+                    il::int_t alignment, il::int_t align_r,
+                    il::int_t align_mod) {
+  IL_EXPECT_FAST(il::is_trivial<T>::value);
+  IL_EXPECT_FAST(sizeof(T) == alignof(T));
   IL_EXPECT_FAST(n0 >= 0);
   IL_EXPECT_FAST(n1 >= 0);
   IL_EXPECT_FAST(n2 >= 0);
-  IL_EXPECT_FAST(align_mod >= 0);
-  IL_EXPECT_FAST(align_mod % sizeof(T) == 0);
+  IL_EXPECT_FAST(align_mod > 0);
+  IL_EXPECT_FAST(align_mod % alignof(T) == 0);
+  IL_EXPECT_FAST(align_mod <= std::numeric_limits<short>::max());
   IL_EXPECT_FAST(align_r >= 0);
   IL_EXPECT_FAST(align_r < align_mod);
-  IL_EXPECT_FAST(align_r % sizeof(T) == 0);
-  align_mod_ = align_mod;
-  align_r_ = align_r;
+  IL_EXPECT_FAST(align_r % alignof(T) == 0);
+  IL_EXPECT_FAST(align_r <= std::numeric_limits<short>::max());
+  IL_EXPECT_FAST(alignment > 0);
+  IL_EXPECT_FAST(alignment % alignof(T) == 0);
+  IL_EXPECT_FAST(alignment <= std::numeric_limits<short>::max());
+  IL_EXPECT_FAST(align_r % alignment == 0);
+  IL_EXPECT_FAST(align_mod % alignment == 0);
+
   il::int_t r0;
   il::int_t r1;
   il::int_t r2;
   if (n0 > 0 && n1 > 0 && n2 > 0) {
     if (il::is_trivial<T>::value && align_mod != 0) {
-      const il::int_t nb_lanes =
-          static_cast<il::int_t>(alignment() / sizeof(T));
-      r0 = ((n0 - 1) / nb_lanes + 1) * nb_lanes;
+      const il::int_t nb_lanes = static_cast<il::int_t>(
+          static_cast<std::size_t>(alignment) / alignof(T));
+      bool error = false;
+      r0 = il::safe_upper_round(n0, nb_lanes, il::io, error);
+      if (error) {
+        std::abort();
+      }
       r1 = n1;
       r2 = n2;
     } else {
@@ -351,71 +340,123 @@ Array3D<T>::Array3D(il::int_t n0, il::int_t n1, il::int_t n2, il::align_t,
     r1 = (n1 == 0) ? 1 : n1;
     r2 = (n2 == 0) ? 1 : n2;
   }
-  il::int_t r = r0 * r1 * r2;
+  bool error = false;
+  const il::int_t r = il::safe_product(r0, r1, r2, il::io, error);
+  if (error) {
+    std::abort();
+  }
   if (r > 0) {
-    if (il::is_trivial<T>::value) {
-      if (align_mod == 0) {
-        data_ = new T[r];
-        new_shift_ = 0;
-      } else {
-        data_ = allocate(r, align_mod, align_r, il::io, new_shift_);
-      }
-#ifndef IL_DEFAULT_VALUE
-      for (il::int_t i2 = 0; i2 < n2; ++i2) {
-        for (il::int_t i1 = 0; i1 < n1; ++i1) {
-          for (il::int_t i0 = 0; i0 < n0; ++i0) {
-            data_[(i2 * r1 + i1) * r0 + i0] = il::default_value<T>();
-          }
-        }
-      }
-#endif
-    } else {
-      data_ = static_cast<T*>(::operator new(r * sizeof(T)));
-      for (il::int_t i2 = 0; i2 < n2; ++i2) {
-        for (il::int_t i1 = 0; i1 < n1; ++i1) {
-          for (il::int_t i0 = 0; i0 < n0; ++i0) {
-            new (data_ + (i2 * r1 + i1) * r0 + i0) T{};
-          }
+    il::int_t shift;
+    data_ = il::allocate_array<T>(r, align_r, align_mod, il::io, shift);
+    shift_ = static_cast<short>(shift);
+#ifdef IL_DEFAULT_VALUE
+    for (il::int_t i2 = 0; i2 < n2; ++i2) {
+      for (il::int_t i1 = 0; i1 < n1; ++i1) {
+        for (il::int_t i0 = 0; i0 < n0; ++i0) {
+          data_[(i2 * r1 + i1) * r0 + i0] = il::default_value<T>();
         }
       }
     }
+#endif
   } else {
     data_ = nullptr;
-    new_shift_ = 0;
+    shift_ = 0;
   }
-#ifdef IL_DEBUG_VISUALIZER
-  debug_size_[0] = n0;
-  debug_size_[1] = n1;
-  debug_size_[2] = n2;
-  debug_capacity_[0] = r0;
-  debug_capacity_[1] = r1;
-  debug_capacity_[2] = r2;
-#endif
   size_[0] = data_ + n0;
   size_[1] = data_ + n1;
   size_[2] = data_ + n2;
   capacity_[0] = data_ + r0;
   capacity_[1] = data_ + r1;
   capacity_[2] = data_ + r2;
+  alignment_ = static_cast<short>(alignment);
+  align_r_ = static_cast<short>(align_r);
+  align_mod_ = static_cast<short>(align_mod);
 }
 
 template <typename T>
 Array3D<T>::Array3D(il::int_t n0, il::int_t n1, il::int_t n2, il::align_t,
-                    short align_mod)
-    : Array3D{n0, n1, n2, il::align, 0, align_mod} {}
+                    il::int_t alignment)
+    : Array3D{n0, n1, n2, il::align, alignment, 0, alignment} {}
 
 template <typename T>
 Array3D<T>::Array3D(il::int_t n0, il::int_t n1, il::int_t n2, const T& x) {
   IL_EXPECT_FAST(n0 >= 0);
   IL_EXPECT_FAST(n1 >= 0);
   IL_EXPECT_FAST(n2 >= 0);
+
+  const il::int_t r0 = n0 > 0 ? n0 : ((n1 == 0 && n2 == 0) ? 0 : 1);
+  const il::int_t r1 = n1 > 0 ? n1 : ((n0 == 0 && n2 == 0) ? 0 : 1);
+  const il::int_t r2 = n2 > 0 ? n2 : ((n0 == 0 && n1 == 0) ? 0 : 1);
+  bool error;
+  const il::int_t r = il::safe_product(r0, r1, r2, il::io, error);
+  if (error) {
+    std::abort();
+  }
+  if (r > 0) {
+    data_ = il::allocate_array<T>(r);
+    for (il::int_t i2 = 0; i2 < n2; ++i2) {
+      for (il::int_t i1 = 0; i1 < n1; ++i1) {
+        for (il::int_t i0 = 0; i0 < n0; ++i0) {
+          new (data_ + (i2 * r1 + i1) * r0 + i0) T(x);
+        }
+      }
+    }
+  } else {
+    data_ = nullptr;
+  }
+  size_[0] = data_ + n0;
+  size_[1] = data_ + n1;
+  size_[2] = data_ + n2;
+  capacity_[0] = data_ + r0;
+  capacity_[1] = data_ + r1;
+  capacity_[2] = data_ + r2;
+  alignment_ = 0;
+  align_r_ = 0;
+  align_mod_ = 0;
+  shift_ = 0;
+}
+
+template <typename T>
+Array3D<T>::Array3D(il::int_t n0, il::int_t n1, il::int_t n2, const T& x,
+                    il::align_t, il::int_t alignment, il::int_t align_r,
+                    il::int_t align_mod) {
+  IL_EXPECT_FAST(il::is_trivial<T>::value);
+  IL_EXPECT_FAST(sizeof(T) == alignof(T));
+  IL_EXPECT_FAST(n0 >= 0);
+  IL_EXPECT_FAST(n1 >= 0);
+  IL_EXPECT_FAST(n2 >= 0);
+  IL_EXPECT_FAST(align_mod > 0);
+  IL_EXPECT_FAST(align_mod % alignof(T) == 0);
+  IL_EXPECT_FAST(align_mod <= std::numeric_limits<short>::max());
+  IL_EXPECT_FAST(align_r >= 0);
+  IL_EXPECT_FAST(align_r < align_mod);
+  IL_EXPECT_FAST(align_r % alignof(T) == 0);
+  IL_EXPECT_FAST(align_r <= std::numeric_limits<short>::max());
+  IL_EXPECT_FAST(alignment > 0);
+  IL_EXPECT_FAST(alignment % alignof(T) == 0);
+  IL_EXPECT_FAST(alignment <= std::numeric_limits<short>::max());
+  IL_EXPECT_FAST(align_r % alignment == 0);
+  IL_EXPECT_FAST(align_mod % alignment == 0);
+
   il::int_t r0;
   il::int_t r1;
   il::int_t r2;
   if (n0 > 0 && n1 > 0 && n2 > 0) {
-    r0 = n0;
-    r1 = n1;
-    r2 = n2;
+    if (il::is_trivial<T>::value && align_mod != 0) {
+      const il::int_t nb_lanes = static_cast<il::int_t>(
+          static_cast<std::size_t>(alignment) / alignof(T));
+      bool error = false;
+      r0 = il::safe_upper_round(n0, nb_lanes, il::io, error);
+      if (error) {
+        std::abort();
+      }
+      r1 = n1;
+      r2 = n2;
+    } else {
+      r0 = n0;
+      r1 = n1;
+      r2 = n2;
+    }
   } else if (n0 == 0 && n1 == 0 && n2 == 0) {
     r0 = 0;
     r1 = 0;
@@ -425,58 +466,68 @@ Array3D<T>::Array3D(il::int_t n0, il::int_t n1, il::int_t n2, const T& x) {
     r1 = (n1 == 0) ? 1 : n1;
     r2 = (n2 == 0) ? 1 : n2;
   }
-  il::int_t r = r0 * r1 * r2;
+  bool error = false;
+  const il::int_t r = il::safe_product(r0, r1, r2, il::io, error);
+  if (error) {
+    std::abort();
+  }
   if (r > 0) {
-    if (il::is_trivial<T>::value) {
-      data_ = new T[r];
-      for (il::int_t i2 = 0; i2 < n2; ++i2) {
-        for (il::int_t i1 = 0; i1 < n1; ++i1) {
-          for (il::int_t i0 = 0; i0 < n0; ++i0) {
-            data_[(i2 * r1 + i1) * r0 + i0] = x;
-          }
-        }
-      }
-    } else {
-      data_ = static_cast<T*>(::operator new(r * sizeof(T)));
-      for (il::int_t i2 = 0; i2 < n2; ++i2) {
-        for (il::int_t i1 = 0; i1 < n1; ++i1) {
-          for (il::int_t i0 = 0; i0 < n0; ++i0) {
-            new (data_ + (i2 * r1 + i1) * r0 + i0) T(x);
-          }
+    il::int_t shift;
+    data_ = il::allocate_array<T>(r, align_r, align_mod, il::io, shift);
+    shift_ = static_cast<short>(shift);
+#ifdef IL_DEFAULT_VALUE
+    for (il::int_t i2 = 0; i2 < n2; ++i2) {
+      for (il::int_t i1 = 0; i1 < n1; ++i1) {
+        for (il::int_t i0 = 0; i0 < n0; ++i0) {
+          data_[(i2 * r1 + i1) * r0 + i0] = x;
         }
       }
     }
+#endif
   } else {
     data_ = nullptr;
+    shift_ = 0;
   }
-#ifdef IL_DEBUG_VISUALIZER
-  debug_size_[0] = n0;
-  debug_size_[1] = n1;
-  debug_size_[2] = n2;
-  debug_capacity_[0] = r0;
-  debug_capacity_[1] = r1;
-  debug_capacity_[2] = r2;
-#endif
   size_[0] = data_ + n0;
   size_[1] = data_ + n1;
   size_[2] = data_ + n2;
   capacity_[0] = data_ + r0;
   capacity_[1] = data_ + r1;
   capacity_[2] = data_ + r2;
-  align_mod_ = 0;
-  align_r_ = 0;
-  new_shift_ = 0;
+  alignment_ = static_cast<short>(alignment);
+  align_r_ = static_cast<short>(align_r);
+  align_mod_ = static_cast<short>(align_mod);
 }
+
+template <typename T>
+Array3D<T>::Array3D(il::int_t n0, il::int_t n1, il::int_t n2, const T& x,
+                    il::align_t, il::int_t alignment)
+    : Array3D{n0, n1, n2, x, il::align, alignment, 0, alignment} {}
 
 template <typename T>
 Array3D<T>::Array3D(
     il::value_t,
     std::initializer_list<std::initializer_list<std::initializer_list<T>>>
         list) {
-  const il::int_t n2{static_cast<il::int_t>(list.size())};
-  const il::int_t n1{n2 > 0 ? static_cast<il::int_t>(list.begin()->size()) : 0};
-  const il::int_t n0{
-      n1 > 0 ? static_cast<il::int_t>(list.begin()->begin()->size()) : 0};
+  bool error;
+  const il::int_t n2 = il::safe_convert<il::int_t>(list.size(), il::io, error);
+  if (error) {
+    std::abort();
+  }
+  const il::int_t n1 =
+      n2 > 0 ? il::safe_convert<il::int_t>(list.begin()->size(), il::io, error)
+             : 0;
+  if (error) {
+    std::abort();
+  }
+  const il::int_t n0 = n1 > 0
+                           ? il::safe_convert<il::int_t>(
+                                 list.begin()->begin()->size(), il::io, error)
+                           : 0;
+  if (error) {
+    std::abort();
+  }
+
   il::int_t r0;
   il::int_t r1;
   il::int_t r2;
@@ -484,62 +535,64 @@ Array3D<T>::Array3D(
     r0 = n0;
     r1 = n1;
     r2 = n2;
-  } else if (n0 == 0 && n1 == 0 && n2 == 0) {
-    r0 = 0;
-    r1 = 0;
-    r2 = 0;
-  } else {
-    r0 = (n0 == 0) ? 1 : n0;
-    r1 = (n1 == 0) ? 1 : n1;
-    r2 = (n2 == 0) ? 1 : n2;
-  }
-  il::int_t r = r0 * r1 * r2;
-  if (r > 0) {
+    bool error = false;
+    const il::int_t r = il::safe_product(r0, r1, r2, il::io, error);
+    if (error) {
+      std::abort();
+    }
+    data_ = il::allocate_array<T>(r);
     if (il::is_trivial<T>::value) {
       data_ = new T[r];
       for (il::int_t i2 = 0; i2 < n2; ++i2) {
-        IL_EXPECT_FAST(static_cast<il::int_t>((list.begin() + i2)->size()) == n1);
+        IL_EXPECT_FAST(static_cast<il::int_t>((list.begin() + i2)->size()) ==
+                       n1);
         for (il::int_t i1 = 0; i1 < n1; ++i1) {
-          IL_EXPECT_FAST(static_cast<il::int_t>(
-                        ((list.begin() + i2)->begin() + i1)->size()) == n0);
+          IL_EXPECT_FAST(static_cast<il::int_t>(((list.begin() + i2)->begin() +
+                                                 i1)->size()) == n0);
           memcpy(data_ + (i2 * r1 + i1) * r0,
                  ((list.begin() + i2)->begin() + i1)->begin(), n0 * sizeof(T));
         }
       }
     } else {
-      data_ = static_cast<T*>(::operator new(r * sizeof(T)));
       for (il::int_t i2 = 0; i2 < n2; ++i2) {
-        IL_EXPECT_FAST(static_cast<il::int_t>((list.begin() + i2)->size()) == n1);
+        IL_EXPECT_FAST(static_cast<il::int_t>((list.begin() + i2)->size()) ==
+                       n1);
         for (il::int_t i1 = 0; i1 < n1; ++i1) {
-          IL_EXPECT_FAST(static_cast<il::int_t>(
-                        ((list.begin() + i2)->begin() + i1)->size()) == n0);
-          for (il::int_t i0 = 0; i1 < n0; ++i0) {
+          IL_EXPECT_FAST(static_cast<il::int_t>(((list.begin() + i2)->begin() +
+                                                 i1)->size()) == n0);
+          for (il::int_t i0 = 0; i0 < n0; ++i0) {
             new (data_ + (i2 * r1 + i1) * r0 + i0)
                 T(*(((list.begin() + i2)->begin() + i1)->begin() + i0));
           }
         }
       }
     }
-  } else {
+  } else if (n0 == 0 && n1 == 0 && n2 == 0) {
+    r0 = 0;
+    r1 = 0;
+    r2 = 0;
     data_ = nullptr;
+  } else {
+    r0 = (n0 == 0) ? 1 : n0;
+    r1 = (n1 == 0) ? 1 : n1;
+    r2 = (n2 == 0) ? 1 : n2;
+    bool error = false;
+    const il::int_t r = il::safe_product(r0, r1, r2, il::io, error);
+    if (error) {
+      std::abort();
+    }
+    data_ = il::allocate_array<T>(r);
   }
-#ifdef IL_DEBUG_VISUALIZER
-  debug_size_[0] = n0;
-  debug_size_[1] = n1;
-  debug_size_[2] = n2;
-  debug_capacity_[0] = r0;
-  debug_capacity_[1] = r1;
-  debug_capacity_[2] = r2;
-#endif
   size_[0] = data_ + n0;
   size_[1] = data_ + n1;
   size_[2] = data_ + n2;
   capacity_[0] = data_ + r0;
   capacity_[1] = data_ + r1;
   capacity_[2] = data_ + r2;
-  align_mod_ = 0;
+  alignment_ = 0;
   align_r_ = 0;
-  new_shift_ = 0;
+  align_mod_ = 0;
+  shift_ = 0;
 }
 
 template <typename T>
@@ -551,9 +604,21 @@ Array3D<T>::Array3D(const Array3D<T>& A) {
   il::int_t r1;
   il::int_t r2;
   if (n0 > 0 && n1 > 0 && n2 > 0) {
-    r0 = n0;
-    r1 = n1;
-    r2 = n2;
+    if (il::is_trivial<T>::value && A.alignment_ != 0) {
+      const il::int_t nb_lanes = static_cast<il::int_t>(
+          static_cast<std::size_t>(A.alignment_) / alignof(T));
+      bool error = false;
+      r0 = il::safe_upper_round(n0, nb_lanes, il::io, error);
+      if (error) {
+        std::abort();
+      }
+      r1 = n1;
+      r2 = n2;
+    } else {
+      r0 = n0;
+      r1 = n1;
+      r2 = n2;
+    }
   } else if (n0 == 0 && n1 == 0 && n2 == 0) {
     r0 = 0;
     r1 = 0;
@@ -563,17 +628,30 @@ Array3D<T>::Array3D(const Array3D<T>& A) {
     r1 = (n1 == 0) ? 1 : n1;
     r2 = (n2 == 0) ? 1 : n2;
   }
-  il::int_t r = r0 * r1 * r2;
+  bool error = false;
+  const il::int_t r = il::safe_product(r0, r1, r2, il::io, error);
+  if (error) {
+    std::abort();
+  }
   if (il::is_trivial<T>::value) {
-    data_ = new T[r];
+    if (A.alignment_ == 0) {
+      data_ = il::allocate_array<T>(r);
+      shift_ = 0;
+    } else {
+      il::int_t shift;
+      data_ = il::allocate_array<T>(r, A.align_r_, A.align_mod_, il::io, shift);
+      shift_ = static_cast<short>(shift);
+    }
     for (il::int_t i2 = 0; i2 < n2; ++i2) {
       for (il::int_t i1 = 0; i1 < n1; ++i1) {
         memcpy(data_ + (i2 * r1 + i1) * r0,
-               A.data_ + i2 * A.stride(2) + i1 * A.stride(1), n0 * sizeof(T));
+               A.data_ + (i2 * A.capacity(1) + i1) * A.capacity(0),
+               n0 * sizeof(T));
       }
     }
   } else {
-    data_ = static_cast<T*>(::operator new(r * sizeof(T)));
+    data_ = il::allocate_array<T>(r);
+    shift_ = 0;
     for (il::int_t i2 = 0; i2 < n2; ++i2) {
       for (il::int_t i1 = 0; i1 < n1; ++i1) {
         for (il::int_t i0 = 0; i0 < n0; ++i0) {
@@ -582,35 +660,19 @@ Array3D<T>::Array3D(const Array3D<T>& A) {
       }
     }
   }
-#ifdef IL_DEBUG_VISUALIZER
-  debug_size_[0] = n0;
-  debug_size_[1] = n1;
-  debug_size_[2] = n2;
-  debug_capacity_[0] = r0;
-  debug_capacity_[1] = r1;
-  debug_capacity_[2] = r2;
-#endif
   size_[0] = data_ + n0;
   size_[1] = data_ + n1;
   size_[2] = data_ + n2;
   capacity_[0] = data_ + r0;
   capacity_[1] = data_ + r1;
   capacity_[2] = data_ + r2;
-  align_mod_ = 0;
-  align_r_ = 0;
-  new_shift_ = 0;
+  alignment_ = A.alignment_;
+  align_r_ = A.align_r_;
+  align_mod_ = A.align_mod_;
 }
 
 template <typename T>
 Array3D<T>::Array3D(Array3D<T>&& A) {
-#ifdef IL_DEBUG_VISUALIZER
-  debug_size_[0] = A.debug_size_[0];
-  debug_size_[1] = A.debug_size_[1];
-  debug_size_[2] = A.debug_size_[2];
-  debug_capacity_[0] = A.debug_capacity_[0];
-  debug_capacity_[1] = A.debug_capacity_[1];
-  debug_capacity_[2] = A.debug_capacity_[2];
-#endif
   data_ = A.data_;
   size_[0] = A.size_[0];
   size_[1] = A.size_[1];
@@ -618,17 +680,10 @@ Array3D<T>::Array3D(Array3D<T>&& A) {
   capacity_[0] = A.capacity_[0];
   capacity_[1] = A.capacity_[1];
   capacity_[2] = A.capacity_[2];
-  align_mod_ = A.align_mod_;
+  alignment_ = A.alignment_;
   align_r_ = A.align_r_;
-  new_shift_ = A.new_shift_;
-#ifdef IL_DEBUG_VISUALIZER
-  A.debug_size_[0] = 0;
-  A.debug_size_[1] = 0;
-  A.debug_size_[2] = 0;
-  A.debug_capacity_[0] = 0;
-  A.debug_capacity_[1] = 0;
-  A.debug_capacity_[2] = 0;
-#endif
+  align_mod_ = A.align_mod_;
+  shift_ = A.shift_;
   A.data_ = nullptr;
   A.size_[0] = nullptr;
   A.size_[1] = nullptr;
@@ -636,9 +691,10 @@ Array3D<T>::Array3D(Array3D<T>&& A) {
   A.capacity_[0] = nullptr;
   A.capacity_[1] = nullptr;
   A.capacity_[2] = nullptr;
-  A.align_mod_ = 0;
+  A.alignment_ = 0;
   A.align_r_ = 0;
-  A.new_shift_ = 0;
+  A.align_mod_ = 0;
+  A.shift_ = 0;
 }
 
 template <typename T>
@@ -647,50 +703,73 @@ Array3D<T>& Array3D<T>::operator=(const Array3D<T>& A) {
     const il::int_t n0 = A.size(0);
     const il::int_t n1 = A.size(1);
     const il::int_t n2 = A.size(2);
-    il::int_t r0;
-    il::int_t r1;
-    il::int_t r2;
-    if (n0 > 0 && n1 > 0 && n2 > 0) {
-      r0 = n0;
-      r1 = n1;
-      r2 = n2;
-    } else if (n0 == 0 && n1 == 0 && n2 == 0) {
-      r0 = 0;
-      r1 = 0;
-      r2 = 0;
-    } else {
-      r0 = (n0 == 0) ? 1 : n0;
-      r1 = (n1 == 0) ? 1 : n1;
-      r2 = (n2 == 0) ? 1 : n2;
-    }
-    const il::int_t r = r0 * r1 * r2;
-    const bool needs_memory{r0 > capacity(0) || r1 > capacity(1) ||
-                            r2 > capacity(2)};
-    if (needs_memory) {
+    const il::int_t alignment = A.alignment_;
+    const il::int_t align_r = A.align_r_;
+    const il::int_t align_mod = A.align_mod_;
+    const bool need_memory = capacity(0) < n0 || capacity(1) < n1 ||
+                             capacity(2) < n2 || align_mod_ != align_mod ||
+                             align_r_ != align_r || alignment_ != alignment;
+    if (need_memory) {
+      il::int_t r0;
+      il::int_t r1;
+      il::int_t r2;
+      if (n0 > 0 && n1 > 0 && n2 > 0) {
+        if (il::is_trivial<T>::value && alignment != 0) {
+          const il::int_t nb_lanes = static_cast<il::int_t>(
+              static_cast<std::size_t>(alignment) / alignof(T));
+          bool error = false;
+          r0 = il::safe_upper_round(n0, nb_lanes, il::io, error);
+          if (error) {
+            std::abort();
+          }
+          r1 = n1;
+          r2 = n2;
+        } else {
+          r0 = n0;
+          r1 = n1;
+          r2 = n2;
+        }
+      } else {
+        r0 = (n0 == 0) ? 1 : n0;
+        r1 = (n1 == 0) ? 1 : n1;
+        r2 = (n2 == 0) ? 1 : n2;
+      }
+      bool error = false;
+      const il::int_t r = il::safe_product(r0, r1, r2, il::io, error);
+      if (error) {
+        std::abort();
+      }
       if (il::is_trivial<T>::value) {
         if (data_) {
-          delete[] data_;
+          il::deallocate(data_ - shift_);
         }
-        data_ = new T[r];
+        if (alignment == 0) {
+          data_ = il::allocate_array<T>(r);
+          shift_ = 0;
+        } else {
+          il::int_t shift;
+          data_ = il::allocate_array<T>(r, align_r, align_mod, il::io, shift);
+          shift_ = static_cast<short>(shift);
+        }
         for (il::int_t i2 = 0; i2 < n2; ++i2) {
           for (il::int_t i1 = 0; i1 < n1; ++i1) {
             memcpy(data_ + (i2 * r1 + i1) * r0,
-                   A.data_ + i2 * A.stride(2) + i1 * A.stride(1),
+                   A.data_ + (i2 * A.capacity(1) + i1) * A.capacity(0),
                    n0 * sizeof(T));
           }
         }
       } else {
         if (data_) {
-          for (il::int_t i2{size(2) - 1}; i2 >= 0; --i2) {
-            for (il::int_t i1{size(1) - 1}; i1 >= 0; --i1) {
-              for (il::int_t i0{size(0) - 1}; i0 >= 0; --i0) {
-                (data_ + i2 * stride(2) + i1 * stride(1) + i0)->~T();
+          for (il::int_t i2 = size(2) - 1; i2 >= 0; --i2) {
+            for (il::int_t i1 = size(1) - 1; i1 >= 0; --i1) {
+              for (il::int_t i0 = size(0) - 1; i0 >= 0; --i0) {
+                (data_ + (i2 * capacity(1) + i1) * capacity(0) + i0)->~T();
               }
             }
           }
-          ::operator delete(data_);
+          il::deallocate(data_);
         }
-        data_ = static_cast<T*>(::operator new(r * sizeof(T)));
+        data_ = il::allocate_array<T>(r);
         for (il::int_t i2 = 0; i2 < n2; ++i2) {
           for (il::int_t i1 = 0; i1 < n1; ++i1) {
             for (il::int_t i0 = 0; i0 < n0; ++i0) {
@@ -699,26 +778,21 @@ Array3D<T>& Array3D<T>::operator=(const Array3D<T>& A) {
           }
         }
       }
-#ifdef IL_DEBUG_VISUALIZER
-      debug_size_[0] = n0;
-      debug_size_[1] = n1;
-      debug_size_[2] = n2;
-      debug_capacity_[0] = r0;
-      debug_capacity_[1] = r1;
-      debug_capacity_[2] = r2;
-#endif
       size_[0] = data_ + n0;
       size_[1] = data_ + n1;
       size_[2] = data_ + n2;
       capacity_[0] = data_ + r0;
       capacity_[1] = data_ + r1;
       capacity_[2] = data_ + r2;
+      alignment_ = static_cast<short>(alignment);
+      align_r_ = static_cast<short>(align_r);
+      align_mod_ = static_cast<short>(align_mod);
     } else {
       if (il::is_trivial<T>::value) {
         for (il::int_t i2 = 0; i2 < n2; ++i2) {
           for (il::int_t i1 = 0; i1 < n1; ++i1) {
-            memcpy(data_ + i2 * stride(2) + i1 * stride(1),
-                   A.data_ + i2 * A.stride(2) + i1 * A.stride(1),
+            memcpy(data_ + (i2 * capacity(1) + i1) * capacity(0),
+                   A.data_ + (i2 * A.capacity(1) + i1) * A.capacity(0),
                    n0 * sizeof(T));
           }
         }
@@ -726,24 +800,19 @@ Array3D<T>& Array3D<T>::operator=(const Array3D<T>& A) {
         for (il::int_t i2 = 0; i2 < n2; ++i2) {
           for (il::int_t i1 = 0; i1 < n1; ++i1) {
             for (il::int_t i0 = 0; i0 < n0; ++i0) {
-              data_[i2 * stride(2) + i1 * stride(1) + i0] = A(i0, i1, i2);
+              data_[(i2 * capacity(1) + i1) * capacity(0) + i0] = A(i0, i1, i2);
             }
           }
         }
-        for (il::int_t i2{size(2) - 1}; i2 >= 0; --i2) {
-          for (il::int_t i1{size(1) - 1}; i1 >= 0; --i1) {
-            for (il::int_t i0{size(0) - 1}; i0 >= (i2 < n2 && i1 < n1 ? n0 : 0);
-                 --i0) {
-              (data_ + i2 * stride(2) + i1 * stride(1) + i0)->~T();
+        for (il::int_t i2 = size(2) - 1; i2 >= 0; --i2) {
+          for (il::int_t i1 = size(1) - 1; i1 >= 0; --i1) {
+            for (il::int_t i0 = size(0) - 1;
+                 i0 >= (i2 < n2 && i1 < n1 ? n0 : 0); --i0) {
+              (data_ + (i2 * capacity(1) + i1) * capacity(0) + i0)->~T();
             }
           }
         }
       }
-#ifdef IL_DEBUG_VISUALIZER
-      debug_size_[0] = n0;
-      debug_size_[1] = n1;
-      debug_size_[2] = n2;
-#endif
       size_[0] = data_ + n0;
       size_[1] = data_ + n1;
       size_[2] = data_ + n2;
@@ -756,27 +825,17 @@ template <typename T>
 Array3D<T>& Array3D<T>::operator=(Array3D<T>&& A) {
   if (this != &A) {
     if (data_) {
-      if (il::is_trivial<T>::value) {
-        delete[] data_;
-      } else {
-        for (il::int_t i2{size(2) - 1}; i2 >= 0; --i2) {
-          for (il::int_t i1{size(1) - 1}; i1 >= 0; --i1) {
-            for (il::int_t i0{size(0) - 1}; i0 >= 0; --i0) {
-              (data_ + i2 * stride(2) + i1 * stride(1) + i0)->~T();
+      if (!il::is_trivial<T>::value) {
+        for (il::int_t i2 = size(2) - 1; i2 >= 0; --i2) {
+          for (il::int_t i1 = size(1) - 1; i1 >= 0; --i1) {
+            for (il::int_t i0 = size(0) - 1; i0 >= 0; --i0) {
+              (data_ + (i2 * capacity(1) + i1) * capacity(0) + i0)->~T();
             }
           }
         }
-        ::operator delete(data_);
       }
+      il::deallocate(data_ - shift_);
     }
-#ifdef IL_DEBUG_VISUALIZER
-    debug_size_[0] = A.debug_size_[0];
-    debug_size_[1] = A.debug_size_[1];
-    debug_size_[2] = A.debug_size_[2];
-    debug_capacity_[0] = A.debug_capacity_[0];
-    debug_capacity_[1] = A.debug_capacity_[1];
-    debug_capacity_[2] = A.debug_capacity_[2];
-#endif
     data_ = A.data_;
     size_[0] = A.size_[0];
     size_[1] = A.size_[1];
@@ -784,17 +843,10 @@ Array3D<T>& Array3D<T>::operator=(Array3D<T>&& A) {
     capacity_[0] = A.capacity_[0];
     capacity_[1] = A.capacity_[1];
     capacity_[2] = A.capacity_[2];
-    align_mod_ = A.align_mod_;
+    alignment_ = A.alignment_;
     align_r_ = A.align_r_;
-    new_shift_ = A.new_shift_;
-#ifdef IL_DEBUG_VISUALIZER
-    A.debug_size_[0] = 0;
-    A.debug_size_[1] = 0;
-    A.debug_size_[2] = 0;
-    A.debug_capacity_[0] = 0;
-    A.debug_capacity_[1] = 0;
-    A.debug_capacity_[2] = 0;
-#endif
+    align_mod_ = A.align_mod_;
+    shift_ = A.shift_;
     A.data_ = nullptr;
     A.size_[0] = nullptr;
     A.size_[1] = nullptr;
@@ -802,31 +854,29 @@ Array3D<T>& Array3D<T>::operator=(Array3D<T>&& A) {
     A.capacity_[0] = nullptr;
     A.capacity_[1] = nullptr;
     A.capacity_[2] = nullptr;
-    A.align_mod_ = 0;
+    A.alignment_ = 0;
     A.align_r_ = 0;
-    A.new_shift_ = 0;
+    A.align_mod_ = 0;
+    A.shift_ = 0;
   }
   return *this;
 }
 
 template <typename T>
 Array3D<T>::~Array3D() {
-#ifndef NDEBUG
-  check_invariance();
-#endif
+  IL_EXPECT_FAST(invariance());
+
   if (data_) {
-    if (il::is_trivial<T>::value) {
-      delete[] data_;
-    } else {
-      for (il::int_t i2{size(2) - 1}; i2 >= 0; --i2) {
-        for (il::int_t i1{size(1) - 1}; i1 >= 0; --i1) {
-          for (il::int_t i0{size(0) - 1}; i0 >= 0; --i0) {
-            (data_ + i2 * stride(2) + i1 * stride(1) + i0)->~T();
+    if (!il::is_trivial<T>::value) {
+      for (il::int_t i2 = size(2) - 1; i2 >= 0; --i2) {
+        for (il::int_t i1 = size(1) - 1; i1 >= 0; --i1) {
+          for (il::int_t i0 = size(0) - 1; i0 >= 0; --i0) {
+            (data_ + (i2 * capacity(1) + i1) * capacity(0) + i0)->~T();
           }
         }
       }
-      ::operator delete(data_);
     }
+    il::deallocate(data_ - shift_);
   }
 }
 
@@ -839,6 +889,7 @@ const T& Array3D<T>::operator()(il::int_t i0, il::int_t i1,
                    static_cast<std::size_t>(size(1)));
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(i2) <
                    static_cast<std::size_t>(size(2)));
+
   return data_[(i2 * (capacity_[1] - data_) + i1) * (capacity_[0] - data_) +
                i0];
 }
@@ -851,6 +902,7 @@ T& Array3D<T>::operator()(il::int_t i0, il::int_t i1, il::int_t i2) {
                    static_cast<std::size_t>(size(1)));
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(i2) <
                    static_cast<std::size_t>(size(2)));
+
   return data_[(i2 * (capacity_[1] - data_) + i1) * (capacity_[0] - data_) +
                i0];
 }
@@ -858,7 +910,8 @@ T& Array3D<T>::operator()(il::int_t i0, il::int_t i1, il::int_t i2) {
 template <typename T>
 il::int_t Array3D<T>::size(il::int_t d) const {
   IL_EXPECT_FAST(static_cast<std::size_t>(d) < static_cast<std::size_t>(3));
-  return static_cast<il::int_t>(size_[d] - data_);
+
+  return size_[d] - data_;
 }
 
 template <typename T>
@@ -866,125 +919,142 @@ void Array3D<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2) {
   IL_EXPECT_FAST(n0 >= 0);
   IL_EXPECT_FAST(n1 >= 0);
   IL_EXPECT_FAST(n2 >= 0);
-  const il::int_t n0_old{size(0)};
-  const il::int_t n1_old{size(1)};
-  const il::int_t n2_old{size(2)};
-  if (n0 <= capacity(0) && n1 <= capacity(1) && n2 <= capacity(2)) {
-    if (il::is_trivial<T>::value) {
-#ifdef IL_DEFAULT_VALUE
-      for (il::int_t i2 = 0; i2 < n2; ++i2) {
-        for (il::int_t i1 = 0; i1 < n1; ++i1) {
-          for (il::int_t i0{i2 < size(2) && i1 < size(1) ? size(0) : 0};
-               i0 < n0; ++i0) {
-            data_[i2 * stride(2) + i1 * stride(1) + i0] =
-                il::default_value<T>();
-          }
-        }
-      }
-#endif
-    } else {
-      for (il::int_t i2{size(2) - 1}; i2 >= 0; --i2) {
-        for (il::int_t i1{size(1) - 1}; i1 >= 0; --i1) {
-          for (il::int_t i0{size(0) - 1}; i0 >= (i2 < n2 && i1 < n1 ? n0 : 0);
-               --i0) {
-            (data_ + i2 * stride(2) + i1 * stride(1) + i0)->~T();
-          }
-        }
-      }
-      for (il::int_t i2 = 0; i2 < n2; ++i2) {
-        for (il::int_t i1 = 0; i1 < n1; ++i1) {
-          for (il::int_t i0{i2 < size(2) && i1 < size(1) ? size(0) : 0};
-               i0 < n0; ++i0) {
-            new (data_ + i2 * stride(2) + i1 * stride(1) + i0) T{};
-          }
-        }
-      }
-    }
-  } else {
+
+  const il::int_t n0_old = size(0);
+  const il::int_t n1_old = size(1);
+  const il::int_t n2_old = size(2);
+  const bool need_memory =
+      (n0 > capacity(0)) || (n1 > capacity(1)) || (n2 > capacity(2));
+  if (need_memory) {
     il::int_t r0;
     il::int_t r1;
     il::int_t r2;
     if (n0 > 0 && n1 > 0 && n2 > 0) {
-      r0 = n0;
-      r1 = n1;
-      r2 = n2;
-    } else if (n0 == 0 && n1 == 0 && n2 == 0) {
-      r0 = 0;
-      r1 = 0;
-      r2 = 0;
+      if (il::is_trivial<T>::value && alignment_ != 0) {
+        const il::int_t nb_lanes = static_cast<il::int_t>(
+            static_cast<std::size_t>(alignment_) / alignof(T));
+        bool error = false;
+        r0 = il::safe_upper_round(n0, nb_lanes, il::io, error);
+        if (error) {
+          std::abort();
+        }
+        r1 = n1;
+        r2 = n2;
+      } else {
+        r0 = n0;
+        r1 = n1;
+        r2 = n2;
+      }
     } else {
       r0 = (n0 == 0) ? 1 : n0;
       r1 = (n1 == 0) ? 1 : n1;
       r2 = (n2 == 0) ? 1 : n2;
     }
-    const il::int_t r = r0 * r1 * r2;
-    T* new_data;
-    if (il::is_trivial<T>::value) {
-      new_data = new T[r];
-    } else {
-      new_data = static_cast<T*>(::operator new(r * sizeof(T)));
+    bool error = false;
+    const il::int_t r = il::safe_product(r0, r1, r2, il::io, error);
+    if (error) {
+      std::abort();
     }
-    if (data_) {
-      if (il::is_trivial<T>::value) {
+    T* new_data;
+    il::int_t new_shift;
+    if (il::is_trivial<T>::value) {
+      if (alignment_ == 0) {
+        new_data = il::allocate_array<T>(r);
+        new_shift = 0;
+      } else {
+        new_data =
+            il::allocate_array<T>(r, align_r_, align_mod_, il::io, new_shift);
+      }
+      if (data_) {
         for (il::int_t i2 = 0; i2 < (n2 < n2_old ? n2 : n2_old); ++i2) {
           for (il::int_t i1 = 0; i1 < (n1 < n1_old ? n1 : n1_old); ++i1) {
             memcpy(new_data + (i2 * r1 + i1) * r0,
-                   data_ + i2 * stride(2) + i1 * stride(1),
+                   data_ + (i2 * capacity(1) + i1) * capacity(0),
                    (n0 < n0_old ? n0 : n0_old) * sizeof(T));
           }
         }
-        delete[] data_;
-      } else {
-        for (il::int_t i2{n2_old - 1}; i2 >= 0; --i2) {
-          for (il::int_t i1{n1_old - 1}; i1 >= 0; --i1) {
-            for (il::int_t i0{n0_old - 1}; i0 >= 0; --i0) {
-              if (i2 < n2 && i1 < n1 && i0 < n0) {
-                new (new_data + (i2 * r1 + i1) * r0 + i0)
-                    T(std::move(data_[i2 * stride(2) + i1 * stride(1) + i0]));
-              }
-              (data_ + i2 * stride(2) + i1 * stride(1) + i0)->~T();
-            }
-          }
-        }
-        ::operator delete(data_);
+        il::deallocate(data_ - shift_);
       }
-    }
-    if (il::is_trivial<T>::value) {
-#ifndef NDEBUG
+#ifdef IL_DEFAULT_VALUE
       for (il::int_t i2 = 0; i2 < n2; ++i2) {
         for (il::int_t i1 = 0; i1 < n1; ++i1) {
-          for (il::int_t i0{i2 < size(2) && i1 < size(1) ? size(0) : 0};
-               i0 < n0; ++i0) {
+          for (il::int_t i0 = i2 < n2_old && i1 < n1_old ? n0_old : 0; i0 < n0;
+               ++i0) {
             new_data[(i2 * r1 + i1) * r0 + i0] = il::default_value<T>();
           }
         }
       }
 #endif
     } else {
+      new_data = il::allocate_array<T>(r);
+      new_shift = 0;
+      if (data_) {
+        for (il::int_t i2 = n2_old - 1; i2 >= 0; --i2) {
+          for (il::int_t i1 = n1_old - 1; i1 >= 0; --i1) {
+            for (il::int_t i0 = n0_old - 1; i0 >= (i2 < n2 && i1 < n1 ? n0 : 0);
+                 --i0) {
+              (data_ + (i2 * capacity(1) + i1) * capacity(0) + i0)->~T();
+            }
+          }
+        }
+        for (il::int_t i2 = (n2 < n2_old ? n2 : n2_old) - 1; i2 >= 0; --i2) {
+          for (il::int_t i1 = (n1 < n1_old ? n1 : n1_old) - 1; i1 >= 0; --i1) {
+            for (il::int_t i0 = (n0 < n0_old ? n0 : n0_old) - 1; i0 >= 0;
+                 --i0) {
+              new (new_data + (i2 * r1 + i1) * r0 + i0) T(
+                  std::move(data_[(i2 * capacity(1) + i1) * capacity(0) + i0]));
+              (data_ + (i2 * capacity(1) + i1) * capacity(0) + i0)->~T();
+            }
+          }
+        }
+        il::deallocate(data_);
+      }
       for (il::int_t i2 = 0; i2 < n2; ++i2) {
         for (il::int_t i1 = 0; i1 < n1; ++i1) {
-          for (il::int_t i0{i2 < size(2) && i1 < size(1) ? size(0) : 0};
-               i0 < n0; ++i0) {
+          for (il::int_t i0 = i2 < n2_old && i1 < n1_old ? n0_old : 0; i0 < n0;
+               ++i0) {
             new (new_data + (i2 * r1 + i1) * r0 + i0) T{};
           }
         }
       }
     }
     data_ = new_data;
-#ifdef IL_DEBUG_VISUALIZER
-    debug_capacity_[0] = r0;
-    debug_capacity_[1] = r1;
-    debug_capacity_[2] = r2;
-#endif
     capacity_[0] = data_ + r0;
     capacity_[1] = data_ + r1;
     capacity_[2] = data_ + r2;
-  }
-#ifdef IL_DEBUG_VISUALIZER
-  debug_size_[0] = n0;
-  debug_size_[1] = n1;
-  debug_size_[2] = n2;
+    shift_ = static_cast<short>(new_shift);
+  } else {
+    if (il::is_trivial<T>::value) {
+#ifdef IL_DEFAULT_VALUE
+      for (il::int_t i2 = 0; i2 < n2; ++i2) {
+        for (il::int_t i1 = 0; i1 < n1; ++i1) {
+          for (il::int_t i0 = (i2 < n2_old && i1 < n1_old) ? n0_old : 0;
+               i0 < n0; ++i0) {
+            data_[(i2 * capacity(1) + i1) * capacity(0) + i0] =
+                il::default_value<T>();
+          }
+        }
+      }
 #endif
+    } else {
+      for (il::int_t i2 = n2_old - 1; i2 >= 0; --i2) {
+        for (il::int_t i1 = n1_old - 1; i1 >= 0; --i1) {
+          for (il::int_t i0 = n0_old - 1; i0 >= ((i2 < n2 && i1 < n1) ? n0 : 0);
+               --i0) {
+            (data_ + (i2 * capacity(1) + i1) * capacity(0) + i0)->~T();
+          }
+        }
+      }
+    }
+    for (il::int_t i2 = 0; i2 < n2; ++i2) {
+      for (il::int_t i1 = 0; i1 < n1; ++i1) {
+        for (il::int_t i0 = (i2 < n2_old && i1 < n1_old) ? n0_old : 0; i0 < n0;
+             ++i0) {
+          new (data_ + (i2 * capacity(1) + i1) * capacity(0) + i0) T{};
+        }
+      }
+    }
+  }
   size_[0] = data_ + n0;
   size_[1] = data_ + n1;
   size_[2] = data_ + n2;
@@ -993,7 +1063,8 @@ void Array3D<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2) {
 template <typename T>
 il::int_t Array3D<T>::capacity(il::int_t d) const {
   IL_EXPECT_FAST(static_cast<std::size_t>(d) < static_cast<std::size_t>(3));
-  return static_cast<il::int_t>(capacity_[d] - data_);
+
+  return capacity_[d] - data_;
 }
 
 template <typename T>
@@ -1001,59 +1072,78 @@ void Array3D<T>::reserve(il::int_t r0, il::int_t r1, il::int_t r2) {
   IL_EXPECT_FAST(r0 >= 0);
   IL_EXPECT_FAST(r1 >= 0);
   IL_EXPECT_FAST(r2 >= 0);
-  r0 = (r0 < capacity(0)) ? capacity(0) : r0;
-  r1 = (r1 < capacity(1)) ? capacity(1) : r1;
-  r2 = (r2 < capacity(2)) ? capacity(2) : r2;
-  if (r0 > capacity(0) || r1 > capacity(1) || r2 > capacity(2)) {
-    const il::int_t n0_old{size(0)};
-    const il::int_t n1_old{size(1)};
-    const il::int_t n2_old{size(2)};
-    r0 = (r0 == 0) ? 1 : r0;
-    r1 = (r1 == 0) ? 1 : r1;
-    r2 = (r2 == 0) ? 1 : r2;
-    const il::int_t r = r0 * r1 * r2;
-    T* new_data;
-    if (il::is_trivial<T>::value) {
-      new_data = new T[r];
-    } else {
-      new_data = static_cast<T*>(::operator new(r * sizeof(T)));
+
+  r0 = (r0 > capacity(0)) ? r0 : capacity(0);
+  r1 = (r1 > capacity(1)) ? r1 : capacity(1);
+  r2 = (r2 > capacity(2)) ? r2 : capacity(2);
+  const bool need_memory =
+      r0 > capacity(0) || r1 > capacity(1) || r2 > capacity(2);
+  if (need_memory) {
+    const il::int_t n0_old = size(0);
+    const il::int_t n1_old = size(1);
+    const il::int_t n2_old = size(2);
+    if (il::is_trivial<T>::value && alignment_ != 0) {
+      const il::int_t nb_lanes = static_cast<il::int_t>(
+          static_cast<std::size_t>(alignment_) / alignof(T));
+      bool error = false;
+      r0 = il::safe_upper_round(r0, nb_lanes, il::io, error);
+      if (error) {
+        std::abort();
+      }
     }
-    if (data_) {
-      if (il::is_trivial<T>::value) {
+    bool error = false;
+    const il::int_t r = il::safe_product(r0, r1, r2, il::io, error);
+    if (error) {
+      std::abort();
+    }
+    T* new_data;
+    il::int_t new_shift;
+    if (il::is_trivial<T>::value) {
+      if (alignment_ == 0) {
+        new_data = il::allocate_array<T>(r);
+        new_shift = 0;
+      } else {
+        new_data =
+            il::allocate_array<T>(r, align_r_, align_mod_, il::io, new_shift);
+      }
+      if (data_) {
         for (il::int_t i2 = 0; i2 < n2_old; ++i2) {
           for (il::int_t i1 = 0; i1 < n1_old; ++i1) {
             memcpy(new_data + (i2 * r1 + i1) * r0,
-                   data_ + i2 * stride(2) + i1 * stride(1),
+                   data_ + (i2 * capacity(1) + i1) * capacity(0),
                    n0_old * sizeof(T));
           }
         }
-        delete[] data_;
-      } else {
-        for (il::int_t i2{n2_old - 1}; i2 >= 0; --i2) {
-          for (il::int_t i1{n1_old - 1}; i1 >= 0; --i1) {
-            for (il::int_t i0{n0_old - 1}; i0 >= 0; --i0) {
-              new (new_data + (i2 * r1 + i1) * r0 + i0)
-                  T(std::move(data_[i2 * stride(2) + i1 * stride(1) + i0]));
-              (data_ + i2 * stride(2) + i1 * stride(1) + i0)->~T();
-            }
+        il::deallocate(data_ - shift_);
+      }
+    } else {
+      new_data = il::allocate_array<T>(r);
+      new_shift = 0;
+      for (il::int_t i2 = n2_old - 1; i2 >= 0; --i2) {
+        for (il::int_t i1 = n1_old - 1; i1 >= 0; --i1) {
+          for (il::int_t i0 = n0_old - 1; i0 >= 0; --i0) {
+            new (new_data + (i2 * r1 + i1) * r0 + i0)
+                T(std::move(data_[(i2 * capacity(1) + i1) * capacity(0) + i0]));
+            (data_ + (i2 * capacity(1) + i1) * capacity(0) + i0)->~T();
           }
         }
-        ::operator delete(data_);
       }
+      il::deallocate(data_);
     }
     data_ = new_data;
-#ifdef IL_DEBUG_VISUALIZER
-    debug_capacity_[0] = r0;
-    debug_capacity_[1] = r1;
-    debug_capacity_[2] = r2;
-#endif
     size_[0] = data_ + n0_old;
     size_[1] = data_ + n1_old;
     size_[2] = data_ + n2_old;
     capacity_[0] = data_ + r0;
     capacity_[1] = data_ + r1;
     capacity_[2] = data_ + r2;
+    shift_ = static_cast<short>(new_shift);
   }
+}
+
+template <typename T>
+il::int_t Array3D<T>::alignment() const {
+  return alignment_;
 }
 
 template <typename T>
@@ -1069,51 +1159,63 @@ T* Array3D<T>::data() {
 template <typename T>
 il::int_t Array3D<T>::stride(il::int_t d) const {
   IL_EXPECT_FAST(static_cast<std::size_t>(d) < static_cast<std::size_t>(3));
+
   return (d == 0)
              ? 1
-             : static_cast<il::int_t>((capacity_[0] - data_) *
-                                      ((d == 1) ? 1 : (capacity_[1] - data_)));
+             : (capacity_[0] - data_) * ((d == 1) ? 1 : (capacity_[1] - data_));
 }
 
 template <typename T>
-void Array3D<T>::check_invariance() const {
-#ifdef IL_DEBUG_VISUALIZER
-  IL_EXPECT_FAST(debug_size_[0] == size_[0] - data_);
-  IL_EXPECT_FAST(debug_size_[1] == size_[1] - data_);
-  IL_EXPECT_FAST(debug_size_[2] == size_[2] - data_);
-  IL_EXPECT_FAST(debug_capacity_[0] == capacity_[0] - data_);
-  IL_EXPECT_FAST(debug_capacity_[1] == capacity_[1] - data_);
-  IL_EXPECT_FAST(debug_capacity_[2] == capacity_[2] - data_);
-#endif
+bool Array3D<T>::invariance() const {
+  bool ans = true;
+
   if (data_ == nullptr) {
-    IL_EXPECT_FAST(size_[0] == nullptr);
-    IL_EXPECT_FAST(size_[1] == nullptr);
-    IL_EXPECT_FAST(size_[2] == nullptr);
-    IL_EXPECT_FAST(capacity_[0] == nullptr);
-    IL_EXPECT_FAST(capacity_[1] == nullptr);
-    IL_EXPECT_FAST(capacity_[2] == nullptr);
+    ans = ans && (size_[0] == nullptr);
+    ans = ans && (size_[1] == nullptr);
+    ans = ans && (size_[2] == nullptr);
+    ans = ans && (capacity_[0] == nullptr);
+    ans = ans && (capacity_[1] == nullptr);
+    ans = ans && (capacity_[2] == nullptr);
+    ans = ans && (alignment_ == 0);
+    ans = ans && (align_r_ == 0);
+    ans = ans && (align_mod_ == 0);
+    ans = ans && (shift_ == 0);
   } else {
-    IL_EXPECT_FAST(size_[0] != nullptr);
-    IL_EXPECT_FAST(size_[1] != nullptr);
-    IL_EXPECT_FAST(size_[2] != nullptr);
-    IL_EXPECT_FAST(capacity_[0] != nullptr);
-    IL_EXPECT_FAST(capacity_[1] != nullptr);
-    IL_EXPECT_FAST(capacity_[2] != nullptr);
-    IL_EXPECT_FAST((size_[0] - data_) <= (capacity_[0] - data_));
-    IL_EXPECT_FAST((size_[1] - data_) <= (capacity_[1] - data_));
-    IL_EXPECT_FAST((size_[2] - data_) <= (capacity_[2] - data_));
+    ans = ans && (size_[0] != nullptr);
+    ans = ans && (size_[1] != nullptr);
+    ans = ans && (size_[2] != nullptr);
+    ans = ans && (capacity_[0] != nullptr);
+    ans = ans && (capacity_[1] != nullptr);
+    ans = ans && (capacity_[2] != nullptr);
+    ans = ans && ((size_[0] - data_) <= (capacity_[0] - data_));
+    ans = ans && ((size_[1] - data_) <= (capacity_[1] - data_));
+    ans = ans && ((size_[2] - data_) <= (capacity_[2] - data_));
+    if (il::is_trivial<T>::value) {
+      ans = ans && (alignment_ >= 0);
+      ans = ans && (align_r_ >= 0);
+      ans = ans && (align_mod_ >= 0);
+      ans = ans && (alignment_ % alignof(T) == 0);
+      ans = ans && (align_r_ % alignof(T) == 0);
+      ans = ans && (align_mod_ % alignof(T) == 0);
+      if (alignment_ > 0) {
+        ans = ans && (align_r_ % alignment_ == 0);
+        ans = ans && (align_mod_ > 0);
+        ans = ans && (align_mod_ % alignment_ == 0);
+        ans = ans && (align_r_ < align_mod_);
+        ans = ans && (reinterpret_cast<std::size_t>(data_) %
+            static_cast<std::size_t>(align_mod_) ==
+            static_cast<std::size_t>(align_r_));
+      } else {
+        ans = ans && (align_r_ == 0);
+        ans = ans && (align_mod_ == 0);
+      }
+    } else {
+      ans = ans && (align_r_ == 0);
+      ans = ans && (align_mod_ == 0);
+      ans = ans && (alignment_ == 0);
+    }
   }
-  if (!il::is_trivial<T>::value) {
-    IL_EXPECT_FAST(align_mod_ == 0);
-  }
-  if (align_mod_ == 0) {
-    IL_EXPECT_FAST(align_r_ == 0);
-    IL_EXPECT_FAST(new_shift_ == 0);
-  } else {
-    IL_EXPECT_FAST(align_r_ < align_mod_);
-    IL_EXPECT_FAST(((std::size_t)data_) % ((std::size_t)align_mod_) ==
-              ((std::size_t)align_r_));
-  }
+  return ans;
 }
 }
 

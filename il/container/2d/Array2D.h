@@ -263,9 +263,9 @@ Array2D<T>::Array2D(il::int_t n0, il::int_t n1) {
   size_[1] = data_ + n1;
   capacity_[0] = data_ + r0;
   capacity_[1] = data_ + r1;
+  alignment_ = 0;
   align_r_ = 0;
   align_mod_ = 0;
-  alignment_ = 0;
   shift_ = 0;
 }
 
@@ -373,9 +373,9 @@ Array2D<T>::Array2D(il::int_t n0, il::int_t n1, const T& x) {
   size_[1] = data_ + n1;
   capacity_[0] = data_ + r0;
   capacity_[1] = data_ + r1;
+  alignment_ = 0;
   align_r_ = 0;
   align_mod_ = 0;
-  alignment_ = 0;
   shift_ = 0;
 }
 
@@ -877,14 +877,14 @@ void Array2D<T>::resize(il::int_t n0, il::int_t n1) {
     if (il::is_trivial<T>::value) {
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t i1 = 0; i1 < n1; ++i1) {
-        for (il::int_t i0 = i1 < n1_old ? n0_old : 0; i0 < n1; ++i0) {
+        for (il::int_t i0 = (i1 < n1_old ? n0_old : 0); i0 < n0; ++i0) {
           data_[i1 * capacity(0) + i0] = il::default_value<T>();
         }
       }
 #endif
     } else {
       for (il::int_t i1 = n1_old - 1; i1 >= 0; --i1) {
-        for (il::int_t i0 = n0_old - 1; i0 >= (i1 < n0 ? n1 : 0); --i0) {
+        for (il::int_t i0 = n0_old - 1; i0 >= (i1 < n1 ? n0 : 0); --i0) {
           (data_ + i1 * capacity(0) + i0)->~T();
         }
       }
@@ -911,8 +911,8 @@ void Array2D<T>::reserve(il::int_t r0, il::int_t r1) {
   IL_EXPECT_FAST(r0 >= 0);
   IL_EXPECT_FAST(r1 >= 0);
 
-  r0 = r0 > capacity(0) ? r0 : capacity(0);
-  r1 = r1 > capacity(1) ? r1 : capacity(1);
+  r0 = (r0 > capacity(0)) ? r0 : capacity(0);
+  r1 = (r1 > capacity(1)) ? r1 : capacity(1);
   const bool need_memory = r0 > capacity(0) || r1 > capacity(1);
   if (need_memory) {
     const il::int_t n0_old = size(0);
@@ -1016,9 +1016,9 @@ bool Array2D<T>::invariance() const {
     ans = ans && (size_[1] == nullptr);
     ans = ans && (capacity_[0] == nullptr);
     ans = ans && (capacity_[1] == nullptr);
-    ans = ans && (align_mod_ == 0);
-    ans = ans && (align_r_ == 0);
     ans = ans && (alignment_ == 0);
+    ans = ans && (align_r_ == 0);
+    ans = ans && (align_mod_ == 0);
     ans = ans && (shift_ == 0);
   } else {
     ans = ans && (size_[0] != nullptr);
@@ -1028,9 +1028,9 @@ bool Array2D<T>::invariance() const {
     ans = ans && ((size_[0] - data_) <= (capacity_[0] - data_));
     ans = ans && ((size_[1] - data_) <= (capacity_[1] - data_));
     if (il::is_trivial<T>::value) {
+      ans = ans && (alignment_ >= 0);
       ans = ans && (align_r_ >= 0);
       ans = ans && (align_mod_ >= 0);
-      ans = ans && (alignment_ >= 0);
       ans = ans && (align_r_ % alignof(T) == 0);
       ans = ans && (align_mod_ % alignof(T) == 0);
       ans = ans && (alignment_ % alignof(T) == 0);

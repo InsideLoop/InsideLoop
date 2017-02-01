@@ -94,6 +94,38 @@ inline std::int32_t safe_product(std::int32_t a, std::int32_t b, il::io_t,
 #endif
 }
 
+inline std::int32_t safe_product(std::int32_t a, std::int32_t b, std::int32_t c,
+                                 il::io_t, bool& error) {
+  bool error_first;
+  const std::int32_t ab = il::safe_product(a, b, il::io, error_first);
+  bool error_second;
+  const std::int32_t abc = il::safe_product(ab, c, il::io, error_second);
+  if (error_first || error_second) {
+    error = true;
+    return 0;
+  } else {
+    error = false;
+    return abc;
+  }
+}
+
+inline std::int32_t safe_product(std::int32_t a, std::int32_t b, std::int32_t c,
+                                 std::int32_t d, il::io_t, bool& error) {
+  bool error_first;
+  const std::int32_t ab = il::safe_product(a, b, il::io, error_first);
+  bool error_second;
+  const std::int32_t cd = il::safe_product(c, d, il::io, error_second);
+  bool error_third;
+  const std::int32_t abcd = il::safe_product(ab, cd, il::io, error_third);
+  if (error_first || error_second || error_third) {
+    error = true;
+    return 0;
+  } else {
+    error = false;
+    return abcd;
+  }
+}
+
 inline std::int32_t safe_division(std::int32_t a, std::int32_t b, il::io_t,
                                   bool& error) {
   if (b == 0 || (b == -1 && a == std::numeric_limits<std::int32_t>::min())) {
@@ -222,6 +254,42 @@ inline std::int64_t safe_product(std::int64_t a, std::int64_t b, il::io_t,
     return a * b;
   }
 #endif
+}
+#endif
+
+#ifdef IL_64_BIT_ENVIRONMENT
+inline std::int64_t safe_product(std::int64_t a, std::int64_t b, std::int64_t c,
+                                 il::io_t, bool& error) {
+  bool error_first;
+  const std::int64_t ab = il::safe_product(a, b, il::io, error_first);
+  bool error_second;
+  const std::int64_t abc = il::safe_product(ab, c, il::io, error_second);
+  if (error_first || error_second) {
+    error = true;
+    return 0;
+  } else {
+    error = false;
+    return abc;
+  }
+}
+#endif
+
+#ifdef IL_64_BIT_ENVIRONMENT
+inline std::int64_t safe_product(std::int64_t a, std::int64_t b, std::int64_t c,
+                                 std::int64_t d, il::io_t, bool& error) {
+  bool error_first;
+  const std::int64_t ab = il::safe_product(a, b, il::io, error_first);
+  bool error_second;
+  const std::int64_t cd = il::safe_product(c, d, il::io, error_second);
+  bool error_third;
+  const std::int64_t abcd = il::safe_product(ab, cd, il::io, error_third);
+  if (error_first || error_second || error_third) {
+    error = true;
+    return 0;
+  } else {
+    error = false;
+    return abcd;
+  }
 }
 #endif
 
@@ -357,8 +425,10 @@ inline std::int32_t safe_convert(std::uint32_t n, il::io_t, bool& error) {
   if (n > std::numeric_limits<std::int32_t>::max()) {
     error = true;
     return 0;
+  } else {
+    error = false;
+    return static_cast<std::int32_t>(n);
   }
-  return static_cast<std::int32_t>(n);
 }
 
 template <>
@@ -366,8 +436,10 @@ inline std::uint32_t safe_convert(std::int32_t n, il::io_t, bool& error) {
   if (n < 0) {
     error = true;
     return 0;
+  } else {
+    error = false;
+    return static_cast<std::uint32_t>(n);
   }
-  return static_cast<std::uint32_t>(n);
 }
 
 #ifdef IL_64_BIT_ENVIRONMENT
@@ -376,8 +448,10 @@ inline std::int64_t safe_convert(std::uint64_t n, il::io_t, bool& error) {
   if (n > std::numeric_limits<std::int64_t>::max()) {
     error = true;
     return 0;
+  } else {
+    error = false;
+    return static_cast<std::int64_t>(n);
   }
-  return static_cast<std::int64_t>(n);
 }
 #endif
 
@@ -387,8 +461,10 @@ inline std::uint64_t safe_convert(std::int64_t n, il::io_t, bool& error) {
   if (n < 0) {
     error = true;
     return 0;
+  } else {
+    error = false;
+    return static_cast<std::uint64_t>(n);
   }
-  return static_cast<std::uint64_t>(n);
 }
 #endif
 }
