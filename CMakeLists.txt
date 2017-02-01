@@ -141,6 +141,7 @@ set(SOURCE_FILES
     il/Array.h
     il/Array2D.h
     il/Array2C.h
+    il/Array3C.h
     il/Array3D.h
     il/Array4D.h
     il/Array4C.h
@@ -179,6 +180,7 @@ set(SOURCE_FILES
     il/container/2d/StaticArray2C.h
     il/container/2d/TriDiagonal.h
     il/container/2d/UpperArray2D.h
+    il/container/3d/Array3C.h
     il/container/3d/Array3D.h
     il/container/3d/Array3DView.h
     il/container/3d/StaticArray3D.h

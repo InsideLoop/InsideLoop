@@ -5,7 +5,7 @@ running on processors (including **Xeon** and **Xeon Phi**) and coprocessors
 (**Cuda**). This library has been designed to provide you with:
 
 - Efficient containers such as **array**, **multi-dimensional arrays**,
-  **string** a **hash set** and a  **hash table**
+  **string** a **hash set** and a  **hash map**
 - A **simple code** base that could be extended easily
 - **Efficient debugging** mode
 - Almost **no coupling in between classes** so you can extract from
@@ -23,7 +23,7 @@ easy-to-use containers and wrappers around the best numerical libraries
 available today. It should be very **friendly** to **C** and **Fortran**
 programmers who still represent an important share of High Performance coders.
 
-Note that for the time being, **InsideLoop is a work in progressl**. Although
+Note that for the time being, **InsideLoop is a work in progress**. Although
 some parts of it have been used in production code, it is
 still experimental. Even the API is not stabilized yet.
 
