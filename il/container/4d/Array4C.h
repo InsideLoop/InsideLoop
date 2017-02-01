@@ -14,27 +14,24 @@
 #include <cstring>
 // <initializer_list> is needed for std::initializer_list<T>
 #include <initializer_list>
-// <new> is needed for ::operator new
-#include <new>
-// <type_traits> is needed for std::is_pod
-#include <type_traits>
 // <utility> is needed for std::move
 #include <utility>
 
 #include <il/base.h>
+#include <il/core/memory/allocate.h>
 
 namespace il {
 
 template <typename T>
 class Array4C {
  private:
-#ifdef IL_DEBUG_VISUALIZER
-  il::int_t debug_size_[4];
-  il::int_t debug_capacity_[4];
-#endif
   T* data_;
   T* size_[4];
   T* capacity_[4];
+  short alignment_;
+  short align_r_;
+  short align_mod_;
+  short shift_;
 
  public:
   /* \brief Default constructor
@@ -69,7 +66,7 @@ class Array4C {
   // il::Array2D<double> A{3, 5, 3.14};
   */
   explicit Array4C(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3,
-                   il::value_t, const T& x);
+                   const T& x);
 
   /* \brief The copy constructor
   // \details The different size and capacity of the constructed il::Array4C<T>
@@ -126,10 +123,10 @@ class Array4C {
   // optimizations from the compiler, including automatic vectorization.
   //
   // il::Array4C<double> A{n0, n1, n2, n3};
-  // for (il::int_t i0 = 0; i0 < v.size(0); ++i0) {
-  //   for (il::int_t i1 = 0; i1 < v.size(1); ++i1) {
-  //     for (il::int_t i2 = 0; i2 < v.size(2); ++i2) {
-  //       for (il::int_t i3 = 0; i3 < v.size(3); ++i3) {
+  // for (il::int_t i3 = 0; i3 < v.size(3); ++i3) {
+  //   for (il::int_t i2 = 0; i2 < v.size(2); ++i2) {
+  //     for (il::int_t i1 = 0; i1 < v.size(1); ++i1) {
+  //       for (il::int_t i0 = 0; i0 < v.size(0); ++i0) {
   //         A(i0, i1, i2, i3) = 1.0 / (1 + i0 + i1 + i2 + i3);
   //       }
   //     }
@@ -179,21 +176,11 @@ class Array4C {
  private:
   /* \brief Used internally in debug mode to check the invariance of the object
   */
-  void check_invariance() const;
+  bool invariance() const;
 };
 
 template <typename T>
 Array4C<T>::Array4C() {
-#ifdef IL_DEBUG_VISUALIZER
-  debug_size_[0] = 0;
-  debug_size_[1] = 0;
-  debug_size_[2] = 0;
-  debug_size_[3] = 0;
-  debug_capacity_[0] = 0;
-  debug_capacity_[1] = 0;
-  debug_capacity_[2] = 0;
-  debug_capacity_[3] = 0;
-#endif
   data_ = nullptr;
   size_[0] = nullptr;
   size_[1] = nullptr;
@@ -203,6 +190,10 @@ Array4C<T>::Array4C() {
   capacity_[1] = nullptr;
   capacity_[2] = nullptr;
   capacity_[3] = nullptr;
+  alignment_ = 0;
+  align_r_ = 0;
+  align_mod_ = 0;
+  shift_ = 0;
 }
 
 template <typename T>
@@ -211,30 +202,19 @@ Array4C<T>::Array4C(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3) {
   IL_EXPECT_FAST(n1 >= 0);
   IL_EXPECT_FAST(n2 >= 0);
   IL_EXPECT_FAST(n3 >= 0);
-  il::int_t r0;
-  il::int_t r1;
-  il::int_t r2;
-  il::int_t r3;
-  if (n0 > 0 && n1 > 0 && n2 > 0 && n3 > 0) {
-    r0 = n0;
-    r1 = n1;
-    r2 = n2;
-    r3 = n3;
-  } else if (n0 == 0 && n1 == 0 && n2 == 0 && n3 == 0) {
-    r0 = 0;
-    r1 = 0;
-    r2 = 0;
-    r3 = 0;
-  } else {
-    r0 = (n0 == 0) ? 1 : n0;
-    r1 = (n1 == 0) ? 1 : n1;
-    r2 = (n2 == 0) ? 1 : n2;
-    r3 = (n3 == 0) ? 1 : n3;
+
+  const il::int_t r0 = n0 > 0 ? n0 : ((n1 == 0 && n2 == 0 && n3 == 0) ? 0 : 1);
+  const il::int_t r1 = n1 > 0 ? n1 : ((n0 == 0 && n2 == 0 && n3 == 0) ? 0 : 1);
+  const il::int_t r2 = n2 > 0 ? n2 : ((n0 == 0 && n1 == 0 && n3 == 0) ? 0 : 1);
+  const il::int_t r3 = n3 > 0 ? n3 : ((n0 == 0 && n1 == 0 && n2 == 0) ? 0 : 1);
+  bool error;
+  const il::int_t r = il::safe_product(r0, r1, r2, r3, il::io, error);
+  if (error) {
+    std::abort();
   }
-  const il::int_t r = r0 * r1 * r2 * r3;
   if (r > 0) {
+    data_ = il::allocate_array<T>(r);
     if (il::is_trivial<T>::value) {
-      data_ = new T[r];
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t i0 = 0; i0 < n0; ++i0) {
         for (il::int_t i1 = 0; i1 < n1; ++i1) {
@@ -248,7 +228,6 @@ Array4C<T>::Array4C(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3) {
       }
 #endif
     } else {
-      data_ = static_cast<T*>(::operator new(r * sizeof(T)));
       for (il::int_t i0 = 0; i0 < n0; ++i0) {
         for (il::int_t i1 = 0; i1 < n1; ++i1) {
           for (il::int_t i2 = 0; i2 < n2; ++i2) {
@@ -262,16 +241,6 @@ Array4C<T>::Array4C(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3) {
   } else {
     data_ = nullptr;
   }
-#ifdef IL_DEBUG_VISUALIZER
-  debug_size_[0] = n0;
-  debug_size_[1] = n1;
-  debug_size_[2] = n2;
-  debug_size_[3] = n3;
-  debug_capacity_[0] = r0;
-  debug_capacity_[1] = r1;
-  debug_capacity_[2] = r2;
-  debug_capacity_[3] = r3;
-#endif
   size_[0] = data_ + n0;
   size_[1] = data_ + n1;
   size_[2] = data_ + n2;
@@ -280,57 +249,36 @@ Array4C<T>::Array4C(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3) {
   capacity_[1] = data_ + r1;
   capacity_[2] = data_ + r2;
   capacity_[3] = data_ + r3;
+  alignment_ = 0;
+  align_r_ = 0;
+  align_mod_ = 0;
+  shift_ = 0;
 }
 
 template <typename T>
 Array4C<T>::Array4C(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3,
-                    il::value_t, const T& x) {
+                    const T& x) {
   IL_EXPECT_FAST(n0 >= 0);
   IL_EXPECT_FAST(n1 >= 0);
   IL_EXPECT_FAST(n2 >= 0);
   IL_EXPECT_FAST(n3 >= 0);
-  il::int_t r0;
-  il::int_t r1;
-  il::int_t r2;
-  il::int_t r3;
-  if (n0 > 0 && n1 > 0 && n2 > 0 && n3 > 0) {
-    r0 = n0;
-    r1 = n1;
-    r2 = n2;
-    r3 = n3;
-  } else if (n0 == 0 && n1 == 0 && n2 == 0 && n3 == 0) {
-    r0 = 0;
-    r1 = 0;
-    r2 = 0;
-    r3 = 0;
-  } else {
-    r0 = (n0 == 0) ? 1 : n0;
-    r1 = (n1 == 0) ? 1 : n1;
-    r2 = (n2 == 0) ? 1 : n2;
-    r3 = (n3 == 0) ? 1 : n3;
+
+  const il::int_t r0 = n0 > 0 ? n0 : ((n1 == 0 && n2 == 0 && n3 == 0) ? 0 : 1);
+  const il::int_t r1 = n1 > 0 ? n1 : ((n0 == 0 && n2 == 0 && n3 == 0) ? 0 : 1);
+  const il::int_t r2 = n2 > 0 ? n2 : ((n0 == 0 && n1 == 0 && n3 == 0) ? 0 : 1);
+  const il::int_t r3 = n3 > 0 ? n3 : ((n0 == 0 && n1 == 0 && n2 == 0) ? 0 : 1);
+  bool error;
+  const il::int_t r = il::safe_product(r0, r1, r2, r3, il::io, error);
+  if (error) {
+    std::abort();
   }
-  const il::int_t r = r0 * r1 * r2 * r3;
   if (r > 0) {
-    if (il::is_trivial<T>::value) {
-      data_ = new T[r];
-      for (il::int_t i0 = 0; i0 < n0; ++i0) {
-        for (il::int_t i1 = 0; i1 < n1; ++i1) {
-          for (il::int_t i2 = 0; i2 < n2; ++i2) {
-            for (il::int_t i3 = 0; i3 < n3; ++i3) {
-              data_[((i0 * r1 + i1) * r2 + i2) * r3 + i3] = x;
-              il::default_value<T>();
-            }
-          }
-        }
-      }
-    } else {
-      data_ = static_cast<T*>(::operator new(r * sizeof(T)));
-      for (il::int_t i0 = 0; i0 < n0; ++i0) {
-        for (il::int_t i1 = 0; i1 < n1; ++i1) {
-          for (il::int_t i2 = 0; i2 < n2; ++i2) {
-            for (il::int_t i3 = 0; i3 < n3; ++i3) {
-              new (data_ + ((i0 * r1 + i1) * r2 + i2) * r3 + i3) T(x);
-            }
+    data_ = il::allocate_array<T>(r);
+    for (il::int_t i0 = 0; i0 < n0; ++i0) {
+      for (il::int_t i1 = 0; i1 < n1; ++i1) {
+        for (il::int_t i2 = 0; i2 < n2; ++i2) {
+          for (il::int_t i3 = 0; i3 < n3; ++i3) {
+            new (data_ + ((i0 * r1 + i1) * r2 + i2) * r3 + i3) T(x);
           }
         }
       }
@@ -338,16 +286,6 @@ Array4C<T>::Array4C(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3,
   } else {
     data_ = nullptr;
   }
-#ifdef IL_DEBUG_VISUALIZER
-  debug_size_[0] = n0;
-  debug_size_[1] = n1;
-  debug_size_[2] = n2;
-  debug_size_[3] = n3;
-  debug_capacity_[0] = r0;
-  debug_capacity_[1] = r1;
-  debug_capacity_[2] = r2;
-  debug_capacity_[3] = r3;
-#endif
   size_[0] = data_ + n0;
   size_[1] = data_ + n1;
   size_[2] = data_ + n2;
@@ -356,6 +294,10 @@ Array4C<T>::Array4C(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3,
   capacity_[1] = data_ + r1;
   capacity_[2] = data_ + r2;
   capacity_[3] = data_ + r3;
+  alignment_ = 0;
+  align_r_ = 0;
+  align_mod_ = 0;
+  shift_ = 0;
 }
 
 template <typename T>
@@ -372,7 +314,17 @@ Array4C<T>::Array4C(const Array4C<T>& A) {
     r0 = n0;
     r1 = n1;
     r2 = n2;
-    r3 = n3;
+    if (il::is_trivial<T>::value && A.alignment_ != 0) {
+      const il::int_t nb_lanes = static_cast<il::int_t>(
+          static_cast<std::size_t>(A.alignment_) / alignof(T));
+      bool error = false;
+      r3 = il::safe_upper_round(n3, nb_lanes, il::io, error);
+      if (error) {
+        std::abort();
+      }
+    } else {
+      r3 = n3;
+    }
   } else if (n0 == 0 && n1 == 0 && n2 == 0 && n3 == 0) {
     r0 = 0;
     r1 = 0;
@@ -384,9 +336,20 @@ Array4C<T>::Array4C(const Array4C<T>& A) {
     r2 = (n2 == 0) ? 1 : n2;
     r3 = (n3 == 0) ? 1 : n3;
   }
-  const il::int_t r = r0 * r1 * r2 * r3;
+  bool error = false;
+  const il::int_t r = il::safe_product(r0, r1, r2, r3, il::io, error);
+  if (error) {
+    std::abort();
+  }
   if (il::is_trivial<T>::value) {
-    data_ = new T[r];
+    if (A.alignment_ == 0) {
+      data_ = il::allocate_array<T>(r);
+      shift_ = 0;
+    } else {
+      il::int_t shift;
+      data_ = il::allocate_array<T>(r, A.align_r_, A.align_mod_, il::io, shift);
+      shift_ = static_cast<short>(shift);
+    }
     for (il::int_t i0 = 0; i0 < n0; ++i0) {
       for (il::int_t i1 = 0; i1 < n1; ++i1) {
         for (il::int_t i2 = 0; i2 < n2; ++i2) {
@@ -399,7 +362,8 @@ Array4C<T>::Array4C(const Array4C<T>& A) {
       }
     }
   } else {
-    data_ = static_cast<T*>(::operator new(r * sizeof(T)));
+    data_ = il::allocate_array<T>(r);
+    shift_ = 0;
     for (il::int_t i0 = 0; i0 < n0; ++i0) {
       for (il::int_t i1 = 0; i1 < n1; ++i1) {
         for (il::int_t i2 = 0; i2 < n2; ++i2) {
@@ -411,16 +375,6 @@ Array4C<T>::Array4C(const Array4C<T>& A) {
       }
     }
   }
-#ifdef IL_DEBUG_VISUALIZER
-  debug_size_[0] = n0;
-  debug_size_[1] = n1;
-  debug_size_[2] = n2;
-  debug_size_[3] = n3;
-  debug_capacity_[0] = r0;
-  debug_capacity_[1] = r1;
-  debug_capacity_[2] = r2;
-  debug_capacity_[3] = r3;
-#endif
   size_[0] = data_ + n0;
   size_[1] = data_ + n1;
   size_[2] = data_ + n2;
@@ -429,20 +383,13 @@ Array4C<T>::Array4C(const Array4C<T>& A) {
   capacity_[1] = data_ + r1;
   capacity_[2] = data_ + r2;
   capacity_[3] = data_ + r3;
+  alignment_ = A.alignment_;
+  align_r_ = A.align_r_;
+  align_mod_ = A.align_mod_;
 }
 
 template <typename T>
 Array4C<T>::Array4C(Array4C<T>&& A) {
-#ifdef IL_DEBUG_VISUALIZER
-  debug_size_[0] = A.debug_size_[0];
-  debug_size_[1] = A.debug_size_[1];
-  debug_size_[2] = A.debug_size_[2];
-  debug_size_[3] = A.debug_size_[3];
-  debug_capacity_[0] = A.debug_capacity_[0];
-  debug_capacity_[1] = A.debug_capacity_[1];
-  debug_capacity_[2] = A.debug_capacity_[2];
-  debug_capacity_[3] = A.debug_capacity_[3];
-#endif
   data_ = A.data_;
   size_[0] = A.size_[0];
   size_[1] = A.size_[1];
@@ -452,16 +399,10 @@ Array4C<T>::Array4C(Array4C<T>&& A) {
   capacity_[1] = A.capacity_[1];
   capacity_[2] = A.capacity_[2];
   capacity_[3] = A.capacity_[3];
-#ifdef IL_DEBUG_VISUALIZER
-  A.debug_size_[0] = 0;
-  A.debug_size_[1] = 0;
-  A.debug_size_[2] = 0;
-  A.debug_size_[3] = 0;
-  A.debug_capacity_[0] = 0;
-  A.debug_capacity_[1] = 0;
-  A.debug_capacity_[2] = 0;
-  A.debug_capacity_[3] = 0;
-#endif
+  alignment_ = A.alignment_;
+  align_r_ = A.align_r_;
+  align_mod_ = A.align_mod_;
+  shift_ = A.shift_;
   A.data_ = nullptr;
   A.size_[0] = nullptr;
   A.size_[1] = nullptr;
@@ -471,6 +412,10 @@ Array4C<T>::Array4C(Array4C<T>&& A) {
   A.capacity_[1] = nullptr;
   A.capacity_[2] = nullptr;
   A.capacity_[3] = nullptr;
+  A.alignment_ = 0;
+  A.align_r_ = 0;
+  A.align_mod_ = 0;
+  A.shift_ = 0;
 }
 
 template <typename T>
@@ -480,35 +425,56 @@ Array4C<T>& Array4C<T>::operator=(const Array4C<T>& A) {
     const il::int_t n1 = A.size(1);
     const il::int_t n2 = A.size(2);
     const il::int_t n3 = A.size(3);
-    il::int_t r0;
-    il::int_t r1;
-    il::int_t r2;
-    il::int_t r3;
-    if (n0 > 0 && n1 > 0 && n2 > 0 && n3 > 0) {
-      r0 = n0;
-      r1 = n1;
-      r2 = n2;
-      r3 = n3;
-    } else if (n0 == 0 && n1 == 0 && n2 == 0 && n3 == 0) {
-      r0 = 0;
-      r1 = 0;
-      r2 = 0;
-      r3 = 0;
-    } else {
-      r0 = (n0 == 0) ? 1 : n0;
-      r1 = (n1 == 0) ? 1 : n1;
-      r2 = (n2 == 0) ? 1 : n2;
-      r3 = (n3 == 0) ? 1 : n3;
-    }
-    const il::int_t r = r0 * r1 * r2 * r3;
-    const bool needs_memory = r0 > capacity(0) || r1 > capacity(1) ||
-                              r2 > capacity(2) || r3 > capacity(3);
-    if (needs_memory) {
+    const il::int_t alignment = A.alignment_;
+    const il::int_t align_r = A.align_r_;
+    const il::int_t align_mod = A.align_mod_;
+    const bool need_memory = capacity(0) < n0 || capacity(1) < n1 ||
+                             capacity(2) < n2 || capacity(3) < n3 ||
+                             align_mod_ != align_mod || align_r_ != align_r ||
+                             alignment_ != alignment;
+    if (need_memory) {
+      il::int_t r0;
+      il::int_t r1;
+      il::int_t r2;
+      il::int_t r3;
+      if (n0 > 0 && n1 > 0 && n2 > 0) {
+        r0 = n0;
+        r1 = n1;
+        r2 = n2;
+        if (il::is_trivial<T>::value && alignment != 0) {
+          const il::int_t nb_lanes = static_cast<il::int_t>(
+              static_cast<std::size_t>(alignment) / alignof(T));
+          bool error = false;
+          r3 = il::safe_upper_round(n3, nb_lanes, il::io, error);
+          if (error) {
+            std::abort();
+          }
+        } else {
+          r3 = n3;
+        }
+      } else {
+        r0 = (n0 == 0) ? 1 : n0;
+        r1 = (n1 == 0) ? 1 : n1;
+        r2 = (n2 == 0) ? 1 : n2;
+        r3 = (n3 == 0) ? 1 : n3;
+      }
+      bool error = false;
+      const il::int_t r = il::safe_product(r0, r1, r2, r3, il::io, error);
+      if (error) {
+        std::abort();
+      }
       if (il::is_trivial<T>::value) {
         if (data_) {
-          delete[] data_;
+          il::deallocate(data_ - shift_);
         }
-        data_ = new T[r];
+        if (alignment == 0) {
+          data_ = il::allocate_array<T>(r);
+          shift_ = 0;
+        } else {
+          il::int_t shift;
+          data_ = il::allocate_array<T>(r, align_r, align_mod, il::io, shift);
+          shift_ = static_cast<short>(shift);
+        }
         for (il::int_t i0 = 0; i0 < n0; ++i0) {
           for (il::int_t i1 = 0; i1 < n1; ++i1) {
             for (il::int_t i2 = 0; i2 < n2; ++i2) {
@@ -527,16 +493,15 @@ Array4C<T>& Array4C<T>::operator=(const Array4C<T>& A) {
               for (il::int_t i2 = size(2) - 1; i2 >= 0; --i2) {
                 for (il::int_t i3 = size(3) - 1; i3 >= 0; --i3) {
                   (data_ +
-                   ((i0 * A.capacity(1) + i1) * A.capacity(2) + i2) *
-                       A.capacity(3) +
+                   ((i0 * capacity(1) + i1) * capacity(2) + i2) * capacity(3) +
                    i3)->~T();
                 }
               }
             }
           }
-          ::operator delete(data_);
+          il::deallocate(data_);
         }
-        data_ = static_cast<T*>(::operator new(r * sizeof(T)));
+        data_ = il::allocate_array<T>(r);
         for (il::int_t i0 = 0; i0 < n0; ++i0) {
           for (il::int_t i1 = 0; i1 < n1; ++i1) {
             for (il::int_t i2 = 0; i2 < n2; ++i2) {
@@ -548,16 +513,6 @@ Array4C<T>& Array4C<T>::operator=(const Array4C<T>& A) {
           }
         }
       }
-#ifdef IL_DEBUG_VISUALIZER
-      debug_size_[0] = n0;
-      debug_size_[1] = n1;
-      debug_size_[2] = n2;
-      debug_size_[3] = n3;
-      debug_capacity_[0] = r0;
-      debug_capacity_[1] = r1;
-      debug_capacity_[2] = r2;
-      debug_capacity_[3] = r3;
-#endif
       size_[0] = data_ + n0;
       size_[1] = data_ + n1;
       size_[2] = data_ + n2;
@@ -566,6 +521,9 @@ Array4C<T>& Array4C<T>::operator=(const Array4C<T>& A) {
       capacity_[1] = data_ + r1;
       capacity_[2] = data_ + r2;
       capacity_[3] = data_ + r3;
+      alignment_ = static_cast<short>(alignment);
+      align_r_ = static_cast<short>(align_r);
+      align_mod_ = static_cast<short>(align_mod);
     } else {
       if (il::is_trivial<T>::value) {
         for (il::int_t i0 = 0; i0 < n0; ++i0) {
@@ -588,7 +546,7 @@ Array4C<T>& Array4C<T>::operator=(const Array4C<T>& A) {
               for (il::int_t i3 = 0; i3 < n3; ++i3) {
                 data_[((i0 * capacity(1) + i1) * capacity(2) + i2) *
                           capacity(3) +
-                      i3] = A(i0, i1, i2, i3);
+                      i0] = A(i0, i1, i2, i3);
               }
             }
           }
@@ -607,12 +565,6 @@ Array4C<T>& Array4C<T>::operator=(const Array4C<T>& A) {
           }
         }
       }
-#ifdef IL_DEBUG_VISUALIZER
-      debug_size_[0] = n0;
-      debug_size_[1] = n1;
-      debug_size_[2] = n2;
-      debug_size_[3] = n3;
-#endif
       size_[0] = data_ + n0;
       size_[1] = data_ + n1;
       size_[2] = data_ + n2;
@@ -626,9 +578,7 @@ template <typename T>
 Array4C<T>& Array4C<T>::operator=(Array4C<T>&& A) {
   if (this != &A) {
     if (data_) {
-      if (il::is_trivial<T>::value) {
-        delete[] data_;
-      } else {
+      if (!il::is_trivial<T>::value) {
         for (il::int_t i0 = size(0) - 1; i0 >= 0; --i0) {
           for (il::int_t i1 = size(1) - 1; i1 >= 0; --i1) {
             for (il::int_t i2 = size(2) - 1; i2 >= 0; --i2) {
@@ -640,19 +590,9 @@ Array4C<T>& Array4C<T>::operator=(Array4C<T>&& A) {
             }
           }
         }
-        ::operator delete(data_);
       }
+      il::deallocate(data_ - shift_);
     }
-#ifdef IL_DEBUG_VISUALIZER
-    debug_size_[0] = A.debug_size_[0];
-    debug_size_[1] = A.debug_size_[1];
-    debug_size_[2] = A.debug_size_[2];
-    debug_size_[3] = A.debug_size_[3];
-    debug_capacity_[0] = A.debug_capacity_[0];
-    debug_capacity_[1] = A.debug_capacity_[1];
-    debug_capacity_[2] = A.debug_capacity_[2];
-    debug_capacity_[3] = A.debug_capacity_[3];
-#endif
     data_ = A.data_;
     size_[0] = A.size_[0];
     size_[1] = A.size_[1];
@@ -662,16 +602,10 @@ Array4C<T>& Array4C<T>::operator=(Array4C<T>&& A) {
     capacity_[1] = A.capacity_[1];
     capacity_[2] = A.capacity_[2];
     capacity_[3] = A.capacity_[3];
-#ifdef IL_DEBUG_VISUALIZER
-    A.debug_size_[0] = 0;
-    A.debug_size_[1] = 0;
-    A.debug_size_[2] = 0;
-    A.debug_size_[3] = 0;
-    A.debug_capacity_[0] = 0;
-    A.debug_capacity_[1] = 0;
-    A.debug_capacity_[2] = 0;
-    A.debug_capacity_[3] = 0;
-#endif
+    alignment_ = A.alignment_;
+    align_r_ = A.align_r_;
+    align_mod_ = A.align_mod_;
+    shift_ = A.shift_;
     A.data_ = nullptr;
     A.size_[0] = nullptr;
     A.size_[1] = nullptr;
@@ -681,19 +615,20 @@ Array4C<T>& Array4C<T>::operator=(Array4C<T>&& A) {
     A.capacity_[1] = nullptr;
     A.capacity_[2] = nullptr;
     A.capacity_[3] = nullptr;
+    A.alignment_ = 0;
+    A.align_r_ = 0;
+    A.align_mod_ = 0;
+    A.shift_ = 0;
   }
   return *this;
 }
 
 template <typename T>
 Array4C<T>::~Array4C() {
-#ifndef NDEBUG
-  check_invariance();
-#endif
+  IL_EXPECT_FAST(invariance());
+
   if (data_) {
-    if (il::is_trivial<T>::value) {
-      delete[] data_;
-    } else {
+    if (!il::is_trivial<T>::value) {
       for (il::int_t i0 = size(0) - 1; i0 >= 0; --i0) {
         for (il::int_t i1 = size(1) - 1; i1 >= 0; --i1) {
           for (il::int_t i2 = size(2) - 1; i2 >= 0; --i2) {
@@ -705,8 +640,8 @@ Array4C<T>::~Array4C() {
           }
         }
       }
-      ::operator delete(data_);
     }
+    il::deallocate(data_ - shift_);
   }
 }
 
@@ -721,6 +656,7 @@ const T& Array4C<T>::operator()(il::int_t i0, il::int_t i1, il::int_t i2,
                    static_cast<std::size_t>(size(2)));
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(i3) <
                    static_cast<std::size_t>(size(3)));
+
   return data_[((i0 * (capacity_[1] - data_) + i1) * (capacity_[2] - data_) +
                 i2) *
                    (capacity_[3] - data_) +
@@ -738,6 +674,7 @@ T& Array4C<T>::operator()(il::int_t i0, il::int_t i1, il::int_t i2,
                    static_cast<std::size_t>(size(2)));
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(i3) <
                    static_cast<std::size_t>(size(3)));
+
   return data_[((i0 * (capacity_[1] - data_) + i1) * (capacity_[2] - data_) +
                 i2) *
                    (capacity_[3] - data_) +
@@ -747,7 +684,8 @@ T& Array4C<T>::operator()(il::int_t i0, il::int_t i1, il::int_t i2,
 template <typename T>
 il::int_t Array4C<T>::size(il::int_t d) const {
   IL_EXPECT_FAST(static_cast<std::size_t>(d) < static_cast<std::size_t>(4));
-  return static_cast<il::int_t>(size_[d] - data_);
+
+  return size_[d] - data_;
 }
 
 template <typename T>
@@ -757,43 +695,14 @@ void Array4C<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2,
   IL_EXPECT_FAST(n1 >= 0);
   IL_EXPECT_FAST(n2 >= 0);
   IL_EXPECT_FAST(n3 >= 0);
-  if (n0 <= capacity(0) && n1 <= capacity(1) && n2 <= capacity(2) &&
-      n3 <= capacity(3)) {
-    if (il::is_trivial<T>::value) {
-#ifdef IL_DEFAULT_VALUE
-      for (il::int_t i0 = 0; i0 < n0; ++i0) {
-        for (il::int_t i1 = 0; i1 < n1; ++i1) {
-          for (il::int_t i2 = 0; i2 < n2; ++i2) {
-            for (il::int_t i3 =
-                     ((i0 < size(0) && i1 < size(1) && i2 < size(2)) ? size(3)
-                                                                     : 0);
-                 i3 < n3; ++i3) {
-              data_[((i0 * capacity(1) + i1) * capacity(2) + i2) * capacity(3) +
-                    i3] = il::default_value<T>();
-            }
-          }
-        }
-      }
-#endif
-    } else {
-      for (il::int_t i0 = size(0) - 1; i0 >= 0; --i0) {
-        for (il::int_t i1 = size(1) - 1; i1 >= 0; --i1) {
-          for (il::int_t i2 = size(2) - 1; i2 >= 0; --i2) {
-            for (il::int_t i3 = size(3) - 1;
-                 i3 >= ((i0 < n0 && i1 < n1 && i2 < n2) ? n3 : 0); --i3) {
-              (data_ +
-               ((i0 * capacity(1) + i1) * capacity(2) + i2) * capacity(3) +
-               i3)->~T();
-            }
-          }
-        }
-      }
-    }
-  } else {
-    const il::int_t n0_old = size(0);
-    const il::int_t n1_old = size(1);
-    const il::int_t n2_old = size(2);
-    const il::int_t n3_old = size(3);
+
+  const il::int_t n0_old = size(0);
+  const il::int_t n1_old = size(1);
+  const il::int_t n2_old = size(2);
+  const il::int_t n3_old = size(3);
+  const bool need_memory = n0 > capacity(0) || n1 > capacity(1) ||
+                           n2 > capacity(2) || n3 > capacity(3);
+  if (need_memory) {
     il::int_t r0;
     il::int_t r1;
     il::int_t r2;
@@ -802,44 +711,88 @@ void Array4C<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2,
       r0 = n0;
       r1 = n1;
       r2 = n2;
-      r3 = n3;
-    } else if (n0 == 0 && n1 == 0 && n2 == 0 && n3 == 0) {
-      r0 = 0;
-      r1 = 0;
-      r2 = 0;
-      r3 = 0;
+      if (il::is_trivial<T>::value && alignment_ != 0) {
+        const il::int_t nb_lanes = static_cast<il::int_t>(
+            static_cast<std::size_t>(alignment_) / alignof(T));
+        bool error = false;
+        r3 = il::safe_upper_round(n3, nb_lanes, il::io, error);
+        if (error) {
+          std::abort();
+        }
+      } else {
+        r3 = n3;
+      }
     } else {
       r0 = (n0 == 0) ? 1 : n0;
       r1 = (n1 == 0) ? 1 : n1;
       r2 = (n2 == 0) ? 1 : n2;
       r3 = (n3 == 0) ? 1 : n3;
     }
-    const il::int_t r = r0 * r1 * r2 * r3;
-    T* new_data;
-    if (il::is_trivial<T>::value) {
-      new_data = new T[r];
-    } else {
-      new_data = static_cast<T*>(::operator new(r * sizeof(T)));
+    bool error = false;
+    const il::int_t r = il::safe_product(r0, r1, r2, r3, il::io, error);
+    if (error) {
+      std::abort();
     }
-    if (data_) {
-      if (il::is_trivial<T>::value) {
-        for (il::int_t i0 = 0; i0 < n0; ++i0) {
-          for (il::int_t i1 = 0; i1 < n1; ++i1) {
-            for (il::int_t i2 = 0; i2 < n2; ++i2) {
+    T* new_data;
+    il::int_t new_shift;
+    if (il::is_trivial<T>::value) {
+      if (alignment_ == 0) {
+        new_data = il::allocate_array<T>(r);
+        new_shift = 0;
+      } else {
+        new_data =
+            il::allocate_array<T>(r, align_r_, align_mod_, il::io, new_shift);
+      }
+      if (data_) {
+        for (il::int_t i0 = 0; i0 < (n0 < n0_old ? n0 : n0_old); ++i0) {
+          for (il::int_t i1 = 0; i1 < (n1 < n1_old ? n1 : n1_old); ++i1) {
+            for (il::int_t i2 = 0; i2 < (n2 < n2_old ? n2 : n2_old); ++i2) {
               memcpy(new_data + ((i0 * r1 + i1) * r2 + i2) * r3,
                      data_ +
                          ((i0 * capacity(1) + i1) * capacity(2) + i2) *
                              capacity(3),
-                     size(3) * sizeof(T));
+                     (n3 < n3_old ? n3 : n3_old) * sizeof(T));
             }
           }
         }
-        delete[] data_;
-      } else {
-        for (il::int_t i0 = 0; i0 < n0_old; ++i0) {
-          for (il::int_t i1 = 0; i1 < n1_old; ++i1) {
-            for (il::int_t i2 = 0; i2 < n2_old; ++i2) {
-              for (il::int_t i3 = 0; i3 < n3_old; ++i3) {
+        il::deallocate(data_ - shift_);
+      }
+#ifdef IL_DEFAULT_VALUE
+      for (il::int_t i0 = 0; i0 < n0; ++i0) {
+        for (il::int_t i1 = 0; i1 < n1; ++i1) {
+          for (il::int_t i2 = 0; i2 < n2; ++i2) {
+            for (il::int_t i3 =
+                     (i0 < n0_old && i1 < n1_old && i2 < n2_old) ? n3_old : 0;
+                 i3 < n3; ++i3) {
+              new_data[((i0 * r1 + i1) * r2 + i2) * r3 + i3] =
+                  il::default_value<T>();
+            }
+          }
+        }
+      }
+#endif
+    } else {
+      new_data = il::allocate_array<T>(r);
+      new_shift = 0;
+      if (data_) {
+        for (il::int_t i0 = n0_old - 1; i0 >= 0; --i0) {
+          for (il::int_t i1 = n1_old - 1; i1 >= 0; --i1) {
+            for (il::int_t i2 = n2_old - 1; i2 >= 0; --i2) {
+              for (il::int_t i3 = n3_old - 1;
+                   i3 >= (i0 < n0 && i1 < n1 && i2 < n2 ? n3 : 0); --i3) {
+                (data_ +
+                 ((i0 * capacity(1) + i1) * capacity(2) + i2) * capacity(3) +
+                 i3)->~T();
+              }
+            }
+          }
+        }
+        for (il::int_t i0 = (n0 < n0_old ? n0 : n0_old) - 1; i0 >= 0; --i0) {
+          for (il::int_t i1 = (n1 < n1_old ? n1 : n1_old) - 1; i1 >= 0; --i1) {
+            for (il::int_t i2 = (n2 < n2_old ? n2 : n2_old) - 1; i2 >= 0;
+                 --i2) {
+              for (il::int_t i3 = (n3 < n3_old ? n3 : n3_old) - 1; i3 >= 0;
+                   --i3) {
                 new (new_data + ((i0 * r1 + i1) * r2 + i2) * r3 + i3)
                     T(std::move(
                         data_[((i0 * capacity(1) + i1) * capacity(2) + i2) *
@@ -852,30 +805,13 @@ void Array4C<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2,
             }
           }
         }
-        ::operator delete(data_);
+        il::deallocate(data_);
       }
-    }
-    if (il::is_trivial<T>::value) {
-#ifdef IL_DEFAULT_VALUE
       for (il::int_t i0 = 0; i0 < n0; ++i0) {
         for (il::int_t i1 = 0; i1 < n1; ++i1) {
           for (il::int_t i2 = 0; i2 < n2; ++i2) {
             for (il::int_t i3 =
-                     ((i0 < n0_old && i1 < n1_old && i2 < n2_old) ? n3_old : 0);
-                 i3 < n3; ++i3) {
-              new_data[((i0 * r1 + i1) * r2 + i2) * r3 + i3] =
-                  il::default_value<T>();
-            }
-          }
-        }
-      }
-#endif
-    } else {
-      for (il::int_t i0 = 0; i0 < n0; ++i0) {
-        for (il::int_t i1 = 0; i1 < n1; ++i1) {
-          for (il::int_t i2 = 0; i2 < n2; ++i2) {
-            for (il::int_t i3 =
-                     ((i0 < n0_old && i1 < n1_old && i2 < n2_old) ? n3_old : 0);
+                     (i0 < n0_old && i1 < n1_old && i2 < n2_old) ? n3_old : 0;
                  i3 < n3; ++i3) {
               new (new_data + ((i0 * r1 + i1) * r2 + i2) * r3 + i3) T{};
             }
@@ -884,23 +820,55 @@ void Array4C<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2,
       }
     }
     data_ = new_data;
-#ifdef IL_DEBUG_VISUALIZER
-    debug_capacity_[0] = r0;
-    debug_capacity_[1] = r1;
-    debug_capacity_[2] = r2;
-    debug_capacity_[3] = r3;
-#endif
     capacity_[0] = data_ + r0;
     capacity_[1] = data_ + r1;
     capacity_[2] = data_ + r2;
     capacity_[3] = data_ + r3;
-  }
-#ifdef IL_DEBUG_VISUALIZER
-  debug_size_[0] = n0;
-  debug_size_[1] = n1;
-  debug_size_[2] = n2;
-  debug_size_[3] = n3;
+    shift_ = static_cast<short>(new_shift);
+  } else {
+    if (il::is_trivial<T>::value) {
+#ifdef IL_DEFAULT_VALUE
+      for (il::int_t i0 = 0; i0 < n0; ++i0) {
+        for (il::int_t i1 = 0; i1 < n1; ++i1) {
+          for (il::int_t i2 = 0; i2 < n2; ++i2) {
+            for (il::int_t i3 =
+                     (i0 < n0_old && i1 < n1_old && i2 < n2_old) ? n3_old : 0;
+                 i3 < n3; ++i3) {
+              data_[((i0 * capacity(1) + i1) * capacity(2) + i2) * capacity(3) +
+                    i3] = il::default_value<T>();
+            }
+          }
+        }
+      }
 #endif
+    } else {
+      for (il::int_t i0 = n0_old - 1; i0 >= 0; --i0) {
+        for (il::int_t i1 = n1_old - 1; i1 >= 0; --i1) {
+          for (il::int_t i2 = n2_old - 1; i2 >= 0; --i2) {
+            for (il::int_t i3 = n3_old - 1;
+                 i3 >= ((i0 < n0 && i1 < n1 && i2 < n2) ? n3 : 0); --i3) {
+              (data_ +
+               ((i0 * capacity(1) + i1) * capacity(2) + i2) * capacity(3) +
+               i3)->~T();
+            }
+          }
+        }
+      }
+    }
+    for (il::int_t i0 = 0; i0 < n0; ++i0) {
+      for (il::int_t i1 = 0; i1 < n1; ++i1) {
+        for (il::int_t i2 = 0; i2 < n2; ++i2) {
+          for (il::int_t i3 =
+                   (i0 < n0_old && i1 < n1_old && i2 < n2_old) ? n3_old : 0;
+               i3 < n3; ++i3) {
+            new (data_ +
+                 ((i0 * capacity(1) + i1) * capacity(2) + i2) * capacity(3) +
+                 i3) T{};
+          }
+        }
+      }
+    }
+  }
   size_[0] = data_ + n0;
   size_[1] = data_ + n1;
   size_[2] = data_ + n2;
@@ -910,7 +878,8 @@ void Array4C<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2,
 template <typename T>
 il::int_t Array4C<T>::capacity(il::int_t d) const {
   IL_EXPECT_FAST(static_cast<std::size_t>(d) < static_cast<std::size_t>(4));
-  return static_cast<il::int_t>(capacity_[d] - data_);
+
+  return capacity_[d] - data_;
 }
 
 template <typename T>
@@ -920,25 +889,43 @@ void Array4C<T>::reserve(il::int_t r0, il::int_t r1, il::int_t r2,
   IL_EXPECT_FAST(r1 >= 0);
   IL_EXPECT_FAST(r2 >= 0);
   IL_EXPECT_FAST(r3 >= 0);
-  if (r0 > capacity(0) || r1 > capacity(1) || r2 > capacity(2) ||
-      r3 > capacity(3)) {
+
+  r0 = (r0 > capacity(0)) ? r0 : capacity(0);
+  r1 = (r1 > capacity(1)) ? r1 : capacity(1);
+  r2 = (r2 > capacity(2)) ? r2 : capacity(2);
+  r3 = (r3 > capacity(3)) ? r3 : capacity(3);
+  const bool need_memory = r0 > capacity(0) || r1 > capacity(1) ||
+                           r2 > capacity(2) || r3 > capacity(3);
+  if (need_memory) {
     const il::int_t n0_old = size(0);
     const il::int_t n1_old = size(1);
     const il::int_t n2_old = size(2);
     const il::int_t n3_old = size(3);
-    r0 = (r0 == 0) ? 1 : r0;
-    r1 = (r1 == 0) ? 1 : r1;
-    r2 = (r2 == 0) ? 1 : r2;
-    r3 = (r3 == 0) ? 1 : r3;
-    const il::int_t r = r0 * r1 * r2 * r3;
-    T* new_data;
-    if (il::is_trivial<T>::value) {
-      new_data = new T[r];
-    } else {
-      new_data = static_cast<T*>(::operator new(r * sizeof(T)));
+    if (il::is_trivial<T>::value && alignment_ != 0) {
+      const il::int_t nb_lanes = static_cast<il::int_t>(
+          static_cast<std::size_t>(alignment_) / alignof(T));
+      bool error = false;
+      r3 = il::safe_upper_round(r3, nb_lanes, il::io, error);
+      if (error) {
+        std::abort();
+      }
     }
-    if (data_) {
-      if (il::is_trivial<T>::value) {
+    bool error = false;
+    const il::int_t r = il::safe_product(r0, r1, r2, r3, il::io, error);
+    if (error) {
+      std::abort();
+    }
+    T* new_data;
+    il::int_t new_shift;
+    if (il::is_trivial<T>::value) {
+      if (alignment_ == 0) {
+        new_data = il::allocate_array<T>(r);
+        new_shift = 0;
+      } else {
+        new_data =
+            il::allocate_array<T>(r, align_r_, align_mod_, il::io, new_shift);
+      }
+      if (data_) {
         for (il::int_t i0 = 0; i0 < n0_old; ++i0) {
           for (il::int_t i1 = 0; i1 < n1_old; ++i1) {
             for (il::int_t i2 = 0; i2 < n2_old; ++i2) {
@@ -950,42 +937,38 @@ void Array4C<T>::reserve(il::int_t r0, il::int_t r1, il::int_t r2,
             }
           }
         }
-        delete[] data_;
-      } else {
-        for (il::int_t i0 = 0; i0 < n0_old; ++i0) {
-          for (il::int_t i1 = 0; i1 < n1_old; ++i1) {
-            for (il::int_t i2 = 0; i2 < n2_old; ++i2) {
-              for (il::int_t i3 = 0; i3 < n3_old; ++i3) {
-                new (new_data + ((i0 * r1 + i1) * r2 + i2) * r3 + i3)
-                    T(std::move(
-                        data_[((i0 * capacity(1) + i1) * capacity(2) + i2) *
-                                  capacity(3) +
-                              i3]));
-                (data_ +
-                 ((i0 * capacity(1) + i1) * capacity(2) + i2) * capacity(3) +
-                 i3)->~T();
-              }
+        il::deallocate(data_ - shift_);
+      }
+    } else {
+      new_data = il::allocate_array<T>(r);
+      new_shift = 0;
+      for (il::int_t i0 = n0_old - 1; i0 >= 0; --i0) {
+        for (il::int_t i1 = n1_old - 1; i1 >= 0; --i1) {
+          for (il::int_t i2 = n2_old - 1; i2 >= 0; --i2) {
+            for (il::int_t i3 = n3_old - 1; i3 >= 0; --i3) {
+              new (new_data + ((i0 * r1 + i1) * r2 + i2) * r3 + i3) T(
+                  std::move(data_[((i0 * capacity(1) + i1) * capacity(2) + i2) *
+                                      capacity(3) +
+                                  i3]));
+              (data_ +
+               ((i0 * capacity(1) + i1) * capacity(2) + i2) * capacity(3) +
+               i3)->~T();
             }
           }
         }
-        ::operator delete(data_);
       }
+      il::deallocate(data_);
     }
     data_ = new_data;
-#ifdef IL_DEBUG_VISUALIZER
-    debug_capacity_[0] = r0;
-    debug_capacity_[1] = r1;
-    debug_capacity_[2] = r2;
-    debug_capacity_[3] = r3;
-#endif
-    capacity_[0] = data_ + r0;
-    capacity_[1] = data_ + r1;
-    capacity_[2] = data_ + r2;
-    capacity_[3] = data_ + r3;
     size_[0] = data_ + n0_old;
     size_[1] = data_ + n1_old;
     size_[2] = data_ + n2_old;
     size_[3] = data_ + n3_old;
+    capacity_[0] = data_ + r0;
+    capacity_[1] = data_ + r1;
+    capacity_[2] = data_ + r2;
+    capacity_[3] = data_ + r3;
+    shift_ = static_cast<short>(new_shift);
   }
 }
 
@@ -1000,30 +983,61 @@ T* Array4C<T>::data() {
 }
 
 template <typename T>
-void Array4C<T>::check_invariance() const {
+bool Array4C<T>::invariance() const {
+  bool ans = true;
+
   if (data_ == nullptr) {
-    IL_EXPECT_FAST(size_[0] == nullptr);
-    IL_EXPECT_FAST(size_[1] == nullptr);
-    IL_EXPECT_FAST(size_[2] == nullptr);
-    IL_EXPECT_FAST(size_[3] == nullptr);
-    IL_EXPECT_FAST(capacity_[0] == nullptr);
-    IL_EXPECT_FAST(capacity_[1] == nullptr);
-    IL_EXPECT_FAST(capacity_[2] == nullptr);
-    IL_EXPECT_FAST(capacity_[3] == nullptr);
+    ans = ans && (size_[0] == nullptr);
+    ans = ans && (size_[1] == nullptr);
+    ans = ans && (size_[2] == nullptr);
+    ans = ans && (size_[3] == nullptr);
+    ans = ans && (capacity_[0] == nullptr);
+    ans = ans && (capacity_[1] == nullptr);
+    ans = ans && (capacity_[2] == nullptr);
+    ans = ans && (capacity_[3] == nullptr);
+    ans = ans && (alignment_ == 0);
+    ans = ans && (align_r_ == 0);
+    ans = ans && (align_mod_ == 0);
+    ans = ans && (shift_ == 0);
   } else {
-    IL_EXPECT_FAST(size_[0] != nullptr);
-    IL_EXPECT_FAST(size_[1] != nullptr);
-    IL_EXPECT_FAST(size_[2] != nullptr);
-    IL_EXPECT_FAST(size_[3] != nullptr);
-    IL_EXPECT_FAST(capacity_[0] != nullptr);
-    IL_EXPECT_FAST(capacity_[1] != nullptr);
-    IL_EXPECT_FAST(capacity_[2] != nullptr);
-    IL_EXPECT_FAST(capacity_[3] != nullptr);
-    IL_EXPECT_FAST((size_[0] - data_) <= (capacity_[0] - data_));
-    IL_EXPECT_FAST((size_[1] - data_) <= (capacity_[1] - data_));
-    IL_EXPECT_FAST((size_[2] - data_) <= (capacity_[2] - data_));
-    IL_EXPECT_FAST((size_[3] - data_) <= (capacity_[3] - data_));
+    ans = ans && (size_[0] != nullptr);
+    ans = ans && (size_[1] != nullptr);
+    ans = ans && (size_[2] != nullptr);
+    ans = ans && (size_[3] != nullptr);
+    ans = ans && (capacity_[0] != nullptr);
+    ans = ans && (capacity_[1] != nullptr);
+    ans = ans && (capacity_[2] != nullptr);
+    ans = ans && (capacity_[3] != nullptr);
+    ans = ans && ((size_[0] - data_) <= (capacity_[0] - data_));
+    ans = ans && ((size_[1] - data_) <= (capacity_[1] - data_));
+    ans = ans && ((size_[2] - data_) <= (capacity_[2] - data_));
+    ans = ans && ((size_[3] - data_) <= (capacity_[3] - data_));
+    if (il::is_trivial<T>::value) {
+      ans = ans && (alignment_ >= 0);
+      ans = ans && (align_r_ >= 0);
+      ans = ans && (align_mod_ >= 0);
+      ans = ans && (alignment_ % alignof(T) == 0);
+      ans = ans && (align_r_ % alignof(T) == 0);
+      ans = ans && (align_mod_ % alignof(T) == 0);
+      if (alignment_ > 0) {
+        ans = ans && (align_r_ % alignment_ == 0);
+        ans = ans && (align_mod_ > 0);
+        ans = ans && (align_mod_ % alignment_ == 0);
+        ans = ans && (align_r_ < align_mod_);
+        ans = ans && (reinterpret_cast<std::size_t>(data_) %
+                          static_cast<std::size_t>(align_mod_) ==
+                      static_cast<std::size_t>(align_r_));
+      } else {
+        ans = ans && (align_r_ == 0);
+        ans = ans && (align_mod_ == 0);
+      }
+    } else {
+      ans = ans && (align_r_ == 0);
+      ans = ans && (align_mod_ == 0);
+      ans = ans && (alignment_ == 0);
+    }
   }
+  return ans;
 }
 }
 

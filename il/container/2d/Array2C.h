@@ -63,7 +63,7 @@ class Array2C {
   // data_ = align_r (Modulo align_mod)
   */
   explicit Array2C(il::int_t n0, il::int_t n1, il::align_t,
-                   il::int_t alignement, il::int_t align_r,
+                   il::int_t alignment, il::int_t align_r,
                    il::int_t align_mod);
 
   /* \brief Construct an il::Array2C<T> of n rows and p columns

@@ -71,7 +71,7 @@ class Array3C {
   // data_ = align_r (Modulo align_mod)
   */
   explicit Array3C(il::int_t n0, il::int_t n1, il::int_t n2, il::align_t,
-                   il::int_t alignement, il::int_t align_r,
+                   il::int_t alignment, il::int_t align_r,
                    il::int_t align_mod);
 
   /* \brief Construct an array of n0 rows and n1 columns and n2 slices with a
@@ -87,7 +87,7 @@ class Array3C {
                    il::align_t, il::int_t alignment);
 
   explicit Array3C(il::int_t n0, il::int_t n1, il::int_t n2, const T& x,
-                   il::align_t, il::int_t alignement, il::int_t align_r,
+                   il::align_t, il::int_t alignment, il::int_t align_r,
                    il::int_t align_mod);
 
   /* \brief Construct an array from a brace-initialized list
