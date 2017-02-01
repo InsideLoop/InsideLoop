@@ -8,7 +8,6 @@
 //==============================================================================
 
 #include <il/Array3D.h>
-#include <il/Array2D.h>
 
 int main() {
   const il::int_t n = 1024;
