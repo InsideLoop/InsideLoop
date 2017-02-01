@@ -415,6 +415,8 @@ inline std::int64_t safe_upper_round(std::int64_t a, std::int64_t b, il::io_t,
 
 template <typename T1, typename T2>
 T1 safe_convert(T2 n, il::io_t, bool& error) {
+  IL_UNUSED(n);
+  IL_UNUSED(error);
   IL_UNREACHABLE;
 }
 

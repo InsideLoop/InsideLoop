@@ -196,6 +196,9 @@ inline void String::reserve(il::int_t r) {
   const il::int_t old_size = size();
   char* const new_data = new char[r + 1];
   std::memcpy(new_data, c_string(), static_cast<std::size_t>(old_size) + 1);
+  if (!old_is_small) {
+    delete[] large_.data;
+  }
   large_.data = new_data;
   large_.size = old_size;
   large_.set_capacity(r);

@@ -71,10 +71,9 @@ T* allocate_array(il::int_t n, il::int_t align_r, il::int_t align_mod, il::io_t,
           ? (align_r_unsigned - r) / sizeof(T)
           : (align_mod_unsigned - (r - align_r_unsigned)) / sizeof(T);
 
-  IL_ENSURE(local_shift >= 0);
-  IL_ENSURE(local_shift < align_mod);
+  IL_ENSURE(local_shift < static_cast<std::size_t>(align_mod));
 
-  shift = local_shift;
+  shift = static_cast<il::int_t>(local_shift);
   T* aligned_p = p + local_shift;
   return aligned_p;
 }
