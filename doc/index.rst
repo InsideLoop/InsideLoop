@@ -11,6 +11,17 @@ Welcome to InsideLoop's documentation!
    :caption: Contents:
 
 
+.. highlight:: cpp
+
+   #include <il/Array3D.h>
+
+   int main() {
+     const il::int_t n = 1000;
+     il::Array3D<double> A(n, n, n);
+
+     return 0;
+   }
+
 
 Indices and tables
 ==================
