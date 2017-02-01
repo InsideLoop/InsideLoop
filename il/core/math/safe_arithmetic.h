@@ -154,7 +154,6 @@ inline std::uint32_t safe_sum(std::uint32_t a, std::uint32_t b, il::io_t,
 #endif
 }
 
-#ifdef IL_64_BIT_ENVIRONMENT
 inline std::uint32_t safe_product(std::uint32_t a, std::uint32_t b, il::io_t,
                                   bool& error) {
 #if __GNUC__ >= 6 || \
@@ -183,7 +182,6 @@ inline std::uint32_t safe_product(std::uint32_t a, std::uint32_t b, il::io_t,
   }
 #endif
 }
-#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 // 64-bit integer

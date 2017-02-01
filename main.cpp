@@ -7,12 +7,12 @@
 //
 //==============================================================================
 
-#include <il/Array.h>
+#include <il/Array3D.h>
 #include <il/Array2D.h>
 
 int main() {
-  const il::int_t n = 127;
-  il::Array2D<double> A{n, n, il::align, 32};
+  const il::int_t n = 1024;
+  il::Array3D<double> A{n, n, n, il::align, 32};
 
   return 0;
 }

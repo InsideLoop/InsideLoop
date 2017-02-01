@@ -112,6 +112,7 @@ class HashMap {
   HashMap& operator=(const HashMap<K, V, F>& map);
   HashMap& operator=(HashMap<K, V, F>&& map);
   ~HashMap();
+  void set(const K& key, const V& value);
   il::int_t search(const K& key) const;
   bool found(il::int_t i) const;
   void insert(const K& key, const V& value, il::io_t, il::int_t& i);
@@ -302,6 +303,17 @@ HashMap<K, V, F>::~HashMap() {
     ::operator delete(slot_);
   }
 }
+
+template <typename K, typename V, typename F>
+void HashMap<K, V, F>::set(const K& key, const V& value) {
+  il::int_t i = search(key);
+  if (!found(i)) {
+    insert(key, value, il::io, i);
+  } else {
+    (slot_ + i)->value.~T();
+    new (&((slot_ + i)->value)) V(value);
+  }
+};
 
 template <typename K, typename V, typename F>
 il::int_t HashMap<K, V, F>::search(const K& key) const {

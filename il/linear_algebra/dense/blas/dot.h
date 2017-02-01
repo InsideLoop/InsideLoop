@@ -227,19 +227,6 @@ il::StaticArray3D<T, n0, n1, n2> dot(
   return C;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Cross product
-////////////////////////////////////////////////////////////////////////////////
-
-template <typename T>
-il::StaticArray<T, 3> cross(const il::StaticArray<T, 3>& x,
-                            const il::StaticArray<T, 3>& y) {
-  il::StaticArray<T, 3> ans{};
-  ans[0] = x[1] * y[2] - x[2] * y[1];
-  ans[1] = x[2] * y[0] - x[0] * y[2];
-  ans[2] = x[0] * y[1] - x[1] * y[0];
-  return ans;
-}
 }
 
 #endif  // IL_DOT_H

@@ -171,14 +171,3 @@ TEST(dot, matrix_c_simd_1) {
   ASSERT_TRUE(C.size(0) == 1 && C.size(1) == 3 && error <= 1.0e-15);
 }
 
-TEST(dot, cross_0) {
-  il::StaticArray<double, 3> x{il::value, {1.0, 2.0, 3.0}};
-  il::StaticArray<double, 3> y{il::value, {4.0, 5.0, 6.0}};
-
-  il::StaticArray<double, 3> z = il::cross(x, y);
-
-  const double error = il::max(il::abs(z[0] - (-3.0)), il::abs(z[1] - 6.0),
-                               il::abs(z[2] - (-3.0)));
-
-  ASSERT_TRUE(error <= 1.0e-15);
-}

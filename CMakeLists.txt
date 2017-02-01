@@ -27,15 +27,6 @@ set(IL_PNG 1)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++11")
 
-#if (UNIX)
-#    if (UNIX)
-#        if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-#            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
-#        endif()
-#    endif()
-#endif()
-
-
 # We want all possible warnings and treat them as errors
 if (UNIX)
     if (UNIX)
@@ -246,6 +237,7 @@ set(UNIT_TEST_FILES
     il/linear_algebra/dense/blas/_test/blas_test.cpp
     il/linear_algebra/dense/blas/_test/linear_solve_test.cpp
     il/linear_algebra/dense/blas/_test/dot_test.cpp
+    il/linear_algebra/dense/blas/_test/cross_test.cpp
     il/linear_algebra/dense/factorization/_test/Eigen_test.cpp
     il/linear_algebra/sparse/factorization/_test/Pardiso_test.cpp
     il/linear_algebra/sparse/factorization/_test/GmresIlu0_test.cpp

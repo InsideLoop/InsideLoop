@@ -8,4 +8,5 @@
 //==============================================================================
 
 #include <il/linear_algebra/dense/blas/dot.h>
+#include <il/linear_algebra/dense/blas/cross.h>
 #include <il/linear_algebra/dense/factorization/linear_solve.h>
