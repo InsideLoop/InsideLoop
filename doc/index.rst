@@ -21,8 +21,10 @@ easy-to-use containers and wrappers around the best numerical libraries
 available. It should be very **friendly** to **Fortran** and **C** programmers,
 and even **C++** programmers who like to keep simple things simple.
 
-Guide
-^^^^^
+.. warning::
+**InsideLoop** is a work in progress. Even though some containers have been
+   used in production code, the libray is still experimental. Moreover, the API
+   is not stabilized yet.
 
 .. toctree::
    :maxdepth: 2
@@ -30,11 +32,6 @@ Guide
 
    first-example.rst
    license.rst
-
-.. warning::
-**InsideLoop** is a work in progress. Even though some containers have been
-   used in production code, the libray is still experimental. Moreover, the API
-   is not stabilized yet.
 
 Indices and tables
 ==================
