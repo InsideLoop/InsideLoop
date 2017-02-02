@@ -22,7 +22,7 @@ available. It should be very **friendly** to **Fortran** and **C** programmers,
 and even **C++** programmers who like to keep simple things simple.
 
 .. warning::
-**InsideLoop** is a work in progress. Even though some containers have been
+   **InsideLoop** is a work in progress. Even though some containers have been
    used in production code, the libray is still experimental. Moreover, the API
    is not stabilized yet.
 

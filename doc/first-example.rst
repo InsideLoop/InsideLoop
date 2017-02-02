@@ -1,3 +1,6 @@
+First example
+=============
+
 In order to get a quick feeling about the API, here is a small code playing
 around with Hilbert matrices.
 
