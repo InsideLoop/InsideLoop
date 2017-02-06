@@ -12,22 +12,12 @@
 
 // <cstddef> is needed for std::size_t and std::ptrdiff_t
 #include <cstddef>
-// <cstddef> is needed for integers of different sizes
-#include <cstdint>
-// <cstdlib> is needed for std::malloc, std::abort, etc
-#include <cstdlib>
-// <limits> is needed for std::numeric_limits
-#include <limits>
+// <climits> is needed for LONG_MAX
+#include <climits>
 
 ////////////////////////////////////////////////////////////////////////////////
 // Configuration
 ////////////////////////////////////////////////////////////////////////////////
-
-#if INTPTR_MAX == INT32_MAX
-#define IL_32_BIT_ENVIRONMENT
-#elif INTPTR_MAX == INT64_MAX
-#define IL_64_BIT_ENVIRONMENT
-#endif
 
 //#define IL_BLAS_ATLAS
 
@@ -111,12 +101,6 @@ const emplace_t emplace{};
 struct align_t {};
 const align_t align{};
 
-#define IL_SIMD 32
-const short simd = IL_SIMD;
-#define IL_CACHELINE 64
-const short cacheline = IL_CACHELINE;
-const short page = 4096;
-
 ////////////////////////////////////////////////////////////////////////////////
 // Default values for containers in debug mode
 ////////////////////////////////////////////////////////////////////////////////
@@ -152,88 +136,132 @@ inline char default_value<char>() {
 }
 
 template <>
-struct is_trivial<std::int8_t> {
+struct is_trivial<signed char> {
   static constexpr bool value = true;
 };
 
 template <>
-inline std::int8_t default_value<std::int8_t>() {
+inline signed char default_value<signed char>() {
+#if SCHAR_MAX == 127
   return 123;
+#endif
 }
 
 template <>
-struct is_trivial<std::uint8_t> {
+struct is_trivial<unsigned char> {
   static constexpr bool value = true;
 };
 
 template <>
-inline std::uint8_t default_value<std::uint8_t>() {
+inline unsigned char default_value<unsigned char>() {
+#if SCHAR_MAX == 127
   return 123;
-}
-
-template <>
-struct is_trivial<std::int16_t> {
-  static constexpr bool value = true;
-};
-
-template <>
-inline std::int16_t default_value<std::int16_t>() {
-  return 12345;
-}
-
-template <>
-struct is_trivial<std::uint16_t> {
-  static constexpr bool value = true;
-};
-
-template <>
-inline std::uint16_t default_value<std::uint16_t>() {
-  return 12345;
-}
-
-template <>
-struct is_trivial<std::int32_t> {
-  static constexpr bool value = true;
-};
-
-template <>
-inline std::int32_t default_value<std::int32_t>() {
-  return 1234567891;
-}
-
-template <>
-struct is_trivial<std::uint32_t> {
-  static constexpr bool value = true;
-};
-
-template <>
-inline std::uint32_t default_value<std::uint32_t>() {
-  return 1234567891;
-}
-
-#ifdef INT64_MAX
-template <>
-struct is_trivial<std::int64_t> {
-  static constexpr bool value = true;
-};
-
-template <>
-inline std::int64_t default_value<std::int64_t>() {
-  return 1234567891234567891;
-}
 #endif
+}
 
-#ifdef UINT64_MAX
 template <>
-struct is_trivial<std::uint64_t> {
+struct is_trivial<short> {
   static constexpr bool value = true;
 };
 
 template <>
-inline std::uint64_t default_value<std::uint64_t>() {
-  return 1234567891234567891;
-}
+inline short default_value<short>() {
+#if SHRT_MAX == 32767
+  return 12345;
 #endif
+}
+
+template <>
+struct is_trivial<unsigned short> {
+  static constexpr bool value = true;
+};
+
+template <>
+inline unsigned short default_value<unsigned short>() {
+#if SHRT_MAX == 32767
+  return 12345;
+#endif
+}
+
+template <>
+struct is_trivial<int> {
+  static constexpr bool value = true;
+};
+
+template <>
+inline int default_value<int>() {
+#if INT_MAX == 2147483647
+  return 1234567891;
+#endif
+}
+
+template <>
+struct is_trivial<unsigned int> {
+  static constexpr bool value = true;
+};
+
+template <>
+inline unsigned int default_value<unsigned int>() {
+#if INT_MAX == 2147483647
+  return 1234567891;
+#endif
+}
+
+template <>
+struct is_trivial<long> {
+  static constexpr bool value = true;
+};
+
+template <>
+inline long default_value<long>() {
+#if LONG_MAX == 2147483647
+  return 1234567891;
+#elif LONG_MAX == 9223372036854775807
+  return 1234567891234567891;
+#endif
+}
+
+template <>
+struct is_trivial<unsigned long> {
+  static constexpr bool value = true;
+};
+
+template <>
+inline unsigned long default_value<unsigned long>() {
+#if LONG_MAX == 2147483647
+  return 1234567891;
+#elif LONG_MAX == 9223372036854775807
+  return 1234567891234567891;
+#endif
+}
+
+template <>
+struct is_trivial<long long> {
+  static constexpr bool value = true;
+};
+
+template <>
+inline long long default_value<long long>() {
+#if LLONG_MAX == 2147483647
+  return 1234567891;
+#elif LLONG_MAX == 9223372036854775807
+  return 1234567891234567891;
+#endif
+}
+
+template <>
+struct is_trivial<unsigned long long> {
+  static constexpr bool value = true;
+};
+
+template <>
+inline unsigned long long default_value<unsigned long long>() {
+#if LLONG_MAX == 2147483647
+  return 1234567891;
+#elif LLONG_MAX == 9223372036854775807
+  return 1234567891234567891;
+#endif
+}
 
 template <>
 struct is_trivial<float> {
@@ -242,7 +270,7 @@ struct is_trivial<float> {
 
 template <>
 inline float default_value<float>() {
-  return std::numeric_limits<float>::quiet_NaN();
+  return 0.0f / 0.0f;
 }
 
 template <>
@@ -252,7 +280,7 @@ struct is_trivial<double> {
 
 template <>
 inline double default_value<double>() {
-  return std::numeric_limits<double>::quiet_NaN();
+  return 0.0 / 0.0;
 }
 
 template <>
@@ -262,7 +290,7 @@ struct is_trivial<long double> {
 
 template <>
 inline long double default_value<long double>() {
-  return std::numeric_limits<long double>::quiet_NaN();
+  return 0.0l / 0.0l;
 }
 
 }

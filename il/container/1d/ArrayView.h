@@ -94,11 +94,11 @@ ConstArrayView<T>::ConstArrayView(const T* data, il::int_t n,
   IL_EXPECT_FAST(n >= 0);
   IL_EXPECT_FAST(align_mod > 0);
   IL_EXPECT_FAST(align_mod % alignof(T) == 0);
-  IL_EXPECT_FAST(align_mod <= std::numeric_limits<short>::max());
+  IL_EXPECT_FAST(align_mod <= SHRT_MAX);
   IL_EXPECT_FAST(align_r >= 0);
   IL_EXPECT_FAST(align_r < align_mod);
   IL_EXPECT_FAST(align_r % alignof(T) == 0);
-  IL_EXPECT_FAST(align_r <= std::numeric_limits<short>::max());
+  IL_EXPECT_FAST(align_r <= SHRT_MAX);
 
   data_ = const_cast<T*>(data);
   size_ = const_cast<T*>(data) + n;

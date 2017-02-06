@@ -36,9 +36,9 @@ inline void alignment() {
   }
 
   {
-    il::Array<char> a{n, 0, il::align, il::simd};
-    il::Array<char> b{n, 1, il::align, il::simd};
-    il::Array<char> c{n, 0, il::align, il::simd};
+    il::Array<char> a{n, 0, il::align, 32};
+    il::Array<char> b{n, 1, il::align, 32};
+    il::Array<char> c{n, 0, il::align, 32};
     char* const a_data{a.data()};
     char* const b_data{b.data()};
     char* const c_data{c.data()};
@@ -54,9 +54,9 @@ inline void alignment() {
   }
 
   {
-    il::Array<char> a{n, 0, il::align, il::simd};
-    il::Array<char> b{n, 1, il::align, il::simd};
-    il::Array<char> c{n, 0, il::align, il::simd};
+    il::Array<char> a{n, 0, il::align, 32};
+    il::Array<char> b{n, 1, il::align, 32};
+    il::Array<char> c{n, 0, il::align, 32};
     char* const a_data{a.data()};
     char* const b_data{b.data()};
     char* const c_data{c.data()};
@@ -99,11 +99,11 @@ inline void conditional_assignment() {
   }
 
   {
-    il::Array<unsigned char> a{n, il::align, il::simd};
+    il::Array<unsigned char> a{n, il::align, 32};
     for (il::int_t i = 0; i < n; ++i) {
       a[i] = (i % 2 == 0) ? 10 : 245;
     }
-    il::Array<unsigned char> b{n, il::align, il::simd};
+    il::Array<unsigned char> b{n, il::align, 32};
 
     unsigned char* a_data{a.data()};
     unsigned char* b_data{b.data()};

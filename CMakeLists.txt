@@ -222,6 +222,15 @@ add_executable(InsideLoop ${SOURCE_FILES} main.cpp)
 target_link_libraries(InsideLoop ${CMAKE_MKL_LIBRARIES} ${CMAKE_PNG_LIBRARIES})
 target_include_directories(InsideLoop PRIVATE ${CMAKE_SOURCE_DIR} /opt/eigen-3.3.2 /opt/blaze-3.0 /opt/cuda-8.0/include)
 
+if (APPLE)
+    if (IL_MKL)
+        add_custom_command(TARGET InsideLoop POST_BUILD COMMAND /usr/bin/install_name_tool -change @rpath/libmkl_intel_lp64.dylib $ENV{MKLROOT}/lib/libmkl_intel_lp64.dylib $<TARGET_FILE:InsideLoop>)
+        add_custom_command(TARGET InsideLoop POST_BUILD COMMAND /usr/bin/install_name_tool -change @rpath/libmkl_core.dylib $ENV{MKLROOT}/lib/libmkl_core.dylib $<TARGET_FILE:InsideLoop>)
+        add_custom_command(TARGET InsideLoop POST_BUILD COMMAND /usr/bin/install_name_tool -change @rpath/libmkl_intel_thread.dylib $ENV{MKLROOT}/lib/libmkl_intel_thread.dylib $<TARGET_FILE:InsideLoop>)
+        add_custom_command(TARGET InsideLoop POST_BUILD COMMAND /usr/bin/install_name_tool -change @rpath/libiomp5.dylib $ENV{MKLROOT}/../compiler/lib/libiomp5.dylib $<TARGET_FILE:InsideLoop>)
+    endif()
+endif()
+
 ################################################################################
 # For Unit Tests
 ################################################################################
@@ -255,3 +264,12 @@ target_link_libraries(InsideLoopUnitTest ${CMAKE_MKL_LIBRARIES} ${CMAKE_PNG_LIBR
 # in our unit tests, the flag IL_UNIT_TEST turns them into exceptions that can
 # be caught and checked.
 target_compile_options(InsideLoopUnitTest PRIVATE "-DIL_UNIT_TEST")
+
+if (APPLE)
+    if (IL_MKL)
+        add_custom_command(TARGET InsideLoopUnitTest POST_BUILD COMMAND /usr/bin/install_name_tool -change @rpath/libmkl_intel_lp64.dylib $ENV{MKLROOT}/lib/libmkl_intel_lp64.dylib $<TARGET_FILE:InsideLoopUnitTest>)
+        add_custom_command(TARGET InsideLoopUnitTest POST_BUILD COMMAND /usr/bin/install_name_tool -change @rpath/libmkl_core.dylib $ENV{MKLROOT}/lib/libmkl_core.dylib $<TARGET_FILE:InsideLoopUnitTest>)
+        add_custom_command(TARGET InsideLoopUnitTest POST_BUILD COMMAND /usr/bin/install_name_tool -change @rpath/libmkl_intel_thread.dylib $ENV{MKLROOT}/lib/libmkl_intel_thread.dylib $<TARGET_FILE:InsideLoopUnitTest>)
+        add_custom_command(TARGET InsideLoopUnitTest POST_BUILD COMMAND /usr/bin/install_name_tool -change @rpath/libiomp5.dylib $ENV{MKLROOT}/../compiler/lib/libiomp5.dylib $<TARGET_FILE:InsideLoopUnitTest>)
+    endif()
+endif()

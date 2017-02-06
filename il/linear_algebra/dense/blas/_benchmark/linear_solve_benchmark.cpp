@@ -77,8 +77,8 @@ static void BM_LU_ARRAY2D_COPY(benchmark::State& state) {
 static void BM_LU_ARRAY2D_SIMD_ALIGNED(benchmark::State& state) {
   while (state.KeepRunning()) {
     const il::int_t n{state.range_x()};
-    il::Array2D<double> A{n, n, il::align, il::cacheline, il::simd};
-    il::Array<double> y{n, il::align, il::cacheline, il::simd};
+    il::Array2D<double> A{n, n, il::align, il::cacheline, 32};
+    il::Array<double> y{n, il::align, il::cacheline, 32};
     for (il::int_t j = 0; j < n; ++j) {
       y[j] = 1.0;
       for (il::int_t i = 0; i < n; ++i) {
@@ -149,8 +149,8 @@ static void BM_LU_ARRAY2C(benchmark::State& state) {
 static void BM_LU_ARRAY2C_SIMD_ALIGNED(benchmark::State& state) {
   while (state.KeepRunning()) {
     const il::int_t n{state.range_x()};
-    il::Array2C<double> A{n, n, il::align, il::cacheline, il::simd};
-    il::Array<double> y{n, il::align, il::cacheline, il::simd};
+    il::Array2C<double> A{n, n, il::align, il::cacheline, 32};
+    il::Array<double> y{n, il::align, il::cacheline, 32};
     for (il::int_t i = 0; i < n; ++i) {
       y[i] = 1.0;
       for (il::int_t j = 0; j < n; ++j) {

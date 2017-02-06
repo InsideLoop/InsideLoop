@@ -10,6 +10,7 @@
 #ifndef IL_ALLOCATE_H
 #define IL_ALLOCATE_H
 
+// <cstdlib> is used for std::malloc
 #include <cstdlib>
 
 #include <il/core/math/safe_arithmetic.h>

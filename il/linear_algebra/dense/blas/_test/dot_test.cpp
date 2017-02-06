@@ -63,11 +63,11 @@ TEST(dot, matrix_f_1) {
 }
 
 TEST(dot, matrix_f_simd_0) {
-  il::Array2D<double> A{2, 2, il::align, il::simd};
+  il::Array2D<double> A{2, 2, il::align, 32};
   A(1, 0) = 2.0;
   A(0, 1) = 3.0;
   A(1, 1) = 4.0;
-  il::Array2D<double> B{2, 2, il::align, il::simd};
+  il::Array2D<double> B{2, 2, il::align, 32};
   B(0, 0) = 5.0;
   B(1, 0) = 6.0;
   B(0, 1) = 7.0;
@@ -83,10 +83,10 @@ TEST(dot, matrix_f_simd_0) {
 }
 
 TEST(dot, matrix_f_simd_1) {
-  il::Array2D<double> A{1, 2, il::align, il::simd};
+  il::Array2D<double> A{1, 2, il::align, 32};
   A(0, 0) = 1.0;
   A(0, 1) = 2.0;
-  il::Array2D<double> B{2, 3, il::align, il::simd};
+  il::Array2D<double> B{2, 3, il::align, 32};
   B(0, 0) = 3.0;
   B(1, 0) = 4.0;
   B(0, 1) = 5.0;
@@ -130,12 +130,12 @@ TEST(dot, matrix_c_1) {
 }
 
 TEST(dot, matrix_c_simd_0) {
-  il::Array2C<double> A{2, 2, il::align, il::simd};
+  il::Array2C<double> A{2, 2, il::align, 32};
   A(0, 0) = 1.0;
   A(0, 1) = 2.0;
   A(1, 0) = 3.0;
   A(1, 1) = 4.0;
-  il::Array2C<double> B{2, 2, il::align, il::simd};
+  il::Array2C<double> B{2, 2, il::align, 32};
   B(0, 0) = 5.0;
   B(0, 1) = 6.0;
   B(1, 0) = 7.0;
@@ -151,10 +151,10 @@ TEST(dot, matrix_c_simd_0) {
 }
 
 TEST(dot, matrix_c_simd_1) {
-  il::Array2C<double> A{1, 2, il::align, il::simd};
+  il::Array2C<double> A{1, 2, il::align, 32};
   A(0, 0) = 1.0;
   A(0, 1) = 2.0;
-  il::Array2C<double> B{2, 3, il::align, il::simd};
+  il::Array2C<double> B{2, 3, il::align, 32};
   B(0, 0) = 3.0;
   B(0, 1) = 5.0;
   B(0, 2) = 7.0;

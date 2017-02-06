@@ -297,16 +297,16 @@ Array<T>::Array(il::int_t n, il::align_t, il::int_t alignment,
   IL_EXPECT_FAST(n >= 0);
   IL_EXPECT_FAST(alignment > 0);
   IL_EXPECT_FAST(alignment % alignof(T) == 0);
-  IL_EXPECT_FAST(alignment <= std::numeric_limits<short>::max());
+  IL_EXPECT_FAST(alignment <= SHRT_MAX);
   IL_EXPECT_FAST(align_mod > 0);
   IL_EXPECT_FAST(align_mod % alignof(T) == 0);
   IL_EXPECT_FAST(align_mod % alignment == 0);
-  IL_EXPECT_FAST(align_mod <= std::numeric_limits<short>::max());
+  IL_EXPECT_FAST(align_mod <= SHRT_MAX);
   IL_EXPECT_FAST(align_r >= 0);
   IL_EXPECT_FAST(align_r < align_mod);
   IL_EXPECT_FAST(align_r % alignof(T) == 0);
   IL_EXPECT_FAST(align_r % alignment == 0);
-  IL_EXPECT_FAST(align_r <= std::numeric_limits<short>::max());
+  IL_EXPECT_FAST(align_r <= SHRT_MAX);
 
   if (n > 0) {
     il::int_t shift;
@@ -363,16 +363,16 @@ Array<T>::Array(il::int_t n, const T& x, il::align_t, il::int_t alignment,
   IL_EXPECT_FAST(n >= 0);
   IL_EXPECT_FAST(alignment > 0);
   IL_EXPECT_FAST(alignment % alignof(T) == 0);
-  IL_EXPECT_FAST(alignment <= std::numeric_limits<short>::max());
+  IL_EXPECT_FAST(alignment <= SHRT_MAX);
   IL_EXPECT_FAST(align_mod > 0);
   IL_EXPECT_FAST(align_mod % alignof(T) == 0);
   IL_EXPECT_FAST(align_mod % alignment == 0);
-  IL_EXPECT_FAST(align_mod <= std::numeric_limits<short>::max());
+  IL_EXPECT_FAST(align_mod <= SHRT_MAX);
   IL_EXPECT_FAST(align_r >= 0);
   IL_EXPECT_FAST(align_r < align_mod);
   IL_EXPECT_FAST(align_r % alignof(T) == 0);
   IL_EXPECT_FAST(align_r % alignment == 0);
-  IL_EXPECT_FAST(align_r <= std::numeric_limits<short>::max());
+  IL_EXPECT_FAST(align_r <= SHRT_MAX);
 
   if (n > 0) {
     il::int_t shift;

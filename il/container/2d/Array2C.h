@@ -275,14 +275,14 @@ Array2C<T>::Array2C(il::int_t n0, il::int_t n1, il::align_t,
   IL_EXPECT_FAST(n1 >= 0);
   IL_EXPECT_FAST(align_mod > 0);
   IL_EXPECT_FAST(align_mod % alignof(T) == 0);
-  IL_EXPECT_FAST(align_mod <= std::numeric_limits<short>::max());
+  IL_EXPECT_FAST(align_mod <= SHRT_MAX);
   IL_EXPECT_FAST(align_r >= 0);
   IL_EXPECT_FAST(align_r < align_mod);
   IL_EXPECT_FAST(align_r % alignof(T) == 0);
-  IL_EXPECT_FAST(align_r <= std::numeric_limits<short>::max());
+  IL_EXPECT_FAST(align_r <= SHRT_MAX);
   IL_EXPECT_FAST(alignment > 0);
   IL_EXPECT_FAST(alignment % alignof(T) == 0);
-  IL_EXPECT_FAST(alignment <= std::numeric_limits<short>::max());
+  IL_EXPECT_FAST(alignment <= SHRT_MAX);
   IL_EXPECT_FAST(align_r % alignment == 0);
   IL_EXPECT_FAST(align_mod % alignment == 0);
 
@@ -385,14 +385,14 @@ Array2C<T>::Array2C(il::int_t n0, il::int_t n1, const T& x, il::align_t,
   IL_EXPECT_FAST(n1 >= 0);
   IL_EXPECT_FAST(align_mod > 0);
   IL_EXPECT_FAST(align_mod % alignof(T) == 0);
-  IL_EXPECT_FAST(align_mod <= std::numeric_limits<short>::max());
+  IL_EXPECT_FAST(align_mod <= SHRT_MAX);
   IL_EXPECT_FAST(align_r >= 0);
   IL_EXPECT_FAST(align_r < align_mod);
   IL_EXPECT_FAST(align_r % alignof(T) == 0);
-  IL_EXPECT_FAST(align_r <= std::numeric_limits<short>::max());
+  IL_EXPECT_FAST(align_r <= SHRT_MAX);
   IL_EXPECT_FAST(alignment > 0);
   IL_EXPECT_FAST(alignment % alignof(T) == 0);
-  IL_EXPECT_FAST(alignment <= std::numeric_limits<short>::max());
+  IL_EXPECT_FAST(alignment <= SHRT_MAX);
   IL_EXPECT_FAST(align_r % alignment == 0);
   IL_EXPECT_FAST(align_mod % alignment == 0);
 

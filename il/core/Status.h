@@ -10,9 +10,8 @@
 #ifndef IL_ERROR_H
 #define IL_ERROR_H
 
-#include <string>
-
-#include <il/core/base.h>
+// <cstdlib> is used for std::abort
+#include <cstdlib>
 
 namespace il {
 

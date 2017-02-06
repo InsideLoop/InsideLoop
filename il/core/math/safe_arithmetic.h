@@ -10,26 +10,21 @@
 #ifndef IL_SAFE_ARITHMETIC_H
 #define IL_SAFE_ARITHMETIC_H
 
-#include <limits>
-
 #include <il/base.h>
 
 namespace il {
 
 ////////////////////////////////////////////////////////////////////////////////
-// 32-bit integer
+// int
 ////////////////////////////////////////////////////////////////////////////////
 
-inline std::int32_t safe_sum(std::int32_t a, std::int32_t b, il::io_t,
-                             bool& error) {
-#if __GNUC__ >= 6 || \
-    (__clang_major__ >= 4 || (__clang__major__ >= 3 && __clang_minor_ >= 9))
-  std::int32_t ans;
+inline int safe_sum(int a, int b, il::io_t, bool& error) {
+#if IL_BUILTIN_SAFE_ARITHMETIC
+  int ans;
   error = __builtin_sadd_overflow(a, b, &ans);
   return ans;
 #else
-  if (b > 0 ? a > std::numeric_limits<std::int32_t>::max() - b
-            : a < std::numeric_limits<std::int32_t>::min() - b) {
+  if (b > 0 ? a > INT_MAX - b : a < INT_MIN - b) {
     error = true;
     return 0;
   } else {
@@ -39,16 +34,13 @@ inline std::int32_t safe_sum(std::int32_t a, std::int32_t b, il::io_t,
 #endif
 }
 
-inline std::int32_t safe_difference(std::int32_t a, std::int32_t b, il::io_t,
-                                    bool& error) {
-#if __GNUC__ >= 6 || \
-    (__clang_major__ >= 4 || (__clang__major__ >= 3 && __clang_minor_ >= 9))
-  std::int32_t ans;
+inline int safe_difference(int a, int b, il::io_t, bool& error) {
+#if IL_BUILTIN_SAFE_ARITHMETIC
+  int ans;
   error = __builtin_ssub_overflow(a, b, &ans);
   return ans;
 #else
-  if (b > 0 ? a < std::numeric_limits<std::int32_t>::min() + b
-            : a > std::numeric_limits<std::int32_t>::max() + b) {
+  if (b > 0 ? a < INT_MIN + b : a > INT_MAX + b) {
     error = true;
     return 0;
   } else {
@@ -58,33 +50,26 @@ inline std::int32_t safe_difference(std::int32_t a, std::int32_t b, il::io_t,
 #endif
 }
 
-inline std::int32_t safe_product(std::int32_t a, std::int32_t b, il::io_t,
-                                 bool& error) {
-#if __GNUC__ >= 6 || \
-    (__clang_major__ >= 4 || (__clang__major__ >= 3 && __clang_minor_ >= 9))
-  std::int32_t ans;
+inline int safe_product(int a, int b, il::io_t, bool& error) {
+#if IL_BUILTIN_SAFE_ARITHMETIC
+  int ans;
   error = __builtin_smul_overflow(a, b, &ans);
   return ans;
-#elif defined(IL_64_BIT_ENVIRONMENT)
-  const std::int64_t a_64 = a;
-  const std::int64_t b_64 = b;
-  const std::int64_t product_64 = a_64 * b_64;
-  if (product_64 > std::numeric_limits<std::int32_t>::max() ||
-      product_64 < std::numeric_limits<std::int32_t>::min()) {
+#elif INT_MAX < LLONG_MAX
+  const long long a_llong = a;
+  const long long b_llong = b;
+  const long long product_llong = a_llong * b_llong;
+  if (product_llong > INT_MAX || product_llong < INT_MIN) {
     error = true;
     return 0;
   } else {
     error = false;
-    return static_cast<std::int32_t>(product_64);
+    return static_cast<int>(product_llong);
   }
 #else
-  if (b > 0
-          ? a > std::numeric_limits<std::int32_t>::max() / b ||
-                a < std::numeric_limits<std::int32_t>::min() / b
-          : (b < -1
-                 ? a > std::numeric_limits<std::int32_t>::min() / b ||
-                       a < std::numeric_limits<std::int32_t>::max() / b
-                 : b == -1 && a == std::numeric_limits<std::int32_t>::min())) {
+  if (b > 0 ? a > INT_MAX / b || a < INT_MIN / b
+            : (b < -1 ? a > INT_MIN / b || a < INT_MAX / b
+                      : b == -1 && a == INT_MIN)) {
     error = true;
     return 0;
   } else {
@@ -94,12 +79,11 @@ inline std::int32_t safe_product(std::int32_t a, std::int32_t b, il::io_t,
 #endif
 }
 
-inline std::int32_t safe_product(std::int32_t a, std::int32_t b, std::int32_t c,
-                                 il::io_t, bool& error) {
+inline int safe_product(int a, int b, int c, il::io_t, bool& error) {
   bool error_first;
-  const std::int32_t ab = il::safe_product(a, b, il::io, error_first);
+  const int ab = il::safe_product(a, b, il::io, error_first);
   bool error_second;
-  const std::int32_t abc = il::safe_product(ab, c, il::io, error_second);
+  const int abc = il::safe_product(ab, c, il::io, error_second);
   if (error_first || error_second) {
     error = true;
     return 0;
@@ -109,14 +93,13 @@ inline std::int32_t safe_product(std::int32_t a, std::int32_t b, std::int32_t c,
   }
 }
 
-inline std::int32_t safe_product(std::int32_t a, std::int32_t b, std::int32_t c,
-                                 std::int32_t d, il::io_t, bool& error) {
+inline int safe_product(int a, int b, int c, int d, il::io_t, bool& error) {
   bool error_first;
-  const std::int32_t ab = il::safe_product(a, b, il::io, error_first);
+  const int ab = il::safe_product(a, b, il::io, error_first);
   bool error_second;
-  const std::int32_t cd = il::safe_product(c, d, il::io, error_second);
+  const int cd = il::safe_product(c, d, il::io, error_second);
   bool error_third;
-  const std::int32_t abcd = il::safe_product(ab, cd, il::io, error_third);
+  const int abcd = il::safe_product(ab, cd, il::io, error_third);
   if (error_first || error_second || error_third) {
     error = true;
     return 0;
@@ -126,9 +109,8 @@ inline std::int32_t safe_product(std::int32_t a, std::int32_t b, std::int32_t c,
   }
 }
 
-inline std::int32_t safe_division(std::int32_t a, std::int32_t b, il::io_t,
-                                  bool& error) {
-  if (b == 0 || (b == -1 && a == std::numeric_limits<std::int32_t>::min())) {
+inline int safe_division(int a, int b, il::io_t, bool& error) {
+  if (b == 0 || (b == -1 && a == INT_MIN)) {
     error = true;
     return 0;
   } else {
@@ -136,15 +118,13 @@ inline std::int32_t safe_division(std::int32_t a, std::int32_t b, il::io_t,
   }
 }
 
-inline std::uint32_t safe_sum(std::uint32_t a, std::uint32_t b, il::io_t,
-                              bool& error) {
-#if __GNUC__ >= 6 || \
-    (__clang_major__ >= 4 || (__clang__major__ >= 3 && __clang_minor_ >= 9))
-  std::uint32_t ans;
+inline unsigned safe_sum(unsigned a, unsigned b, il::io_t, bool& error) {
+#if IL_BUILTIN_SAFE_ARITHMETIC
+  unsigned ans;
   error = __builtin_uadd_overflow(a, b, &ans);
   return ans;
 #else
-  if (a > std::numeric_limits<std::uint32_t>::max() - b) {
+  if (a > UINT_MAX - b) {
     error = true;
     return 0;
   } else {
@@ -154,26 +134,24 @@ inline std::uint32_t safe_sum(std::uint32_t a, std::uint32_t b, il::io_t,
 #endif
 }
 
-inline std::uint32_t safe_product(std::uint32_t a, std::uint32_t b, il::io_t,
-                                  bool& error) {
-#if __GNUC__ >= 6 || \
-    (__clang_major__ >= 4 || (__clang__major__ >= 3 && __clang_minor_ >= 9))
-  std::uint32_t ans;
+inline unsigned safe_product(unsigned a, unsigned b, il::io_t, bool& error) {
+#if IL_BUILTIN_SAFE_ARITHMETIC
+  unsigned ans;
   error = __builtin_umul_overflow(a, b, &ans);
   return ans;
-#elif defined(IL_64_BIT_ENVIRONMENT)
-  const std::uint64_t a_64 = a;
-  const std::uint64_t b_64 = b;
-  const std::uint64_t product_64 = a_64 * b_64;
-  if (product_64 > std::numeric_limits<std::uint32_t>::max()) {
+#elif INT_MAX < LONG_MAX
+  const unsigned long a_long = a;
+  const unsigned long b_long = b;
+  const unsigned long product_long = a_long * b_long;
+  if (product_long > UINT_MAX) {
     error = true;
     return 0;
   } else {
     error = false;
-    return static_cast<std::uint32_t>(product_64);
+    return static_cast<unsigned>(product_long);
   }
 #else
-  if (b > 0 && a > std::numeric_limits<std::int32_t>::max() / b) {
+  if (b > 0 && a > INT_MAX / b) {
     error = true;
     return 0;
   } else {
@@ -184,20 +162,16 @@ inline std::uint32_t safe_product(std::uint32_t a, std::uint32_t b, il::io_t,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// 64-bit integer
+// long
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifdef IL_64_BIT_ENVIRONMENT
-inline std::int64_t safe_sum(std::int64_t a, std::int64_t b, il::io_t,
-                             bool& error) {
-#if __GNUC__ >= 6 || \
-    (__clang_major__ >= 4 || (__clang__major__ >= 3 && __clang_minor_ >= 9))
-  std::int64_t ans;
-  error = __builtin_saddll_overflow(a, b, &ans);
+inline long safe_sum(long a, long b, il::io_t, bool& error) {
+#if IL_BUILTIN_SAFE_ARITHMETIC
+  long ans;
+  error = __builtin_saddl_overflow(a, b, &ans);
   return ans;
 #else
-  if (b > 0 ? a > std::numeric_limits<std::int64_t>::max() - b
-            : a < std::numeric_limits<std::int64_t>::min() - b) {
+  if (b > 0 ? a > LONG_MAX - b : a < LONG_MIN - b) {
     error = true;
     return 0;
   } else {
@@ -206,19 +180,14 @@ inline std::int64_t safe_sum(std::int64_t a, std::int64_t b, il::io_t,
   }
 #endif
 }
-#endif
 
-#ifdef IL_64_BIT_ENVIRONMENT
-inline std::int64_t safe_difference(std::int64_t a, std::int64_t b, il::io_t,
-                                    bool& error) {
-#if __GNUC__ >= 6 || \
-    (__clang_major__ >= 4 || (__clang__major__ >= 3 && __clang_minor_ >= 9))
-  std::int64_t ans;
-  error = __builtin_ssubll_overflow(a, b, &ans);
+inline long safe_difference(long a, long b, il::io_t, bool& error) {
+#if IL_BUILTIN_SAFE_ARITHMETIC
+  long ans;
+  error = __builtin_ssubl_overflow(a, b, &ans);
   return ans;
 #else
-  if (b > 0 ? a < std::numeric_limits<std::int64_t>::min() + b
-            : a > std::numeric_limits<std::int64_t>::max() + b) {
+  if (b > 0 ? a < LONG_MIN + b : a > LONG_MAX + b) {
     error = true;
     return 0;
   } else {
@@ -227,24 +196,16 @@ inline std::int64_t safe_difference(std::int64_t a, std::int64_t b, il::io_t,
   }
 #endif
 }
-#endif
 
-#ifdef IL_64_BIT_ENVIRONMENT
-inline std::int64_t safe_product(std::int64_t a, std::int64_t b, il::io_t,
-                                 bool& error) {
-#if __GNUC__ >= 6 || \
-    (__clang_major__ >= 4 || (__clang__major__ >= 3 && __clang_minor_ >= 9))
-  std::int64_t ans;
-  error = __builtin_smulll_overflow(a, b, &ans);
+inline long safe_product(long a, long b, il::io_t, bool& error) {
+#if IL_BUILTIN_SAFE_ARITHMETIC
+  long ans;
+  error = __builtin_smull_overflow(a, b, &ans);
   return ans;
 #else
-  if (b > 0
-          ? a > std::numeric_limits<std::int64_t>::max() / b ||
-                a < std::numeric_limits<std::int64_t>::min() / b
-          : (b < -1
-                 ? a > std::numeric_limits<std::int64_t>::min() / b ||
-                       a < std::numeric_limits<std::int64_t>::max() / b
-                 : b == -1 && a == std::numeric_limits<std::int64_t>::min())) {
+  if (b > 0 ? a > LONG_MAX / b || a < LONG_MIN / b
+            : (b < -1 ? a > LONG_MIN / b || a < LONG_MAX / b
+                      : b == -1 && a == LONG_MIN)) {
     error = true;
     return 0;
   } else {
@@ -253,15 +214,12 @@ inline std::int64_t safe_product(std::int64_t a, std::int64_t b, il::io_t,
   }
 #endif
 }
-#endif
 
-#ifdef IL_64_BIT_ENVIRONMENT
-inline std::int64_t safe_product(std::int64_t a, std::int64_t b, std::int64_t c,
-                                 il::io_t, bool& error) {
+inline long safe_product(long a, long b, long c, il::io_t, bool& error) {
   bool error_first;
-  const std::int64_t ab = il::safe_product(a, b, il::io, error_first);
+  const long ab = il::safe_product(a, b, il::io, error_first);
   bool error_second;
-  const std::int64_t abc = il::safe_product(ab, c, il::io, error_second);
+  const long abc = il::safe_product(ab, c, il::io, error_second);
   if (error_first || error_second) {
     error = true;
     return 0;
@@ -270,17 +228,15 @@ inline std::int64_t safe_product(std::int64_t a, std::int64_t b, std::int64_t c,
     return abc;
   }
 }
-#endif
 
-#ifdef IL_64_BIT_ENVIRONMENT
-inline std::int64_t safe_product(std::int64_t a, std::int64_t b, std::int64_t c,
-                                 std::int64_t d, il::io_t, bool& error) {
+inline long safe_product(long a, long b, long c, long d, il::io_t,
+                         bool& error) {
   bool error_first;
-  const std::int64_t ab = il::safe_product(a, b, il::io, error_first);
+  const long ab = il::safe_product(a, b, il::io, error_first);
   bool error_second;
-  const std::int64_t cd = il::safe_product(c, d, il::io, error_second);
+  const long cd = il::safe_product(c, d, il::io, error_second);
   bool error_third;
-  const std::int64_t abcd = il::safe_product(ab, cd, il::io, error_third);
+  const long abcd = il::safe_product(ab, cd, il::io, error_third);
   if (error_first || error_second || error_third) {
     error = true;
     return 0;
@@ -289,30 +245,24 @@ inline std::int64_t safe_product(std::int64_t a, std::int64_t b, std::int64_t c,
     return abcd;
   }
 }
-#endif
 
-#ifdef IL_64_BIT_ENVIRONMENT
-inline std::int64_t safe_division(std::int64_t a, std::int64_t b, il::io_t,
-                                  bool& error) {
-  if (b == 0 || (b == -1 && a == std::numeric_limits<std::int64_t>::min())) {
+inline long safe_division(long a, long b, il::io_t, bool& error) {
+  if (b == 0 || (b == -1 && a == LONG_MIN)) {
     error = true;
     return 0;
   } else {
     return a / b;
   }
 }
-#endif
 
-#ifdef IL_64_BIT_ENVIRONMENT
-inline std::uint64_t safe_sum(std::uint64_t a, std::uint64_t b, il::io_t,
+inline unsigned long safe_sum(unsigned long a, unsigned long b, il::io_t,
                               bool& error) {
-#if __GNUC__ >= 6 || \
-    (__clang_major__ >= 4 || (__clang__major__ >= 3 && __clang_minor_ >= 9))
-  std::uint64_t ans;
-  error = __builtin_uaddll_overflow(a, b, &ans);
+#if IL_BUILTIN_SAFE_ARITHMETIC
+  unsigned long ans;
+  error = __builtin_uaddl_overflow(a, b, &ans);
   return ans;
 #else
-  if (a > std::numeric_limits<std::uint64_t>::max() - b) {
+  if (a > ULONG_MAX - b) {
     error = true;
     return 0;
   } else {
@@ -321,18 +271,15 @@ inline std::uint64_t safe_sum(std::uint64_t a, std::uint64_t b, il::io_t,
   }
 #endif
 }
-#endif
 
-#ifdef IL_64_BIT_ENVIRONMENT
-inline std::uint64_t safe_product(std::uint64_t a, std::uint64_t b, il::io_t,
+inline unsigned long safe_product(unsigned long a, unsigned long b, il::io_t,
                                   bool& error) {
-#if __GNUC__ >= 6 || \
-    (__clang_major__ >= 4 || (__clang__major__ >= 3 && __clang_minor_ >= 9))
-  std::uint64_t ans;
-  error = __builtin_umulll_overflow(a, b, &ans);
+#if IL_BUILTIN_SAFE_ARITHMETIC
+  unsigned long ans;
+  error = __builtin_umull_overflow(a, b, &ans);
   return ans;
 #else
-  if (b > 0 && a > std::numeric_limits<std::int64_t>::max() / b) {
+  if (b > 0 && a > ULONG_MAX / b) {
     error = true;
     return 0;
   } else {
@@ -341,32 +288,158 @@ inline std::uint64_t safe_product(std::uint64_t a, std::uint64_t b, il::io_t,
   }
 #endif
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// long long
+////////////////////////////////////////////////////////////////////////////////
+
+inline long long safe_sum(long long a, long long b, il::io_t, bool& error) {
+#if IL_BUILTIN_SAFE_ARITHMETIC
+  long long ans;
+  error = __builtin_saddll_overflow(a, b, &ans);
+  return ans;
+#else
+  if (b > 0 ? a > LLONG_MAX - b : a < LLONG_MIN - b) {
+    error = true;
+    return 0;
+  } else {
+    error = false;
+    return a + b;
+  }
 #endif
+}
+
+inline long long safe_difference(long long a, long long b, il::io_t,
+                                 bool& error) {
+#if IL_BUILTIN_SAFE_ARITHMETIC
+  long long ans;
+  error = __builtin_ssubll_overflow(a, b, &ans);
+  return ans;
+#else
+  if (b > 0 ? a < LLONG_MIN + b : a > LLONG_MAX + b) {
+    error = true;
+    return 0;
+  } else {
+    error = false;
+    return a - b;
+  }
+#endif
+}
+
+inline long long safe_product(long long a, long long b, il::io_t, bool& error) {
+#if IL_BUILTIN_SAFE_ARITHMETIC
+  long long ans;
+  error = __builtin_smulll_overflow(a, b, &ans);
+  return ans;
+#else
+  if (b > 0 ? a > LLONG_MAX / b || a < LLONG_MIN / b
+            : (b < -1 ? a > LLONG_MIN / b || a < LLONG_MAX / b
+                      : b == -1 && a == LLONG_MIN)) {
+    error = true;
+    return 0;
+  } else {
+    error = false;
+    return a * b;
+  }
+#endif
+}
+
+inline long long safe_product(long long a, long long b, long long c, il::io_t,
+                              bool& error) {
+  bool error_first;
+  const long long ab = il::safe_product(a, b, il::io, error_first);
+  bool error_second;
+  const long long abc = il::safe_product(ab, c, il::io, error_second);
+  if (error_first || error_second) {
+    error = true;
+    return 0;
+  } else {
+    error = false;
+    return abc;
+  }
+}
+
+inline long long safe_product(long long a, long long b, long long c,
+                              long long d, il::io_t, bool& error) {
+  bool error_first;
+  const long long ab = il::safe_product(a, b, il::io, error_first);
+  bool error_second;
+  const long long cd = il::safe_product(c, d, il::io, error_second);
+  bool error_third;
+  const long long abcd = il::safe_product(ab, cd, il::io, error_third);
+  if (error_first || error_second || error_third) {
+    error = true;
+    return 0;
+  } else {
+    error = false;
+    return abcd;
+  }
+}
+
+inline long long safe_division(long long a, long long b, il::io_t,
+                               bool& error) {
+  if (b == 0 || (b == -1 && a == LLONG_MIN)) {
+    error = true;
+    return 0;
+  } else {
+    return a / b;
+  }
+}
+
+inline unsigned long long safe_sum(unsigned long long a, unsigned long long b,
+                                   il::io_t, bool& error) {
+#if IL_BUILTIN_SAFE_ARITHMETIC
+  unsigned long long ans;
+  error = __builtin_uaddll_overflow(a, b, &ans);
+  return ans;
+#else
+  if (a > ULLONG_MAX - b) {
+    error = true;
+    return 0;
+  } else {
+    error = false;
+    return a + b;
+  }
+#endif
+}
+
+inline unsigned long long safe_product(unsigned long long a,
+                                       unsigned long long b, il::io_t,
+                                       bool& error) {
+#if IL_BUILTIN_SAFE_ARITHMETIC
+  unsigned long long ans;
+  error = __builtin_umulll_overflow(a, b, &ans);
+  return ans;
+#else
+  if (b > 0 && a > ULLONG_MAX / b) {
+    error = true;
+    return 0;
+  } else {
+    error = false;
+    return a * b;
+  }
+#endif
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // rounding
 ////////////////////////////////////////////////////////////////////////////////
 
-inline std::int32_t safe_upper_round(std::int32_t a, std::int32_t b, il::io_t,
-                                     bool& error) {
+inline int safe_upper_round(int a, int b, il::io_t, bool& error) {
   IL_EXPECT_FAST(a >= 0);
   IL_EXPECT_FAST(b > 0);
 
-  const std::uint32_t q =
-      static_cast<std::uint32_t>(a) / static_cast<std::uint32_t>(b);
-  const std::uint32_t r =
-      static_cast<std::uint32_t>(a) % static_cast<std::uint32_t>(b);
+  const unsigned q = static_cast<unsigned>(a) / static_cast<unsigned>(b);
+  const unsigned r = static_cast<unsigned>(a) % static_cast<unsigned>(b);
   if (r == 0) {
     error = false;
     return a;
   } else {
     bool error_sum = false;
     bool error_product = false;
-    const std::int32_t q_plus_one =
-        il::safe_sum(static_cast<std::int32_t>(q), static_cast<std::int32_t>(1),
-                     il::io, error_sum);
-    const std::int32_t ans =
-        il::safe_product(q_plus_one, b, il::io, error_product);
+    const int q_plus_one = il::safe_sum(static_cast<int>(q),
+                                        static_cast<int>(1), il::io, error_sum);
+    const int ans = il::safe_product(q_plus_one, b, il::io, error_product);
     if (error_sum || error_product) {
       error = true;
       return 0;
@@ -377,27 +450,23 @@ inline std::int32_t safe_upper_round(std::int32_t a, std::int32_t b, il::io_t,
   }
 }
 
-#ifdef IL_64_BIT_ENVIRONMENT
-inline std::int64_t safe_upper_round(std::int64_t a, std::int64_t b, il::io_t,
-                                     bool& error) {
+inline long safe_upper_round(long a, long b, il::io_t, bool& error) {
   IL_EXPECT_FAST(a >= 0);
   IL_EXPECT_FAST(b > 0);
 
-  const std::uint64_t q =
-      static_cast<std::uint64_t>(a) / static_cast<std::uint64_t>(b);
-  const std::uint64_t r =
-      static_cast<std::uint64_t>(a) % static_cast<std::uint64_t>(b);
+  const unsigned long q =
+      static_cast<unsigned long>(a) / static_cast<unsigned long>(b);
+  const unsigned long r =
+      static_cast<unsigned long>(a) % static_cast<unsigned long>(b);
   if (r == 0) {
     error = false;
     return a;
   } else {
     bool error_sum = false;
     bool error_product = false;
-    const std::int64_t q_plus_one =
-        il::safe_sum(static_cast<std::int64_t>(q), static_cast<std::int64_t>(1),
-                     il::io, error_sum);
-    const std::int64_t ans =
-        il::safe_product(q_plus_one, b, il::io, error_product);
+    const long q_plus_one = il::safe_sum(
+        static_cast<long>(q), static_cast<long>(1), il::io, error_sum);
+    const long ans = il::safe_product(q_plus_one, b, il::io, error_product);
     if (error_sum || error_product) {
       error = true;
       return 0;
@@ -407,7 +476,6 @@ inline std::int64_t safe_upper_round(std::int64_t a, std::int64_t b, il::io_t,
     }
   }
 }
-#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 // convert
@@ -421,52 +489,70 @@ T1 safe_convert(T2 n, il::io_t, bool& error) {
 }
 
 template <>
-inline std::int32_t safe_convert(std::uint32_t n, il::io_t, bool& error) {
-  if (n > std::numeric_limits<std::int32_t>::max()) {
+inline int safe_convert(unsigned n, il::io_t, bool& error) {
+  if (n > INT_MAX) {
     error = true;
     return 0;
   } else {
     error = false;
-    return static_cast<std::int32_t>(n);
+    return static_cast<int>(n);
   }
 }
 
 template <>
-inline std::uint32_t safe_convert(std::int32_t n, il::io_t, bool& error) {
+inline unsigned safe_convert(int n, il::io_t, bool& error) {
   if (n < 0) {
     error = true;
     return 0;
   } else {
     error = false;
-    return static_cast<std::uint32_t>(n);
+    return static_cast<unsigned>(n);
   }
 }
 
-#ifdef IL_64_BIT_ENVIRONMENT
 template <>
-inline std::int64_t safe_convert(std::uint64_t n, il::io_t, bool& error) {
-  if (n > std::numeric_limits<std::int64_t>::max()) {
+inline long safe_convert(unsigned long n, il::io_t, bool& error) {
+  if (n > LONG_MAX) {
     error = true;
     return 0;
   } else {
     error = false;
-    return static_cast<std::int64_t>(n);
+    return static_cast<long>(n);
   }
 }
-#endif
 
-#ifdef IL_64_BIT_ENVIRONMENT
 template <>
-inline std::uint64_t safe_convert(std::int64_t n, il::io_t, bool& error) {
+inline unsigned long safe_convert(long n, il::io_t, bool& error) {
   if (n < 0) {
     error = true;
     return 0;
   } else {
     error = false;
-    return static_cast<std::uint64_t>(n);
+    return static_cast<unsigned long>(n);
   }
 }
-#endif
+
+template <>
+inline long long safe_convert(unsigned long long n, il::io_t, bool& error) {
+  if (n > LLONG_MAX) {
+    error = true;
+    return 0;
+  } else {
+    error = false;
+    return static_cast<long long>(n);
+  }
+}
+
+template <>
+inline unsigned long long safe_convert(long long n, il::io_t, bool& error) {
+  if (n < 0) {
+    error = true;
+    return 0;
+  } else {
+    error = false;
+    return static_cast<unsigned long long>(n);
+  }
+}
 }
 
 #endif  // IL_SAFE_ARITHMETIC_H
