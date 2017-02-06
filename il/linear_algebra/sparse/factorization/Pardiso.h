@@ -16,6 +16,8 @@
 #include <il/container/1d/Array.h>
 #include <il/SparseMatrixCSR.h>
 
+#ifdef IL_MKL
+
 #include <mkl.h>
 
 namespace il {
@@ -392,4 +394,5 @@ inline void Pardiso::release() {
 }
 }
 
-#endif  // IL_Pardiso_H
+#endif // IL_MKL
+#endif // IL_Pardiso_H

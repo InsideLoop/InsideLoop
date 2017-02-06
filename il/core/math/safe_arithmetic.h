@@ -477,6 +477,33 @@ inline long safe_upper_round(long a, long b, il::io_t, bool& error) {
   }
 }
 
+inline long long safe_upper_round(long long a, long long b, il::io_t, bool& error) {
+  IL_EXPECT_FAST(a >= 0);
+  IL_EXPECT_FAST(b > 0);
+
+  const unsigned long long q =
+      static_cast<unsigned long long>(a) / static_cast<unsigned long long>(b);
+  const unsigned long long r =
+      static_cast<unsigned long long>(a) % static_cast<unsigned long long>(b);
+  if (r == 0) {
+    error = false;
+    return a;
+  } else {
+    bool error_sum = false;
+    bool error_product = false;
+    const long long q_plus_one = il::safe_sum(
+        static_cast<long long>(q), static_cast<long long>(1), il::io, error_sum);
+    const long long ans = il::safe_product(q_plus_one, b, il::io, error_product);
+    if (error_sum || error_product) {
+      error = true;
+      return 0;
+    } else {
+      error = false;
+      return ans;
+    }
+  }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // convert
 ////////////////////////////////////////////////////////////////////////////////

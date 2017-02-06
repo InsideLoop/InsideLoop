@@ -39,6 +39,12 @@ struct abort_exception {};
 #define IL_EXPECT_FAST(condition) (condition) ? ((void)0) : std::abort();
 #endif
 
+#ifdef NDEBUG
+#define IL_EXPECT_FAST_NOTHROW(condition) ((void)0)
+#else
+#define IL_EXPECT_FAST_NOTHROW(condition) (condition) ? ((void)0) : std::abort();
+#endif
+
 // Use this when the the expectation is as expensive to compute as the function
 #ifdef IL_UNIT_TEST
 #define IL_EXPECT_MEDIUM(condition) \

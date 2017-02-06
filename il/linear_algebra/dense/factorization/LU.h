@@ -16,12 +16,12 @@
 #include <il/container/2d/LowerArray2D.h>
 #include <il/container/2d/UpperArray2D.h>
 #include <il/core/Status.h>
-#include <il/linear_algebra/dense/blas/norm.h>
+#include <il/linear_algebra/dense/norm.h>
 
 #ifdef IL_MKL
 #include <mkl_lapacke.h>
-#else
-#include <lapacke.h>
+#elif IL_OPENBLAS
+#include <OpenBLAS/lapacke.h>
 #endif
 
 namespace il {
@@ -160,7 +160,7 @@ double LU<il::Array2D<double>>::determinant() const {
   }
 
   return det;
-};
+}
 
 double LU<il::Array2D<double>>::condition_number(il::Norm norm_type,
                                                         double norm_a) const {

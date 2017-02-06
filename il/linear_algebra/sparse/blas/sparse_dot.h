@@ -14,7 +14,6 @@
 
 #ifdef IL_MKL
 #include <mkl_spblas.h>
-#endif
 
 namespace il {
 
@@ -102,5 +101,6 @@ inline il::SparseMatrixCSR<int, double> dot(il::io_t,
 }
 
 }
+#endif // IL_MKL
 
 #endif  // IL_SPARSE_DOT_H

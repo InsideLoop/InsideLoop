@@ -14,7 +14,6 @@
 
 #ifdef IL_MKL
 #include <mkl_spblas.h>
-#endif
 
 namespace il {
 
@@ -124,5 +123,7 @@ sparse_matrix_t SparseMatrixBlas<Index, float>::handle() {
 }
 
 }
+
+#endif // IL_MKL
 
 #endif // IL_SPARSEMATRIXOPTIMIZED_H

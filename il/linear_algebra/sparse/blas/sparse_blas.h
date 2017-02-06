@@ -12,6 +12,8 @@
 
 #include <il/linear_algebra/sparse/blas/SparseMatrixBlas.h>
 
+#ifdef IL_MKL
+
 namespace il {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -101,5 +103,7 @@ inline void blas(double alpha, il::SparseMatrixBlas<int, double>& A_optimized,
 }
 
 }
+
+#endif // IL_MKL
 
 #endif  // IL_SPARSE_BLAS_H

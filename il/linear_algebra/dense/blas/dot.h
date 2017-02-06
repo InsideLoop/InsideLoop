@@ -42,7 +42,7 @@ inline double dot(const il::Array<double>& x, const il::Array<double>& y) {
   return sum;
 }
 
-#ifdef IL_MKL
+#ifdef IL_BLAS
 inline il::Array<double> dot(const il::Array2D<double>& A,
                              const il::Array<double>& x) {
   IL_EXPECT_FAST(A.size(1) == x.size());

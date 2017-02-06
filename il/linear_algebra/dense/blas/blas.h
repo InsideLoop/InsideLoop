@@ -23,6 +23,10 @@
 #include <mkl_cblas.h>
 #define IL_CBLAS_INT MKL_INT
 #define IL_CBLAS_LAYOUT CBLAS_LAYOUT
+#elif IL_OPENBLAS
+#include <OpenBLAS/cblas.h>
+#define IL_CBLAS_INT int
+#define IL_CBLAS_LAYOUT CBLAS_ORDER
 #endif
 
 namespace il {
@@ -43,7 +47,7 @@ void blas(T alpha, const il::StaticArray3D<T, n0, n1, n2>& A, T beta, il::io_t,
   }
 }
 
-#ifdef IL_MKL
+#ifdef IL_BLAS
 // x, y are vectors
 // y <- alpha x + y
 inline void blas(double alpha, const il::Array<double>& x, il::io_t,

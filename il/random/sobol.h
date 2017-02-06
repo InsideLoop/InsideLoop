@@ -12,7 +12,7 @@
 
 #include <il/Array2C.h>
 
-#ifdef IL_MKL
+#ifdef IL_BLAS
 #include <mkl.h>
 #endif
 

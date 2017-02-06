@@ -22,6 +22,8 @@
 
 #pragma once
 
+#ifdef IL_MKL
+
 #include "mkl_blas.h"
 #include "mkl_rci.h"
 #include "mkl_service.h"
@@ -310,3 +312,5 @@ GmresIlu0::convert_fortran_to_c(il::io_t, il::SparseMatrixCSR<int, double> &A) {
   }
 }
 }
+
+#endif // IL_MKL

@@ -855,7 +855,7 @@ Array3C<T>& Array3C<T>::operator=(Array3C<T>&& A) {
 
 template <typename T>
 Array3C<T>::~Array3C() {
-  IL_EXPECT_FAST(invariance());
+  IL_EXPECT_FAST_NOTHROW(invariance());
 
   if (data_) {
     if (!il::is_trivial<T>::value) {

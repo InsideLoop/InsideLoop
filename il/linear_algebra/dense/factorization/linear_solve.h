@@ -20,11 +20,13 @@
 
 #ifdef IL_MKL
 #include <mkl_lapacke.h>
+#elif IL_OPENBLAS
+#include <OpenBLAS/lapacke.h>
 #endif
 
 namespace il {
 
-#ifdef IL_MKL
+#ifdef IL_BLAS
 inline il::Array<double> linear_solve(il::Array2D<double> A,
                                       il::Array<double> y, il::io_t,
                                       il::Status &status) {

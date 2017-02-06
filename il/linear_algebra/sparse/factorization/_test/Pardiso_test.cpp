@@ -15,6 +15,8 @@
 
 #include <il/benchmark/tools/timer/Timer.h>
 
+#ifdef IL_MKL
+
 TEST(Pardiso, base) {
   const double epsilon = 1.0e-15;
 
@@ -108,3 +110,5 @@ TEST(Pardiso, heat3D) {
   const double epsilon = 1.0e-7;
   ASSERT_TRUE(max_err <= 10 * epsilon);
 }
+
+#endif // IL_MKL

@@ -15,6 +15,8 @@
 
 #include <il/benchmark/tools/timer/Timer.h>
 
+#ifdef IL_MKL
+
 TEST(GmresIlu0, base) {
   const double epsilon = 1.0e-15;
 
@@ -113,3 +115,5 @@ TEST(GmresIlu0, heat3D) {
 
   ASSERT_TRUE(max_err <= 10 * relative_precision);
 }
+
+#endif // IL_MKL

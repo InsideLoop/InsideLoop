@@ -569,7 +569,7 @@ Array<T>& Array<T>::operator=(Array<T>&& v) {
 
 template <typename T>
 Array<T>::~Array() {
-  IL_EXPECT_FAST(invariance());
+  IL_EXPECT_FAST_NOTHROW(invariance());
 
   if (data_) {
     if (!il::is_trivial<T>::value) {

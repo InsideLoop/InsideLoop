@@ -863,7 +863,7 @@ Array3D<T>& Array3D<T>::operator=(Array3D<T>&& A) {
 
 template <typename T>
 Array3D<T>::~Array3D() {
-  IL_EXPECT_FAST(invariance());
+  IL_EXPECT_FAST_NOTHROW(invariance());
 
   if (data_) {
     if (!il::is_trivial<T>::value) {

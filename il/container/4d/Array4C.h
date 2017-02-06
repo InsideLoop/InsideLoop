@@ -625,7 +625,7 @@ Array4C<T>& Array4C<T>::operator=(Array4C<T>&& A) {
 
 template <typename T>
 Array4C<T>::~Array4C() {
-  IL_EXPECT_FAST(invariance());
+  IL_EXPECT_FAST_NOTHROW(invariance());
 
   if (data_) {
     if (!il::is_trivial<T>::value) {

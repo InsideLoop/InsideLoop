@@ -414,7 +414,7 @@ SmallArray<T, small_size>& SmallArray<T, small_size>::operator=(
 
 template <typename T, il::int_t small_size>
 SmallArray<T, small_size>::~SmallArray() {
-  IL_EXPECT_FAST(invariance());
+  IL_EXPECT_FAST_NOTHROW(invariance());
 
   if (!il::is_trivial<T>::value) {
     for (il::int_t i = size() - 1; i >= 0; --i) {

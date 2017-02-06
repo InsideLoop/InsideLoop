@@ -14,12 +14,12 @@
 #include <il/Array2D.h>
 #include <il/LowerArray2D.h>
 #include <il/core/Status.h>
-#include <il/linear_algebra/dense/blas/norm.h>
+#include <il/linear_algebra/dense/norm.h>
 
 #ifdef IL_MKL
 #include <mkl_lapacke.h>
-#else
-#include <lapacke.h>
+#elif IL_OPENBLAS
+#include <OpenBLAS/lapacke.h>
 #endif
 
 namespace il {

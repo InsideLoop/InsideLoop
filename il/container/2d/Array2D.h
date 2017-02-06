@@ -743,7 +743,7 @@ Array2D<T>& Array2D<T>::operator=(Array2D<T>&& A) {
 
 template <typename T>
 Array2D<T>::~Array2D() {
-  IL_EXPECT_FAST(invariance());
+  IL_EXPECT_FAST_NOTHROW(invariance());
 
   if (data_) {
     if (!il::is_trivial<T>::value) {

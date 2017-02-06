@@ -22,21 +22,24 @@ project(InsideLoopUnitTest CXX)
 project(Program CXX)
 
 set(IL_OPENMP 0)
-set(IL_MKL 1)
-set(IL_PNG 1)
+set(IL_OPENBLAS 1)
+set(IL_MKL 0)
+set(IL_PNG 0)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++11")
 
 # We want all possible warnings and treat them as errors
 if (UNIX)
-    if (UNIX)
-        if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -pedantic")
-        elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -pedantic")
-        elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -pedantic")
-        endif()
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -pedantic")
+    elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -pedantic")
+    elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -pedantic")
+    endif()
+elseif (WIN32)
+    if (MINGW)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -pedantic")
     endif()
 endif()
 
@@ -80,6 +83,10 @@ if (IL_OPENMP)
         elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -qopenmp")
         endif()
+    elseif (WIN32)
+        if (MINGW)
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+        endif()
     endif()
 endif()
 
@@ -102,19 +109,28 @@ endif()
 if (IL_MKL)
     if (UNIX)
         if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64 -DIL_MKL")
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64 -DIL_MKL -DIL_BLAS")
             set(CMAKE_MKL_LIBRARIES mkl_intel_lp64 mkl_core mkl_intel_thread iomp5 dl pthread m)
         elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64 -DIL_MKL")
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64 -DIL_MKL -DIL_BLAS")
             set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--no-as-needed")
             set(CMAKE_MKL_LIBRARIES mkl_intel_lp64 mkl_core mkl_intel_thread iomp5 dl pthread m)
             link_directories($ENV{MKLROOT}/lib/intel64_lin)
         elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mkl=parallel -DIL_MKL")
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mkl=parallel -DIL_MKL -DIL_BLAS")
         endif()
     endif()
 elseif (IL_OPENBLAS)
-    if (APPLE)
+    if (UNIX)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DIL_OPENBLAS -DIL_BLAS")
+        set(CMAKE_OPENBLAS_LIBRARIES "openblas")
+    elseif(WIN32)
+        if (MINGW)
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DIL_OPENBLAS -DIL_BLAS")
+            set(CMAKE_OPENBLAS_LIBRARIES "openblas")
+        endif()
+    elseif (APPLE)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DIL_MKL -DIL_OPENBLAS -DIL_BLAS")
         set(CMAKE_OPENBLAS_LIBRARIES "openblas")
     endif()
 endif()
@@ -193,7 +209,7 @@ set(SOURCE_FILES
     il/io/numpy.h
     il/io/numpy.cpp
     il/io/png.h
-    il/io/png.cpp
+#    il/io/png.cpp
     il/io/format/format.cc
     il/linear_algebra/dense/blas/blas.h
     il/linear_algebra/dense/blas/dot.h
@@ -219,7 +235,7 @@ set(SOURCE_FILES
 
 
 add_executable(InsideLoop ${SOURCE_FILES} main.cpp)
-target_link_libraries(InsideLoop ${CMAKE_MKL_LIBRARIES} ${CMAKE_PNG_LIBRARIES})
+target_link_libraries(InsideLoop ${CMAKE_MKL_LIBRARIES} ${CMAKE_PNG_LIBRARIES} ${CMAKE_OPENBLAS_LIBRARIES})
 target_include_directories(InsideLoop PRIVATE ${CMAKE_SOURCE_DIR} /opt/eigen-3.3.2 /opt/blaze-3.0 /opt/cuda-8.0/include)
 
 if (APPLE)
@@ -257,7 +273,7 @@ set(UNIT_TEST_FILES
 add_executable(InsideLoopUnitTest ${SOURCE_FILES} ${UNIT_TEST_FILES} test.cpp)
 
 target_include_directories(InsideLoopUnitTest PUBLIC ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/gtest)
-target_link_libraries(InsideLoopUnitTest ${CMAKE_MKL_LIBRARIES} ${CMAKE_PNG_LIBRARIES})
+target_link_libraries(InsideLoopUnitTest ${CMAKE_MKL_LIBRARIES} ${CMAKE_PNG_LIBRARIES} ${CMAKE_OPENBLAS_LIBRARIES})
 
 # For unit tests: The precondition of our fonctions are checked with assert
 # macros that terminate the program in debug mode. In order to test those macros
