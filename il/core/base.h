@@ -14,6 +14,8 @@
 #include <cstddef>
 // <climits> is needed for LONG_MAX
 #include <climits>
+// <cstdlib> is needed for std::abort()
+#include <cstdlib>
 
 ////////////////////////////////////////////////////////////////////////////////
 // Configuration
@@ -27,6 +29,9 @@
 
 namespace il {
 struct abort_exception {};
+inline void abort() {
+  std::abort();
+}
 }
 
 // Use this when the expectation is fast to compute compared to the function
@@ -36,13 +41,14 @@ struct abort_exception {};
 #elif NDEBUG
 #define IL_EXPECT_FAST(condition) ((void)0)
 #else
-#define IL_EXPECT_FAST(condition) (condition) ? ((void)0) : std::abort();
+#define IL_EXPECT_FAST(condition) (condition) ? ((void)0) : il::abort();
 #endif
 
 #ifdef NDEBUG
 #define IL_EXPECT_FAST_NOTHROW(condition) ((void)0)
 #else
-#define IL_EXPECT_FAST_NOTHROW(condition) (condition) ? ((void)0) : std::abort();
+#define IL_EXPECT_FAST_NOTHROW(condition) \
+  (condition) ? ((void)0) : il::abort();
 #endif
 
 // Use this when the the expectation is as expensive to compute as the function
@@ -52,7 +58,7 @@ struct abort_exception {};
 #elif NDEBUG
 #define IL_EXPECT_MEDIUM(condition) ((void)0)
 #else
-#define IL_EXPECT_MEDIUM(condition) (condition) ? ((void)0) : std::abort();
+#define IL_EXPECT_MEDIUM(condition) (condition) ? ((void)0) : il::abort();
 #endif
 
 // Use this when the the expectation is more expensive to compute than the
@@ -63,7 +69,7 @@ struct abort_exception {};
 #elif NDEBUG
 #define IL_EXPECT_SLOW(condition) ((void)0)
 #else
-#define IL_EXPECT_SLOW(condition) (condition) ? ((void)0) : std::abort();
+#define IL_EXPECT_SLOW(condition) (condition) ? ((void)0) : il::abort();
 #endif
 
 #define IL_EXPECT_AXIOM(message) ((void)0)
@@ -75,10 +81,10 @@ struct abort_exception {};
 #elif NDEBUG
 #define IL_ENSURE(condition) ((void)0)
 #else
-#define IL_ENSURE(condition) (condition) ? ((void)0) : std::abort();
+#define IL_ENSURE(condition) (condition) ? ((void)0) : il::abort();
 #endif
 
-#define IL_UNREACHABLE std::abort()
+#define IL_UNREACHABLE il::abort()
 
 #define IL_UNUSED(var) ((void)var)
 
@@ -298,7 +304,6 @@ template <>
 inline long double default_value<long double>() {
   return 0.0l / 0.0l;
 }
-
 }
 
 #endif  // IL_BASE_H
