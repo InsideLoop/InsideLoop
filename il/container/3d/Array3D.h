@@ -252,7 +252,7 @@ Array3D<T>::Array3D(il::int_t n0, il::int_t n1, il::int_t n2) {
   bool error;
   const il::int_t r = il::safe_product(r0, r1, r2, il::io, error);
   if (error) {
-    std::abort();
+    il::abort();
   }
   if (r > 0) {
     data_ = il::allocate_array<T>(r);
@@ -322,7 +322,7 @@ Array3D<T>::Array3D(il::int_t n0, il::int_t n1, il::int_t n2, il::align_t,
       bool error = false;
       r0 = il::safe_upper_round(n0, nb_lanes, il::io, error);
       if (error) {
-        std::abort();
+        il::abort();
       }
       r1 = n1;
       r2 = n2;
@@ -343,7 +343,7 @@ Array3D<T>::Array3D(il::int_t n0, il::int_t n1, il::int_t n2, il::align_t,
   bool error = false;
   const il::int_t r = il::safe_product(r0, r1, r2, il::io, error);
   if (error) {
-    std::abort();
+    il::abort();
   }
   if (r > 0) {
     il::int_t shift;
@@ -390,7 +390,7 @@ Array3D<T>::Array3D(il::int_t n0, il::int_t n1, il::int_t n2, const T& x) {
   bool error;
   const il::int_t r = il::safe_product(r0, r1, r2, il::io, error);
   if (error) {
-    std::abort();
+    il::abort();
   }
   if (r > 0) {
     data_ = il::allocate_array<T>(r);
@@ -448,7 +448,7 @@ Array3D<T>::Array3D(il::int_t n0, il::int_t n1, il::int_t n2, const T& x,
       bool error = false;
       r0 = il::safe_upper_round(n0, nb_lanes, il::io, error);
       if (error) {
-        std::abort();
+        il::abort();
       }
       r1 = n1;
       r2 = n2;
@@ -469,7 +469,7 @@ Array3D<T>::Array3D(il::int_t n0, il::int_t n1, il::int_t n2, const T& x,
   bool error = false;
   const il::int_t r = il::safe_product(r0, r1, r2, il::io, error);
   if (error) {
-    std::abort();
+    il::abort();
   }
   if (r > 0) {
     il::int_t shift;
@@ -512,20 +512,20 @@ Array3D<T>::Array3D(
   bool error;
   const il::int_t n2 = il::safe_convert<il::int_t>(list.size(), il::io, error);
   if (error) {
-    std::abort();
+    il::abort();
   }
   const il::int_t n1 =
       n2 > 0 ? il::safe_convert<il::int_t>(list.begin()->size(), il::io, error)
              : 0;
   if (error) {
-    std::abort();
+    il::abort();
   }
   const il::int_t n0 = n1 > 0
                            ? il::safe_convert<il::int_t>(
                                  list.begin()->begin()->size(), il::io, error)
                            : 0;
   if (error) {
-    std::abort();
+    il::abort();
   }
 
   il::int_t r0;
@@ -538,7 +538,7 @@ Array3D<T>::Array3D(
     bool error = false;
     const il::int_t r = il::safe_product(r0, r1, r2, il::io, error);
     if (error) {
-      std::abort();
+      il::abort();
     }
     data_ = il::allocate_array<T>(r);
     if (il::is_trivial<T>::value) {
@@ -578,7 +578,7 @@ Array3D<T>::Array3D(
     bool error = false;
     const il::int_t r = il::safe_product(r0, r1, r2, il::io, error);
     if (error) {
-      std::abort();
+      il::abort();
     }
     data_ = il::allocate_array<T>(r);
   }
@@ -609,7 +609,7 @@ Array3D<T>::Array3D(const Array3D<T>& A) {
       bool error = false;
       r0 = il::safe_upper_round(n0, nb_lanes, il::io, error);
       if (error) {
-        std::abort();
+        il::abort();
       }
       r1 = n1;
       r2 = n2;
@@ -630,7 +630,7 @@ Array3D<T>::Array3D(const Array3D<T>& A) {
   bool error = false;
   const il::int_t r = il::safe_product(r0, r1, r2, il::io, error);
   if (error) {
-    std::abort();
+    il::abort();
   }
   if (il::is_trivial<T>::value) {
     if (A.alignment_ == 0) {
@@ -719,7 +719,7 @@ Array3D<T>& Array3D<T>::operator=(const Array3D<T>& A) {
           bool error = false;
           r0 = il::safe_upper_round(n0, nb_lanes, il::io, error);
           if (error) {
-            std::abort();
+            il::abort();
           }
           r1 = n1;
           r2 = n2;
@@ -736,7 +736,7 @@ Array3D<T>& Array3D<T>::operator=(const Array3D<T>& A) {
       bool error = false;
       const il::int_t r = il::safe_product(r0, r1, r2, il::io, error);
       if (error) {
-        std::abort();
+        il::abort();
       }
       if (il::is_trivial<T>::value) {
         if (data_) {
@@ -935,7 +935,7 @@ void Array3D<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2) {
         bool error = false;
         r0 = il::safe_upper_round(n0, nb_lanes, il::io, error);
         if (error) {
-          std::abort();
+          il::abort();
         }
         r1 = n1;
         r2 = n2;
@@ -952,7 +952,7 @@ void Array3D<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2) {
     bool error = false;
     const il::int_t r = il::safe_product(r0, r1, r2, il::io, error);
     if (error) {
-      std::abort();
+      il::abort();
     }
     T* new_data;
     il::int_t new_shift;
@@ -1087,13 +1087,13 @@ void Array3D<T>::reserve(il::int_t r0, il::int_t r1, il::int_t r2) {
       bool error = false;
       r0 = il::safe_upper_round(r0, nb_lanes, il::io, error);
       if (error) {
-        std::abort();
+        il::abort();
       }
     }
     bool error = false;
     const il::int_t r = il::safe_product(r0, r1, r2, il::io, error);
     if (error) {
-      std::abort();
+      il::abort();
     }
     T* new_data;
     il::int_t new_shift;

@@ -10,8 +10,7 @@
 #ifndef IL_ERROR_H
 #define IL_ERROR_H
 
-// <cstdlib> is used for std::abort
-#include <cstdlib>
+#include <il/core/base.h>
 
 namespace il {
 
@@ -64,7 +63,7 @@ inline Status::Status() {
 
 inline Status::~Status() {
   if (!status_has_been_checked_) {
-    std::abort();
+    il::abort();
   }
 }
 
@@ -93,7 +92,7 @@ inline void Status::ignore_error() {
 inline void Status::abort_on_error() {
   status_has_been_checked_ = true;
   if (error_code_ != il::ErrorCode::ok) {
-    std::abort();
+    il::abort();
   }
 }
 

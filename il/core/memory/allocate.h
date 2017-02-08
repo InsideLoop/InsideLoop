@@ -26,12 +26,12 @@ T* allocate_array(il::int_t n) {
   const std::size_t n_bytes =
       il::safe_product(n_unsigned, sizeof(T), il::io, error);
   if (error) {
-    std::abort();
+    il::abort();
   }
 
   T* p = static_cast<T*>(std::malloc(n_bytes));
   if (!p && n_bytes > 0) {
-    std::abort();
+    il::abort();
   }
 
   return p;
@@ -57,12 +57,12 @@ T* allocate_array(il::int_t n, il::int_t align_r, il::int_t align_mod, il::io_t,
       il::safe_product(n_unsigned, sizeof(T), il::io, product_error),
       align_mod_unsigned - 1, il::io, sum_error);
   if (product_error || sum_error) {
-    std::abort();
+    il::abort();
   }
 
   T* p = static_cast<T*>(std::malloc(n_bytes));
   if (!p && n_bytes > 0) {
-    std::abort();
+    il::abort();
   }
   const std::size_t align_r_unsigned = static_cast<std::size_t>(align_r);
   const std::size_t p_int = reinterpret_cast<std::size_t>(p);

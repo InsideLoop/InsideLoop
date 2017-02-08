@@ -7,8 +7,10 @@
 //
 //==============================================================================
 
-#ifndef IL_NEW_NUMPY_H
-#define IL_NEW_NUMPY_H
+#ifndef IL_NUMPY_H
+#define IL_NUMPY_H
+
+#include <string>
 
 #include <il/Array.h>
 #include <il/Array2D.h>
@@ -57,6 +59,13 @@ void save(const T& x, const il::String& filename, il::io_t,
 }
 
 template <typename T>
+void save(const T& x, const std::string& filename, il::io_t,
+          il::Status& status) {
+  il::String il_filename = filename.c_str();
+  il::SaveHelper<T>::save(x, il_filename, il::io, status);
+}
+
+template <typename T>
 void SaveHelper<T>::save(const T& x, const il::String& filename, il::io_t,
                          il::Status& status) {
   IL_UNUSED(x);
@@ -85,7 +94,7 @@ class SaveHelper<il::Array<T>> {
     if (!info_status.ok()) {
       const int error = std::fclose(file);
       if (error != 0) {
-        std::abort();
+        il::abort();
       }
       status.set(info_status.error_code());
       return;
@@ -130,7 +139,7 @@ class SaveHelper<il::Array2D<T>> {
     if (!info_status.ok()) {
       const int error = std::fclose(file);
       if (error != 0) {
-        std::abort();
+        il::abort();
       }
       status.set(info_status.error_code());
       return;
@@ -164,6 +173,12 @@ class LoadHelper {
 template <typename T>
 T load(const il::String& filename, il::io_t, il::Status& status) {
   return il::LoadHelper<T>::load(filename, il::io, status);
+}
+
+template <typename T>
+T load(const std::string& filename, il::io_t, il::Status& status) {
+  il::String il_filename = filename.c_str();
+  return il::LoadHelper<T>::load(il_filename, il::io, status);
 }
 
 template <typename T>
@@ -303,4 +318,4 @@ class LoadHelper<il::SparseMatrixCSR<il::int_t, double>> {
 };
 }
 
-#endif  // IL_NEW_NUMPY_H
+#endif  // IL_NUMPY_H

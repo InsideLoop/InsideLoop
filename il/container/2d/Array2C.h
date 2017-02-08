@@ -233,7 +233,7 @@ Array2C<T>::Array2C(il::int_t n0, il::int_t n1) {
   bool error = false;
   const il::int_t r = il::safe_product(r0, r1, il::io, error);
   if (error) {
-    std::abort();
+    il::abort();
   }
   if (r > 0) {
     data_ = il::allocate_array<T>(r);
@@ -296,7 +296,7 @@ Array2C<T>::Array2C(il::int_t n0, il::int_t n1, il::align_t,
       bool error = false;
       r1 = il::safe_upper_round(n1, nb_lanes, il::io, error);
       if (error) {
-        std::abort();
+        il::abort();
       }
     } else {
       r0 = n0;
@@ -312,7 +312,7 @@ Array2C<T>::Array2C(il::int_t n0, il::int_t n1, il::align_t,
   bool error = false;
   const il::int_t r = il::safe_product(r0, r1, il::io, error);
   if (error) {
-    std::abort();
+    il::abort();
   }
   if (r > 0) {
     il::int_t shift;
@@ -353,7 +353,7 @@ Array2C<T>::Array2C(il::int_t n0, il::int_t n1, const T& x) {
   bool error = false;
   const il::int_t r = il::safe_product(r0, r1, il::io, error);
   if (error) {
-    std::abort();
+    il::abort();
   }
   if (r > 0) {
     data_ = il::allocate_array<T>(r);
@@ -406,7 +406,7 @@ Array2C<T>::Array2C(il::int_t n0, il::int_t n1, const T& x, il::align_t,
       bool error = false;
       r1 = il::safe_upper_round(n1, nb_lanes, il::io, error);
       if (error) {
-        std::abort();
+        il::abort();
       }
     } else {
       r0 = n0;
@@ -422,7 +422,7 @@ Array2C<T>::Array2C(il::int_t n0, il::int_t n1, const T& x, il::align_t,
   bool error = false;
   const il::int_t r = il::safe_product(r0, r1, il::io, error);
   if (error) {
-    std::abort();
+    il::abort();
   }
   if (r > 0) {
     il::int_t shift;
@@ -457,14 +457,14 @@ Array2C<T>::Array2C(il::value_t,
   bool error = false;
   const il::int_t n0 = il::safe_convert<il::int_t>(list.size(), il::io, error);
   if (error) {
-    std::abort();
+    il::abort();
   }
   error = false;
   const il::int_t n1 =
       n0 > 0 ? il::safe_convert<il::int_t>(list.begin()->size(), il::io, error)
              : 0;
   if (error) {
-    std::abort();
+    il::abort();
   }
 
   il::int_t r0;
@@ -475,7 +475,7 @@ Array2C<T>::Array2C(il::value_t,
     bool error = false;
     const il::int_t r = il::safe_product(r0, r1, il::io, error);
     if (error) {
-      std::abort();
+      il::abort();
     }
     data_ = il::allocate_array<T>(r);
     if (il::is_trivial<T>::value) {
@@ -503,7 +503,7 @@ Array2C<T>::Array2C(il::value_t,
     bool error = false;
     const il::int_t r = il::safe_product(r0, r1, il::io, error);
     if (error) {
-      std::abort();
+      il::abort();
     }
     data_ = il::allocate_array<T>(r);
   }
@@ -531,7 +531,7 @@ Array2C<T>::Array2C(const Array2C<T>& A) {
       bool error = false;
       r1 = il::safe_upper_round(n1, nb_lanes, il::io, error);
       if (error) {
-        std::abort();
+        il::abort();
       }
     } else {
       r0 = n0;
@@ -547,7 +547,7 @@ Array2C<T>::Array2C(const Array2C<T>& A) {
   bool error = false;
   const il::int_t r = il::safe_product(r0, r1, il::io, error);
   if (error) {
-    std::abort();
+    il::abort();
   }
   if (il::is_trivial<T>::value) {
     if (A.alignment_ == 0) {
@@ -623,7 +623,7 @@ Array2C<T>& Array2C<T>::operator=(const Array2C<T>& A) {
           bool error = false;
           r1 = il::safe_upper_round(n1, nb_lanes, il::io, error);
           if (error) {
-            std::abort();
+            il::abort();
           }
         } else {
           r0 = n0;
@@ -636,7 +636,7 @@ Array2C<T>& Array2C<T>::operator=(const Array2C<T>& A) {
       bool error = false;
       const il::int_t r = il::safe_product(r0, r1, il::io, error);
       if (error) {
-        std::abort();
+        il::abort();
       }
       if (il::is_trivial<T>::value) {
         if (data_) {
@@ -799,7 +799,7 @@ void Array2C<T>::resize(il::int_t n0, il::int_t n1) {
         bool error = false;
         r1 = il::safe_upper_round(n1, nb_lanes, il::io, error);
         if (error) {
-          std::abort();
+          il::abort();
         }
       } else {
         r0 = n0;
@@ -815,7 +815,7 @@ void Array2C<T>::resize(il::int_t n0, il::int_t n1) {
     bool error = false;
     const il::int_t r = il::safe_product(r0, r1, il::io, error);
     if (error) {
-      std::abort();
+      il::abort();
     }
     T* new_data;
     il::int_t new_shift;
@@ -918,13 +918,13 @@ void Array2C<T>::reserve(il::int_t r0, il::int_t r1) {
       bool error = false;
       r1 = il::safe_upper_round(r1, nb_lanes, il::io, error);
       if (error) {
-        std::abort();
+        il::abort();
       }
     }
     bool error = false;
     const il::int_t r = il::safe_product(r0, r1, il::io, error);
     if (error) {
-      std::abort();
+      il::abort();
     }
     T* new_data;
     il::int_t new_shift;

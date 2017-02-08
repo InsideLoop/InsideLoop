@@ -517,7 +517,7 @@ void SmallArray<T, small_size>::append(const T& x) {
         n > 1 ? il::safe_sum(n, n / 2, il::io, error)
               : il::safe_sum(n, static_cast<il::int_t>(1), il::io, error);
     if (error) {
-      std::abort();
+      il::abort();
     }
     T x_copy = x;
     increase_capacity(new_capacity);
@@ -538,7 +538,7 @@ void SmallArray<T, small_size>::append(Args&&... args) {
         n > 1 ? il::safe_sum(n, n / 2, il::io, error)
               : il::safe_sum(n, static_cast<il::int_t>(1), il::io, error);
     if (error) {
-      std::abort();
+      il::abort();
     }
     increase_capacity(new_capacity);
   };

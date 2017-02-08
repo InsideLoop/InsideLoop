@@ -210,7 +210,7 @@ Array4C<T>::Array4C(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3) {
   bool error;
   const il::int_t r = il::safe_product(r0, r1, r2, r3, il::io, error);
   if (error) {
-    std::abort();
+    il::abort();
   }
   if (r > 0) {
     data_ = il::allocate_array<T>(r);
@@ -270,7 +270,7 @@ Array4C<T>::Array4C(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3,
   bool error;
   const il::int_t r = il::safe_product(r0, r1, r2, r3, il::io, error);
   if (error) {
-    std::abort();
+    il::abort();
   }
   if (r > 0) {
     data_ = il::allocate_array<T>(r);
@@ -320,7 +320,7 @@ Array4C<T>::Array4C(const Array4C<T>& A) {
       bool error = false;
       r3 = il::safe_upper_round(n3, nb_lanes, il::io, error);
       if (error) {
-        std::abort();
+        il::abort();
       }
     } else {
       r3 = n3;
@@ -339,7 +339,7 @@ Array4C<T>::Array4C(const Array4C<T>& A) {
   bool error = false;
   const il::int_t r = il::safe_product(r0, r1, r2, r3, il::io, error);
   if (error) {
-    std::abort();
+    il::abort();
   }
   if (il::is_trivial<T>::value) {
     if (A.alignment_ == 0) {
@@ -447,7 +447,7 @@ Array4C<T>& Array4C<T>::operator=(const Array4C<T>& A) {
           bool error = false;
           r3 = il::safe_upper_round(n3, nb_lanes, il::io, error);
           if (error) {
-            std::abort();
+            il::abort();
           }
         } else {
           r3 = n3;
@@ -461,7 +461,7 @@ Array4C<T>& Array4C<T>::operator=(const Array4C<T>& A) {
       bool error = false;
       const il::int_t r = il::safe_product(r0, r1, r2, r3, il::io, error);
       if (error) {
-        std::abort();
+        il::abort();
       }
       if (il::is_trivial<T>::value) {
         if (data_) {
@@ -717,7 +717,7 @@ void Array4C<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2,
         bool error = false;
         r3 = il::safe_upper_round(n3, nb_lanes, il::io, error);
         if (error) {
-          std::abort();
+          il::abort();
         }
       } else {
         r3 = n3;
@@ -731,7 +731,7 @@ void Array4C<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2,
     bool error = false;
     const il::int_t r = il::safe_product(r0, r1, r2, r3, il::io, error);
     if (error) {
-      std::abort();
+      il::abort();
     }
     T* new_data;
     il::int_t new_shift;
@@ -907,13 +907,13 @@ void Array4C<T>::reserve(il::int_t r0, il::int_t r1, il::int_t r2,
       bool error = false;
       r3 = il::safe_upper_round(r3, nb_lanes, il::io, error);
       if (error) {
-        std::abort();
+        il::abort();
       }
     }
     bool error = false;
     const il::int_t r = il::safe_product(r0, r1, r2, r3, il::io, error);
     if (error) {
-      std::abort();
+      il::abort();
     }
     T* new_data;
     il::int_t new_shift;
