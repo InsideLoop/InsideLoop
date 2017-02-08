@@ -62,19 +62,27 @@ class String {
  public:
   String();
   String(const char* data);
+  String(const char* data, il::int_t n);
   String(const String& s);
   String(String&& s);
   String& operator=(const String& s);
   String& operator=(String&& s);
   ~String();
   void reserve(il::int_t r);
+  void append(const char*, il::int_t n);
   void append(const char* data);
+  void append(char data);
+  void append(il::int_t k, char data);
   void append(const String& s);
   void append(const char* data, const String& s);
   void append(const char* data0, const String& s, const char* data1);
+  const char& back() const;
+  char& back();
   il::int_t size() const;
   il::int_t capacity() const;
   const char* c_string() const;
+  char* begin();
+  bool operator==(const il::String& other) const;
 
   bool is_small() const;
   void set_small_size(il::int_t n);
@@ -100,6 +108,20 @@ inline String::String(const char* data) {
     std::memcpy(large_.data, data, static_cast<std::size_t>(size) + 1);
     large_.size = static_cast<std::size_t>(size);
     large_.set_capacity(size);
+  }
+}
+
+inline String::String(const char* data, il::int_t n) {
+  if (n <= max_small_size_) {
+    std::memcpy(small_, data, static_cast<std::size_t>(n));
+    small_[n] = '\0';
+    set_small_size(n);
+  } else {
+    large_.data = new char[n + 1];
+    std::memcpy(large_.data, data, static_cast<std::size_t>(n));
+    large_.data[n] = '\0';
+    large_.size = static_cast<std::size_t>(n);
+    large_.set_capacity(n);
   }
 }
 
@@ -204,45 +226,44 @@ inline void String::reserve(il::int_t r) {
   large_.set_capacity(r);
 }
 
-inline void String::append(const char* data) {
-  IL_EXPECT_AXIOM("data must be a null terminated string");
+inline void String::append(const char* data, il::int_t n) {
+  IL_EXPECT_FAST(n >= 0);
+  IL_EXPECT_AXIOM("data must point to an array of length at least n");
 
   const il::int_t old_size = size();
-  il::int_t size = 0;
-  while (data[size] != '\0') {
-    ++size;
-  }
+
   if (is_small()) {
-    if (old_size + size <= max_small_size_) {
-      std::memcpy(small_ + old_size, data, static_cast<std::size_t>(size) + 1);
-      set_small_size(old_size + size);
+    if (old_size + n <= max_small_size_) {
+      std::memcpy(small_ + old_size, data, static_cast<std::size_t>(n));
+      small_[old_size + n] = '\0';
+      set_small_size(old_size + n);
     } else {
-      const il::int_t new_size = old_size + size;
+      const il::int_t new_size = old_size + n;
       const il::int_t alt_capacity = 2 * old_size;
       const il::int_t new_capacity =
           new_size > alt_capacity ? new_size : alt_capacity;
       char* new_data = new char[new_capacity + 1];
       std::memcpy(new_data, small_, static_cast<std::size_t>(old_size));
-      std::memcpy(new_data + old_size, data,
-                  static_cast<std::size_t>(size) + 1);
+      std::memcpy(new_data + old_size, data, static_cast<std::size_t>(n));
+      new_data[old_size + n] = '\0';
       large_.data = new_data;
       large_.size = new_size;
       large_.set_capacity(new_capacity);
     }
   } else {
-    if (old_size + size <= capacity()) {
-      std::memcpy(large_.data + old_size, data,
-                  static_cast<std::size_t>(size) + 1);
-      large_.size = old_size + size;
+    if (old_size + n <= capacity()) {
+      std::memcpy(large_.data + old_size, data, static_cast<std::size_t>(n));
+      large_.data[old_size + n] = '\0';
+      large_.size = old_size + n;
     } else {
-      const il::int_t new_size = old_size + size;
+      const il::int_t new_size = old_size + n;
       const il::int_t alt_capacity = 2 * old_size;
       const il::int_t new_capacity =
           new_size > alt_capacity ? new_size : alt_capacity;
       char* new_data = new char[new_capacity + 1];
       std::memcpy(new_data, large_.data, static_cast<std::size_t>(old_size));
-      std::memcpy(new_data + old_size, data,
-                  static_cast<std::size_t>(size) + 1);
+      std::memcpy(new_data + old_size, data, static_cast<std::size_t>(n));
+      new_data[old_size + n]= '\0';
       delete[] large_.data;
       large_.data = new_data;
       large_.size = new_size;
@@ -251,8 +272,28 @@ inline void String::append(const char* data) {
   }
 }
 
+inline void String::append(const char* data) {
+  IL_EXPECT_AXIOM("data must be a null terminated string");
+
+  il::int_t size = 0;
+  while (data[size] != '\0') {
+    ++size;
+  }
+  append(data, size);
+}
+
+inline void String::append(char data) {
+  append(&data, 1);
+}
+
+inline void String::append(il::int_t k, char data) {
+  for (il::int_t i = 0; i < k; ++i) {
+    append(data);
+  }
+}
+
 inline void String::append(const String& s) {
-  append(s.c_string());
+  append(s.c_string(), s.size());
 }
 
 inline void String::append(const char* data, const String& s) {
@@ -265,6 +306,22 @@ inline void String::append(const char* data0, const String& s,
   append(data0);
   append(s.c_string());
   append(data1);
+}
+
+inline const char& String::back() const {
+  if (is_small()) {
+    return small_[size() - 1];
+  } else {
+    return large_.data[size() - 1];
+  }
+}
+
+inline char& String::back() {
+  if (is_small()) {
+    return small_[size() - 1];
+  } else {
+    return large_.data[size() - 1];
+  }
 }
 
 inline il::int_t String::size() const {
@@ -291,6 +348,14 @@ inline const char* String::c_string() const {
   }
 }
 
+inline char* String::begin() {
+  if (is_small()) {
+    return small_;
+  } else {
+    return large_.data;
+  }
+}
+
 inline bool String::is_small() const {
   return (bytes_[max_small_size_] & category_extract_mask_) == 0;
 }
@@ -300,6 +365,21 @@ inline void String::set_small_size(il::int_t n) {
                    static_cast<std::size_t>(max_small_size_));
 
   small_[max_small_size_] = static_cast<char>(max_small_size_ - n);
+}
+
+inline bool String::operator==(const il::String& other) const {
+  if (size() != other.size()) {
+    return false;
+  } else {
+    const char* p0 = c_string();
+    const char* p1 = other.c_string();
+    for (il::int_t i = 0; i < size(); ++i) {
+      if (p0[i] != p1[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
 }
 
 }

@@ -9,255 +9,156 @@
 
 #include <il/io/numpy.h>
 
-#include <algorithm>
-#include <complex>
-#include <cstdlib>
-#include <cstring>
-#include <iomanip>
+#include <il/String.h>
+#include <il/StringView.h>
+#include <il/container/string/algorithm_string.h>
 
-//char cnpy::BigEndianTest() {
-//  unsigned char x[] = {1, 0};
-//  short y = *(short*)x;
-//  return y == 1 ? '<' : '>';
-//}
+namespace il {
 
-char cnpy::map_type(const std::type_info& t) {
-  if (t == typeid(float)) return '0';
-  if (t == typeid(double)) return 'f';
-  if (t == typeid(long double)) return '0';
+NumpyInfo get_numpy_info(il::io_t, std::FILE* fp, il::Status& status) {
+  NumpyInfo numpy_info;
 
-  if (t == typeid(int)) return 'i';
-  if (t == typeid(char)) return '0';
-  if (t == typeid(short)) return '0';
-  if (t == typeid(long)) return '0';
-  if (t == typeid(long long)) return '0';
+  char first_buffer[10];
+  StringView buffer{first_buffer, 10};
 
-  if (t == typeid(unsigned char)) return '0';
-  if (t == typeid(unsigned short)) return '0';
-  if (t == typeid(unsigned long)) return '0';
-  if (t == typeid(unsigned long long)) return '0';
-  if (t == typeid(unsigned int)) return '0';
+  // Read the first 10 bytes of the files. It should contain:
+  // - The magic string "\x93NUMPY"
+  // - The major version number
+  // - The minor version number
+  // - The number of bytes for the header length
+  //
+  std::size_t count = 10;
+  const std::size_t read = fread(buffer.begin(), sizeof(char), count, fp);
+  if (read != count) {
+    status.set(il::ErrorCode::wrong_file_format);
+    return numpy_info;
+  }
+  if (!(buffer.substring(0, 6) == "\x93NUMPY")) {
+    status.set(il::ErrorCode::wrong_file_format);
+    return numpy_info;
+  }
+  unsigned char major_version = buffer[6];
+  unsigned char minor_version = buffer[7];
+  unsigned short header_length =
+      *reinterpret_cast<unsigned short*>(buffer.begin() + 8);
+  if (major_version != 1 || minor_version != 0) {
+    status.set(il::ErrorCode::wrong_file_format);
+    return numpy_info;
+  }
 
-  if (t == typeid(bool)) return '0';
+  // Read the header
+  //
+  il::Array<char> second_buffer{header_length + 1};
+  StringView header = StringView{second_buffer.begin(), header_length + 1};
+  char* success = fgets(header.begin(), header_length + 1, fp);
+  if (success == nullptr || header[header.size() - 2] != '\n') {
+    status.set(il::ErrorCode::wrong_file_format);
+    return numpy_info;
+  }
 
-  if (t == typeid(std::complex<float>)) return '0';
-  if (t == typeid(std::complex<double>)) return '0';
-  if (t == typeid(std::complex<long double>)) {
-    return '0';
+  // Read the endianness, the type of the Numpy array, and the byte size
+  //
+  const il::int_t i4 = il::search("descr", header);
+  if (i4 == -1 || i4 + 12 >= header.size()) {
+    status.set(il::ErrorCode::wrong_file_format);
+    return numpy_info;
+  }
+  const bool little_endian = header[i4 + 9] == '<' || header[i4 + 9] == '|';
+  if (!little_endian) {
+    status.set(il::ErrorCode::wrong_file_format);
+    return numpy_info;
+  }
+
+  ConstStringView type_string = header.substring(i4 + 10);
+  const il::int_t i5 = il::search("'", type_string);
+  numpy_info.type = il::String{type_string.begin(), i5};
+
+  // Read the ordering for multidimensional arrays
+  //
+  const il::int_t i0 = il::search("fortran_order", header);
+  if (i0 == -1 || i0 + 20 > header.size()) {
+    status.set(il::ErrorCode::wrong_file_format);
+    return numpy_info;
+  }
+
+  ConstStringView fortran_order_string = header.substring(i0 + 16, i0 + 20);
+  numpy_info.fortran_order = (fortran_order_string == "True") ? true : false;
+
+  // Read the dimensions
+  //
+  const il::int_t i1 = il::search("(", header);
+  const il::int_t i2 = il::search(")", header);
+  if (i1 == -1 || i2 == -1 || i2 - i1 <= 1) {
+    status.set(il::ErrorCode::wrong_file_format);
+    return numpy_info;
+  }
+  ConstStringView shape_string = header.substring(i1 + 1, i2);
+  if (shape_string.back() == ',') {
+    numpy_info.shape.resize(1);
   } else {
-    return '0';
+    const il::int_t n_dim = il::count(',', shape_string) + 1;
+    numpy_info.shape.resize(n_dim);
   }
-}
-
-template <>
-std::vector<char>& cnpy::operator+=(std::vector<char>& lhs,
-                                    const std::string rhs) {
-  lhs.insert(lhs.end(), rhs.begin(), rhs.end());
-  return lhs;
-}
-
-template <>
-std::vector<char>& cnpy::operator+=(std::vector<char>& lhs, const char* rhs) {
-  // write in little endian
-  size_t len = strlen(rhs);
-  lhs.reserve(len);
-  for (size_t byte = 0; byte < len; byte++) {
-    lhs.push_back(rhs[byte]);
-  }
-  return lhs;
-}
-
-void cnpy::parse_npy_header(FILE* fp, unsigned int& word_size,
-                            unsigned int*& shape, unsigned int& ndims,
-                            bool& fortran_order, char* type) {
-  char buffer[256];
-  size_t res = fread(buffer, sizeof(char), 11, fp);
-  if (res != 11) throw std::runtime_error("parse_npy_header: failed fread");
-  std::string header = fgets(buffer, 256, fp);
-  assert(header[header.size() - 1] == '\n');
-
-  int loc1, loc2;
-
-  // fortran order
-  loc1 = header.find("fortran_order") + 16;
-  fortran_order = (header.substr(loc1, 4) == "True" ? true : false);
-  // shape
-  loc1 = header.find("(");
-  loc2 = header.find(")");
-  std::string str_shape = header.substr(loc1 + 1, loc2 - loc1 - 1);
-  if (str_shape[str_shape.size() - 1] == ',')
-    ndims = 1;
-  else
-    ndims = std::count(str_shape.begin(), str_shape.end(), ',') + 1;
-  shape = new unsigned int[ndims];
-  for (unsigned int i = 0; i < ndims; i++) {
-    loc1 = str_shape.find(",");
-    shape[i] = atoi(str_shape.substr(0, loc1).c_str());
-    str_shape = str_shape.substr(loc1 + 1);
+  for (il::int_t i = 0; i < numpy_info.shape.size(); ++i) {
+    const il::int_t i3 = il::search(",", shape_string);
+    numpy_info.shape[i] = std::atoll(shape_string.substring(0, i3).c_string());
+    shape_string = shape_string.substring(i3 + 1);
   }
 
-  // endian, word size, data type
-  // byte order code | stands for not applicable.
-  // not sure when this applies except for byte array
-  loc1 = header.find("descr") + 9;
-  bool littleEndian =
-      (header[loc1] == '<' || header[loc1] == '|' ? true : false);
-  (void)littleEndian;
-  assert(littleEndian);
-
-  *type = header[loc1+1];
-
-  std::string str_ws = header.substr(loc1 + 2);
-  loc2 = str_ws.find("'");
-  word_size = atoi(str_ws.substr(0, loc2).c_str());
+  status.set(il::ErrorCode::ok);
+  return numpy_info;
 }
 
-void cnpy::parse_zip_footer(FILE* fp, unsigned short& nrecs,
-                            unsigned int& global_header_size,
-                            unsigned int& global_header_offset) {
-  std::vector<char> footer(22);
-  fseek(fp, -22, SEEK_END);
-  size_t res = fread(&footer[0], sizeof(char), 22, fp);
-  if (res != 22) throw std::runtime_error("parse_zip_footer: failed fread");
+void save_numpy_info(const NumpyInfo& numpy_info, il::io_t, std::FILE* fp,
+                     il::Status& status) {
+  il::String header{};
+  header.append("{'descr': '");
+  // Little endian
+  header.append("<");
+  // type of the array
+  header.append(numpy_info.type);
+  // ordering
+  header.append("', 'fortran_order': ");
+  header.append(numpy_info.fortran_order ? "True" : "False");
+  // shape of the array
+  // The buffer can hold enough digits for any 64-bit integer
+  char buffer[21];
+  header.append(", 'shape': (");
+  std::sprintf(buffer, "%td", numpy_info.shape[0]);
+  header.append(buffer);
+  for (il::int_t i = 1; i < numpy_info.shape.size(); ++i) {
+    header.append(", ");
+    std::sprintf(buffer, "%td", numpy_info.shape[i]);
+    header.append(buffer);
+  }
+  if (numpy_info.shape.size() == 1) {
+    header.append(",");
+  }
+  header.append("), }");
+  il::int_t remainder = 16 - (10 + header.size()) % 16;
+  header.append(remainder, ' ');
+  header.back() = '\n';
 
-  unsigned short disk_no, disk_start, nrecs_on_disk, comment_len;
-  disk_no = *(unsigned short*)&footer[4];
-  disk_start = *(unsigned short*)&footer[6];
-  nrecs_on_disk = *(unsigned short*)&footer[8];
-  nrecs = *(unsigned short*)&footer[10];
-  global_header_size = *(unsigned int*)&footer[12];
-  global_header_offset = *(unsigned int*)&footer[16];
-  comment_len = *(unsigned short*)&footer[20];
-  (void) disk_no;
-  (void) disk_start;
-  (void) nrecs_on_disk;
-  (void) comment_len;
+  il::String magic{};
+  magic.append("\x93NUMPY");
+  // Numpy format major version
+  magic.append(static_cast<char>(0x01));
+  // Numpy format minor version
+  magic.append(static_cast<char>(0x00));
+  // Size of the header
+  il::String short_int = "  ";
+  *(reinterpret_cast<unsigned short*>(short_int.begin())) =
+      static_cast<unsigned short>(header.size());
+  magic.append(short_int);
+  magic.append(header);
 
-  assert(disk_no == 0);
-  assert(disk_start == 0);
-  assert(nrecs_on_disk == nrecs);
-  assert(comment_len == 0);
-}
-
-cnpy::NpyArray load_the_npy_file(FILE* fp) {
-  unsigned int* shape;
-  unsigned int ndims, word_size;
-  bool fortran_order;
-  char type;
-  cnpy::parse_npy_header(fp, word_size, shape, ndims, fortran_order, &type);
-  unsigned long long size =
-      1;  // long long so no overflow when multiplying by word_size
-  for (unsigned int i = 0; i < ndims; i++) size *= shape[i];
-
-  cnpy::NpyArray arr;
-  arr.word_size = word_size;
-  arr.shape = std::vector<unsigned int>(shape, shape + ndims);
-  delete[] shape;
-  arr.data = new char[size * word_size];
-  arr.fortran_order = fortran_order;
-  size_t nread = fread(arr.data, word_size, size, fp);
-  if (nread != size)
-    throw std::runtime_error("load_the_npy_file: failed fread");
-  return arr;
-}
-
-cnpy::npz_t cnpy::npz_load(std::string fname) {
-  FILE* fp = fopen(fname.c_str(), "rb");
-
-  if (!fp) printf("npz_load: Error! Unable to open file %s!\n", fname.c_str());
-  assert(fp);
-
-  cnpy::npz_t arrays;
-
-  while (1) {
-    std::vector<char> local_header(30);
-    size_t headerres = fread(&local_header[0], sizeof(char), 30, fp);
-    if (headerres != 30) throw std::runtime_error("npz_load: failed fread");
-
-    // if we've reached the global header, stop reading
-    if (local_header[2] != 0x03 || local_header[3] != 0x04) break;
-
-    // read in the variable name
-    unsigned short name_len = *(unsigned short*)&local_header[26];
-    std::string varname(name_len, ' ');
-    size_t vname_res = fread(&varname[0], sizeof(char), name_len, fp);
-    if (vname_res != name_len)
-      throw std::runtime_error("npz_load: failed fread");
-
-    // erase the lagging .npy
-    varname.erase(varname.end() - 4, varname.end());
-
-    // read in the extra field
-    unsigned short extra_field_len = *(unsigned short*)&local_header[28];
-    if (extra_field_len > 0) {
-      std::vector<char> buff(extra_field_len);
-      size_t efield_res = fread(&buff[0], sizeof(char), extra_field_len, fp);
-      if (efield_res != extra_field_len)
-        throw std::runtime_error("npz_load: failed fread");
-    }
-
-    arrays[varname] = load_the_npy_file(fp);
+  std::size_t written = std::fwrite(magic.c_string(), sizeof(char),
+                                    static_cast<std::size_t>(magic.size()), fp);
+  if (static_cast<il::int_t>(written) != magic.size()) {
+    status.set(il::ErrorCode::cannot_write_to_file);
+    return;
   }
 
-  fclose(fp);
-  return arrays;
+  status.set(il::ErrorCode::ok);
 }
-
-cnpy::NpyArray cnpy::npz_load(std::string fname, std::string varname) {
-  FILE* fp = fopen(fname.c_str(), "rb");
-
-  if (!fp) {
-    printf("npz_load: Error! Unable to open file %s!\n", fname.c_str());
-    abort();
-  }
-
-  while (1) {
-    std::vector<char> local_header(30);
-    size_t header_res = fread(&local_header[0], sizeof(char), 30, fp);
-    if (header_res != 30) throw std::runtime_error("npz_load: failed fread");
-
-    // if we've reached the global header, stop reading
-    if (local_header[2] != 0x03 || local_header[3] != 0x04) break;
-
-    // read in the variable name
-    unsigned short name_len = *(unsigned short*)&local_header[26];
-    std::string vname(name_len, ' ');
-    size_t vname_res = fread(&vname[0], sizeof(char), name_len, fp);
-    if (vname_res != name_len)
-      throw std::runtime_error("npz_load: failed fread");
-    vname.erase(vname.end() - 4, vname.end());  // erase the lagging .npy
-
-    // read in the extra field
-    unsigned short extra_field_len = *(unsigned short*)&local_header[28];
-    fseek(fp, extra_field_len, SEEK_CUR);  // skip past the extra field
-
-    if (vname == varname) {
-      NpyArray array = load_the_npy_file(fp);
-      fclose(fp);
-      return array;
-    } else {
-      // skip past the data
-      unsigned int size = *(unsigned int*)&local_header[22];
-      fseek(fp, size, SEEK_CUR);
-    }
-  }
-
-  fclose(fp);
-  printf("npz_load: Error! Variable name %s not found in %s!\n",
-         varname.c_str(), fname.c_str());
-  abort();
-}
-
-cnpy::NpyArray cnpy::npy_load(std::string fname) {
-  FILE* fp = fopen(fname.c_str(), "rb");
-
-  if (!fp) {
-    printf("npy_load: Error! Unable to open file %s!\n", fname.c_str());
-    abort();
-  }
-
-  NpyArray arr = load_the_npy_file(fp);
-
-  fclose(fp);
-  return arr;
 }

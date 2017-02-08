@@ -1,17 +1,17 @@
-Inside Loop Release License
+InsideLoop Release License
 ===========================
 
 University of Illinois/NCSA
 Open Source License
 
-Copyright (c) 2014-2015 Inside Loop, Lyon, France.
+Copyright (c) 2014-2017 Inside Loop, Lyon, France.
 All rights reserved.
 
 Developed by:
 
-    Inside Loop Team
+    InsideLoop Team
 
-    Inside Loop, Lyon, France
+    InsideLoop, Lyon, France
 
     http://www.insideloop.io
 

@@ -208,6 +208,8 @@ set(SOURCE_FILES
     il/io/ppm.h
     il/io/numpy.h
     il/io/numpy.cpp
+        il/io/numpy.h
+        il/io/numpy.cpp
     il/io/png.h
 #    il/io/png.cpp
     il/io/format/format.cc
@@ -268,6 +270,7 @@ set(UNIT_TEST_FILES
     il/linear_algebra/dense/factorization/_test/Eigen_test.cpp
     il/linear_algebra/sparse/factorization/_test/Pardiso_test.cpp
     il/linear_algebra/sparse/factorization/_test/GmresIlu0_test.cpp
+    il/io/_test/numpy_test.cpp
     gtest/src/gtest-all.cc)
 
 add_executable(InsideLoopUnitTest ${SOURCE_FILES} ${UNIT_TEST_FILES} test.cpp)

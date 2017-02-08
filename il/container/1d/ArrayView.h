@@ -19,8 +19,8 @@ class ConstArrayView {
  protected:
   T* data_;
   T* size_;
-  short align_mod_;
   short align_r_;
+  short alignment_;
 
  public:
   /* \brief Default constructor
@@ -82,7 +82,7 @@ template <typename T>
 ConstArrayView<T>::ConstArrayView() {
   data_ = nullptr;
   size_ = nullptr;
-  align_mod_ = 0;
+  alignment_ = 0;
   align_r_ = 0;
 }
 
@@ -102,7 +102,7 @@ ConstArrayView<T>::ConstArrayView(const T* data, il::int_t n,
 
   data_ = const_cast<T*>(data);
   size_ = const_cast<T*>(data) + n;
-  align_mod_ = 0;
+  alignment_ = 0;
   align_r_ = 0;
 }
 

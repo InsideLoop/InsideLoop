@@ -33,9 +33,3 @@ and even **C++** programmers who like to keep simple things simple.
    first-example.rst
    license.rst
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
