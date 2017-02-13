@@ -17,6 +17,7 @@
 #include <il/SparseMatrixCSR.h>
 #include <il/String.h>
 #include <il/core/Status.h>
+#include <il/io/io_base.h>
 
 namespace il {
 
@@ -44,34 +45,6 @@ struct NumpyInfo {
 NumpyInfo get_numpy_info(il::io_t, std::FILE* fp, il::Status& status);
 void save_numpy_info(const NumpyInfo& numpy_info, il::io_t, std::FILE* fp,
                      il::Status& status);
-
-template <typename T>
-class SaveHelper {
- public:
-  static void save(const T& x, const il::String& filename, il::io_t,
-                   il::Status& status);
-};
-
-template <typename T>
-void save(const T& x, const il::String& filename, il::io_t,
-          il::Status& status) {
-  il::SaveHelper<T>::save(x, filename, il::io, status);
-}
-
-template <typename T>
-void save(const T& x, const std::string& filename, il::io_t,
-          il::Status& status) {
-  il::String il_filename = filename.c_str();
-  il::SaveHelper<T>::save(x, il_filename, il::io, status);
-}
-
-template <typename T>
-void SaveHelper<T>::save(const T& x, const il::String& filename, il::io_t,
-                         il::Status& status) {
-  IL_UNUSED(x);
-  IL_UNUSED(filename);
-  status.set(il::ErrorCode::unimplemented);
-}
 
 template <typename T>
 class SaveHelper<il::Array<T>> {
@@ -164,30 +137,6 @@ class SaveHelper<il::Array2D<T>> {
   }
 };
 
-template <typename T>
-class LoadHelper {
- public:
-  static T load(const il::String& filename, il::io_t, il::Status& status);
-};
-
-template <typename T>
-T load(const il::String& filename, il::io_t, il::Status& status) {
-  return il::LoadHelper<T>::load(filename, il::io, status);
-}
-
-template <typename T>
-T load(const std::string& filename, il::io_t, il::Status& status) {
-  il::String il_filename = filename.c_str();
-  return il::LoadHelper<T>::load(il_filename, il::io, status);
-}
-
-template <typename T>
-T LoadHelper<T>::load(const il::String& filename, il::io_t,
-                      il::Status& status) {
-  IL_UNUSED(filename);
-  status.set(il::ErrorCode::unimplemented);
-  return T{};
-}
 
 template <typename T>
 class LoadHelper<il::Array<T>> {

@@ -271,7 +271,7 @@ set(UNIT_TEST_FILES
     il/linear_algebra/sparse/factorization/_test/Pardiso_test.cpp
     il/linear_algebra/sparse/factorization/_test/GmresIlu0_test.cpp
     il/io/_test/numpy_test.cpp
-    gtest/src/gtest-all.cc il/io/json.h)
+    gtest/src/gtest-all.cc il/io/yaml.h)
 
 add_executable(InsideLoopUnitTest ${SOURCE_FILES} ${UNIT_TEST_FILES} test.cpp)
 

@@ -17,7 +17,7 @@
 namespace il {
 
 
-il::int_t search(ConstStringView a, ConstStringView b) {
+inline il::int_t search(ConstStringView a, ConstStringView b) {
   const il::int_t na = a.size();
   const il::int_t nb = b.size();
   il::int_t k = 0;
@@ -39,19 +39,19 @@ il::int_t search(ConstStringView a, ConstStringView b) {
   return -1;
 }
 
-il::int_t search(const char* a, ConstStringView b) {
+inline il::int_t search(const char* a, ConstStringView b) {
   return il::search(il::view(a), b);
 }
 
-il::int_t search(const String& a, const String& b) {
+inline il::int_t search(const String& a, const String& b) {
   return il::search(il::view(a), il::view(b));
 }
 
-il::int_t search(const char* a, const String& b) {
+inline il::int_t search(const char* a, const String& b) {
   return il::search(ConstStringView{a}, il::view(b));
 }
 
-il::int_t count(char c, ConstStringView a) {
+inline il::int_t count(char c, ConstStringView a) {
   il::int_t ans = 0;
   for (il::int_t i = 0; i < a.size(); ++i) {
     if (a[i] == c) {
