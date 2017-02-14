@@ -264,6 +264,20 @@ class LoadHelper<il::Yaml> {
         ++i;
       }
       il::StringView line{buffer, i};
+      IL_EXPECT_FAST(i >= 1);
+      if (line[i - 1] == '\n') {
+        line = line.substring(0, i - 1);
+      }
+      // Check if it s a comment line
+      il::int_t j = 0;
+      while (j < line.size() && line[j] == ' ') {
+        ++j;
+      }
+      if (j == line.size()) {
+        continue;
+      } else if (line[j] == '#') {
+        continue;
+      }
 
       // Get the key
       const il::int_t i0 = il::search(": ", line);
@@ -301,11 +315,7 @@ class LoadHelper<il::Yaml> {
 
       // Get the value
       line = line.substring(i1 + 1, line.size());
-      if (line.size() == 0 || line.back() != '\n') {
-        status.set(il::ErrorCode::wrong_file_format);
-        return yaml;
-      }
-      const il::String value_string{line.begin(), line.size() - 1};
+      const il::String value_string{line.begin(), line.size()};
       il::DynamicType value;
       switch (type) {
         case il::Type::boolean:

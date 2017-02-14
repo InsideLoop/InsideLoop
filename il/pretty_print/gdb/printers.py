@@ -475,6 +475,30 @@ class StaticArray4DPrinter:
 	def to_string(self):
 		return "[size0: %s], [size1: %s], [size2: %s], [size3: %s]" % (self.size0, self.size1, self.size2, self.size3)
 
+class StringViewPrinter:
+	def __init__(self, val):
+		self.val = val
+		self.size = self.val['size_'] - self.val['data_']
+		self.string = ""
+		for k in range(0, self.size):
+			self.string += chr(self.val['data_'][k])
+
+	def to_string(self):
+		return "[string: %s] [size: %s]" % (self.string, self.size)
+
+class StringPrinter:
+	def __init__(self, val):
+		self.val = val
+		self.size = 23 - self.val['small_'][23]
+		if self.size <= 0 or self.size > 23:
+			self.size = 0
+		self.string = ""
+		for k in range(0, self.size):
+			self.string += chr(self.val['small_'][k])
+
+	def to_string(self):
+		return "[string: %s] [size: %s]" % (self.string, self.size)
+
 def build_insideloop_dictionary ():
 	pretty_printers_dict[re.compile('^il::Array<.*>$')]  = lambda val: ArrayPrinter(val)
 	pretty_printers_dict[re.compile('^il::StaticArray<.*>$')]  = lambda val: StaticArrayPrinter(val)
@@ -493,6 +517,8 @@ def build_insideloop_dictionary ():
 	pretty_printers_dict[re.compile('^il::Array4D<.*>$')]  = lambda val: Array4DPrinter(val)
 	pretty_printers_dict[re.compile('^il::Array4C<.*>$')]  = lambda val: Array4CPrinter(val)
 	pretty_printers_dict[re.compile('^il::StaticArray4D<.*>$')]  = lambda val: StaticArray4DPrinter(val)
+	pretty_printers_dict[re.compile('^il::String$')]  = lambda val: StringPrinter(val)
+	pretty_printers_dict[re.compile('^il::StringView$')]  = lambda val: StringViewPrinter(val)
 
 def register_insideloop_printers(obj):
 	"Register insideloop pretty-printers with objfile Obj"
