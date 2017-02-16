@@ -11,6 +11,7 @@
 #define IL_ERROR_H
 
 #include <il/core/base.h>
+#include <il/String.h>
 
 namespace il {
 
@@ -44,19 +45,22 @@ enum class ErrorCode {
 class Status {
  private:
   il::ErrorCode error_code_;
+  il::String message_;
   bool status_has_been_checked_;
 
  public:
   Status();
   ~Status();
   void set(ErrorCode code);
+  void set_message(const char* message);
   ErrorCode error_code() const;
+  const il::String& message() const;
   bool ok();
   void ignore_error();
   void abort_on_error();
 };
 
-inline Status::Status() {
+inline Status::Status() : message_{} {
   status_has_been_checked_ = true;
   error_code_ = il::ErrorCode::ok;
 }
@@ -76,8 +80,16 @@ inline void Status::set(ErrorCode error_code) {
   }
 }
 
+inline void Status::set_message(const char* message) {
+  message_ = il::String{message};
+}
+
 inline ErrorCode Status::error_code() const {
   return error_code_;
+}
+
+inline const il::String& Status::message() const {
+  return message_;
 }
 
 inline bool Status::ok() {

@@ -79,6 +79,7 @@ class String {
   const char& back() const;
   char& back();
   il::int_t size() const;
+  void resize(il::int_t n);
   il::int_t capacity() const;
   const char* c_string() const;
   char* begin();
@@ -329,6 +330,38 @@ inline il::int_t String::size() const {
     return max_small_size_ - static_cast<il::int_t>(small_[max_small_size_]);
   } else {
     return static_cast<il::int_t>(large_.size);
+  }
+}
+
+inline void String::resize(il::int_t n) {
+  IL_EXPECT_FAST(n >= 0);
+
+  const il::int_t old_size = size();
+  if (is_small()) {
+    if (n <= max_small_size_) {
+      small_[n] = '\0';
+      set_small_size(n);
+    } else {
+      char* new_data = new char[n + 1];
+      std::memcpy(new_data, small_, static_cast<std::size_t>(old_size));
+      new_data[n] = '\0';
+      large_.data = new_data;
+      large_.size = n;
+      large_.set_capacity(n);
+    }
+  } else {
+    if (n <= capacity()) {
+      large_.data[n] = '\0';
+      large_.size = n;
+    } else {
+      char* new_data = new char[n + 1];
+      std::memcpy(new_data, large_.data, static_cast<std::size_t>(old_size));
+      new_data[n]= '\0';
+      delete[] large_.data;
+      large_.data = new_data;
+      large_.size = n;
+      large_.set_capacity(n);
+    }
   }
 }
 

@@ -38,6 +38,7 @@ class ArrayPrinter:
 	def children(self):
 		yield "size", self.size
 		yield "capacity", self.capacity
+		# if self.val['alignement_'] != 0:
 		yield "alignment", self.val['alignment_']
 		# yield "alignment_r", self.val['align_r_']
 		# yield "alignment_mod", self.val['align_mod_']
@@ -486,18 +487,37 @@ class StringViewPrinter:
 	def to_string(self):
 		return "[string: %s] [size: %s]" % (self.string, self.size)
 
-class StringPrinter:
+class ConstStringViewPrinter:
 	def __init__(self, val):
 		self.val = val
-		self.size = 23 - self.val['small_'][23]
-		if self.size <= 0 or self.size > 23:
-			self.size = 0
+		self.size = self.val['size_'] - self.val['data_']
 		self.string = ""
 		for k in range(0, self.size):
-			self.string += chr(self.val['small_'][k])
+			self.string += chr(self.val['data_'][k])
 
 	def to_string(self):
 		return "[string: %s] [size: %s]" % (self.string, self.size)
+
+class StringPrinter:
+	def __init__(self, val):
+		self.val = val
+		if self.val['large_']['capacity_'] >= 2**63:
+			self.is_small = False
+			self.size = self.val['large_']['size']
+			self.capacity = self.val['large_']['capacity_'] - 2**63
+			self.string = ""
+			for k in range(0, self.size):
+				self.string += chr(self.val['large_']['data'][k])
+		else:
+			self.is_small = True
+			self.size = 23 - self.val['small_'][23]
+			self.capacity = 23
+			self.string = ""
+			for k in range(0, self.size):
+				self.string += chr(self.val['small_'][k])
+
+	def to_string(self):
+		return "[string: \"%s\"] [size: %s] [capacity: %s] [is small: %s]" % (self.string, self.size, self.capacity, self.is_small)
 
 def build_insideloop_dictionary ():
 	pretty_printers_dict[re.compile('^il::Array<.*>$')]  = lambda val: ArrayPrinter(val)
@@ -519,6 +539,7 @@ def build_insideloop_dictionary ():
 	pretty_printers_dict[re.compile('^il::StaticArray4D<.*>$')]  = lambda val: StaticArray4DPrinter(val)
 	pretty_printers_dict[re.compile('^il::String$')]  = lambda val: StringPrinter(val)
 	pretty_printers_dict[re.compile('^il::StringView$')]  = lambda val: StringViewPrinter(val)
+	pretty_printers_dict[re.compile('^il::ConstStringView$')]  = lambda val: ConstStringViewPrinter(val)
 
 def register_insideloop_printers(obj):
 	"Register insideloop pretty-printers with objfile Obj"

@@ -29,6 +29,8 @@ class ConstStringView {
   const char& operator[](il::int_t i) const;
   const char& back() const;
   il::int_t size() const;
+  void shrink_left(il::int_t i);
+  void shrink_right(il::int_t i);
   ConstStringView substring(il::int_t i0) const;
   ConstStringView substring(il::int_t i0, il::int_t i1) const;
   bool operator==(const char* string) const;
@@ -75,6 +77,20 @@ inline const char& ConstStringView::back() const {
 
 inline il::int_t ConstStringView::size() const { return size_ - data_; }
 
+inline void ConstStringView::shrink_left(il::int_t i) {
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <=
+      static_cast<std::size_t>(size()));
+
+  data_ += i;
+}
+
+inline void ConstStringView::shrink_right(il::int_t i) {
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <=
+      static_cast<std::size_t>(size()));
+
+  size_ = data_ + i;
+}
+
 inline ConstStringView ConstStringView::substring(il::int_t i0,
                                                   il::int_t i1) const {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(i0) <=
@@ -114,6 +130,7 @@ inline const char* ConstStringView::end() const { return size_; }
 class StringView : public ConstStringView {
  public:
   explicit StringView(char* data, il::int_t n);
+  char& operator[](il::int_t i);
   StringView substring(il::int_t i0, il::int_t i1);
   StringView substring(il::int_t i0);
   char* begin();
@@ -127,6 +144,13 @@ inline StringView::StringView(char* data, il::int_t n) {
 }
 
 inline char* StringView::begin() { return data_; }
+
+inline char& StringView::operator[](il::int_t i) {
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
+      static_cast<std::size_t>(this->size()));
+
+  return this->data_[i];
+}
 
 inline StringView StringView::substring(il::int_t i0, il::int_t i1) {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(i0) <=

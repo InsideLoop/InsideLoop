@@ -7,13 +7,19 @@
 //
 //==============================================================================
 
-#include <il/io/yaml.h>
+#include <il/Toml.h>
 
 int main() {
-  il::String filename = "/home/fayard/Desktop/config.yaml";
+  il::Toml config{};
+  config.set("title", "drop");
+  config.set("width", 640);
+  config.set("height", 480);
+  config.set("rho", 1.2345);
+
+  il::String filename = "/home/fayard/Desktop/config.toml";
 
   il::Status status{};
-  il::Yaml config = il::load<il::Yaml>(filename, il::io, status);
+  il::save(config, filename, il::io, status);
   status.abort_on_error();
 
   return 0;
