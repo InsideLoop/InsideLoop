@@ -6,14 +6,14 @@ running on processors (including **Xeon** and **Xeon Phi**) and coprocessors
 
 - Efficient containers such as **array**, **multi-dimensional arrays**,
   **string** a **hash set** and a  **hash map**
+- Easy access to linear algebra libraries such as **MKL**, **cuBLAS** and
+  **cuSPARSE**
+- Loading and saving data to the **Numpy** file format and **TOML**
+  configuration files
 - A **simple code** base that could be extended easily
-- **Efficient debugging** mode
 - Almost **no coupling in between classes** so you can extract from
   InsideLoop the containers or the solvers you use. For instance, if you only
   use arrays and multidimensional arrays, all you need are a few files.
-- C++ wrappers for the linear algebra libraries provided by Intel
-  (Math Kernel Library, also known as the **MKL**) and NVidia (**cuBLAS**,
-  **cuSPARSE**)
 - An **Open Source** licence allowing its integration in both **free software**
   and **commercial** products
 
