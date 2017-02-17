@@ -158,6 +158,7 @@ set(SOURCE_FILES
     il/BandArray2C.h
     il/base.h
     il/CudaArray2D.h
+    il/Dynamic.h
     il/format.h
     il/HashMap.h
     il/linear_algebra.h
@@ -216,6 +217,7 @@ set(SOURCE_FILES
     il/io/numpy.h
     il/io/numpy.cpp
     il/io/toml.h
+    il/io/toml.cpp
     il/io/png.h
 #    il/io/png.cpp
     il/io/format/format.cc

@@ -33,6 +33,7 @@ class ConstStringView {
   void shrink_right(il::int_t i);
   ConstStringView substring(il::int_t i0) const;
   ConstStringView substring(il::int_t i0, il::int_t i1) const;
+  bool is_empty() const;
   bool operator==(const char* string) const;
   const char* c_string() const;
   const char* begin() const;
@@ -76,6 +77,10 @@ inline const char& ConstStringView::back() const {
 }
 
 inline il::int_t ConstStringView::size() const { return size_ - data_; }
+
+inline bool ConstStringView::is_empty() const {
+  return size_ == data_;
+}
 
 inline void ConstStringView::shrink_left(il::int_t i) {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <=

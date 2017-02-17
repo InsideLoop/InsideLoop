@@ -27,7 +27,7 @@ template <typename T>
 T LoadHelper<T>::load(const il::String& filename, il::io_t,
                       il::Status& status) {
   IL_UNUSED(filename);
-  status.set(il::ErrorCode::unimplemented);
+  status.set_error(il::ErrorCode::unimplemented);
   return T{};
 }
 
@@ -54,7 +54,7 @@ void SaveHelper<T>::save(const T& x, const il::String& filename, il::io_t,
                          il::Status& status) {
   IL_UNUSED(x);
   IL_UNUSED(filename);
-  status.set(il::ErrorCode::unimplemented);
+  status.set_error(il::ErrorCode::unimplemented);
 }
 
 template <typename T>
@@ -69,6 +69,7 @@ void save(const T& x, const std::string& filename, il::io_t,
   il::String il_filename = filename.c_str();
   il::SaveHelper<T>::save(x, il_filename, il::io, status);
 }
+
 }
 
 #endif  // IL_IO_BASE

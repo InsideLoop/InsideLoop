@@ -73,12 +73,12 @@ Eigen<il::Array2D<double>>::Eigen(il::Array2D<double> A, il::io_t,
 
   IL_EXPECT_FAST(lapack_error >= 0);
   if (lapack_error == 0) {
-    status.set(ErrorCode::ok);
+    status.set_ok();
     eigen_value_ = std::move(w);
     eigen_value_r_ = std::move(wr);
     eigen_value_i_ = std::move(wi);
   } else {
-    status.set(ErrorCode::no_convergence);
+    status.set_error(ErrorCode::no_convergence);
   }
 }
 

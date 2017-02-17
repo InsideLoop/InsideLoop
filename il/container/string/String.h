@@ -63,6 +63,7 @@ class String {
   String();
   String(const char* data);
   String(const char* data, il::int_t n);
+  String(il::int_t n);
   String(const String& s);
   String(String&& s);
   String& operator=(const String& s);
@@ -79,10 +80,12 @@ class String {
   const char& back() const;
   char& back();
   il::int_t size() const;
+  bool is_empty() const;
   void resize(il::int_t n);
   il::int_t capacity() const;
   const char* c_string() const;
   char* begin();
+  char* end();
   bool operator==(const il::String& other) const;
 
   bool is_small() const;
@@ -120,6 +123,18 @@ inline String::String(const char* data, il::int_t n) {
   } else {
     large_.data = new char[n + 1];
     std::memcpy(large_.data, data, static_cast<std::size_t>(n));
+    large_.data[n] = '\0';
+    large_.size = static_cast<std::size_t>(n);
+    large_.set_capacity(n);
+  }
+}
+
+inline String::String(il::int_t n) {
+  if (n <= max_small_size_) {
+    small_[n] = '\0';
+    set_small_size(n);
+  } else {
+    large_.data = new char[n + 1];
     large_.data[n] = '\0';
     large_.size = static_cast<std::size_t>(n);
     large_.set_capacity(n);
@@ -167,7 +182,9 @@ inline String& String::operator=(const String& s) {
                   static_cast<std::size_t>(size) + 1);
       large_.size = static_cast<std::size_t>(size);
     } else {
-      delete[] large_.data;
+      if (!is_small()) {
+        delete[] large_.data;
+      }
       large_.data = new char[size + 1];
       std::memcpy(large_.data, s.c_string(),
                   static_cast<std::size_t>(size) + 1);
@@ -333,6 +350,10 @@ inline il::int_t String::size() const {
   }
 }
 
+inline bool String::is_empty() const {
+  return size() == 0;
+}
+
 inline void String::resize(il::int_t n) {
   IL_EXPECT_FAST(n >= 0);
 
@@ -386,6 +407,14 @@ inline char* String::begin() {
     return small_;
   } else {
     return large_.data;
+  }
+}
+
+inline char* String::end() {
+  if (is_small()) {
+    return small_ + size();
+  } else {
+    return large_.data + size();
   }
 }
 

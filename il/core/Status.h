@@ -51,8 +51,10 @@ class Status {
  public:
   Status();
   ~Status();
-  void set(ErrorCode code);
+  void set(ErrorCode code, const char* message);
+  void set_error(ErrorCode code);
   void set_message(const char* message);
+  void set_ok();
   ErrorCode error_code() const;
   const il::String& message() const;
   bool ok();
@@ -71,7 +73,26 @@ inline Status::~Status() {
   }
 }
 
-inline void Status::set(ErrorCode error_code) {
+inline void Status::set_ok() {
+  if (!status_has_been_checked_) {
+    error_code_ = il::ErrorCode::unchecked;
+  } else {
+    status_has_been_checked_ = false;
+    error_code_ = il::ErrorCode::ok;
+  }
+}
+
+inline void Status::set(ErrorCode error_code, const char* message) {
+  if (!status_has_been_checked_) {
+    error_code_ = il::ErrorCode::unchecked;
+  } else {
+    status_has_been_checked_ = false;
+    error_code_ = error_code;
+  }
+  message_ = il::String{message};
+}
+
+inline void Status::set_error(ErrorCode error_code) {
   if (!status_has_been_checked_) {
     error_code_ = il::ErrorCode::unchecked;
   } else {

@@ -123,6 +123,9 @@ class HashMap {
   bool empty() const;
   il::int_t size() const;
   il::int_t capacity() const;
+  il::int_t first() const;
+  il::int_t last() const;
+  il::int_t next(il::int_t i) const;
   void reserve(il::int_t r);
   double load() const;
   double displaced() const;
@@ -310,10 +313,10 @@ void HashMap<K, V, F>::set(const K& key, const V& value) {
   if (!found(i)) {
     insert(key, value, il::io, i);
   } else {
-    (slot_ + i)->value.~T();
+    (slot_ + i)->value.~V();
     new (&((slot_ + i)->value)) V(value);
   }
-};
+}
 
 template <typename K, typename V, typename F>
 il::int_t HashMap<K, V, F>::search(const K& key) const {
@@ -489,6 +492,33 @@ HashMapIterator<K, V, F> HashMap<K, V, F>::end() {
 }
 
 template <typename K, typename V, typename F>
+il::int_t HashMap<K, V, F>::first() const {
+  const il::int_t m = il::int_t{1} << p_;
+
+  il::int_t i = 0;
+  while (i < m && (F::is_empty(slot_[i].key) || F::is_tombstone(slot_[i].key))) {
+    ++i;
+  }
+  return i;
+}
+
+template <typename K, typename V, typename F>
+il::int_t HashMap<K, V, F>::last() const {
+  return il::int_t{1} << p_;
+}
+
+template <typename K, typename V, typename F>
+il::int_t HashMap<K, V, F>::next(il::int_t i) const {
+  const il::int_t m = il::int_t{1} << p_;
+
+  ++i;
+  while (i < m && (F::is_empty(slot_[i].key) || F::is_tombstone(slot_[i].key))) {
+    ++i;
+  }
+  return i;
+}
+
+template <typename K, typename V, typename F>
 void HashMap<K, V, F>::grow(il::int_t r) {
   IL_EXPECT_FAST(r >= capacity());
 
@@ -511,7 +541,6 @@ void HashMap<K, V, F>::grow(il::int_t r) {
       if (!F::is_empty(old_slot_[i].key) &&
           !F::is_tombstone(old_slot_[i].key)) {
         il::int_t new_i = search(old_slot_[i].key);
-        IL_EXPECT_FAST(found(new_i));
         insert(old_slot_[i].key, old_slot_[i].value, il::io, new_i);
         (&((old_slot_ + i)->value))->~V();
       }

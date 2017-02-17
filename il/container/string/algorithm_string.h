@@ -16,6 +16,15 @@
 
 namespace il {
 
+inline il::ConstStringView remove_whitespace_left(ConstStringView string) {
+  il::int_t i = 0;
+  while (i < string.size() && (string[i] == ' ' || string[i] == '\t')) {
+    ++i;
+  }
+  string.shrink_left(i);
+
+  return string;
+}
 
 inline il::int_t search(ConstStringView a, ConstStringView b) {
   const il::int_t na = a.size();

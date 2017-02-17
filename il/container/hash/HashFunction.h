@@ -10,8 +10,9 @@
 #ifndef IL_HASHFUNCTION_H
 #define IL_HASHFUNCTION_H
 
-#include <il/base.h>
+#include <limits>
 
+#include <il/base.h>
 #include <il/String.h>
 
 namespace il {

@@ -4,24 +4,25 @@ InsideLoop is a **C++11 library** for **high performance scientific applications
 running on processors (including **Xeon** and **Xeon Phi**) and coprocessors
 (**Cuda**). This library has been designed to provide you with:
 
-- Efficient containers such as **array**, **multi-dimensional arrays**,
-  **string** a **hash set** and a  **hash map**
-- Easy access to linear algebra libraries such as **MKL**, **cuBLAS** and
-  **cuSPARSE**
-- Loading and saving data to the **Numpy** file format and **TOML**
-  configuration files
-- A **simple code** base that could be extended easily
-- Almost **no coupling in between classes** so you can extract from
-  InsideLoop the containers or the solvers you use. For instance, if you only
-  use arrays and multidimensional arrays, all you need are a few files.
-- An **Open Source** licence allowing its integration in both **free software**
-  and **commercial** products
+- Efficient containers:
+  - **Arrays** and **multi-dimensional arrays** with different allocation
+    policies
+  - **Strings** implemented with small size optimization
+  - **Hash sets** and **hash maps** implemented using open addressing with
+    quadratic probing
+  - An efficient **dynamic** type implemented using NaN-boxing
+- IO using the binary **Numpy** file format for arrays and the textual **TOML**
+  file format for structured data
+- A pure **C++11** library with **no dependency** for easy integration in both
+  **free software** and **commercial products** 
+- For those who can afford a library dependency, an easy access to the best
+  numerical libraries from Intel (**MKL**) and nVidia (**cuBLAS** and
+  **cuSPARSE**)
 
 
-In a few words, **InsideLoop** should appeal to **scientific programmers** looking for
-easy-to-use containers and wrappers around the best numerical libraries
-available today. It should be very **friendly** to **C** and **Fortran**
-programmers who still represent an important share of High Performance coders.
+In a few words, **InsideLoop** should appeal to **scientific programmers**
+looking for easy-to-use containers and wrappers around the best numerical
+libraries available today. 
 
 Note that for the time being, **InsideLoop is a work in progress**. Although
 some parts of it have been used in production code, it is

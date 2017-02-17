@@ -485,7 +485,7 @@ class StringViewPrinter:
 			self.string += chr(self.val['data_'][k])
 
 	def to_string(self):
-		return "[string: %s] [size: %s]" % (self.string, self.size)
+		return "[string: \"%s\"] [size: %s]" % (self.string, self.size)
 
 class ConstStringViewPrinter:
 	def __init__(self, val):
@@ -496,7 +496,7 @@ class ConstStringViewPrinter:
 			self.string += chr(self.val['data_'][k])
 
 	def to_string(self):
-		return "[string: %s] [size: %s]" % (self.string, self.size)
+		return "[string: \"%s\"] [size: %s]" % (self.string, self.size)
 
 class StringPrinter:
 	def __init__(self, val):

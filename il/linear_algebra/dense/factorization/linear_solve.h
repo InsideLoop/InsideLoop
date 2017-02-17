@@ -45,9 +45,9 @@ inline il::Array<double> linear_solve(il::Array2D<double> A,
 
   IL_EXPECT_FAST(lapack_error >= 0);
   if (lapack_error == 0) {
-    status.set(il::ErrorCode::ok);
+    status.set_error(il::ErrorCode::ok);
   } else {
-    status.set(il::ErrorCode::division_by_zero);
+    status.set_error(il::ErrorCode::division_by_zero);
   }
 
   return y;
@@ -71,9 +71,9 @@ inline il::Array<double> linear_solve(il::Array2C<double> A,
 
   IL_EXPECT_FAST(lapack_error >= 0);
   if (lapack_error == 0) {
-    status.set(il::ErrorCode::ok);
+    status.set_error(il::ErrorCode::ok);
   } else {
-    status.set(il::ErrorCode::division_by_zero);
+    status.set_error(il::ErrorCode::division_by_zero);
   }
 
   return y;
@@ -101,9 +101,9 @@ inline il::Array<double> linear_solve(il::BandArray2C<double> A,
 
   IL_EXPECT_FAST(lapack_error >= 0);
   if (lapack_error == 0) {
-    status.set(il::ErrorCode::ok);
+    status.set_error(il::ErrorCode::ok);
   } else {
-    status.set(il::ErrorCode::division_by_zero);
+    status.set_error(il::ErrorCode::division_by_zero);
   }
 
   return y;
@@ -124,9 +124,9 @@ inline il::Array<double> linear_solve(il::TriDiagonal<double> A,
 
   IL_EXPECT_FAST(lapack_error >= 0);
   if (lapack_error == 0) {
-    status.set(il::ErrorCode::ok);
+    status.set_error(il::ErrorCode::ok);
   } else {
-    status.set(il::ErrorCode::division_by_zero);
+    status.set_error(il::ErrorCode::division_by_zero);
   }
 
   return y;
