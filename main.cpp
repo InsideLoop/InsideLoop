@@ -9,18 +9,21 @@
 
 #include <iostream>
 
-#include <il/io/toml.h>
+#include <il/String.h>
+#include <il/Dynamic.h>
+#include <il/HashMap.h>
 
 int main() {
-  il::String filename_in = "/home/fayard/Desktop/config.toml";
-  il::String filename_out = "/home/fayard/Desktop/config-out.toml";
+  il::HashMap<il::String, il::Dynamic> car{};
+  car.set("Make", "Renault");
+  car.set("Model", "Clio");
+  car.set("Seats", 4);
+  car.set("Automatic", false);
+  car.set("Speed", 165.1);
 
-  il::Status status{};
-  auto toml = il::load<il::Toml>(filename_in, il::io, status);
-  status.abort_on_error();
-
-  il::save(toml, filename_out, il::io, status);
-  status.abort_on_error();
+  for (il::int_t i = car.first(); i != car.last() ; i = car.next(i)) {
+    std::cout << car.key(i).c_string() << std::endl;
+  }
 
   return 0;
 }

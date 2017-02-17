@@ -41,6 +41,7 @@ class Dynamic {
   Dynamic(const il::Array<il::Dynamic>& array);
   Dynamic(const il::HashMap<il::String, il::Dynamic>& hashmap);
   explicit Dynamic(il::DynamicType);
+  Dynamic(const Dynamic& other);
   ~Dynamic();
   il::DynamicType type() const;
   bool get_boolean() const;
@@ -92,7 +93,8 @@ inline Dynamic::Dynamic(double x) { *reinterpret_cast<double*>(data_) = x; }
 
 inline Dynamic::Dynamic(const char* string) {
   il::String** p = reinterpret_cast<il::String**>(data_);
-  *p = new il::String{string};
+  il::String* pointer = new il::String{string};
+  *p = pointer;
   data_[7] = 0x80;
   data_[6] = 0xF0 | 0x03;
 }
@@ -134,14 +136,55 @@ inline Dynamic::Dynamic(il::DynamicType type) {
   }
 }
 
+inline Dynamic::Dynamic(const Dynamic& other) {
+  il::DynamicType type = other.type();
+
+  switch (type) {
+    case il::DynamicType::boolean: {
+      data_[7] = 0x80;
+      if (other.get_boolean()) {
+        data_[6] = 0xF0 | 0x07;
+      } else {
+        data_[6] = 0xF0 | 0x06;
+      }
+    } break;
+    case il::DynamicType::integer: {
+      const il::int_t n = other.get_integer();
+      if (n >= 0) {
+        *reinterpret_cast<il::int_t*>(data_) = n;
+      } else {
+        std::size_t n_unsigned = n;
+        n_unsigned += static_cast<std::size_t>(1) << 48;
+        *reinterpret_cast<std::size_t*>(data_) = n;
+      }
+      data_[7] = 0x80;
+      data_[6] = 0xF0 | 0x02;
+    } break;
+    case il::DynamicType::floating_point: {
+      *reinterpret_cast<double*>(data_) = other.get_floating_point();
+    } break;
+    case il::DynamicType::string: {
+      il::String** p = reinterpret_cast<il::String**>(data_);
+      *p = new il::String{other.as_const_string()};
+      data_[7] = 0x80;
+      data_[6] = 0xF0 | 0x03;
+    } break;
+    default:
+      il::abort();
+  }
+}
+
 inline Dynamic::~Dynamic() {
   switch (type()) {
     case il::DynamicType::string: {
-      unsigned char data_local[8];
+      union {
+        unsigned char data_local[8];
+        il::String* p;
+      };
       std::memcpy(data_local, data_, 8);
       data_local[6] = 0x00;
       data_local[7] = 0x00;
-      delete reinterpret_cast<il::String*>(data_local);
+      delete p;
     } break;
     case il::DynamicType::array: {
       unsigned char data_local[8];
