@@ -33,6 +33,32 @@ il::ConstStringView TomlParser::skip_whitespace_and_comments(
 
 bool TomlParser::is_digit(char c) { return c >= '0' && c <= '9'; }
 
+void TomlParser::check_end_of_line_or_comment(il::ConstStringView string,
+                                              il::io_t, il::Status& status) {
+  if (!string.is_empty() && string[0] != '\n' && string[0] != '#') {
+    il::String message = "Unidentified trailing character '";
+    message.append(string[0]);
+    message.append("' on line ");
+    message.append(current_line());
+    status.set(il::ErrorCode::wrong_input, message.c_string());
+  } else {
+    status.set_ok();
+  }
+}
+
+il::String TomlParser::current_line() const {
+  il::String line{23};
+  std::sprintf(line.begin(), "%td", line_number_);
+  il::ConstStringView string{line.begin(), line.size()};
+  il::int_t i = 0;
+  while (i < string.size() && string[i] != '\0') {
+    ++i;
+  }
+  line.resize(i);
+
+  return line;
+}
+
 il::DynamicType TomlParser::parse_type(il::ConstStringView string, il::io_t,
                                        il::Status& status) {
   if (string[0] == '"' || string[0] == '\'') {
@@ -76,12 +102,12 @@ il::Dynamic TomlParser::parse_boolean(il::io_t, il::ConstStringView& string,
                                       Status& status) {
   if (string.size() > 3 && string[0] == 't' && string[1] == 'r' &&
       string[2] == 'u' && string[3] == 'e') {
-    status.set_error(il::ErrorCode::ok);
+    status.set_ok();
     string.shrink_left(4);
     return il::Dynamic{true};
   } else if (string.size() > 4 && string[0] == 'f' && string[1] == 'a' &&
              string[2] == 'l' && string[3] == 's' && string[4] == 'e') {
-    status.set_error(il::ErrorCode::ok);
+    status.set_ok();
     string.shrink_left(5);
     return il::Dynamic{false};
   } else {
@@ -154,8 +180,9 @@ il::Dynamic TomlParser::parse_number(il::io_t, il::ConstStringView& string,
       ++i;
     }
     if (i == i_begin_number) {
-      status.set_error(il::ErrorCode::wrong_input);
-      status.set_message("Malformed number");
+      il::String message = "Malformed floating point on line ";
+      message.append(current_line());
+      status.set(il::ErrorCode::wrong_input, message);
       return il::Dynamic{};
     }
 
@@ -173,8 +200,9 @@ il::Dynamic TomlParser::parse_number(il::io_t, il::ConstStringView& string,
         ++i;
       }
       if (i == i_begin_exponent) {
-        status.set_error(il::ErrorCode::wrong_input);
-        status.set_message("Malformed number");
+        il::String message = "Malformed floating point on line ";
+        message.append(current_line());
+        status.set(il::ErrorCode::wrong_input, message);
         return il::Dynamic{};
       }
     }
@@ -195,12 +223,12 @@ il::Dynamic TomlParser::parse_number(il::io_t, il::ConstStringView& string,
   number.resize(k);
 
   if (is_float) {
-    status.set_error(il::ErrorCode::ok);
+    status.set_ok();
     string.shrink_left(i);
     double x = std::atof(view.begin());
     return il::Dynamic{x};
   } else {
-    status.set_error(il::ErrorCode::ok);
+    status.set_ok();
     string.shrink_left(i);
     il::int_t n = std::atoll(view.begin());
     return il::Dynamic{n};
@@ -373,7 +401,9 @@ il::Dynamic TomlParser::parse_value_array(il::DynamicType value_type, il::io_t,
     if (value.type() == value_type) {
       array.append(value);
     } else {
-      status.set(il::ErrorCode::wrong_input, "Array must be heterogeneous");
+      il::String message = "Array is heterogeneous on line ";
+      message.append(current_line());
+      status.set(il::ErrorCode::wrong_input, message);
       return ans;
     }
 
@@ -445,16 +475,21 @@ void TomlParser::parse_key_value(il::io_t, il::ConstStringView& string,
 
   il::int_t i = toml.search(key);
   if (toml.found(i)) {
-    il::String message = "Duplicate key ";
+    il::String message = "Key ";
     message.append(key);
-    status.set(il::ErrorCode::wrong_input, message.c_string());
+    message.append(" already present at line ");
+    message.append(current_line());
+    status.set(il::ErrorCode::wrong_input, message);
     return;
   }
 
-  if (string[0] != '=') {
-    il::String message = "No sign '=' after key ";
+  if (string.is_empty() || string[0] != '=') {
+    il::String message = "No sign '=' after key '";
     message.append(key);
-    status.set(il::ErrorCode::wrong_input, message.c_string());
+    message.append("' at line ");
+    message.append(current_line());
+    status.set(il::ErrorCode::wrong_input, message);
+    return;
   }
   string.shrink_left(1);
   string = il::remove_whitespace_left(string);
@@ -560,6 +595,14 @@ il::Dynamic TomlParser::parse_value(il::io_t, il::ConstStringView& string,
                                     il::Status& status) {
   il::Dynamic ans{};
 
+  // Check if there is a value
+  if (string.is_empty() || string[0] == '\n' || string[0] == '#') {
+    il::String message = "A value is missing on line ";
+    message.append(current_line());
+    status.set(il::ErrorCode::wrong_input, message);
+    return ans;
+  }
+
   // Get the type of the value
   il::Status parse_status{};
   il::DynamicType type = parse_type(string, il::io, parse_status);
@@ -594,7 +637,7 @@ il::Dynamic TomlParser::parse_value(il::io_t, il::ConstStringView& string,
     return ans;
   }
 
-  status.set_error(il::ErrorCode::ok);
+  status.set_ok();
   return ans;
 }
 
@@ -667,6 +710,7 @@ void TomlParser::parse_single_table(il::io_t, il::ConstStringView& string,
   }
 
   // TODO: One should check the redefinition of a table (line 1680)
+  IL_UNUSED(inserted);
 
   string.shrink_left(1);
   string = il::remove_whitespace_left(string);
@@ -685,9 +729,11 @@ il::HashMap<il::String, il::Dynamic> TomlParser::parse(
     status.set_error(il::ErrorCode::file_not_found);
     return root_toml;
   }
-  line_number_ = 1;
 
+  line_number_ = 0;
   while (std::fgets(buffer_line_, max_line_length_ + 1, file_) != nullptr) {
+    ++line_number_;
+
     il::ConstStringView line{buffer_line_};
     line = il::remove_whitespace_left(line);
 
@@ -712,9 +758,10 @@ il::HashMap<il::String, il::Dynamic> TomlParser::parse(
       }
 
       line = il::remove_whitespace_left(line);
-
-      if (!line.is_empty() && line[0] != '\n' && line[0] != '#') {
-        il::abort();
+      check_end_of_line_or_comment(line, il::io, parse_status);
+      if (!parse_status.ok()) {
+        status = parse_status;
+        return root_toml;
       }
     }
   }

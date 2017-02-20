@@ -50,6 +50,11 @@ class TomlParser {
   void parse_key_value(il::io_t, il::ConstStringView& string,
                        il::HashMap<il::String, il::Dynamic>& toml,
                        il::Status& status);
+  void check_end_of_line_or_comment(il::ConstStringView string, il::io_t,
+                                    il::Status& status);
+  il::String current_line() const;
+  il::Dynamic parse_number(il::io_t, il::ConstStringView& string,
+                           il::Status& status);
 
  private:
   static bool is_digit(char c);
@@ -57,8 +62,6 @@ class TomlParser {
                                     il::Status& status);
   static il::Dynamic parse_boolean(il::io_t, il::ConstStringView& string,
                                    Status& status);
-  static il::Dynamic parse_number(il::io_t, il::ConstStringView& string,
-                                  il::Status& status);
   static il::Dynamic parse_string(il::io_t, il::ConstStringView& string,
                                   il::Status& status);
   static il::String parse_string_literal(char delimiter, il::io_t,
@@ -130,7 +133,7 @@ class SaveHelper<il::HashMap<il::String, il::Dynamic>> {
       return;
     }
 
-    status.set_error(il::ErrorCode::ok);
+    status.set_ok();
     return;
   }
 };

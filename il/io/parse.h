@@ -38,7 +38,7 @@ int parse<int>(const std::string& src, il::io_t, il::Status& status) {
     return 0;
   }
 
-  status.set_error(il::ErrorCode::ok);
+  status.set_ok();
   return value;
 }
 
@@ -52,7 +52,7 @@ double parse<double>(const std::string& src, il::io_t, il::Status& status) {
     return 0;
   }
 
-  status.set_error(il::ErrorCode::ok);
+  status.set_ok();
   return value;
 }
 

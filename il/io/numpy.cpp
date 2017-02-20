@@ -105,7 +105,7 @@ NumpyInfo get_numpy_info(il::io_t, std::FILE* fp, il::Status& status) {
     shape_string = shape_string.substring(i3 + 1);
   }
 
-  status.set_error(il::ErrorCode::ok);
+  status.set_ok();
   return numpy_info;
 }
 
@@ -159,6 +159,6 @@ void save_numpy_info(const NumpyInfo& numpy_info, il::io_t, std::FILE* fp,
     return;
   }
 
-  status.set_error(il::ErrorCode::ok);
+  status.set_ok();
 }
 }

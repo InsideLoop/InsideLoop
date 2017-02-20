@@ -86,7 +86,7 @@ class SaveHelper<il::Array<T>> {
       return;
     }
 
-    status.set_error(il::ErrorCode::ok);
+    status.set_ok();
     return;
   }
 };
@@ -132,7 +132,7 @@ class SaveHelper<il::Array2D<T>> {
       return;
     }
 
-    status.set_error(il::ErrorCode::ok);
+    status.set_ok();
     return;
   }
 };
@@ -179,7 +179,7 @@ class LoadHelper<il::Array<T>> {
       return v;
     }
 
-    status.set_error(il::ErrorCode::ok);
+    status.set_ok();
     return v;
   }
 };
@@ -229,7 +229,7 @@ class LoadHelper<il::Array2D<T>> {
       return v;
     }
 
-    status.set_error(il::ErrorCode::ok);
+    status.set_ok();
     return v;
   }
 };
@@ -260,7 +260,7 @@ class LoadHelper<il::SparseMatrixCSR<il::int_t, double>> {
     local_status.abort_on_error();
 
     const il::int_t n = row.size() - 1;
-    status.set_error(il::ErrorCode::ok);
+    status.set_ok();
     return il::SparseMatrixCSR<il::int_t, double>{
         n, n, std::move(column), std::move(row), std::move(element)};
   }
