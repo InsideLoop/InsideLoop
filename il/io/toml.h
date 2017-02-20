@@ -24,144 +24,57 @@ namespace il {
 
 typedef il::HashMap<il::String, il::Dynamic> Toml;
 
-bool is_digit(char c);
+class TomlParser {
+ private:
+  static const il::int_t max_line_length_ = 200;
+  char buffer_line_[max_line_length_ + 1];
+  il::int_t line_number_;
+  std::FILE* file_;
 
-il::DynamicType parse_type(il::ConstStringView string, il::io_t,
-                           il::Status& status);
+ public:
+  TomlParser();
+  il::HashMap<il::String, il::Dynamic> parse(const il::String& filename,
+                                             il::io_t, il::Status& status);
+  il::ConstStringView skip_whitespace_and_comments(il::ConstStringView string,
+                                                   il::io_t,
+                                                   il::Status& status);
+  il::Dynamic parse_value(il::io_t, il::ConstStringView& string,
+                          il::Status& status);
+  il::Dynamic parse_array(il::io_t, il::ConstStringView& string,
+                          il::Status& status);
+  il::Dynamic parse_value_array(il::DynamicType value_type, il::io_t,
+                                il::ConstStringView& string,
+                                il::Status& status);
+  il::Dynamic parse_inline_table(il::io_t, il::ConstStringView& string,
+                                 il::Status& status);
+  void parse_key_value(il::io_t, il::ConstStringView& string,
+                       il::HashMap<il::String, il::Dynamic>& toml,
+                       il::Status& status);
 
-il::Dynamic parse_boolean(il::io_t, il::ConstStringView& string,
-                          Status& status);
-
-il::Dynamic parse_number(il::io_t, il::ConstStringView& string,
-                         il::Status& status);
-
-il::String parse_escape_code(il::io_t, il::ConstStringView& string,
-                             il::Status& status);
-
-void parse_key_value(il::io_t, il::ConstStringView& string,
-                     il::HashMap<il::String, il::Dynamic>& toml,
-                     il::Status& status);
-
-il::String parse_key(char end, il::io_t, il::ConstStringView& string,
-                     il::Status& status);
-
-il::Dynamic parse_value(il::io_t, il::ConstStringView& string,
-                        il::Status& status);
-
-// void parse_table(il::io_t, il::ConstStringView& string, il::Status& status);
-//
-// void parse_single_table(il::io_t, il::ConstStringView& string, il::Status&
-// status);
-//
-// inline void parse_array(il::ConstStringView string, il::io_t,
-//                        il::Status& status) {
-//  IL_EXPECT_FAST(string.size() >= 1);
-//  IL_EXPECT_FAST(string[0] == '[');
-//
-//  // Consume whitespace
-//  il::int_t i = 1;
-//  while (i < string.size() && string[i] == ' ') {
-//    ++i;
-//  }
-//
-//  // Special case of an empty array
-//  if (i >= string.size()) {
-//    status.set_error(il::ErrorCode::wrong_input);
-//    status.set_message("Array is not closed");
-//    return;
-//  } else if (string[i] == ']') {
-//    status.set_error(il::ErrorCode::ok);
-//    return;
-//  }
-//
-//  il::int_t i_end = i;
-//  while (
-//      i_end < string.size() &&
-//      !(string[i_end] == ',' || string[i_end] == ']' || string[i_end] == '#'))
-//      {
-//    ++i_end;
-//  }
-//  il::ConstStringView value_string = string.substring(i, i_end);
-//  il::DynamicType array_type = type(value_string);
-//  switch (array_type) {
-//    case il::DynamicType::boolean:
-//      break;
-//    case il::DynamicType::integer:
-//      break;
-//    case il::DynamicType::floating_point:
-//      break;
-//    case il::DynamicType::string:
-//      break;
-//    case il::DynamicType::array:
-//      break;
-//    default:
-//      IL_UNREACHABLE;
-//  }
-//}
-//
-//
-// inline il::Array<il::DynamicType> parse_value_array(il::ConstStringView
-// string,
-//                                                    il::DynamicType type,
-//                                                    il::io_t,
-//                                                    il::int_t& i,
-//                                                    il::Status& status) {
-//  il::Array<il::DynamicType> ans{};
-//
-//  while (i < string.size() && string[0] != ']') {
-//    // Get the next value and append it to the array
-//    il::Status parse_status{};
-//    il::DynamicType value = il::parse_value(string, il::io, i, parse_status);
-//    if (!parse_status.ok()) {
-//      status.set(parse_status.error_code());
-//      status.set_message(parse_status.message().c_string());
-//      return;
-//    }
-//    ans.append(value);
-//
-//    // Check that the array is homogeneous
-//    if (value.type() != type) {
-//      status.set_error(il::ErrorCode::wrong_input);
-//      status.set_message("Arrays must be homogeneous");
-//      return;
-//    }
-//
-//    // Skip whitespaces
-//    while (i < string.size() && string[i] == ' ') {
-//      ++i;
-//    }
-//
-//    if (string[i] != ',') {
-//      break;
-//    }
-//
-//    // Skip whitespaces
-//    while (i < string.size() && string[i] == ' ') {
-//      ++i;
-//    }
-//  }
-//
-//  if (i < string.size()) {
-//    ++i;
-//  }
-//
-//  status.set_error(il::ErrorCode::ok);
-//  return ans;
-//}
-//
-//
-// inline il::ConstStringView skip_whitespace_and_comments(il::ConstStringView
-// string) {
-//  il::int_t i = 0;
-//  while (i < string.size() && string[i] == ' ') {
-//    ++i;
-//  }
-//
-//  while (string.size()== 0 || string[i] == '#') {
-//    bool
-//
-//  }
-//}
+ private:
+  static bool is_digit(char c);
+  static il::DynamicType parse_type(il::ConstStringView string, il::io_t,
+                                    il::Status& status);
+  static il::Dynamic parse_boolean(il::io_t, il::ConstStringView& string,
+                                   Status& status);
+  static il::Dynamic parse_number(il::io_t, il::ConstStringView& string,
+                                  il::Status& status);
+  static il::Dynamic parse_string(il::io_t, il::ConstStringView& string,
+                                  il::Status& status);
+  static il::String parse_string_literal(char delimiter, il::io_t,
+                                         il::ConstStringView& string,
+                                         il::Status& status);
+  static il::String parse_escape_code(il::io_t, il::ConstStringView& string,
+                                      il::Status& status);
+  static il::String parse_key(char end, il::io_t, il::ConstStringView& string,
+                              il::Status& status);
+  static void parse_table(il::io_t, il::ConstStringView& string,
+                          il::HashMap<il::String, il::Dynamic>*& toml,
+                          il::Status& status);
+  static void parse_single_table(il::io_t, il::ConstStringView& string,
+                                 il::HashMap<il::String, il::Dynamic>*& toml,
+                                 il::Status& status);
+};
 
 template <>
 class SaveHelper<il::HashMap<il::String, il::Dynamic>> {
@@ -231,7 +144,8 @@ class LoadHelper<il::HashMap<il::String, il::Dynamic>> {
   static il::HashMap<il::String, il::Dynamic> load(const il::String& filename,
                                                    il::io_t,
                                                    il::Status& status) {
-    return il::parse(filename, il::io, status);
+    il::TomlParser parser{};
+    return parser.parse(filename, il::io, status);
   }
 };
 }

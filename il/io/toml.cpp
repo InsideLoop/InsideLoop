@@ -11,10 +11,30 @@
 
 namespace il {
 
-bool is_digit(char c) { return c >= '0' && c <= '9'; }
+TomlParser::TomlParser() {}
 
-il::DynamicType parse_type(il::ConstStringView string, il::io_t,
-                           il::Status& status) {
+il::ConstStringView TomlParser::skip_whitespace_and_comments(
+    il::ConstStringView string, il::io_t, il::Status& status) {
+  string = il::remove_whitespace_left(string);
+  while (string.is_empty() || string[0] == '\n' || string[0] == '#') {
+    const char* error = std::fgets(buffer_line_, max_line_length_ + 1, file_);
+    if (error == nullptr) {
+      status.set(il::ErrorCode::wrong_input, "Unclosed array");
+      return string;
+    }
+    ++line_number_;
+    string = il::ConstStringView{buffer_line_};
+    string = il::remove_whitespace_left(string);
+  }
+
+  status.set_ok();
+  return string;
+}
+
+bool TomlParser::is_digit(char c) { return c >= '0' && c <= '9'; }
+
+il::DynamicType TomlParser::parse_type(il::ConstStringView string, il::io_t,
+                                       il::Status& status) {
   if (string[0] == '"' || string[0] == '\'') {
     status.set_ok();
     return il::DynamicType::string;
@@ -40,14 +60,20 @@ il::DynamicType parse_type(il::ConstStringView string, il::io_t,
   } else if (string[0] == 't' || string[0] == 'f') {
     status.set_ok();
     return il::DynamicType::boolean;
+  } else if (string[0] == '[') {
+    status.set_ok();
+    return il::DynamicType::array;
+  } else if (string[0] == '{') {
+    status.set_ok();
+    return il::DynamicType::hashmap;
   } else {
     status.set(il::ErrorCode::wrong_input, "Cannot determine type");
     return il::DynamicType::null;
   }
 }
 
-il::Dynamic parse_boolean(il::io_t, il::ConstStringView& string,
-                          Status& status) {
+il::Dynamic TomlParser::parse_boolean(il::io_t, il::ConstStringView& string,
+                                      Status& status) {
   if (string.size() > 3 && string[0] == 't' && string[1] == 'r' &&
       string[2] == 'u' && string[3] == 'e') {
     status.set_error(il::ErrorCode::ok);
@@ -65,8 +91,8 @@ il::Dynamic parse_boolean(il::io_t, il::ConstStringView& string,
   }
 }
 
-il::Dynamic parse_number(il::io_t, il::ConstStringView& string,
-                         il::Status& status) {
+il::Dynamic TomlParser::parse_number(il::io_t, il::ConstStringView& string,
+                                     il::Status& status) {
   // Skip the +/- sign at the beginning of the string
   il::int_t i = 0;
   if (i < string.size() && (string[i] == '+' || string[i] == '-')) {
@@ -181,8 +207,55 @@ il::Dynamic parse_number(il::io_t, il::ConstStringView& string,
   }
 }
 
-il::String parse_escape_code(il::io_t, il::ConstStringView& string,
-                             il::Status& status) {
+il::Dynamic TomlParser::parse_string(il::io_t, il::ConstStringView& string,
+                                     il::Status& status) {
+  IL_EXPECT_FAST(string[0] == '"' || string[0] == '\'');
+
+  const char delimiter = string[0];
+
+  il::Status parse_status{};
+  il::Dynamic ans =
+      parse_string_literal(delimiter, il::io, string, parse_status);
+  if (!parse_status.ok()) {
+    status = parse_status;
+    return ans;
+  }
+
+  status.set_ok();
+  return ans;
+}
+
+il::String TomlParser::parse_string_literal(char delimiter, il::io_t,
+                                            il::ConstStringView& string,
+                                            il::Status& status) {
+  il::String ans{};
+
+  string.shrink_left(1);
+  while (!string.is_empty()) {
+    if (delimiter == '"' && string[0] == '\\') {
+      il::Status parse_status{};
+      ans.append(parse_escape_code(il::io, string, parse_status));
+      if (!parse_status.ok()) {
+        status = parse_status;
+        return ans;
+      }
+    } else if (string[0] == delimiter) {
+      string.shrink_left(1);
+      string = il::remove_whitespace_left(string);
+      status.set_ok();
+      return ans;
+    } else {
+      ans.append(string[0]);
+      string.shrink_left(1);
+    }
+  }
+
+  status.set(il::ErrorCode::wrong_input, "Unterminated string literal");
+  return ans;
+}
+
+il::String TomlParser::parse_escape_code(il::io_t, il::ConstStringView& string,
+                                         il::Status& status) {
   IL_EXPECT_FAST(string.size() > 0 && string[0] == '\\');
 
   il::String ans{};
@@ -231,11 +304,140 @@ il::String parse_escape_code(il::io_t, il::ConstStringView& string,
   return ans;
 }
 
-void parse_key_value(il::io_t, il::ConstStringView& string,
-                     il::HashMap<il::String, il::Dynamic>& toml,
-                     il::Status& status) {
+il::Dynamic TomlParser::parse_array(il::io_t, il::ConstStringView& string,
+                                    il::Status& status) {
+  IL_EXPECT_FAST(!string.is_empty() && string[0] == '[');
+
+  il::Dynamic ans{il::DynamicType::array};
   il::Status parse_status{};
-  il::String key = il::parse_key('=', il::io, string, parse_status);
+
+  string.shrink_left(1);
+  string = skip_whitespace_and_comments(string, il::io, parse_status);
+  if (!parse_status.ok()) {
+    status = parse_status;
+    return ans;
+  }
+
+  if (!string.is_empty() && string[0] == ']') {
+    string.shrink_left(1);
+    status.set_ok();
+    return ans;
+  }
+
+  il::int_t i = 0;
+  while (i < string.size() && string[i] != ',' && string[i] != ']' &&
+         string[i] != '#') {
+    ++i;
+  }
+  il::ConstStringView value_string = string.substring(0, i);
+  il::DynamicType value_type = parse_type(value_string, il::io, parse_status);
+  if (!parse_status.ok()) {
+    status = parse_status;
+    return ans;
+  }
+
+  switch (value_type) {
+    case il::DynamicType::null:
+    case il::DynamicType::boolean:
+    case il::DynamicType::integer:
+    case il::DynamicType::floating_point:
+    case il::DynamicType::string: {
+      ans = parse_value_array(value_type, il::io, string, parse_status);
+      if (!parse_status.ok()) {
+        status = parse_status;
+      } else {
+        status.set_ok();
+      }
+      return ans;
+    } break;
+    default:
+      il::abort();
+      return ans;
+  }
+}
+
+il::Dynamic TomlParser::parse_value_array(il::DynamicType value_type, il::io_t,
+                                          il::ConstStringView& string,
+                                          il::Status& status) {
+  il::Dynamic ans{il::DynamicType::array};
+  il::Array<il::Dynamic>& array = ans.as_array();
+  il::Status parse_status{};
+
+  while (!string.is_empty() && string[0] != ']') {
+    il::Dynamic value = parse_value(il::io, string, parse_status);
+    if (!parse_status.ok()) {
+      status = parse_status;
+      return ans;
+    }
+
+    if (value.type() == value_type) {
+      array.append(value);
+    } else {
+      status.set(il::ErrorCode::wrong_input, "Array must be heterogeneous");
+      return ans;
+    }
+
+    string = skip_whitespace_and_comments(string, il::io, parse_status);
+    if (!parse_status.ok()) {
+      status = parse_status;
+      return ans;
+    }
+
+    if (string.is_empty() || string[0] != ',') {
+      break;
+    }
+
+    string.shrink_left(1);
+    string = skip_whitespace_and_comments(string, il::io, parse_status);
+    if (!parse_status.ok()) {
+      status = parse_status;
+      return ans;
+    }
+  }
+
+  if (!string.is_empty()) {
+    string.shrink_left(1);
+  }
+  return ans;
+}
+
+il::Dynamic TomlParser::parse_inline_table(il::io_t,
+                                           il::ConstStringView& string,
+                                           il::Status& status) {
+  il::Dynamic ans = il::Dynamic{il::DynamicType::hashmap};
+  do {
+    string.shrink_left(1);
+    if (string.is_empty()) {
+      status.set(il::ErrorCode::wrong_input, "Unterminated inline table");
+      return ans;
+    }
+    string = il::remove_whitespace_left(string);
+    il::Status parse_status{};
+    parse_key_value(il::io, string, ans.as_hashmap(), parse_status);
+    if (!parse_status.ok()) {
+      status = parse_status;
+      return ans;
+    }
+    string = il::remove_whitespace_left(string);
+  } while (string[0] == ',');
+
+  if (string.is_empty() || string[0] != '}') {
+    status.set(il::ErrorCode::wrong_input, "Unterminated inline table");
+    return ans;
+  }
+
+  string.shrink_left(1);
+  string = il::remove_whitespace_left(string);
+
+  status.set_ok();
+  return ans;
+}
+
+void TomlParser::parse_key_value(il::io_t, il::ConstStringView& string,
+                                 il::HashMap<il::String, il::Dynamic>& toml,
+                                 il::Status& status) {
+  il::Status parse_status{};
+  il::String key = parse_key('=', il::io, string, parse_status);
   if (!parse_status.ok()) {
     status = parse_status;
     return;
@@ -257,7 +459,7 @@ void parse_key_value(il::io_t, il::ConstStringView& string,
   string.shrink_left(1);
   string = il::remove_whitespace_left(string);
 
-  il::Dynamic value = il::parse_value(il::io, string, parse_status);
+  il::Dynamic value = parse_value(il::io, string, parse_status);
   if (!parse_status.ok()) {
     status = parse_status;
     return;
@@ -266,8 +468,9 @@ void parse_key_value(il::io_t, il::ConstStringView& string,
   toml.set(key, value);
 }
 
-il::String parse_key(char end, il::io_t, il::ConstStringView& string,
-                     il::Status& status) {
+il::String TomlParser::parse_key(char end, il::io_t,
+                                 il::ConstStringView& string,
+                                 il::Status& status) {
   IL_EXPECT_FAST(end == '=' || end == '"' || end == '\'' || end == '@');
 
   il::String key{};
@@ -283,7 +486,7 @@ il::String parse_key(char end, il::io_t, il::ConstStringView& string,
     while (string.size() > 0) {
       if (string[0] == '\\') {
         il::Status parse_status{};
-        key.append(il::parse_escape_code(il::io, string, parse_status));
+        key.append(parse_escape_code(il::io, string, parse_status));
         if (!parse_status.ok()) {
           status = parse_status;
           return key;
@@ -353,17 +556,18 @@ il::String parse_key(char end, il::io_t, il::ConstStringView& string,
   }
 }
 
-il::Dynamic parse_value(il::io_t, il::ConstStringView& string,
-                        il::Status& status) {
+il::Dynamic TomlParser::parse_value(il::io_t, il::ConstStringView& string,
+                                    il::Status& status) {
+  il::Dynamic ans{};
+
   // Get the type of the value
   il::Status parse_status{};
   il::DynamicType type = parse_type(string, il::io, parse_status);
   if (!parse_status.ok()) {
     status = parse_status;
-    return il::Dynamic{};
+    return ans;
   }
 
-  il::Dynamic ans{};
   switch (type) {
     case il::DynamicType::boolean:
       ans = parse_boolean(il::io, string, parse_status);
@@ -372,105 +576,139 @@ il::Dynamic parse_value(il::io_t, il::ConstStringView& string,
     case il::DynamicType::floating_point:
       ans = parse_number(il::io, string, parse_status);
       break;
+    case il::DynamicType::string:
+      ans = parse_string(il::io, string, parse_status);
+      break;
+    case il::DynamicType::array:
+      ans = parse_array(il::io, string, parse_status);
+      break;
+    case il::DynamicType::hashmap:
+      ans = parse_inline_table(il::io, string, parse_status);
+      break;
     default:
       IL_UNREACHABLE;
   }
 
   if (!parse_status.ok()) {
     status = parse_status;
-    return il::Dynamic{};
+    return ans;
   }
 
   status.set_error(il::ErrorCode::ok);
   return ans;
 }
 
-// void parse_table(il::io_t, il::ConstStringView& string, il::Status& status) {
-//  // Skip the '[' at the beginning of the table
-//  string.shrink_left(1);
-//
-//  if (string.is_empty()) {
-//    status.set(il::ErrorCode::wrong_input, "Unexpected end of table");
-//    return;
-//  } else if (string[0] == '[') {
-//    // Parsing a table array. Not implemented yet
-//    il::abort();
-//  } else {
-//    il::parse_single_table(il::io, string, status);
-//    return;
-//  }
-//}
-//
-// void parse_single_table(il::io_t, il::ConstStringView& string, il::Toml&
-// toml, il::Status& status) {
-//  if (string.is_empty() || string[0] == ']') {
-//    status.set(il::ErrorCode::wrong_input, "Table cannot be empty");
-//  }
-//
-//  il::String full_table_name{};
-//  bool inserted = false;
-//  while (!string.is_empty() && string[0] != ']') {
-//    il::Status parse_status{};
-//    il::String table_name = il::parse_key('@', il::io, string, parse_status);
-//    if (!parse_status.ok()) {
-//      status = parse_status;
-//      return;
-//    }
-//    if (table_name.is_empty()) {
-//      status.set(il::ErrorCode::wrong_input, "The name cannot be empty");
-//      return;
-//    }
-//    if (!full_table_name.is_empty()) {
-//      full_table_name.append('.');
-//    }
-//    full_table_name.append(table_name);
-//
-//    bool table_already_existed = false;
-//    if (table_already_existed) {
-//      il::abort();
-//    } else {
-//      inserted = true;
-//
-//    }
-//    string = il::remove_whitespace_left(string);
-//    if (!string.is_empty() && string[0] == '.') {
-//      string.shrink_left(1);
-//    }
-//    string = il::remove_whitespace_left(string);
-//  }
-//
-//
-//}
+void TomlParser::parse_table(il::io_t, il::ConstStringView& string,
+                             il::HashMap<il::String, il::Dynamic>*& toml,
+                             il::Status& status) {
+  // Skip the '[' at the beginning of the table
+  string.shrink_left(1);
 
-il::HashMap<il::String, il::Dynamic> parse(const il::String& filename, il::io_t,
-                                           il::Status& status) {
-  il::HashMap<il::String, il::Dynamic> toml{};
+  if (string.is_empty()) {
+    status.set(il::ErrorCode::wrong_input, "Unexpected end of table");
+    return;
+  } else if (string[0] == '[') {
+    // Parsing a table array. Not implemented yet
+    il::abort();
+  } else {
+    parse_single_table(il::io, string, toml, status);
+    return;
+  }
+}
 
-  std::FILE* file = std::fopen(filename.c_string(), "r+b");
-  if (!file) {
-    status.set_error(il::ErrorCode::file_not_found);
-    return toml;
+void TomlParser::parse_single_table(il::io_t, il::ConstStringView& string,
+                                    il::HashMap<il::String, il::Dynamic>*& toml,
+                                    il::Status& status) {
+  if (string.is_empty() || string[0] == ']') {
+    status.set(il::ErrorCode::wrong_input, "Table cannot be empty");
   }
 
-  const int max_length_line = 200;
-  char buffer[max_length_line + 1];
-  while (std::fgets(buffer, max_length_line + 1, file) != nullptr) {
-    il::ConstStringView line{buffer};
+  il::String full_table_name{};
+  bool inserted = false;
+  while (!string.is_empty() && string[0] != ']') {
+    il::Status parse_status{};
+    il::String table_name = parse_key('@', il::io, string, parse_status);
+    if (!parse_status.ok()) {
+      status = parse_status;
+      return;
+    }
+    if (table_name.is_empty()) {
+      status.set(il::ErrorCode::wrong_input, "The name cannot be empty");
+      return;
+    }
+    if (!full_table_name.is_empty()) {
+      full_table_name.append('.');
+    }
+    full_table_name.append(table_name);
+
+    il::int_t i = toml->search(table_name);
+    if (toml->found(i)) {
+      if (toml->value(i).is_hashmap()) {
+        toml = &(toml->value(i).as_hashmap());
+      } else if (toml->value(i).is_array()) {
+        il::abort();
+      } else {
+        status.set(il::ErrorCode::wrong_input,
+                   "The key already exists as a value");
+        return;
+      }
+    } else {
+      inserted = true;
+      toml->insert(table_name, il::Dynamic{il::DynamicType::hashmap}, il::io,
+                   i);
+      toml = &(toml->value(i).as_hashmap());
+    }
+
+    string = il::remove_whitespace_left(string);
+    while (!string.is_empty() && string[0] == '.') {
+      string.shrink_left(1);
+    }
+    string = il::remove_whitespace_left(string);
+  }
+
+  // TODO: One should check the redefinition of a table (line 1680)
+
+  string.shrink_left(1);
+  string = il::remove_whitespace_left(string);
+  if (!string.is_empty() && string[0] != '\n' && string[0] != '#') {
+    il::abort();
+  }
+}
+
+il::HashMap<il::String, il::Dynamic> TomlParser::parse(
+    const il::String& filename, il::io_t, il::Status& status) {
+  il::HashMap<il::String, il::Dynamic> root_toml{};
+  il::HashMap<il::String, il::Dynamic>* pointer_toml = &root_toml;
+
+  file_ = std::fopen(filename.c_string(), "r+b");
+  if (!file_) {
+    status.set_error(il::ErrorCode::file_not_found);
+    return root_toml;
+  }
+  line_number_ = 1;
+
+  while (std::fgets(buffer_line_, max_line_length_ + 1, file_) != nullptr) {
+    il::ConstStringView line{buffer_line_};
     line = il::remove_whitespace_left(line);
 
     if (line.is_empty() || line[0] == '\n' || line[0] == '#') {
       continue;
     } else if (line[0] == '[') {
-      status.set(il::ErrorCode::wrong_input, "Does not support tables");
-      std::fclose(file);
-      return toml;
-    } else {
+      pointer_toml = &root_toml;
       il::Status parse_status{};
-      parse_key_value(il::io, line, toml, parse_status);
+      parse_table(il::io, line, pointer_toml, parse_status);
       if (!parse_status.ok()) {
         status = parse_status;
-        std::fclose(file);
-        return toml;
+        std::fclose(file_);
+        return root_toml;
+      }
+    } else {
+      il::Status parse_status{};
+      parse_key_value(il::io, line, *pointer_toml, parse_status);
+      if (!parse_status.ok()) {
+        status = parse_status;
+        std::fclose(file_);
+        return root_toml;
       }
 
       line = il::remove_whitespace_left(line);
@@ -481,13 +719,13 @@ il::HashMap<il::String, il::Dynamic> parse(const il::String& filename, il::io_t,
     }
   }
 
-  const int error = std::fclose(file);
+  const int error = std::fclose(file_);
   if (error != 0) {
     status.set_error(il::ErrorCode::cannot_close_file);
-    return toml;
+    return root_toml;
   }
 
   status.set_ok();
-  return toml;
+  return root_toml;
 }
 }

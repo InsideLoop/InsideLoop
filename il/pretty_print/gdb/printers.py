@@ -485,7 +485,7 @@ class StringViewPrinter:
 			self.string += chr(self.val['data_'][k])
 
 	def to_string(self):
-		return "[string: \"%s\"] [size: %s]" % (self.string, self.size)
+		return "\"%s\"" % self.string
 
 class ConstStringViewPrinter:
 	def __init__(self, val):
@@ -496,7 +496,7 @@ class ConstStringViewPrinter:
 			self.string += chr(self.val['data_'][k])
 
 	def to_string(self):
-		return "[string: \"%s\"] [size: %s]" % (self.string, self.size)
+		return "\"%s\"" % self.string
 
 class StringPrinter:
 	def __init__(self, val):
@@ -517,7 +517,34 @@ class StringPrinter:
 				self.string += chr(self.val['small_'][k])
 
 	def to_string(self):
-		return "[string: \"%s\"] [size: %s] [capacity: %s] [is small: %s]" % (self.string, self.size, self.capacity, self.is_small)
+		# return "[string: \"%s\"] [size: %s] [capacity: %s] [is small: %s]" % (self.string, self.size, self.capacity, self.is_small)
+		return "\"%s\"" % self.string
+
+class HashMapPrinter:
+	def __init__(self, val):
+		type = val.type
+		if type.code == gdb.TYPE_CODE_REF:
+			type = type.target()
+		self.type = type.unqualified().strip_typedefs()
+		self.keyType = self.type.template_argument(0)
+		self.valueType = self.type.template_argument(1)
+		self.val = val
+		self.size = self.val['nb_element_']
+		self.capacity = 2 ** self.val['p_']
+		self.val = val
+		self.a = gdb.parse_and_eval("(*("+str(self.val.type)+"*)("+str(self.val.address)+")).first()")
+
+	def children(self):
+		yield "size", self.size
+		yield "capacity", self.capacity
+		i = self.a
+		for k in range(0, self.size):
+			yield ("[key: %s]" % k), gdb.parse_and_eval("(*("+str(self.val.type)+"*)("+str(self.val.address)+")).key("+str(i)+")")
+			yield ("[value: %s]" % k), gdb.parse_and_eval("(*("+str(self.val.type)+"*)("+str(self.val.address)+")).const_value("+str(i)+")")
+			i = gdb.parse_and_eval("(*("+str(self.val.type)+"*)("+str(self.val.address)+")).next("+str(i)+")")
+
+	def to_string(self):
+		return "HashMap"
 
 def build_insideloop_dictionary ():
 	pretty_printers_dict[re.compile('^il::Array<.*>$')]  = lambda val: ArrayPrinter(val)
@@ -540,6 +567,7 @@ def build_insideloop_dictionary ():
 	pretty_printers_dict[re.compile('^il::String$')]  = lambda val: StringPrinter(val)
 	pretty_printers_dict[re.compile('^il::StringView$')]  = lambda val: StringViewPrinter(val)
 	pretty_printers_dict[re.compile('^il::ConstStringView$')]  = lambda val: ConstStringViewPrinter(val)
+	# pretty_printers_dict[re.compile('^il::HashMap<.*>$')]  = lambda val: HashMapPrinter(val)
 
 def register_insideloop_printers(obj):
 	"Register insideloop pretty-printers with objfile Obj"

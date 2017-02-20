@@ -28,7 +28,14 @@ enum class DynamicType {
 
 class Dynamic {
  private:
-  unsigned char data_[sizeof(double)];
+  union {
+    unsigned char data_[8];
+    il::int_t n_;
+    double x_;
+    il::String* p_string_;
+    il::Array<il::Dynamic>* p_array_;
+    il::HashMap<il::String, il::Dynamic>* p_hashmap_;
+  };
 
  public:
   Dynamic();
@@ -42,7 +49,17 @@ class Dynamic {
   Dynamic(const il::HashMap<il::String, il::Dynamic>& hashmap);
   explicit Dynamic(il::DynamicType);
   Dynamic(const Dynamic& other);
+  Dynamic(Dynamic&& other);
+  Dynamic& operator=(const Dynamic& other);
+  Dynamic& operator=(Dynamic&& other);
   ~Dynamic();
+  bool is_null() const;
+  bool is_boolean() const;
+  bool is_integer() const;
+  bool is_floating_point() const;
+  bool is_string() const;
+  bool is_hashmap() const;
+  bool is_array() const;
   il::DynamicType type() const;
   bool get_boolean() const;
   il::int_t get_integer() const;
@@ -100,8 +117,7 @@ inline Dynamic::Dynamic(const char* string) {
 }
 
 inline Dynamic::Dynamic(const il::String& string) {
-  il::String** p = reinterpret_cast<il::String**>(data_);
-  *p = new il::String{string};
+  p_string_ = new il::String{string};
   data_[7] = 0x80;
   data_[6] = 0xF0 | 0x03;
 }
@@ -119,27 +135,30 @@ inline Dynamic::Dynamic(const il::HashMap<il::String, il::Dynamic>& hashmap) {
       reinterpret_cast<il::HashMap<il::String, il::Dynamic>**>(data_);
   *p = new il::HashMap<il::String, il::Dynamic>{hashmap};
   data_[7] = 0x80;
-  data_[6] = 0xF0 | 0x04;
+  data_[6] = 0xF0 | 0x05;
 }
 
 inline Dynamic::Dynamic(il::DynamicType type) {
   switch (type) {
-    case il::DynamicType::hashmap: {
-      il::HashMap<il::String, il::Dynamic> **p =
-          reinterpret_cast<il::HashMap<il::String, il::Dynamic> **>(data_);
-      *p = new il::HashMap<il::String, il::Dynamic>{};
+    case il::DynamicType::array: {
+      p_array_ = new il::Array<il::Dynamic>{};
       data_[7] = 0x80;
       data_[6] = 0xF0 | 0x04;
     } break;
+    case il::DynamicType::hashmap: {
+      p_hashmap_ = new il::HashMap<il::String, il::Dynamic>{};
+      data_[7] = 0x80;
+      data_[6] = 0xF0 | 0x05;
+    } break;
     default:
-    il::abort();
+      il::abort();
   }
 }
 
 inline Dynamic::Dynamic(const Dynamic& other) {
-  il::DynamicType type = other.type();
+  il::DynamicType other_type = other.type();
 
-  switch (type) {
+  switch (other_type) {
     case il::DynamicType::boolean: {
       data_[7] = 0x80;
       if (other.get_boolean()) {
@@ -164,46 +183,208 @@ inline Dynamic::Dynamic(const Dynamic& other) {
       *reinterpret_cast<double*>(data_) = other.get_floating_point();
     } break;
     case il::DynamicType::string: {
-      il::String** p = reinterpret_cast<il::String**>(data_);
-      *p = new il::String{other.as_const_string()};
+      p_string_ = new il::String{other.as_string()};
       data_[7] = 0x80;
       data_[6] = 0xF0 | 0x03;
+    } break;
+    case il::DynamicType::array: {
+      p_array_ = new il::Array<il::Dynamic>{other.as_array()};
+      data_[7] = 0x80;
+      data_[6] = 0xF0 | 0x04;
+    } break;
+    case il::DynamicType::hashmap: {
+      p_hashmap_ = new il::HashMap<il::String, il::Dynamic>{other.as_hashmap()};
+      data_[7] = 0x80;
+      data_[6] = 0xF0 | 0x05;
     } break;
     default:
       il::abort();
   }
 }
 
+inline Dynamic::Dynamic(Dynamic&& other) {
+  switch (other.type()) {
+    case il::DynamicType::null:
+    case il::DynamicType::boolean:
+    case il::DynamicType::integer:
+    case il::DynamicType::floating_point:
+      std::memcpy(data_, other.data_, 8);
+      break;
+    case il::DynamicType::string: {
+      p_string_ = &other.as_string();
+      data_[7] = 0x80;
+      data_[6] = 0xF0 | 0x03;
+    } break;
+    case il::DynamicType::array: {
+      p_array_ = &other.as_array();
+      data_[7] = 0x80;
+      data_[6] = 0xF0 | 0x04;
+    } break;
+    case il::DynamicType::hashmap: {
+      p_hashmap_ = &other.as_hashmap();
+      data_[7] = 0x80;
+      data_[6] = 0xF0 | 0x05;
+    } break;
+    default:
+      il::abort();
+  }
+
+  other.x_ = 0.0;
+}
+
+inline il::Dynamic& Dynamic::operator=(const Dynamic& other) {
+  switch (type()) {
+    case il::DynamicType::null:
+    case il::DynamicType::boolean:
+    case il::DynamicType::integer:
+    case il::DynamicType::floating_point:
+      break;
+    case il::DynamicType::string: {
+      data_[6] = 0x00;
+      data_[7] = 0x00;
+      delete p_string_;
+    } break;
+    case il::DynamicType::array: {
+      data_[6] = 0x00;
+      data_[7] = 0x00;
+      delete p_array_;
+    } break;
+    case il::DynamicType::hashmap: {
+      data_[6] = 0x00;
+      data_[7] = 0x00;
+      delete p_hashmap_;
+    } break;
+    default:
+      il::abort();
+  }
+
+  switch (other.type()) {
+    case il::DynamicType::null:
+    case il::DynamicType::boolean:
+    case il::DynamicType::integer:
+    case il::DynamicType::floating_point:
+      std::memcpy(data_, other.data_, 8);
+      break;
+    case il::DynamicType::string:
+      p_string_ = new il::String{other.as_string()};
+      data_[7] = 0x80;
+      data_[6] = 0xF0 | 0x03;
+      break;
+    case il::DynamicType::array:
+      p_array_ = new il::Array<il::Dynamic>{other.as_array()};
+      data_[7] = 0x80;
+      data_[6] = 0xF0 | 0x04;
+      break;
+    case il::DynamicType::hashmap:
+      p_hashmap_ = new il::HashMap<il::String, il::Dynamic>{other.as_hashmap()};
+      data_[7] = 0x80;
+      data_[6] = 0xF0 | 0x05;
+      break;
+    default:
+      il::abort();
+  }
+
+  return *this;
+}
+
+inline il::Dynamic& Dynamic::operator=(Dynamic&& other) {
+  switch (type()) {
+    case il::DynamicType::null:
+    case il::DynamicType::boolean:
+    case il::DynamicType::integer:
+    case il::DynamicType::floating_point:
+      break;
+    case il::DynamicType::string: {
+      data_[6] = 0x00;
+      data_[7] = 0x00;
+      delete p_string_;
+    } break;
+    case il::DynamicType::array: {
+      data_[6] = 0x00;
+      data_[7] = 0x00;
+      delete p_array_;
+    } break;
+    case il::DynamicType::hashmap: {
+      data_[6] = 0x00;
+      data_[7] = 0x00;
+      delete p_hashmap_;
+    } break;
+    default:
+      il::abort();
+  }
+
+  switch (other.type()) {
+    case il::DynamicType::null:
+    case il::DynamicType::boolean:
+    case il::DynamicType::integer:
+    case il::DynamicType::floating_point:
+      std::memcpy(data_, other.data_, 8);
+      break;
+    case il::DynamicType::string:
+      p_string_ = other.p_string_;
+      data_[7] = 0x80;
+      data_[6] = 0xF0 | 0x03;
+      break;
+    case il::DynamicType::array:
+      p_array_ = other.p_array_;
+      data_[7] = 0x80;
+      data_[6] = 0xF0 | 0x04;
+      break;
+    case il::DynamicType::hashmap:
+      p_hashmap_ = other.p_hashmap_;
+      data_[7] = 0x80;
+      data_[6] = 0xF0 | 0x05;
+      break;
+    default:
+      il::abort();
+  }
+
+  other.x_ = 0.0;
+  return *this;
+}
+
 inline Dynamic::~Dynamic() {
   switch (type()) {
     case il::DynamicType::string: {
-      union {
-        unsigned char data_local[8];
-        il::String* p;
-      };
-      std::memcpy(data_local, data_, 8);
-      data_local[6] = 0x00;
-      data_local[7] = 0x00;
-      delete p;
+      data_[6] = 0x00;
+      data_[7] = 0x00;
+      delete p_string_;
     } break;
     case il::DynamicType::array: {
-      unsigned char data_local[8];
-      std::memcpy(data_local, data_, 8);
-      data_local[6] = 0x00;
-      data_local[7] = 0x00;
-      delete reinterpret_cast<il::Array<il::Dynamic>*>(data_local);
+      data_[6] = 0x00;
+      data_[7] = 0x00;
+      delete p_array_;
     } break;
     case il::DynamicType::hashmap: {
-      unsigned char data_local[8];
-      std::memcpy(data_local, data_, 8);
-      data_local[6] = 0x00;
-      data_local[7] = 0x00;
-      delete reinterpret_cast<il::HashMap<il::String, il::Dynamic>*>(
-          data_local);
+      data_[6] = 0x00;
+      data_[7] = 0x00;
+      delete p_hashmap_;
     } break;
     default:
       break;
   }
+}
+
+inline bool Dynamic::is_null() const { return type() == il::DynamicType::null; }
+
+inline bool Dynamic::is_boolean() const {
+  return type() == il::DynamicType::boolean;
+}
+
+inline bool Dynamic::is_integer() const {
+  return type() == il::DynamicType::integer;
+}
+
+inline bool Dynamic::is_floating_point() const {
+  return type() == il::DynamicType::floating_point;
+}
+
+inline bool Dynamic::is_hashmap() const {
+  return type() == il::DynamicType::hashmap;
+}
+
+inline bool Dynamic::is_array() const {
+  return type() == il::DynamicType::array;
 }
 
 inline il::DynamicType Dynamic::type() const {

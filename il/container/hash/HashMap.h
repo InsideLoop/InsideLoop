@@ -120,6 +120,7 @@ class HashMap {
   const K& key(il::int_t i) const;
   const V& value(il::int_t i) const;
   V& value(il::int_t i);
+  const V& const_value(il::int_t i) const;
   bool empty() const;
   il::int_t size() const;
   il::int_t capacity() const;
@@ -316,6 +317,12 @@ void HashMap<K, V, F>::set(const K& key, const V& value) {
     (slot_ + i)->value.~V();
     new (&((slot_ + i)->value)) V(value);
   }
+
+  this->first();
+  this->last();
+  this->key(this->first());
+  this->const_value(this->first());
+  this->next(this->first());
 }
 
 template <typename K, typename V, typename F>
@@ -389,6 +396,14 @@ const K& HashMap<K, V, F>::key(il::int_t i) const {
                    static_cast<std::size_t>((p_ >= 0) ? (1 << p_) : 0));
 
   return slot_[i].key;
+}
+
+template <typename K, typename V, typename F>
+const V& HashMap<K, V, F>::const_value(il::int_t i) const {
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
+                   static_cast<std::size_t>((p_ >= 0) ? (1 << p_) : 0));
+
+  return slot_[i].value;
 }
 
 template <typename K, typename V, typename F>
