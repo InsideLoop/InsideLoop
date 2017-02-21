@@ -173,7 +173,9 @@ set(SOURCE_FILES
     il/StaticArray3D.h
     il/StaticArray4D.h
     il/String.h
+    il/StringView.h
     il/Timer.h
+    il/Toml.h
     il/TriDiagonal.h
     il/UpperArray2D.h
     il/container/1d/Array.h
@@ -207,6 +209,7 @@ set(SOURCE_FILES
     il/container/string/StringView.h
     il/container/string/view_string.h
     il/container/string/algorithm_string.h
+    il/container/dynamic/Dynamic.h
     il/core/base.h
     il/core/Status.h
     il/io/io_base.h

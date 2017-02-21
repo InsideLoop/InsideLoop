@@ -684,6 +684,156 @@ two open addressing hash tables with quadratic probing is an implementation
 difference and differs from compiler to compiler, but the InsideLoop version
 is always faster with gcc, clang and intel compilers.
 
+## Dynamic value 
+
+The type `il::Dynamic` can hold any of the following types:
+
+- `null` type
+- `bool`
+- signed integer coded with 48 bits
+- `double`
+- `il::String`
+- `il::Array<il::Dynamic>`
+- `il::HashMap<il::String, il::Dynamic>`
+
+Constructors are available for all these types
+
+```cpp
+// The default constructor creates a null type
+il::Dynamic a{};
+
+// The dynamic object b contains a bool
+il::Dynamic b = true;
+
+// The dynamic object c contains an integer
+il::Dynamic c = 45;
+
+// The dynamic object d contains a double
+il::Dynamic d = 3.14159;
+
+// The dynamic object e contains an il::String
+il::Dynamic e = "Hello world!";
+
+// The dynamic object f contains an empty il::Array<il::Dynamic>
+il::Dynamic f{il::DynamicType::array};
+
+
+// The dynamic object g contains an empty il::HashMap<il::String, il::Dynamic>
+il::Dynamic f{il::DynamicType::hashmap};
+```
+
+At runtime, one can query the type of an `il::Dynamic` object `a` with the
+method `type()` which returns an `il::DynamicType`. One can also check if `a` is
+of a given type with the methods `is_null()`, `is_boolean()`, `is_integer()`,
+`is_floating_point()`, `is_string()`, `is_array()` and `is_hashmap()`. Once
+you know the type, you can extract the value from a dynamic object with the
+methods `to_boolean()`, `to_integer()`, `to_floating_point()`, `as_string()`,
+`as_array`, `as_hashmap()`. The methods starting with `to` returns a value
+whereas the methods starting with `as` returns a reference. For instance, here
+is a function that takes a dynamic object and and prints its value if it holds
+a numeric type:
+
+```cpp
+void f(const il::Dynamic& a) {
+  if (a.is_integer()) {
+    il::int_t i = a.to_integer();
+    std::cout << i << std::endl;
+  } else if (a.is_floating_point()) {
+    double x = a.to_floating_point();
+    std::cout << x << std::endl;
+  }
+}
+```
+
+This function append the integer 3 to `a` if it represents an array
+ 
+```cpp
+void f(il::io_t, il::Dynamic& a) {
+  if (a.is_array()) {
+    il::Array<il::Dynamic>& array = a.as_array();
+    array.append(3);
+  }
+}
+```
+
+The `il::Dynamic` object as a size of 8 bytes. If `a` contains a floating point,
+those 8 bytes are used to store a `double`. We use the fact that the value `NaN`
+has about 2^53 different bit representations to store other values, a trick
+known as `NaN`-boxing. As a consequence, when `a` is not a floating point
+those 8 bytes are used to store the type of `a` and its value when it represents
+a boolean or an integer, and a pointer to the object when it represents a
+string, an array or a hashmap.
+
+## TOML support
+
+TOML is a standard for configuration file. We'll use the following file
+saved as `config.toml` for our short tutorial.
+
+```toml
+# Configuration file for FAST
+
+name = "Injection scenario"
+nb_cells = 1_000_000
+
+[water]
+density = 1_000.0           # The density is in kg.m^(-3)
+compressibility = 5.1e-10   # The compressibility is in Pa^(-1)
+```
+
+Here is the C++ program to parse and get the data. The object `config` is a hash
+map containing 3 items with the keys: `name`, `nb_cells` and `water`.
+The value corresponding to `name` is a string, the one for `nb_cells` is an
+integer and the one for `water` is another hash map.
+If there is a parsing error, the object `status` should contain a message with
+the line and the reason for that error.
+
+```cpp
+#include <il/Toml.h>
+
+int main() {
+  il::String filename = "/home/fayard/Desktop/config.toml"
+  
+  il::Status status{};
+  auto config =
+      il::load<il::HashMap<il::String, il::Dynamic>>(filename, il::io, status);
+  status.abort_on_error();
+  
+  // get the name
+  il::String name{};
+  il::int_t i = config.search("name");
+  if (config.found(i) && config.value(i).is_string()) {
+    name = config.value(i).as_string();
+  }
+  
+  // get the number of cells
+  il::int_t nb_cells;
+  i = config.search("nb_cells");
+  if (config.found(i) && config.value(i).is_integer()) {
+    nb_cells = config.value(i).to_integer();
+  }
+  
+  // get the property of the water
+  double density;
+  double compressibility;
+  i = config.search("water");
+  if (config.found(i) && config.value(i).is_hashmap()) {
+    const il::HashMap<il::String, il::Dynamic>& water =
+        config.value(i).as_const_hashmap();
+    
+    il::int_t j = water.search("density");
+    if (water.found(j) && water.value(j).is_floating_point()) {
+      density = water.value(j).to_floating_point();
+    }
+    
+    j = water.search("compressibility");
+    if (water.found(j) && water.value(j).is_floating_point()) {
+      compressibility = water.value(j).to_floating_point();
+    }
+  }
+}
+```
+
+
 ## Remarks, feature request, bug report
 
 Please send them to `fayard@insideloop.io`
