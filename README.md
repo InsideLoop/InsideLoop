@@ -791,7 +791,7 @@ the line and the reason for that error.
 #include <il/Toml.h>
 
 int main() {
-  il::String filename = "/home/fayard/Desktop/config.toml"
+  il::String filename = "/home/fayard/Desktop/config.toml";
   
   il::Status status{};
   auto config =

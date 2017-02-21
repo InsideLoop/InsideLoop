@@ -55,28 +55,28 @@ class TomlParser {
   il::String current_line() const;
   il::Dynamic parse_number(il::io_t, il::ConstStringView& string,
                            il::Status& status);
+  il::DynamicType parse_type(il::ConstStringView string, il::io_t,
+                             il::Status& status);
+  il::Dynamic parse_boolean(il::io_t, il::ConstStringView& string,
+                            Status& status);
+  il::String parse_string_literal(char delimiter, il::io_t,
+                                  il::ConstStringView& string,
+                                  il::Status& status);
+  il::String parse_escape_code(il::io_t, il::ConstStringView& string,
+                               il::Status& status);
+  il::String parse_key(char end, il::io_t, il::ConstStringView& string,
+                       il::Status& status);
+  void parse_table(il::io_t, il::ConstStringView& string,
+                   il::HashMap<il::String, il::Dynamic>*& toml,
+                   il::Status& status);
+  void parse_single_table(il::io_t, il::ConstStringView& string,
+                          il::HashMap<il::String, il::Dynamic>*& toml,
+                          il::Status& status);
+  il::Dynamic parse_string(il::io_t, il::ConstStringView& string,
+                           il::Status& status);
 
  private:
   static bool is_digit(char c);
-  static il::DynamicType parse_type(il::ConstStringView string, il::io_t,
-                                    il::Status& status);
-  static il::Dynamic parse_boolean(il::io_t, il::ConstStringView& string,
-                                   Status& status);
-  static il::Dynamic parse_string(il::io_t, il::ConstStringView& string,
-                                  il::Status& status);
-  static il::String parse_string_literal(char delimiter, il::io_t,
-                                         il::ConstStringView& string,
-                                         il::Status& status);
-  static il::String parse_escape_code(il::io_t, il::ConstStringView& string,
-                                      il::Status& status);
-  static il::String parse_key(char end, il::io_t, il::ConstStringView& string,
-                              il::Status& status);
-  static void parse_table(il::io_t, il::ConstStringView& string,
-                          il::HashMap<il::String, il::Dynamic>*& toml,
-                          il::Status& status);
-  static void parse_single_table(il::io_t, il::ConstStringView& string,
-                                 il::HashMap<il::String, il::Dynamic>*& toml,
-                                 il::Status& status);
 };
 
 template <>
@@ -98,17 +98,17 @@ class SaveHelper<il::HashMap<il::String, il::Dynamic>> {
       int error4;
       switch (toml.value(i).type()) {
         case il::DynamicType::boolean:
-          if (toml.value(i).get_boolean()) {
+          if (toml.value(i).to_boolean()) {
             error2 = std::fputs("true", file);
           } else {
             error2 = std::fputs("false", file);
           }
           break;
         case il::DynamicType::integer:
-          error3 = std::fprintf(file, "%td", toml.value(i).get_integer());
+          error3 = std::fprintf(file, "%td", toml.value(i).to_integer());
           break;
         case il::DynamicType::floating_point:
-          error3 = std::fprintf(file, "%e", toml.value(i).get_floating_point());
+          error3 = std::fprintf(file, "%e", toml.value(i).to_floating_point());
           break;
         case il::DynamicType::string:
           error2 = std::fputs("\"", file);

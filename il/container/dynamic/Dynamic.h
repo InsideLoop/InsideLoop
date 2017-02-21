@@ -61,9 +61,9 @@ class Dynamic {
   bool is_hashmap() const;
   bool is_array() const;
   il::DynamicType type() const;
-  bool get_boolean() const;
-  il::int_t get_integer() const;
-  double get_floating_point() const;
+  bool to_boolean() const;
+  il::int_t to_integer() const;
+  double to_floating_point() const;
   il::String& as_string();
   const il::String& as_string() const;
   const il::String& as_const_string() const;
@@ -161,14 +161,14 @@ inline Dynamic::Dynamic(const Dynamic& other) {
   switch (other_type) {
     case il::DynamicType::boolean: {
       data_[7] = 0x80;
-      if (other.get_boolean()) {
+      if (other.to_boolean()) {
         data_[6] = 0xF0 | 0x07;
       } else {
         data_[6] = 0xF0 | 0x06;
       }
     } break;
     case il::DynamicType::integer: {
-      const il::int_t n = other.get_integer();
+      const il::int_t n = other.to_integer();
       if (n >= 0) {
         *reinterpret_cast<il::int_t*>(data_) = n;
       } else {
@@ -180,7 +180,7 @@ inline Dynamic::Dynamic(const Dynamic& other) {
       data_[6] = 0xF0 | 0x02;
     } break;
     case il::DynamicType::floating_point: {
-      *reinterpret_cast<double*>(data_) = other.get_floating_point();
+      *reinterpret_cast<double*>(data_) = other.to_floating_point();
     } break;
     case il::DynamicType::string: {
       p_string_ = new il::String{other.as_string()};
@@ -379,6 +379,10 @@ inline bool Dynamic::is_floating_point() const {
   return type() == il::DynamicType::floating_point;
 }
 
+inline bool Dynamic::is_string() const {
+  return type() == il::DynamicType::string;
+}
+
 inline bool Dynamic::is_hashmap() const {
   return type() == il::DynamicType::hashmap;
 }
@@ -415,11 +419,11 @@ inline il::DynamicType Dynamic::type() const {
   }
 }
 
-inline bool Dynamic::get_boolean() const {
+inline bool Dynamic::to_boolean() const {
   return ((data_[6] & 0x07) == 0x06) ? false : true;
 }
 
-inline il::int_t Dynamic::get_integer() const {
+inline il::int_t Dynamic::to_integer() const {
   unsigned char data_local[8];
   std::memcpy(data_local, data_, 8);
   data_local[6] = 0x00;
@@ -429,7 +433,7 @@ inline il::int_t Dynamic::get_integer() const {
   return (n < max_integer) ? n : n - 2 * max_integer;
 }
 
-inline double Dynamic::get_floating_point() const {
+inline double Dynamic::to_floating_point() const {
   return *reinterpret_cast<const double*>(data_);
 }
 

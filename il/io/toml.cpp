@@ -19,7 +19,9 @@ il::ConstStringView TomlParser::skip_whitespace_and_comments(
   while (string.is_empty() || string[0] == '\n' || string[0] == '#') {
     const char* error = std::fgets(buffer_line_, max_line_length_ + 1, file_);
     if (error == nullptr) {
-      status.set(il::ErrorCode::wrong_input, "Unclosed array");
+      il::String message = "Unclosed array on line ";
+      message.append(current_line());
+      status.set(il::ErrorCode::wrong_input, message);
       return string;
     }
     ++line_number_;
@@ -40,7 +42,7 @@ void TomlParser::check_end_of_line_or_comment(il::ConstStringView string,
     message.append(string[0]);
     message.append("' on line ");
     message.append(current_line());
-    status.set(il::ErrorCode::wrong_input, message.c_string());
+    status.set(il::ErrorCode::wrong_input, message);
   } else {
     status.set_ok();
   }
@@ -93,7 +95,9 @@ il::DynamicType TomlParser::parse_type(il::ConstStringView string, il::io_t,
     status.set_ok();
     return il::DynamicType::hashmap;
   } else {
-    status.set(il::ErrorCode::wrong_input, "Cannot determine type");
+    il::String message = "Cannot determine type on line ";
+    message.append(current_line());
+    status.set(il::ErrorCode::wrong_input, message);
     return il::DynamicType::null;
   }
 }
@@ -111,8 +115,9 @@ il::Dynamic TomlParser::parse_boolean(il::io_t, il::ConstStringView& string,
     string.shrink_left(5);
     return il::Dynamic{false};
   } else {
-    status.set(il::ErrorCode::wrong_input,
-               "Error when trying to parse a boolean");
+    il::String message = "Error when trying to parse a boolean at line ";
+    message.append(current_line());
+    status.set(il::ErrorCode::wrong_input, message);
     return il::Dynamic{};
   }
 }
@@ -278,7 +283,9 @@ il::String TomlParser::parse_string_literal(char delimiter, il::io_t,
     }
   }
 
-  status.set(il::ErrorCode::wrong_input, "Unterminated string literal");
+  il::String message = "Unterminated string literal on line ";
+  message.append(current_line());
+  status.set(il::ErrorCode::wrong_input, message);
   return ans;
 }
 
@@ -289,8 +296,9 @@ il::String TomlParser::parse_escape_code(il::io_t, il::ConstStringView& string,
   il::String ans{};
   il::int_t i = 1;
   if (i == string.size()) {
-    status.set_error(il::ErrorCode::wrong_input);
-    status.set_message("Invalid escape sequence");
+    il::String message = "Invalid escape sequence on line ";
+    message.append(current_line());
+    status.set(il::ErrorCode::wrong_input, message);
     return ans;
   }
 
@@ -318,11 +326,16 @@ il::String TomlParser::parse_escape_code(il::io_t, il::ConstStringView& string,
       value = '\\';
       break;
     case 'u':
-    case 'U':
-      status.set(il::ErrorCode::wrong_input, "Unicode not handled");
+    case 'U': {
+      il::String message = "Unicode not handled on line ";
+      message.append(current_line());
+      status.set(il::ErrorCode::wrong_input, message);
       return ans;
+    } break;
     default:
-      status.set(il::ErrorCode::wrong_input, "Invalid escape sequence");
+      il::String message = "Invalid escape sequence on line ";
+      message.append(current_line());
+      status.set(il::ErrorCode::wrong_input, message);
       return ans;
   }
 
@@ -438,7 +451,9 @@ il::Dynamic TomlParser::parse_inline_table(il::io_t,
   do {
     string.shrink_left(1);
     if (string.is_empty()) {
-      status.set(il::ErrorCode::wrong_input, "Unterminated inline table");
+      il::String message = "Unterminated inline table on line ";
+      message.append(current_line());
+      status.set(il::ErrorCode::wrong_input, message);
       return ans;
     }
     string = il::remove_whitespace_left(string);
@@ -452,7 +467,9 @@ il::Dynamic TomlParser::parse_inline_table(il::io_t,
   } while (string[0] == ',');
 
   if (string.is_empty() || string[0] != '}') {
-    status.set(il::ErrorCode::wrong_input, "Unterminated inline table");
+    il::String message = "Unterminated inline table on line ";
+    message.append(current_line());
+    status.set(il::ErrorCode::wrong_input, message);
     return ans;
   }
 
@@ -536,7 +553,9 @@ il::String TomlParser::parse_key(char end, il::io_t,
         string.shrink_left(1);
       }
     }
-    status.set(il::ErrorCode::wrong_input, "Unterminated string");
+    il::String message = "Unterminated string on line ";
+    message.append(current_line());
+    status.set(il::ErrorCode::wrong_input, message);
     return key;
   } else {
     /////////////////////////////////////
@@ -561,7 +580,9 @@ il::String TomlParser::parse_key(char end, il::io_t,
       --j;
     }
     if (j == 0) {
-      status.set(il::ErrorCode::wrong_input, "Raw key cannot be empty");
+      il::String message = "Raw key cannot be empty on line ";
+      message.append(current_line());
+      status.set(il::ErrorCode::wrong_input, message);
       return key;
     }
 
@@ -571,16 +592,21 @@ il::String TomlParser::parse_key(char end, il::io_t,
 
     for (il::int_t i = 0; i < key_string.size(); ++i) {
       if (key_string[i] == ' ' || key_string[i] == '\t') {
-        status.set(il::ErrorCode::wrong_input,
-                   "Raw key cannot contain whitespace");
+        il::String message = "Raw key cannot contain whitespace on line ";
+        message.append(current_line());
+        status.set(il::ErrorCode::wrong_input, message);
         return key;
       }
       if (key_string[i] == '#') {
-        status.set(il::ErrorCode::wrong_input, "Raw key cannot contain #");
+        il::String message = "Raw key cannot contain # on line ";
+        message.append(current_line());
+        status.set(il::ErrorCode::wrong_input, message);
         return key;
       }
       if (key_string[i] == '[' || key_string[i] == ']') {
-        status.set(il::ErrorCode::wrong_input, "Raw key cannot contain [ or ]");
+        il::String message = "Raw key cannot contain [ or ] on line ";
+        message.append(current_line());
+        status.set(il::ErrorCode::wrong_input, message);
         return key;
       }
     }
@@ -648,11 +674,14 @@ void TomlParser::parse_table(il::io_t, il::ConstStringView& string,
   string.shrink_left(1);
 
   if (string.is_empty()) {
-    status.set(il::ErrorCode::wrong_input, "Unexpected end of table");
+    il::String message = "Unexpected end of table on line ";
+    message.append(current_line());
+    status.set(il::ErrorCode::wrong_input, message);
     return;
   } else if (string[0] == '[') {
-    // Parsing a table array. Not implemented yet
-    il::abort();
+    il::String message = "Parsing a table array (not implemented yet) on line ";
+    message.append(current_line());
+    status.set(il::ErrorCode::wrong_input, message);
   } else {
     parse_single_table(il::io, string, toml, status);
     return;
@@ -663,7 +692,9 @@ void TomlParser::parse_single_table(il::io_t, il::ConstStringView& string,
                                     il::HashMap<il::String, il::Dynamic>*& toml,
                                     il::Status& status) {
   if (string.is_empty() || string[0] == ']') {
-    status.set(il::ErrorCode::wrong_input, "Table cannot be empty");
+    il::String message = "Table cannot be empty on line ";
+    message.append(current_line());
+    status.set(il::ErrorCode::wrong_input, message);
   }
 
   il::String full_table_name{};
@@ -676,7 +707,9 @@ void TomlParser::parse_single_table(il::io_t, il::ConstStringView& string,
       return;
     }
     if (table_name.is_empty()) {
-      status.set(il::ErrorCode::wrong_input, "The name cannot be empty");
+      il::String message = "Table cannot be empty on line ";
+      message.append(current_line());
+      status.set(il::ErrorCode::wrong_input, message);
       return;
     }
     if (!full_table_name.is_empty()) {
@@ -691,8 +724,9 @@ void TomlParser::parse_single_table(il::io_t, il::ConstStringView& string,
       } else if (toml->value(i).is_array()) {
         il::abort();
       } else {
-        status.set(il::ErrorCode::wrong_input,
-                   "The key already exists as a value");
+        il::String message = "The key already exists as a value on line ";
+        message.append(current_line());
+        status.set(il::ErrorCode::wrong_input, message);
         return;
       }
     } else {
