@@ -7,14 +7,10 @@
 //
 //==============================================================================
 
-#include <il/Dynamic.h>
+#include <il/Array.h>
 
 int main() {
-  il::Dynamic a = "Hello, my name is Francois Fayard!";
-  a = 5;
-  a = true;
-  a = "Welcome!";
+  il::Array<double> a{10};
 
   return 0;
 }
-

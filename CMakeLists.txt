@@ -283,6 +283,7 @@ set(UNIT_TEST_FILES
     il/linear_algebra/sparse/factorization/_test/Pardiso_test.cpp
     il/linear_algebra/sparse/factorization/_test/GmresIlu0_test.cpp
     il/io/_test/numpy_test.cpp
+    il/io/toml/_test/toml_valid_test.cpp
     gtest/src/gtest-all.cc)
 
 add_executable(InsideLoopUnitTest ${SOURCE_FILES} ${UNIT_TEST_FILES} test.cpp)

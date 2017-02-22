@@ -45,6 +45,9 @@ class TomlParser {
   il::Dynamic parse_value_array(il::DynamicType value_type, il::io_t,
                                 il::ConstStringView& string,
                                 il::Status& status);
+  il::Dynamic parse_object_array(il::DynamicType object_type,char delimiter, il::io_t,
+                                             il::ConstStringView& string,
+                                             il::Status& status);
   il::Dynamic parse_inline_table(il::io_t, il::ConstStringView& string,
                                  il::Status& status);
   void parse_key_value(il::io_t, il::ConstStringView& string,
@@ -70,6 +73,9 @@ class TomlParser {
                    il::HashMap<il::String, il::Dynamic>*& toml,
                    il::Status& status);
   void parse_single_table(il::io_t, il::ConstStringView& string,
+                          il::HashMap<il::String, il::Dynamic>*& toml,
+                          il::Status& status);
+  void parse_table_array(il::io_t, il::ConstStringView& string,
                           il::HashMap<il::String, il::Dynamic>*& toml,
                           il::Status& status);
   il::Dynamic parse_string(il::io_t, il::ConstStringView& string,

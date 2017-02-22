@@ -386,11 +386,21 @@ il::Dynamic TomlParser::parse_array(il::io_t, il::ConstStringView& string,
       ans = parse_value_array(value_type, il::io, string, parse_status);
       if (!parse_status.ok()) {
         status = parse_status;
-      } else {
-        status.set_ok();
+        return ans;
       }
+      status.set_ok();
       return ans;
     } break;
+    case il::DynamicType::array: {
+      ans = parse_object_array(il::DynamicType::array, '[', il::io, string,
+                               parse_status);
+      if (!parse_status.ok()) {
+        status = parse_status;
+        return ans;
+      }
+      status.set_ok();
+      return ans;
+    }
     default:
       il::abort();
       return ans;
@@ -441,6 +451,50 @@ il::Dynamic TomlParser::parse_value_array(il::DynamicType value_type, il::io_t,
   if (!string.is_empty()) {
     string.shrink_left(1);
   }
+  return ans;
+}
+
+il::Dynamic TomlParser::parse_object_array(il::DynamicType object_type,
+                                           char delimiter, il::io_t,
+                                           il::ConstStringView& string,
+                                           il::Status& status) {
+  il::Dynamic ans{il::DynamicType::array};
+  il::Array<il::Dynamic>& array = ans.as_array();
+  il::Status parse_status{};
+
+  while (!string.is_empty() && string[0] != ']') {
+    if (string[0] != delimiter) {
+      il::String message = "Unexpected character in array at line ";
+      message.append(current_line());
+      status.set(il::ErrorCode::wrong_input, message);
+      return ans;
+    }
+
+    if (object_type == il::DynamicType::array) {
+      array.append(parse_array(il::io, string, parse_status));
+      if (!parse_status.ok()) {
+        status = parse_status;
+        return ans;
+      }
+    } else {
+      il::abort();
+    }
+
+    string = il::remove_whitespace_left(string);
+    if (string.is_empty() || string[0] != ',') {
+      break;
+    }
+    string.shrink_left(1);
+    string = il::remove_whitespace_left(string);
+  }
+
+  if (string.is_empty() || string[0] != ']') {
+    il::String message = "Unterminated array at line ";
+    message.append(current_line());
+    status.set(il::ErrorCode::wrong_input, message);
+    return ans;
+  }
+  string.shrink_left(1);
   return ans;
 }
 
@@ -679,9 +733,8 @@ void TomlParser::parse_table(il::io_t, il::ConstStringView& string,
     status.set(il::ErrorCode::wrong_input, message);
     return;
   } else if (string[0] == '[') {
-    il::String message = "Parsing a table array (not implemented yet) on line ";
-    message.append(current_line());
-    status.set(il::ErrorCode::wrong_input, message);
+    parse_table_array(il::io, string, toml, status);
+    return;
   } else {
     parse_single_table(il::io, string, toml, status);
     return;
@@ -722,7 +775,15 @@ void TomlParser::parse_single_table(il::io_t, il::ConstStringView& string,
       if (toml->value(i).is_hashmap()) {
         toml = &(toml->value(i).as_hashmap());
       } else if (toml->value(i).is_array()) {
-        il::abort();
+        if (toml->value(i).as_array().size() > 0 &&
+            toml->value(i).as_array().back().is_hashmap()) {
+          toml = &(toml->value(i).as_array().back().as_hashmap());
+        } else {
+          il::String message = "The key already exists as a value on line ";
+          message.append(current_line());
+          status.set(il::ErrorCode::wrong_input, message);
+          return;
+        }
       } else {
         il::String message = "The key already exists as a value on line ";
         message.append(current_line());
@@ -751,6 +812,94 @@ void TomlParser::parse_single_table(il::io_t, il::ConstStringView& string,
   if (!string.is_empty() && string[0] != '\n' && string[0] != '#') {
     il::abort();
   }
+}
+
+void TomlParser::parse_table_array(il::io_t, il::ConstStringView& string,
+                                   il::HashMap<il::String, il::Dynamic>*& toml,
+                                   il::Status& status) {
+  string.shrink_left(1);
+  if (string.is_empty() || string[0] == ']') {
+    il::String message = "Table array name cannot be empty at line ";
+    message.append(current_line());
+    status.set(il::ErrorCode::wrong_input, message);
+    return;
+  }
+
+  il::String full_table_name{};
+  while (!string.is_empty() && string[0] != ']') {
+    il::Status parse_status{};
+    il::String table_name = parse_key('@', il::io, string, parse_status);
+    if (!parse_status.ok()) {
+      status = parse_status;
+      return;
+    }
+    if (table_name.is_empty()) {
+      il::String message = "Empty component of table array name on line ";
+      message.append(current_line());
+      status.set(il::ErrorCode::wrong_input, message);
+      return;
+    }
+    if (!full_table_name.is_empty()) {
+      full_table_name.append('.');
+    }
+    full_table_name.append(table_name);
+
+    string = il::remove_whitespace_left(string);
+    il::int_t i = toml->search(table_name);
+    if (toml->found(i)) {
+      il::Dynamic& b = toml->value(i);
+      if (!string.is_empty() && string[0] == ']') {
+        if (!b.is_array()) {
+          il::String message = "Key ";
+          message.append(full_table_name);
+          message.append(" is not a table array on line ");
+          message.append(current_line());
+          status.set(il::ErrorCode::wrong_input, message);
+          return;
+        }
+        il::Array<il::Dynamic>& v = b.as_array();
+        v.append(il::Dynamic{il::DynamicType::hashmap});
+        toml = &(v.back().as_hashmap());
+      }
+    } else {
+      if (!string.is_empty() && string[0] == ']') {
+        toml->insert(table_name, il::Dynamic{il::DynamicType::array}, il::io,
+                     i);
+        toml->value(i).as_array().append(il::Dynamic{il::DynamicType::hashmap});
+        toml = &(toml->value(i).as_array()[0].as_hashmap());
+      } else {
+        toml->insert(table_name, il::Dynamic{il::DynamicType::hashmap}, il::io,
+                     i);
+        toml = &(toml->value(i).as_hashmap());
+      }
+    }
+  }
+
+  if (string.is_empty()) {
+    il::String message = "Unterminated table array name at line ";
+    message.append(current_line());
+    status.set(il::ErrorCode::wrong_input, message);
+    return;
+  }
+  string.shrink_left(1);
+  if (string.is_empty()) {
+    il::String message = "Unterminated table array name at line ";
+    message.append(current_line());
+    status.set(il::ErrorCode::wrong_input, message);
+    return;
+  }
+  string.shrink_left(1);
+
+  string = il::remove_whitespace_left(string);
+  il::Status parse_status{};
+  check_end_of_line_or_comment(string, il::io, parse_status);
+  if (!parse_status.ok()) {
+    status = parse_status;
+    return;
+  }
+
+  status.set_ok();
+  return;
 }
 
 il::HashMap<il::String, il::Dynamic> TomlParser::parse(
