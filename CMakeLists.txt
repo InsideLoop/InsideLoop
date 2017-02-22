@@ -272,6 +272,7 @@ set(UNIT_TEST_FILES
     il/container/2d/_test/Array2C_test.cpp
     il/container/3d/_test/Array3D_test.cpp
     il/container/string/_test/String_test.cpp
+    il/container/dynamic/_test/Dynamic_test.cpp
     il/core/math/_test/safe_arithmetic_test.cpp
     il/linear_algebra/dense/_test/norm_test.cpp
     il/linear_algebra/dense/blas/_test/blas_test.cpp

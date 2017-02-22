@@ -11,7 +11,7 @@
 
 #include <il/io/numpy.h>
 
-il::String filename = "/Users/fayard/Desktop/b.npy";
+il::String filename = "/home/fayard/Desktop/b.npy";
 
 TEST(numpy, array_0) {
   il::Array<int> v{il::value, {1, 2, 3}};
