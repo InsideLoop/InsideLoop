@@ -74,20 +74,20 @@ enum class DynamicType {
 //
 // 000...000||1000[1111|1111|111]0: a string
 // 000...000||1100[1111|1111|111]0: a 1D array of il::dynamic
-// 000...000||1010[1111|1111|111]0: a 1D array of int
-// 000...000||1110[1111|1111|111]0: a 1D array of il::int_t
-// 000...000||1001[1111|1111|111]0: a 1D array of float
-// 000...000||1101[1111|1111|111]0: a 1D array of double
-// 000...000||1011[1111|1111|111]0: a 2D array of int
-// 000...000||1111[1111|1111|111]0: a 2D array of il::int_t
-// 000...000||1000[1111|1111|111]1: a 2D array of float
-// 000...000||1100[1111|1111|111]1: a 2D array of double
+// 000...000||1010[1111|1111|111]0: <**> a 1D array of int
+// 000...000||1110[1111|1111|111]0: <**> a 1D array of il::int_t
+// 000...000||1001[1111|1111|111]0: <**> a 1D array of float
+// 000...000||1101[1111|1111|111]0: <**> a 1D array of double
+// 000...000||1011[1111|1111|111]0: <**> a 2D array of int
+// 000...000||1111[1111|1111|111]0: <**> a 2D array of il::int_t
+// 000...000||1000[1111|1111|111]1: <**> a 2D array of float
+// 000...000||1100[1111|1111|111]1: <**> a 2D array of double
 // 000...000||1010[1111|1111|111]1: a HashMap of <il::String, il::Dynamic>
-// 000...000||1110[1111|1111|111]1: a HashMapArray of <il::String, il::Dynamic>
-// 000...000||1001[1111|1111|111]1: a HashSet of int
-// 000...000||1101[1111|1111|111]1: a HashSet of il::int_t
-// 000...000||1011[1111|1111|111]1: a HashSet of float
-// 000...000||1111[1111|1111|111]1: a HashSet of double
+// 000...000||1110[1111|1111|111]1: <**> a HashMapArray of <il::String, il::Dynamic>
+// 000...000||1001[1111|1111|111]1: <**> a HashSet of int
+// 000...000||1101[1111|1111|111]1: <**> a HashSet of il::int_t
+// 000...000||1011[1111|1111|111]1: <**> a HashSet of float
+// 000...000||1111[1111|1111|111]1: a 64-bit integer
 //
 // ==========================================================
 // 000...000||01xx[1111|1111|111]x: a type without a pointer.
@@ -144,7 +144,6 @@ class Dynamic {
   il::DynamicType type() const;
   bool to_boolean() const;
   il::int_t to_integer() const;
-  il::int_t to_positive_integer() const;
   double to_floating_point() const;
   il::String& as_string();
   const il::String& as_string() const;
@@ -158,6 +157,8 @@ class Dynamic {
 
  private:
   bool is_trivial() const;
+  il::int_t& as_integer();
+  const il::int_t& as_integer() const;
 };
 
 inline Dynamic::Dynamic() { data2_[3] = 0x7FF2; }
@@ -171,13 +172,19 @@ inline Dynamic::Dynamic(int n) : Dynamic{static_cast<il::int_t>(n)} {}
 
 inline Dynamic::Dynamic(il::int_t n) {
   const il::int_t max_integer = static_cast<il::int_t>(1) << 47;
-  IL_EXPECT_MEDIUM(n < max_integer && n >= -max_integer);
 
-  n_ = n + static_cast<std::int64_t>(
-               (static_cast<std::uint64_t>(n) & 0x8000000000000000)
-                   ? 0x0001000000000000
-                   : 0x0);
-  data2_[3] = 0x7FFA;
+  if (n < max_integer && n >= -max_integer) {
+    // Store the integer on the stack
+    n_ = n + static_cast<std::int64_t>(
+        (static_cast<std::uint64_t>(n) & 0x8000000000000000)
+        ? 0x0001000000000000
+        : 0x0);
+    data2_[3] = 0x7FFA;
+  } else {
+    // Store the integer on the heap
+    p_ = static_cast<void*>(new il::int_t{n});
+    data2_[3] = 0xFFFF;
+  }
 }
 
 inline Dynamic::Dynamic(double x) {
@@ -245,6 +252,10 @@ inline Dynamic::Dynamic(const Dynamic& other) {
   } else {
     il::DynamicType other_type = other.type();
     switch (other_type) {
+      case il::DynamicType::integer:
+        p_ = static_cast<void*>(new il::int_t{other.to_integer()});
+        data2_[3] = 0xFFFF;
+        break;
       case il::DynamicType::string:
         p_ = static_cast<void*>(new il::String{other.as_string()});
         data2_[3] = 0x7FF1;
@@ -271,6 +282,10 @@ inline Dynamic::Dynamic(Dynamic&& other) {
   } else {
     il::DynamicType other_type = other.type();
     switch (other_type) {
+      case il::DynamicType::integer:
+        p_ = static_cast<void*>(&other.as_integer());
+        data2_[3] = 0xFFFF;
+        break;
       case il::DynamicType::string:
         p_ = static_cast<void*>(&other.as_string());
         data2_[3] = 0x7FF1;
@@ -296,6 +311,9 @@ inline il::Dynamic& Dynamic::operator=(const Dynamic& other) {
     il::DynamicType own_type = type();
     data2_[3] &= 0x0000;
     switch (own_type) {
+      case il::DynamicType::integer:
+        delete static_cast<il::int_t*>(p_);
+        break;
       case il::DynamicType::string:
         delete static_cast<il::String*>(p_);
         break;
@@ -316,6 +334,10 @@ inline il::Dynamic& Dynamic::operator=(const Dynamic& other) {
   } else {
     il::DynamicType other_type = other.type();
     switch (other_type) {
+      case il::DynamicType::integer:
+        p_ = static_cast<void*>(new il::int_t{other.as_integer()});
+        data2_[3] = 0xFFFF;
+        break;
       case il::DynamicType::string:
         p_ = static_cast<void*>(new il::String{other.as_string()});
         data2_[3] = 0x7FF1;
@@ -343,6 +365,9 @@ inline il::Dynamic& Dynamic::operator=(Dynamic&& other) {
     il::DynamicType own_type = type();
     data2_[3] &= 0x0000;
     switch (own_type) {
+      case il::DynamicType::integer:
+        delete static_cast<il::int_t*>(p_);
+        break;
       case il::DynamicType::string:
         delete static_cast<il::String*>(p_);
         break;
@@ -363,6 +388,10 @@ inline il::Dynamic& Dynamic::operator=(Dynamic&& other) {
   } else {
     il::DynamicType other_type = other.type();
     switch (other_type) {
+      case il::DynamicType::integer:
+        p_ = static_cast<void*>(&other.as_integer());
+        data2_[3] = 0xFFFF;
+        break;
       case il::DynamicType::string:
         p_ = static_cast<void*>(&other.as_string());
         data2_[3] = 0x7FF1;
@@ -390,6 +419,9 @@ inline Dynamic::~Dynamic() {
     il::DynamicType own_type = type();
     data2_[3] &= 0x0000;
     switch (own_type) {
+      case il::DynamicType::integer:
+        delete static_cast<il::int_t*>(p_);
+        break;
       case il::DynamicType::string:
         delete static_cast<il::String*>(p_);
         break;
@@ -409,7 +441,7 @@ inline bool Dynamic::is_null() const { return data2_[3] == 0x7FF2; }
 
 inline bool Dynamic::is_boolean() const { return data2_[3] == 0x7FF6; }
 
-inline bool Dynamic::is_integer() const { return data2_[3] == 0x7FFA; }
+inline bool Dynamic::is_integer() const { return (data2_[3] == 0x7FFA) || (data2_[3] == 0xFFFF); }
 
 inline bool Dynamic::is_floating_point() const {
   return !((data2_[3] & 0x7FF0) == 0x7FF0 && (data2_[3] & 0x0003));
@@ -431,6 +463,7 @@ inline il::DynamicType Dynamic::type() const {
       case 0x7FF6:
         return il::DynamicType::boolean;
       case 0x7FFA:
+      case 0xFFFF:
         return il::DynamicType::integer;
       case 0x7FF1:
         return il::DynamicType::string;
@@ -448,36 +481,52 @@ inline il::DynamicType Dynamic::type() const {
 inline bool Dynamic::to_boolean() const { return boolean_; }
 
 inline il::int_t Dynamic::to_integer() const {
-  union {
-    il::int_t n;
-    std::size_t data8;
-  };
-  // We copy the bits from the internal data of the object and we zero the
-  // last 16 bits where the type information was stored. We obtain
-  // an unsigned 48-bit integer.
-  data8 = data8_;
-  data8 = data8 & 0x0000FFFFFFFFFFFF;
-  // to transform that unsigned 48-bit integer to a signed 64-bit integer
-  // we need to check the sign of that integer. The sign of that number is
-  // given by the 48th bit which it given by: data8 & 0x0000800000000000.
-  // If this bit is equal to 1, we need to substract 2^48 to the result.
-  // Otherwise, the previous result was fine.
-  return n - static_cast<il::int_t>(
-                 (data8 & 0x0000800000000000) ? 0x0001000000000000 : 0x0);
+  if (is_trivial()) {
+    union {
+      il::int_t n;
+      std::size_t data8;
+    };
+    // We copy the bits from the internal data of the object and we zero the
+    // last 16 bits where the type information was stored. We obtain
+    // an unsigned 48-bit integer.
+    data8 = data8_;
+    data8 = data8 & 0x0000FFFFFFFFFFFF;
+    // to transform that unsigned 48-bit integer to a signed 64-bit integer
+    // we need to check the sign of that integer. The sign of that number is
+    // given by the 48th bit which it given by: data8 & 0x0000800000000000.
+    // If this bit is equal to 1, we need to substract 2^48 to the result.
+    // Otherwise, the previous result was fine.
+    return n - static_cast<il::int_t>(
+        (data8 & 0x0000800000000000) ? 0x0001000000000000 : 0x0);
+  } else {
+    union {
+      il::int_t* p_integer;
+      std::size_t data8;
+    };
+    data8 = data8_;
+    data8 = data8 & 0x0000FFFFFFFFFFFF;
+    return *p_integer;
+  }
 }
 
-inline il::int_t Dynamic::to_positive_integer() const {
+inline il::int_t& Dynamic::as_integer() {
   union {
-    il::int_t n;
+    il::int_t* p_integer;
     std::size_t data8;
   };
-  // We copy the bits from the internal data of the object and we zero the
-  // last 16 bits where the type information was stored. We obtain
-  // an unsigned 48-bit integer. As we know that the result is positive, we
-  // are done.
   data8 = data8_;
   data8 = data8 & 0x0000FFFFFFFFFFFF;
-  return n;
+  return *p_integer;
+}
+
+inline const il::int_t& Dynamic::as_integer() const {
+  union {
+    il::int_t* p_integer;
+    std::size_t data8;
+  };
+  data8 = data8_;
+  data8 = data8 & 0x0000FFFFFFFFFFFF;
+  return *p_integer;
 }
 
 inline double Dynamic::to_floating_point() const { return x_; }

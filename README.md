@@ -690,7 +690,7 @@ The type `il::Dynamic` can hold any of the following types:
 
 - `null` type
 - `bool`
-- signed integer coded with 48 bits
+- `il::int_t`
 - `double`
 - `il::String`
 - `il::Array<il::Dynamic>`
@@ -761,8 +761,8 @@ those 8 bytes are used to store a `double`. We use the fact that the value `NaN`
 has about 2^53 different bit representations to store other values, a trick
 known as `NaN`-boxing. As a consequence, when `a` is not a floating point
 those 8 bytes are used to store the type of `a` and its value when it represents
-a boolean or an integer, and a pointer to the object when it represents a
-string, an array or a hashmap.
+a boolean or an integer (of less than 48 bits), and a pointer to the object when
+it represents an integer of more than 48 bits, a string, an array or a hashmap.
 
 ## TOML support
 
@@ -832,7 +832,6 @@ int main() {
   }
 }
 ```
-
 
 ## Remarks, feature request, bug report
 

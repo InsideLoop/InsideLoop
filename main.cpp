@@ -10,7 +10,8 @@
 #include <il/Array.h>
 
 int main() {
-  il::Array<double> a{10};
+  const il::int_t n = 100;
+  il::Array<double> v{n};
 
   return 0;
 }
