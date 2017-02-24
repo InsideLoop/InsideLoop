@@ -248,7 +248,7 @@ set(SOURCE_FILES
 
 
 add_executable(InsideLoop ${SOURCE_FILES} main.cpp)
-target_link_libraries(InsideLoop ${CMAKE_MKL_LIBRARIES} ${CMAKE_PNG_LIBRARIES} ${CMAKE_OPENBLAS_LIBRARIES})
+target_link_libraries(InsideLoop ${CMAKE_MKL_LIBRARIES} ${CMAKE_PNG_LIBRARIES} ${CMAKE_OPENBLAS_LIBRARIES} benchmark)
 target_include_directories(InsideLoop PRIVATE ${CMAKE_SOURCE_DIR} /opt/eigen-3.3.2 /opt/blaze-3.0 /opt/cuda-8.0/include)
 
 if (APPLE)

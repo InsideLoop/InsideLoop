@@ -673,7 +673,7 @@ void Array<T>::append(const T& x) {
     const il::int_t n = size();
     bool error = false;
     il::int_t new_capacity =
-        n > 1 ? il::safe_sum(n, n / 2, il::io, error)
+        n > 1 ? il::safe_product(static_cast<il::int_t>(2), n, il::io, error)
               : il::safe_sum(n, static_cast<il::int_t>(1), il::io, error);
     if (error) {
       il::abort();
@@ -693,7 +693,7 @@ void Array<T>::append(T&& x) {
     const il::int_t n = size();
     bool error = false;
     il::int_t new_capacity =
-        n > 1 ? il::safe_sum(n, n / 2, il::io, error)
+        n > 1 ? il::safe_product(static_cast<il::int_t>(2), n, il::io, error)
               : il::safe_sum(n, static_cast<il::int_t>(1), il::io, error);
     if (error) {
       il::abort();
@@ -715,7 +715,7 @@ void Array<T>::append(il::emplace_t, Args&&... args) {
     const il::int_t n = size();
     bool error = false;
     il::int_t new_capacity =
-        n > 1 ? il::safe_sum(n, n / 2, il::io, error)
+        n > 1 ? il::safe_product(static_cast<il::int_t>(2), n, il::io, error)
               : il::safe_sum(n, static_cast<il::int_t>(1), il::io, error);
     if (error) {
       il::abort();
