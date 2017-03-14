@@ -161,6 +161,7 @@ set(SOURCE_FILES
     il/Dynamic.h
     il/format.h
     il/HashMap.h
+    il/Info.h
     il/linear_algebra.h
     il/LowerArray2D.h
     il/math.h
@@ -172,6 +173,7 @@ set(SOURCE_FILES
     il/StaticArray2C.h
     il/StaticArray3D.h
     il/StaticArray4D.h
+    il/Status.h
     il/String.h
     il/StringView.h
     il/Timer.h
@@ -211,7 +213,6 @@ set(SOURCE_FILES
     il/container/string/algorithm_string.h
     il/container/dynamic/Dynamic.h
     il/core/base.h
-    il/Status.h
     il/io/io_base.h
     il/io/parse.h
     il/io/ppm.h

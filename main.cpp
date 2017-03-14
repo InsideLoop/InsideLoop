@@ -8,16 +8,13 @@
 //==============================================================================
 
 
-#include <iostream>
-
-#include <il/container/info/Info.h>
+#include <il/Info.h>
 
 int main() {
   il::Info info{};
-  info.set("line", il::int_t{30});
-  info.set("inside", 3.14159);
+  info.set("line", 30);
 
-  const il::int_t line = info.to_integer("line");
+  const int line = info.to_int("line");
 
   IL_UNUSED(line);
 

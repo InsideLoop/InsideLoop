@@ -38,25 +38,34 @@ class Info {
   Info(Info&& other);
   Info& operator=(const Info& other);
   Info& operator=(Info&& other);
-  il::int_t size() const;
-  il::int_t capacity() const;
-  const unsigned char* data() const;
-  unsigned char* data();
   bool empty() const;
-  void resize(il::int_t n);
   void clear();
+  il::int_t to_int(const char* key);
   il::int_t to_integer(const char* key);
 
+  void set(const char* key, int value);
   void set(const char* key, il::int_t value);
   void set(const char* key, double value);
+  void set(const char* key, const char* value);
+
+
   il::int_t search(const char* key) const;
   bool found(il::int_t i) const;
+  bool is_int(il::int_t i) const;
   bool is_integer(il::int_t i) const;
   bool is_double(il::int_t i) const;
+
+  int to_int(il::int_t i) const;
   il::int_t to_integer(il::int_t i) const;
   double to_double(il::int_t i) const;
 
  private:
+  il::int_t size() const;
+  il::int_t capacity() const;
+  const unsigned char* data() const;
+  unsigned char* data();
+  void resize(il::int_t n);
+
   bool is_small() const;
   void set_small_size(il::int_t n);
   void set_large_capacity(il::int_t r);
@@ -137,6 +146,28 @@ inline Info& Info::operator=(Info&& other) {
   return *this;
 }
 
+inline void Info::set(const char* key, int value) {
+  const int key_length = static_cast<int>(strlen(key));
+  const int n = key_length + 2 + 2 * static_cast<int>(sizeof(int));
+  il::int_t i = size();
+  resize(i + n);
+
+  unsigned char* p = data();
+
+  set(n, p + i);
+  i += sizeof(int);
+
+  for (il::int_t j = 0; j < key_length + 1; ++j) {
+    p[i + j] = key[j];
+  }
+  i += key_length + 1;
+
+  p[i] = 3;
+  ++i;
+
+  set(value, p + i);
+}
+
 inline void Info::set(const char* key, il::int_t value) {
   const int key_length = static_cast<int>(strlen(key));
   const int n =
@@ -182,6 +213,31 @@ inline void Info::set(const char* key, double value) {
   set(value, p + i);
 }
 
+inline void Info::set(const char* key, const char* value) {
+  const int key_length = static_cast<int>(strlen(key));
+  const int value_length = static_cast<int>(strlen(value));
+  const int n = key_length + value_length + 3 + static_cast<int>(sizeof(int));
+  il::int_t i = size();
+  resize(i + n);
+
+  unsigned char* p = data();
+
+  set(n, p + i);
+  i += sizeof(int);
+
+  for (il::int_t j = 0; j < key_length + 1; ++j) {
+    p[i + j] = key[j];
+  }
+  i += key_length + 1;
+
+  p[i] = 2;
+  ++i;
+
+  for (il::int_t j = 0; j < value_length + 1; ++j) {
+    p[i + j] = value[j];
+  }
+}
+
 inline il::int_t Info::search(const char* key) const {
   const unsigned char* p = data();
   il::int_t i = 0;
@@ -206,9 +262,26 @@ inline il::int_t Info::search(const char* key) const {
 
 inline bool Info::found(il::int_t i) const { return i >= 0; }
 
+inline bool Info::is_int(il::int_t i) const { return data()[i] == 3; }
+
 inline bool Info::is_integer(il::int_t i) const { return data()[i] == 0; }
 
 inline bool Info::is_double(il::int_t i) const { return data()[i] == 1; }
+
+inline int Info::to_int(il::int_t i) const {
+  IL_EXPECT_FAST(is_int(i));
+
+  const unsigned char* p = data();
+  const il::int_t n = static_cast<il::int_t>(sizeof(int));
+  union {
+    int local_value;
+    unsigned char local_raw[n];
+  };
+  for (il::int_t j = 0; j < n; ++j) {
+    local_raw[j] = p[i + 1 + j];
+  }
+  return local_value;
+}
 
 inline il::int_t Info::to_integer(il::int_t i) const {
   IL_EXPECT_FAST(is_integer(i));
@@ -223,6 +296,13 @@ inline il::int_t Info::to_integer(il::int_t i) const {
     local_raw[j] = p[i + 1 + j];
   }
   return local_value;
+}
+
+inline il::int_t Info::to_int(const char* key) {
+  const il::int_t i = search(key);
+  IL_ENSURE(found(i));
+
+  return to_int(i);
 }
 
 inline il::int_t Info::to_integer(const char* key) {

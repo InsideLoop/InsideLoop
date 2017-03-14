@@ -546,6 +546,69 @@ class HashMapPrinter:
 	def to_string(self):
 		return "HashMap"
 
+class InfoPrinter:
+	def __init__(self, val):
+		type = val.type
+		if type.code == gdb.TYPE_CODE_REF:
+			type = type.target()
+		self.type = type.unqualified().strip_typedefs()
+		self.val = val
+		if self.val['large_']['capacity'] >= 2**63:
+			self.is_small = False
+			self.size = self.val['large_']['size']
+			self.capacity = self.val['large_']['capacity'] - 2**63
+			self.data = self.val['large_']['data']
+		else:
+			self.is_small = True
+			self.size = 0 + self.val['small_'][23]
+			self.capacity = 23
+			self.data = self.val['small_']
+
+	def children(self):
+		k = 0
+		while k != self.size:
+			delta = self.data[k]
+			k += 4
+			key = ""
+			char = chr(self.data[k])
+			while char != '\0':
+				key += char
+				k += 1
+				char = chr(self.data[k])
+			k += 1
+			type = self.data[k]
+			k += 1
+			if type == 0:
+				value = 0
+				factor = 1
+				for i in range(0, 8):
+					value += factor * self.data[k]
+					factor *= 256
+					k += 1
+				yield key, value
+			elif type == 1:
+				yield key, None
+			elif type == 2:
+				value = ""
+				char = chr(self.data[k])
+				while char != '\0':
+					value += char
+					k += 1
+					char = chr(self.data[k])
+				k += 1
+				yield key + ": " + value, None
+			elif type == 3:
+				value = 0
+				factor = 1
+				for i in range(0, 4):
+					value += factor * self.data[k]
+					factor *= 256
+					k += 1
+				yield key, value
+
+	def to_string(self):
+		return "Info"
+
 def build_insideloop_dictionary ():
 	pretty_printers_dict[re.compile('^il::Array<.*>$')]  = lambda val: ArrayPrinter(val)
 	pretty_printers_dict[re.compile('^il::StaticArray<.*>$')]  = lambda val: StaticArrayPrinter(val)
@@ -568,6 +631,7 @@ def build_insideloop_dictionary ():
 	pretty_printers_dict[re.compile('^il::StringView$')]  = lambda val: StringViewPrinter(val)
 	pretty_printers_dict[re.compile('^il::ConstStringView$')]  = lambda val: ConstStringViewPrinter(val)
 	# pretty_printers_dict[re.compile('^il::HashMap<.*>$')]  = lambda val: HashMapPrinter(val)
+	pretty_printers_dict[re.compile('^il::Info$')]  = lambda val: InfoPrinter(val)
 
 def register_insideloop_printers(obj):
 	"Register insideloop pretty-printers with objfile Obj"
