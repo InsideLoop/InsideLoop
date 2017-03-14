@@ -15,7 +15,7 @@
 #include <il/container/2d/Array2D.h>
 #include <il/container/2d/LowerArray2D.h>
 #include <il/container/2d/UpperArray2D.h>
-#include <il/core/Status.h>
+#include <il/Status.h>
 #include <il/linear_algebra/dense/norm.h>
 
 #ifdef IL_MKL

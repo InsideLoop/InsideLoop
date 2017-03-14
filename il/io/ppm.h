@@ -15,7 +15,7 @@
 
 #include <il/Array2D.h>
 #include <il/StaticArray.h>
-#include <il/core/Status.h>
+#include <il/Status.h>
 
 namespace il {
 
@@ -37,11 +37,11 @@ il::Array2D<il::Pixel> read_ppm(const std::string& filename, il::io_t,
 
   char buffer[16];
   if (!std::fgets(buffer, sizeof(buffer), fp)) {
-    status.set(ErrorCode::wrong_file_format);
+    status.set(ErrorCode::binary_file_wrong_format);
     return image;
   }
   if (buffer[0] != 'P' || buffer[1] != '6') {
-    status.set(ErrorCode::wrong_file_format);
+    status.set(ErrorCode::binary_file_wrong_format);
     return image;
   }
 
@@ -58,18 +58,18 @@ il::Array2D<il::Pixel> read_ppm(const std::string& filename, il::io_t,
   int width;
   int height;
   if (std::fscanf(fp, "%d %d", &width, &height) != 2) {
-    status.set(ErrorCode::wrong_file_format);
+    status.set(ErrorCode::binary_file_wrong_format);
     return image;
   }
   // read rgb component
   int rgb_comp_color;
   if (std::fscanf(fp, "%d", &rgb_comp_color) != 1) {
-    status.set(ErrorCode::wrong_file_format);
+    status.set(ErrorCode::binary_file_wrong_format);
     return image;
   }
   // check rgb component depth
   if (rgb_comp_color != 255) {
-    status.set(ErrorCode::wrong_file_format);
+    status.set(ErrorCode::binary_file_wrong_format);
     return image;
   }
   while (std::fgetc(fp) != '\n') {
@@ -78,7 +78,7 @@ il::Array2D<il::Pixel> read_ppm(const std::string& filename, il::io_t,
   // read pixel data from file
   image.resize(width, height);
   if (std::fread(image.data(), 3 * width, height, fp) != height) {
-    status.set(ErrorCode::wrong_file_format);
+    status.set(ErrorCode::binary_file_wrong_format);
     image.resize(0, 0);
     return image;
   }

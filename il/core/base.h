@@ -28,7 +28,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace il {
-struct abort_exception {};
+struct abort_exception {
+  abort_exception() {
+    (void)0;
+  }
+};
+
 inline void abort() {
   std::abort();
 }

@@ -11,8 +11,8 @@
 #define IL_HASHMAP_H
 
 #include <il/Array.h>
+#include <il/Status.h>
 #include <il/container/hash/HashFunction.h>
-#include <il/core/Status.h>
 #include <il/math.h>
 
 namespace il {

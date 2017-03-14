@@ -14,7 +14,7 @@
 
 #include <il/container/1d/Array.h>
 #include <il/container/2d/Array2D.h>
-#include <il/core/Status.h>
+#include <il/Status.h>
 #include <il/linear_algebra/dense/norm.h>
 
 #ifdef IL_MKL
@@ -78,7 +78,7 @@ Eigen<il::Array2D<double>>::Eigen(il::Array2D<double> A, il::io_t,
     eigen_value_r_ = std::move(wr);
     eigen_value_i_ = std::move(wi);
   } else {
-    status.set_error(ErrorCode::no_convergence);
+    status.set(il::Error::matrix_eigenvalue_no_convergence);
   }
 }
 

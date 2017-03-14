@@ -13,7 +13,7 @@
 #include <il/Array.h>
 #include <il/Array2D.h>
 #include <il/LowerArray2D.h>
-#include <il/core/Status.h>
+#include <il/Status.h>
 #include <il/linear_algebra/dense/norm.h>
 
 #ifdef IL_MKL

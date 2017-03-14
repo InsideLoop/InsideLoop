@@ -45,6 +45,7 @@ class Info {
   bool empty() const;
   void resize(il::int_t n);
   void clear();
+  il::int_t to_integer(const char* key);
 
   void set(const char* key, il::int_t value);
   void set(const char* key, double value);
@@ -222,6 +223,13 @@ inline il::int_t Info::to_integer(il::int_t i) const {
     local_raw[j] = p[i + 1 + j];
   }
   return local_value;
+}
+
+inline il::int_t Info::to_integer(const char* key) {
+  const il::int_t i = search(key);
+  IL_ENSURE(found(i));
+
+  return to_integer(i);
 }
 
 inline double Info::to_double(il::int_t i) const {

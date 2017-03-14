@@ -10,7 +10,7 @@
 #ifndef IL_LINEAR_SOLVE_H
 #define IL_LINEAR_SOLVE_H
 
-#include <il/core/Status.h>
+#include <il/Status.h>
 
 #include <il/Array.h>
 #include <il/Array2C.h>
@@ -47,7 +47,7 @@ inline il::Array<double> linear_solve(il::Array2D<double> A,
   if (lapack_error == 0) {
     status.set_ok();
   } else {
-    status.set_error(il::ErrorCode::division_by_zero);
+    status.set(il::Error::matrix_singular);
   }
 
   return y;
@@ -73,7 +73,7 @@ inline il::Array<double> linear_solve(il::Array2C<double> A,
   if (lapack_error == 0) {
     status.set_ok();
   } else {
-    status.set_error(il::ErrorCode::division_by_zero);
+    status.set(il::Error::matrix_singular);
   }
 
   return y;
@@ -103,7 +103,7 @@ inline il::Array<double> linear_solve(il::BandArray2C<double> A,
   if (lapack_error == 0) {
     status.set_ok();
   } else {
-    status.set_error(il::ErrorCode::division_by_zero);
+    status.set(il::Error::matrix_singular);
   }
 
   return y;
@@ -126,7 +126,7 @@ inline il::Array<double> linear_solve(il::TriDiagonal<double> A,
   if (lapack_error == 0) {
     status.set_ok();
   } else {
-    status.set_error(il::ErrorCode::division_by_zero);
+    status.set(il::Error::matrix_singular);
   }
 
   return y;

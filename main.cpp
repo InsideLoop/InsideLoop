@@ -17,19 +17,9 @@ int main() {
   info.set("line", il::int_t{30});
   info.set("inside", 3.14159);
 
-  il::int_t line;
-  il::int_t i = info.search("line");
-  if (info.found(i) && info.is_integer(i)) {
-    line = info.to_integer(i);
-  }
-  double inside;
-  i = info.search("inside");
-  if (info.found(i) && info.is_double(i)) {
-    inside = info.to_double(i);
-  }
+  const il::int_t line = info.to_integer("line");
 
   IL_UNUSED(line);
-  IL_UNUSED(inside);
 
   return 0;
 }

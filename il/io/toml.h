@@ -10,8 +10,9 @@
 #ifndef IL_TOML_H
 #define IL_TOML_H
 
-#include <il/Dynamic.h>
 #include <il/base.h>
+#include <il/Dynamic.h>
+#include <il/Status.h>
 
 #include <il/io/io_base.h>
 
@@ -92,7 +93,7 @@ class SaveHelper<il::HashMap<il::String, il::Dynamic>> {
                    const il::String& filename, il::io_t, il::Status& status) {
     std::FILE* file = std::fopen(filename.c_string(), "wb");
     if (!file) {
-      status.set_error(il::ErrorCode::file_not_found);
+      status.set(il::Error::filesystem_file_not_found);
       return;
     }
 
@@ -135,7 +136,7 @@ class SaveHelper<il::HashMap<il::String, il::Dynamic>> {
 
     const int error = std::fclose(file);
     if (error != 0) {
-      status.set_error(il::ErrorCode::cannot_close_file);
+      status.set(il::Error::filesystem_cannot_close_file);
       return;
     }
 

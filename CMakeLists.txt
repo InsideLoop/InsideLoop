@@ -211,7 +211,7 @@ set(SOURCE_FILES
     il/container/string/algorithm_string.h
     il/container/dynamic/Dynamic.h
     il/core/base.h
-    il/core/Status.h
+    il/Status.h
     il/io/io_base.h
     il/io/parse.h
     il/io/ppm.h

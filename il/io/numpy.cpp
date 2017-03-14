@@ -30,11 +30,11 @@ NumpyInfo get_numpy_info(il::io_t, std::FILE* fp, il::Status& status) {
   std::size_t count = 10;
   const std::size_t read = fread(buffer.begin(), sizeof(char), count, fp);
   if (read != count) {
-    status.set_error(il::ErrorCode::wrong_file_format);
+    status.set(il::Error::binary_file_wrong_format);
     return numpy_info;
   }
   if (!(buffer.substring(0, 6) == "\x93NUMPY")) {
-    status.set_error(il::ErrorCode::wrong_file_format);
+    status.set(il::Error::binary_file_wrong_format);
     return numpy_info;
   }
   unsigned char major_version = buffer[6];
@@ -42,7 +42,7 @@ NumpyInfo get_numpy_info(il::io_t, std::FILE* fp, il::Status& status) {
   unsigned short header_length =
       *reinterpret_cast<unsigned short*>(buffer.begin() + 8);
   if (major_version != 1 || minor_version != 0) {
-    status.set_error(il::ErrorCode::wrong_file_format);
+    status.set(il::Error::binary_file_wrong_format);
     return numpy_info;
   }
 
@@ -52,7 +52,7 @@ NumpyInfo get_numpy_info(il::io_t, std::FILE* fp, il::Status& status) {
   StringView header = StringView{second_buffer.begin(), header_length + 1};
   char* success = fgets(header.begin(), header_length + 1, fp);
   if (success == nullptr || header[header.size() - 2] != '\n') {
-    status.set_error(il::ErrorCode::wrong_file_format);
+    status.set(il::Error::binary_file_wrong_format);
     return numpy_info;
   }
 
@@ -60,12 +60,12 @@ NumpyInfo get_numpy_info(il::io_t, std::FILE* fp, il::Status& status) {
   //
   const il::int_t i4 = il::search("descr", header);
   if (i4 == -1 || i4 + 12 >= header.size()) {
-    status.set_error(il::ErrorCode::wrong_file_format);
+    status.set(il::Error::binary_file_wrong_format);
     return numpy_info;
   }
   const bool little_endian = header[i4 + 9] == '<' || header[i4 + 9] == '|';
   if (!little_endian) {
-    status.set_error(il::ErrorCode::wrong_file_format);
+    status.set(il::Error::binary_file_wrong_format);
     return numpy_info;
   }
 
@@ -77,7 +77,7 @@ NumpyInfo get_numpy_info(il::io_t, std::FILE* fp, il::Status& status) {
   //
   const il::int_t i0 = il::search("fortran_order", header);
   if (i0 == -1 || i0 + 20 > header.size()) {
-    status.set_error(il::ErrorCode::wrong_file_format);
+    status.set(il::Error::binary_file_wrong_format);
     return numpy_info;
   }
 
@@ -89,7 +89,7 @@ NumpyInfo get_numpy_info(il::io_t, std::FILE* fp, il::Status& status) {
   const il::int_t i1 = il::search("(", header);
   const il::int_t i2 = il::search(")", header);
   if (i1 == -1 || i2 == -1 || i2 - i1 <= 1) {
-    status.set_error(il::ErrorCode::wrong_file_format);
+    status.set(il::Error::binary_file_wrong_format);
     return numpy_info;
   }
   ConstStringView shape_string = header.substring(i1 + 1, i2);
@@ -155,7 +155,7 @@ void save_numpy_info(const NumpyInfo& numpy_info, il::io_t, std::FILE* fp,
   std::size_t written = std::fwrite(magic.c_string(), sizeof(char),
                                     static_cast<std::size_t>(magic.size()), fp);
   if (static_cast<il::int_t>(written) != magic.size()) {
-    status.set_error(il::ErrorCode::cannot_write_to_file);
+    status.set(il::Error::filesystem_no_write_access);
     return;
   }
 
