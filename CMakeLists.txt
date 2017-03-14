@@ -248,7 +248,7 @@ set(SOURCE_FILES
 
 
 add_executable(InsideLoop ${SOURCE_FILES} main.cpp)
-target_link_libraries(InsideLoop ${CMAKE_MKL_LIBRARIES} ${CMAKE_PNG_LIBRARIES} ${CMAKE_OPENBLAS_LIBRARIES} benchmark)
+target_link_libraries(InsideLoop ${CMAKE_MKL_LIBRARIES} ${CMAKE_PNG_LIBRARIES} ${CMAKE_OPENBLAS_LIBRARIES})
 target_include_directories(InsideLoop PRIVATE ${CMAKE_SOURCE_DIR} /opt/eigen-3.3.2 /opt/blaze-3.0 /opt/cuda-8.0/include)
 
 if (APPLE)
@@ -273,6 +273,7 @@ set(UNIT_TEST_FILES
     il/container/3d/_test/Array3D_test.cpp
     il/container/string/_test/String_test.cpp
     il/container/dynamic/_test/Dynamic_test.cpp
+    il/container/info/_test/Info_test.cpp
     il/core/math/_test/safe_arithmetic_test.cpp
     il/linear_algebra/dense/_test/norm_test.cpp
     il/linear_algebra/dense/blas/_test/blas_test.cpp
@@ -284,7 +285,7 @@ set(UNIT_TEST_FILES
     il/linear_algebra/sparse/factorization/_test/GmresIlu0_test.cpp
     il/io/_test/numpy_test.cpp
     il/io/toml/_test/toml_valid_test.cpp
-    gtest/src/gtest-all.cc)
+    gtest/src/gtest-all.cc il/core/_test/Status_test.cpp)
 
 add_executable(InsideLoopUnitTest ${SOURCE_FILES} ${UNIT_TEST_FILES} test.cpp)
 

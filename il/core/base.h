@@ -72,9 +72,9 @@ inline void abort() {
 #define IL_EXPECT_SLOW(condition) (condition) ? ((void)0) : il::abort();
 #endif
 
+// This one is not check and can contain code that is not run
 #define IL_EXPECT_AXIOM(message) ((void)0)
 
-// This one is not check and can contain code that is not run
 #ifdef IL_UNIT_TEST
 #define IL_ENSURE(condition) \
   (condition) ? ((void)0) : throw il::abort_exception {}
