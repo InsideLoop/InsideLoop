@@ -93,7 +93,7 @@ class SaveHelper<il::HashMap<il::String, il::Dynamic>> {
                    const il::String& filename, il::io_t, il::Status& status) {
     std::FILE* file = std::fopen(filename.c_string(), "wb");
     if (!file) {
-      status.set(il::Error::filesystem_file_not_found);
+      status.set_error(il::Error::filesystem_file_not_found);
       return;
     }
 
@@ -136,7 +136,7 @@ class SaveHelper<il::HashMap<il::String, il::Dynamic>> {
 
     const int error = std::fclose(file);
     if (error != 0) {
-      status.set(il::Error::filesystem_cannot_close_file);
+      status.set_error(il::Error::filesystem_cannot_close_file);
       return;
     }
 

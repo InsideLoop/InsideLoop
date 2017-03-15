@@ -75,11 +75,11 @@ class Status {
   Status& operator=(Status&& other);
   ~Status();
   void set_ok();
-  void set(il::Error error);
-  void set(const char* key, int value);
-  void set(const char* key, il::int_t value);
-  void set(const char* key, double value);
-  void set(const char* key, const char* value);
+  void set_error(il::Error error);
+  void set_info(const char* key, int value);
+  void set_info(const char* key, il::int_t value);
+  void set_info(const char* key, double value);
+  void set_info(const char* key, const char* value);
   int to_int(const char* key) const;
   il::int_t to_integer(const char* key) const;
   double to_double(const char* key) const;
@@ -122,7 +122,7 @@ inline Status& Status::operator=(Status&& other) {
 
 inline Status::~Status() { IL_EXPECT_MEDIUM(!to_check_); }
 
-inline void Status::set(il::Error error) {
+inline void Status::set_error(il::Error error) {
   IL_EXPECT_MEDIUM(!to_check_);
 
   ok_ = false;
@@ -131,28 +131,28 @@ inline void Status::set(il::Error error) {
   info_.clear();
 }
 
-inline void Status::set(const char* key, int value) {
+inline void Status::set_info(const char* key, int value) {
   IL_EXPECT_MEDIUM(to_check_);
   IL_EXPECT_MEDIUM(!ok_);
 
   info_.set(key, value);
 }
 
-inline void Status::set(const char* key, il::int_t value) {
+inline void Status::set_info(const char* key, il::int_t value) {
   IL_EXPECT_MEDIUM(to_check_);
   IL_EXPECT_MEDIUM(!ok_);
 
   info_.set(key, value);
 }
 
-inline void Status::set(const char* key, double value) {
+inline void Status::set_info(const char* key, double value) {
   IL_EXPECT_MEDIUM(to_check_);
   IL_EXPECT_MEDIUM(!ok_);
 
   info_.set(key, value);
 }
 
-inline void Status::set(const char* key, const char* value) {
+inline void Status::set_info(const char* key, const char* value) {
   IL_EXPECT_MEDIUM(to_check_);
   IL_EXPECT_MEDIUM(!ok_);
 
@@ -160,28 +160,24 @@ inline void Status::set(const char* key, const char* value) {
 }
 
 inline int Status::to_int(const char* key) const {
-  IL_EXPECT_MEDIUM(to_check_);
   IL_EXPECT_MEDIUM(!ok_);
 
   return info_.to_int(key);
 }
 
 inline il::int_t Status::to_integer(const char* key) const {
-  IL_EXPECT_MEDIUM(to_check_);
   IL_EXPECT_MEDIUM(!ok_);
 
   return info_.to_integer(key);
 }
 
 inline double Status::to_double(const char* key) const {
-  IL_EXPECT_MEDIUM(to_check_);
   IL_EXPECT_MEDIUM(!ok_);
 
   return info_.to_double(key);
 }
 
 inline const char* Status::as_c_string(const char* key) const {
-  IL_EXPECT_MEDIUM(to_check_);
   IL_EXPECT_MEDIUM(!ok_);
 
   return info_.as_c_string(key);

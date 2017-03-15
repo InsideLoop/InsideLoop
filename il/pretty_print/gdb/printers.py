@@ -587,7 +587,13 @@ class InfoPrinter:
 					k += 1
 				yield key, value
 			elif type == 1:
-				yield key, None
+				type = gdb.lookup_type("double")
+				if self.is_small:
+					my_val = gdb.parse_and_eval("*(double *)(((unsigned char*)(" + str(self.data.address) + ")) + " + str(k) + ")")
+				else:
+					my_val = gdb.parse_and_eval("*(double*)(((unsigned char*) (*" + str(self.data.address) + ")) + " + str(k) + ")")
+				k += 8
+				yield key, my_val
 			elif type == 2:
 				begin = k
 				char = chr(self.data[k])
@@ -597,13 +603,14 @@ class InfoPrinter:
 				k += 1
 				yield key, self.data + begin
 			elif type == 3:
+				type = gdb.lookup_type("int")
 				value = 0
 				factor = 1
 				for i in range(0, 4):
 					value += factor * self.data[k]
 					factor *= 256
 					k += 1
-				yield key, value
+				yield key, value.cast(type)
 
 	def to_string(self):
 		return "Info"

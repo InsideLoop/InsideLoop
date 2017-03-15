@@ -19,8 +19,8 @@ il::ConstStringView TomlParser::skip_whitespace_and_comments(
   while (string.is_empty() || string[0] == '\n' || string[0] == '#') {
     const char* error = std::fgets(buffer_line_, max_line_length_ + 1, file_);
     if (error == nullptr) {
-      status.set(il::Error::parse_unclosed_array);
-      status.set("line", line_number_);
+      status.set_error(il::Error::parse_unclosed_array);
+      status.set_info("line", line_number_);
       return string;
     }
     ++line_number_;
@@ -37,8 +37,8 @@ bool TomlParser::is_digit(char c) { return c >= '0' && c <= '9'; }
 void TomlParser::check_end_of_line_or_comment(il::ConstStringView string,
                                               il::io_t, il::Status& status) {
   if (!string.is_empty() && string[0] != '\n' && string[0] != '#') {
-    status.set(il::Error::parse_unidentified_trailing_character);
-    status.set("line", line_number_);
+    status.set_error(il::Error::parse_unidentified_trailing_character);
+    status.set_info("line", line_number_);
   } else {
     status.set_ok();
   }
@@ -91,8 +91,8 @@ il::DynamicType TomlParser::parse_type(il::ConstStringView string, il::io_t,
     status.set_ok();
     return il::DynamicType::hashmap;
   } else {
-    status.set(il::Error::parse_cannot_determine_type);
-    status.set("line", line_number_);
+    status.set_error(il::Error::parse_cannot_determine_type);
+    status.set_info("line", line_number_);
     return il::DynamicType::null;
   }
 }
@@ -110,8 +110,8 @@ il::Dynamic TomlParser::parse_boolean(il::io_t, il::ConstStringView& string,
     string.shrink_left(5);
     return il::Dynamic{false};
   } else {
-    status.set(il::Error::parse_bool);
-    status.set("line", line_number_);
+    status.set_error(il::Error::parse_bool);
+    status.set_info("line", line_number_);
     return il::Dynamic{};
   }
 }
@@ -126,8 +126,8 @@ il::Dynamic TomlParser::parse_number(il::io_t, il::ConstStringView& string,
 
   // Check that there is no leading 0
   if (i + 1 < string.size() && string[i] == '0' && string[i + 1] != '.') {
-    status.set(il::Error::parse_number);
-    status.set("line", line_number_);
+    status.set_error(il::Error::parse_number);
+    status.set_info("line", line_number_);
     return il::Dynamic{};
   }
 
@@ -138,15 +138,15 @@ il::Dynamic TomlParser::parse_number(il::io_t, il::ConstStringView& string,
     if (i < string.size() && string[i] == '_') {
       ++i;
       if (i == string.size() || !is_digit(string[i + 1])) {
-        status.set(il::Error::parse_number);
-        status.set("line", line_number_);
+        status.set_error(il::Error::parse_number);
+        status.set_info("line", line_number_);
         return il::Dynamic{};
       }
     }
   }
   if (i == i_begin_number) {
-    status.set(il::Error::parse_number);
-    status.set("line", line_number_);
+    status.set_error(il::Error::parse_number);
+    status.set_info("line", line_number_);
     return il::Dynamic{};
   }
 
@@ -160,8 +160,8 @@ il::Dynamic TomlParser::parse_number(il::io_t, il::ConstStringView& string,
     ++i;
 
     if (i == string.size()) {
-      status.set(il::Error::parse_double);
-      status.set("line", line_number_);
+      status.set_error(il::Error::parse_double);
+      status.set_info("line", line_number_);
       return il::Dynamic{};
     }
 
@@ -179,8 +179,8 @@ il::Dynamic TomlParser::parse_number(il::io_t, il::ConstStringView& string,
       ++i;
     }
     if (i == i_begin_number) {
-      status.set(il::Error::parse_double);
-      status.set("line", line_number_);
+      status.set_error(il::Error::parse_double);
+      status.set_info("line", line_number_);
       return il::Dynamic{};
     }
 
@@ -198,8 +198,8 @@ il::Dynamic TomlParser::parse_number(il::io_t, il::ConstStringView& string,
         ++i;
       }
       if (i == i_begin_exponent) {
-        status.set(il::Error::parse_double);
-        status.set("line", line_number_);
+        status.set_error(il::Error::parse_double);
+        status.set_info("line", line_number_);
         return il::Dynamic{};
       }
     }
@@ -275,8 +275,8 @@ il::String TomlParser::parse_string_literal(char delimiter, il::io_t,
     }
   }
 
-  status.set(il::Error::parse_string);
-  status.set("line", line_number_);
+  status.set_error(il::Error::parse_string);
+  status.set_info("line", line_number_);
   return ans;
 }
 
@@ -287,8 +287,8 @@ il::String TomlParser::parse_escape_code(il::io_t, il::ConstStringView& string,
   il::String ans{};
   il::int_t i = 1;
   if (i == string.size()) {
-    status.set(il::Error::parse_string);
-    status.set("line", line_number_);
+    status.set_error(il::Error::parse_string);
+    status.set_info("line", line_number_);
     return ans;
   }
 
@@ -317,13 +317,13 @@ il::String TomlParser::parse_escape_code(il::io_t, il::ConstStringView& string,
       break;
     case 'u':
     case 'U': {
-      status.set(il::Error::parse_string);
-      status.set("line", line_number_);
+      status.set_error(il::Error::parse_string);
+      status.set_info("line", line_number_);
       return ans;
     } break;
     default:
-      status.set(il::Error::parse_string);
-      status.set("line", line_number_);
+      status.set_error(il::Error::parse_string);
+      status.set_info("line", line_number_);
       return ans;
   }
 
@@ -412,8 +412,8 @@ il::Dynamic TomlParser::parse_value_array(il::DynamicType value_type, il::io_t,
     if (value.type() == value_type) {
       array.append(value);
     } else {
-      status.set(il::Error::parse_heterogeneous_array);
-      status.set("line", line_number_);
+      status.set_error(il::Error::parse_heterogeneous_array);
+      status.set_info("line", line_number_);
       return ans;
     }
 
@@ -453,8 +453,8 @@ il::Dynamic TomlParser::parse_object_array(il::DynamicType object_type,
 
   while (!string.is_empty() && string[0] != ']') {
     if (string[0] != delimiter) {
-      status.set(il::Error::parse_array);
-      status.set("line", line_number_);
+      status.set_error(il::Error::parse_array);
+      status.set_info("line", line_number_);
       return ans;
     }
 
@@ -477,8 +477,8 @@ il::Dynamic TomlParser::parse_object_array(il::DynamicType object_type,
   }
 
   if (string.is_empty() || string[0] != ']') {
-    status.set(il::Error::parse_array);
-    status.set("line", line_number_);
+    status.set_error(il::Error::parse_array);
+    status.set_info("line", line_number_);
     return ans;
   }
   string.shrink_left(1);
@@ -493,8 +493,8 @@ il::Dynamic TomlParser::parse_inline_table(il::io_t,
   do {
     string.shrink_left(1);
     if (string.is_empty()) {
-      status.set(il::Error::parse_table);
-      status.set("line", line_number_);
+      status.set_error(il::Error::parse_table);
+      status.set_info("line", line_number_);
       return ans;
     }
     string = il::remove_whitespace_left(string);
@@ -508,8 +508,8 @@ il::Dynamic TomlParser::parse_inline_table(il::io_t,
   } while (string[0] == ',');
 
   if (string.is_empty() || string[0] != '}') {
-    status.set(il::Error::parse_table);
-    status.set("line", line_number_);
+    status.set_error(il::Error::parse_table);
+    status.set_info("line", line_number_);
     return ans;
   }
 
@@ -532,14 +532,14 @@ void TomlParser::parse_key_value(il::io_t, il::ConstStringView& string,
 
   il::int_t i = toml.search(key);
   if (toml.found(i)) {
-    status.set(il::Error::parse_duplicate_key);
-    status.set("line", line_number_);
+    status.set_error(il::Error::parse_duplicate_key);
+    status.set_info("line", line_number_);
     return;
   }
 
   if (string.is_empty() || string[0] != '=') {
-    status.set(il::Error::parse_key);
-    status.set("line", line_number_);
+    status.set_error(il::Error::parse_key);
+    status.set_info("line", line_number_);
     return;
   }
   string.shrink_left(1);
@@ -588,8 +588,8 @@ il::String TomlParser::parse_key(char end, il::io_t,
         string.shrink_left(1);
       }
     }
-    status.set(il::Error::parse_string);
-    status.set("line", line_number_);
+    status.set_error(il::Error::parse_string);
+    status.set_info("line", line_number_);
     return key;
   } else {
     /////////////////////////////////////
@@ -614,8 +614,8 @@ il::String TomlParser::parse_key(char end, il::io_t,
       --j;
     }
     if (j == 0) {
-      status.set(il::Error::parse_key);
-      status.set("line", line_number_);
+      status.set_error(il::Error::parse_key);
+      status.set_info("line", line_number_);
       return key;
     }
 
@@ -625,18 +625,18 @@ il::String TomlParser::parse_key(char end, il::io_t,
 
     for (il::int_t i = 0; i < key_string.size(); ++i) {
       if (key_string[i] == ' ' || key_string[i] == '\t') {
-        status.set(il::Error::parse_key);
-        status.set("line", line_number_);
+        status.set_error(il::Error::parse_key);
+        status.set_info("line", line_number_);
         return key;
       }
       if (key_string[i] == '#') {
-        status.set(il::Error::parse_key);
-        status.set("line", line_number_);
+        status.set_error(il::Error::parse_key);
+        status.set_info("line", line_number_);
         return key;
       }
       if (key_string[i] == '[' || key_string[i] == ']') {
-        status.set(il::Error::parse_key);
-        status.set("line", line_number_);
+        status.set_error(il::Error::parse_key);
+        status.set_info("line", line_number_);
         return key;
       }
     }
@@ -653,8 +653,8 @@ il::Dynamic TomlParser::parse_value(il::io_t, il::ConstStringView& string,
 
   // Check if there is a value
   if (string.is_empty() || string[0] == '\n' || string[0] == '#') {
-    status.set(il::Error::parse_value);
-    status.set("line", line_number_);
+    status.set_error(il::Error::parse_value);
+    status.set_info("line", line_number_);
     return ans;
   }
 
@@ -703,8 +703,8 @@ void TomlParser::parse_table(il::io_t, il::ConstStringView& string,
   string.shrink_left(1);
 
   if (string.is_empty()) {
-    status.set(il::Error::parse_table);
-    status.set("line", line_number_);
+    status.set_error(il::Error::parse_table);
+    status.set_info("line", line_number_);
     return;
   } else if (string[0] == '[') {
     parse_table_array(il::io, string, toml, status);
@@ -719,8 +719,8 @@ void TomlParser::parse_single_table(il::io_t, il::ConstStringView& string,
                                     il::HashMap<il::String, il::Dynamic>*& toml,
                                     il::Status& status) {
   if (string.is_empty() || string[0] == ']') {
-    status.set(il::Error::parse_table);
-    status.set("line", line_number_);
+    status.set_error(il::Error::parse_table);
+    status.set_info("line", line_number_);
   }
 
   il::String full_table_name{};
@@ -733,8 +733,8 @@ void TomlParser::parse_single_table(il::io_t, il::ConstStringView& string,
       return;
     }
     if (table_name.is_empty()) {
-      status.set(il::Error::parse_table);
-      status.set("line", line_number_);
+      status.set_error(il::Error::parse_table);
+      status.set_info("line", line_number_);
       return;
     }
     if (!full_table_name.is_empty()) {
@@ -751,13 +751,13 @@ void TomlParser::parse_single_table(il::io_t, il::ConstStringView& string,
             toml->value(i).as_array().back().is_hashmap()) {
           toml = &(toml->value(i).as_array().back().as_hashmap());
         } else {
-          status.set(il::Error::parse_duplicate_key);
-          status.set("line", line_number_);
+          status.set_error(il::Error::parse_duplicate_key);
+          status.set_info("line", line_number_);
           return;
         }
       } else {
-        status.set(il::Error::parse_duplicate_key);
-        status.set("line", line_number_);
+        status.set_error(il::Error::parse_duplicate_key);
+        status.set_info("line", line_number_);
         return;
       }
     } else {
@@ -790,8 +790,8 @@ void TomlParser::parse_table_array(il::io_t, il::ConstStringView& string,
                                    il::Status& status) {
   string.shrink_left(1);
   if (string.is_empty() || string[0] == ']') {
-    status.set(il::Error::parse_table);
-    status.set("line", line_number_);
+    status.set_error(il::Error::parse_table);
+    status.set_info("line", line_number_);
     return;
   }
 
@@ -804,8 +804,8 @@ void TomlParser::parse_table_array(il::io_t, il::ConstStringView& string,
       return;
     }
     if (table_name.is_empty()) {
-      status.set(il::Error::parse_table);
-      status.set("line", line_number_);
+      status.set_error(il::Error::parse_table);
+      status.set_info("line", line_number_);
       return;
     }
     if (!full_table_name.is_empty()) {
@@ -819,8 +819,8 @@ void TomlParser::parse_table_array(il::io_t, il::ConstStringView& string,
       il::Dynamic& b = toml->value(i);
       if (!string.is_empty() && string[0] == ']') {
         if (!b.is_array()) {
-          status.set(il::Error::parse_table);
-          status.set("line", line_number_);
+          status.set_error(il::Error::parse_table);
+          status.set_info("line", line_number_);
           return;
         }
         il::Array<il::Dynamic>& v = b.as_array();
@@ -842,14 +842,14 @@ void TomlParser::parse_table_array(il::io_t, il::ConstStringView& string,
   }
 
   if (string.is_empty()) {
-    status.set(il::Error::parse_table);
-    status.set("line", line_number_);
+    status.set_error(il::Error::parse_table);
+    status.set_info("line", line_number_);
     return;
   }
   string.shrink_left(1);
   if (string.is_empty()) {
-    status.set(il::Error::parse_table);
-    status.set("line", line_number_);
+    status.set_error(il::Error::parse_table);
+    status.set_info("line", line_number_);
     return;
   }
   string.shrink_left(1);
@@ -873,7 +873,7 @@ il::HashMap<il::String, il::Dynamic> TomlParser::parse(
 
   file_ = std::fopen(filename.c_string(), "r+b");
   if (!file_) {
-    status.set(il::Error::filesystem_file_not_found);
+    status.set_error(il::Error::filesystem_file_not_found);
     return root_toml;
   }
 
@@ -915,7 +915,7 @@ il::HashMap<il::String, il::Dynamic> TomlParser::parse(
 
   const int error = std::fclose(file_);
   if (error != 0) {
-    status.set(il::Error::filesystem_cannot_close_file);
+    status.set_error(il::Error::filesystem_cannot_close_file);
     return root_toml;
   }
 
