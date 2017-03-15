@@ -65,9 +65,7 @@ class Status {
   bool ok_;
   bool to_check_;
   Error error_;
-
- public:
-  il::Info info;
+  il::Info info_;
 
  public:
   Status();
@@ -76,8 +74,16 @@ class Status {
   Status& operator=(const Status& other) = delete;
   Status& operator=(Status&& other);
   ~Status();
-  void set(il::Error error);
   void set_ok();
+  void set(il::Error error);
+  void set(const char* key, int value);
+  void set(const char* key, il::int_t value);
+  void set(const char* key, double value);
+  void set(const char* key, const char* value);
+  int to_int(const char* key) const;
+  il::int_t to_integer(const char* key) const;
+  double to_double(const char* key) const;
+  const char* as_c_string(const char* key) const;
   void rearm();
   bool ok();
   void abort_on_error();
@@ -86,7 +92,7 @@ class Status {
   il::ErrorDomain domain() const;
 };
 
-inline Status::Status() : info{} {
+inline Status::Status() : info_{} {
   ok_ = true;
   to_check_ = false;
   error_ = il::Error::undefined;
@@ -96,7 +102,7 @@ inline Status::Status(Status&& other) {
   ok_ = other.ok_;
   to_check_ = true;
   error_ = other.error_;
-  info = other.info;
+  info_ = other.info_;
 
   other.to_check_ = false;
 }
@@ -107,7 +113,7 @@ inline Status& Status::operator=(Status&& other) {
   ok_ = other.ok_;
   to_check_ = true;
   error_ = other.error_;
-  info = other.info;
+  info_ = other.info_;
 
   other.to_check_ = false;
 
@@ -122,7 +128,63 @@ inline void Status::set(il::Error error) {
   ok_ = false;
   to_check_ = true;
   error_ = error;
-  info.clear();
+  info_.clear();
+}
+
+inline void Status::set(const char* key, int value) {
+  IL_EXPECT_MEDIUM(to_check_);
+  IL_EXPECT_MEDIUM(!ok_);
+
+  info_.set(key, value);
+}
+
+inline void Status::set(const char* key, il::int_t value) {
+  IL_EXPECT_MEDIUM(to_check_);
+  IL_EXPECT_MEDIUM(!ok_);
+
+  info_.set(key, value);
+}
+
+inline void Status::set(const char* key, double value) {
+  IL_EXPECT_MEDIUM(to_check_);
+  IL_EXPECT_MEDIUM(!ok_);
+
+  info_.set(key, value);
+}
+
+inline void Status::set(const char* key, const char* value) {
+  IL_EXPECT_MEDIUM(to_check_);
+  IL_EXPECT_MEDIUM(!ok_);
+
+  info_.set(key, value);
+}
+
+inline int Status::to_int(const char* key) const {
+  IL_EXPECT_MEDIUM(to_check_);
+  IL_EXPECT_MEDIUM(!ok_);
+
+  return info_.to_int(key);
+}
+
+inline il::int_t Status::to_integer(const char* key) const {
+  IL_EXPECT_MEDIUM(to_check_);
+  IL_EXPECT_MEDIUM(!ok_);
+
+  return info_.to_integer(key);
+}
+
+inline double Status::to_double(const char* key) const {
+  IL_EXPECT_MEDIUM(to_check_);
+  IL_EXPECT_MEDIUM(!ok_);
+
+  return info_.to_double(key);
+}
+
+inline const char* Status::as_c_string(const char* key) const {
+  IL_EXPECT_MEDIUM(to_check_);
+  IL_EXPECT_MEDIUM(!ok_);
+
+  return info_.as_c_string(key);
 }
 
 inline void Status::set_ok() {
@@ -131,7 +193,7 @@ inline void Status::set_ok() {
   ok_ = true;
   to_check_ = true;
   error_ = il::Error::undefined;
-  info.clear();
+  info_.clear();
 }
 
 inline void Status::rearm() {

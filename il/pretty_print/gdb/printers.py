@@ -589,14 +589,13 @@ class InfoPrinter:
 			elif type == 1:
 				yield key, None
 			elif type == 2:
-				value = ""
+				begin = k
 				char = chr(self.data[k])
 				while char != '\0':
-					value += char
 					k += 1
 					char = chr(self.data[k])
 				k += 1
-				yield key + ": " + value, None
+				yield key, self.data + begin
 			elif type == 3:
 				value = 0
 				factor = 1

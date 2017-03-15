@@ -89,11 +89,12 @@ LU<il::Array2D<double>>::LU(il::Array2D<double> A, il::io_t,
 
   IL_EXPECT_FAST(lapack_error >= 0);
   if (lapack_error == 0) {
-    status.set(ErrorCode::ok);
+    status.set_ok();
     ipiv_ = std::move(ipiv);
     lu_ = std::move(A);
   } else {
-    status.set(ErrorCode::division_by_zero);
+    status.set(il::Error::matrix_singular);
+    status.set("rank", il::int_t{lapack_error - 1});
   }
 }
 

@@ -40,8 +40,10 @@ class Info {
   Info& operator=(Info&& other);
   bool empty() const;
   void clear();
-  il::int_t to_int(const char* key);
-  il::int_t to_integer(const char* key);
+  int to_int(const char* key) const;
+  il::int_t to_integer(const char* key) const;
+  double to_double(const char* key) const;
+  const char* as_c_string(const char* key) const;
 
   void set(const char* key, int value);
   void set(const char* key, il::int_t value);
@@ -54,10 +56,12 @@ class Info {
   bool is_int(il::int_t i) const;
   bool is_integer(il::int_t i) const;
   bool is_double(il::int_t i) const;
+  bool is_string(il::int_t i) const;
 
   int to_int(il::int_t i) const;
   il::int_t to_integer(il::int_t i) const;
   double to_double(il::int_t i) const;
+  const char* as_c_string(il::int_t i) const;
 
  private:
   il::int_t size() const;
@@ -268,6 +272,8 @@ inline bool Info::is_integer(il::int_t i) const { return data()[i] == 0; }
 
 inline bool Info::is_double(il::int_t i) const { return data()[i] == 1; }
 
+inline bool Info::is_string(il::int_t i) const { return data()[i] == 2; }
+
 inline int Info::to_int(il::int_t i) const {
   IL_EXPECT_FAST(is_int(i));
 
@@ -298,20 +304,6 @@ inline il::int_t Info::to_integer(il::int_t i) const {
   return local_value;
 }
 
-inline il::int_t Info::to_int(const char* key) {
-  const il::int_t i = search(key);
-  IL_ENSURE(found(i));
-
-  return to_int(i);
-}
-
-inline il::int_t Info::to_integer(const char* key) {
-  const il::int_t i = search(key);
-  IL_ENSURE(found(i));
-
-  return to_integer(i);
-}
-
 inline double Info::to_double(il::int_t i) const {
   IL_EXPECT_FAST(is_double(i));
 
@@ -325,6 +317,40 @@ inline double Info::to_double(il::int_t i) const {
     local_raw[j] = p[i + 1 + j];
   }
   return local_value;
+}
+
+inline const char* Info::as_c_string(il::int_t i) const {
+  IL_EXPECT_FAST(is_string(i));
+
+  return reinterpret_cast<const char*>(data()) + 1;
+}
+
+inline int Info::to_int(const char* key) const {
+  const il::int_t i = search(key);
+  IL_ENSURE(found(i));
+
+  return to_int(i);
+}
+
+inline il::int_t Info::to_integer(const char* key) const {
+  const il::int_t i = search(key);
+  IL_ENSURE(found(i));
+
+  return to_integer(i);
+}
+
+inline double Info::to_double(const char* key) const {
+  const il::int_t i = search(key);
+  IL_ENSURE(found(i));
+
+  return to_double(i);
+}
+
+inline const char* Info::as_c_string(const char* key) const {
+  const il::int_t i = search(key);
+  IL_ENSURE(found(i));
+
+  return as_c_string(i);
 }
 
 inline void Info::set(int value, unsigned char* data) {

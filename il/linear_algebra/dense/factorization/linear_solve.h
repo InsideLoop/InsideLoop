@@ -104,6 +104,7 @@ inline il::Array<double> linear_solve(il::BandArray2C<double> A,
     status.set_ok();
   } else {
     status.set(il::Error::matrix_singular);
+    status.set("rank", il::int_t{lapack_error - 1});
   }
 
   return y;

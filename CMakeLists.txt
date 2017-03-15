@@ -212,6 +212,8 @@ set(SOURCE_FILES
     il/container/string/view_string.h
     il/container/string/algorithm_string.h
     il/container/dynamic/Dynamic.h
+    il/container/info/Info.h
+    il/container/info/Status.h
     il/core/base.h
     il/io/io_base.h
     il/io/parse.h

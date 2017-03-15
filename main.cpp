@@ -7,16 +7,14 @@
 //
 //==============================================================================
 
-
-#include <il/Info.h>
+#include <il/Status.h>
 
 int main() {
-  il::Info info{};
-  info.set("line", 30);
-
-  const int line = info.to_int("line");
-
-  IL_UNUSED(line);
+  il::Status status{};
+  status.set(il::Error::matrix_singular);
+  status.set("n", 10);
+  status.set("rank", 9);
+  status.ignore_error();
 
   return 0;
 }
