@@ -538,7 +538,7 @@ void HashMap<K, V, F>::grow(il::int_t r) {
   IL_EXPECT_FAST(r >= capacity());
 
   KeyValue<K, V>* old_slot_ = slot_;
-  const il::int_t old_m = (1 << p_);
+  const il::int_t old_m = (p_ == -1) ? 0 : (1 << p_);
   const int p = il::next_log2_32(r);
   const il::int_t m = 1 << p;
 
