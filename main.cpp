@@ -8,6 +8,7 @@
 //==============================================================================
 
 #include <il/Status.h>
+#include <il/String.h>
 
 int main() {
   il::Status status{};
@@ -19,7 +20,10 @@ int main() {
   status.ignore_error();
 
   const double x = status.to_double("pi");
+  const il::String file = status.as_c_string("file");
+
   IL_UNUSED(x);
+  IL_UNUSED(file);
 
   return 0;
 }

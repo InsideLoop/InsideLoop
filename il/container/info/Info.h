@@ -38,26 +38,32 @@ class Info {
   Info(Info&& other);
   Info& operator=(const Info& other);
   Info& operator=(Info&& other);
+
   bool empty() const;
   void clear();
-  int to_int(const char* key) const;
-  il::int_t to_integer(const char* key) const;
-  double to_double(const char* key) const;
-  const char* as_c_string(const char* key) const;
 
+  void set(const char* key, bool value);
   void set(const char* key, int value);
   void set(const char* key, il::int_t value);
   void set(const char* key, double value);
   void set(const char* key, const char* value);
 
+  bool to_bool(const char* key) const;
+  int to_int(const char* key) const;
+  il::int_t to_integer(const char* key) const;
+  double to_double(const char* key) const;
+  const char* as_c_string(const char* key) const;
 
   il::int_t search(const char* key) const;
   bool found(il::int_t i) const;
+
+  bool is_bool(il::int_t i) const;
   bool is_int(il::int_t i) const;
   bool is_integer(il::int_t i) const;
   bool is_double(il::int_t i) const;
   bool is_string(il::int_t i) const;
 
+  bool to_bool(il::int_t i) const;
   int to_int(il::int_t i) const;
   il::int_t to_integer(il::int_t i) const;
   double to_double(il::int_t i) const;
@@ -78,6 +84,7 @@ class Info {
   void set(int value, unsigned char* data);
   void set(il::int_t value, unsigned char* data);
   void set(double value, unsigned char* data);
+
   int get_int(il::int_t i) const;
   il::int_t get_integer(il::int_t i) const;
 };
@@ -322,7 +329,7 @@ inline double Info::to_double(il::int_t i) const {
 inline const char* Info::as_c_string(il::int_t i) const {
   IL_EXPECT_FAST(is_string(i));
 
-  return reinterpret_cast<const char*>(data()) + 1;
+  return reinterpret_cast<const char*>(data()) + i + 1;
 }
 
 inline int Info::to_int(const char* key) const {

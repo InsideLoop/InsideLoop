@@ -14,6 +14,8 @@
 #include <cstring>
 // <initializer_list> is needed for std::initializer_list<T>
 #include <initializer_list>
+// <new> is needed for placement new
+#include <new>
 // <utility> is needed for std::move
 #include <utility>
 

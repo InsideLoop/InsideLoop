@@ -579,13 +579,14 @@ class InfoPrinter:
 			type = self.data[k]
 			k += 1
 			if type == 0:
+				type = gdb.lookup_type("il::int_t")
 				value = 0
 				factor = 1
 				for i in range(0, 8):
 					value += factor * self.data[k]
 					factor *= 256
 					k += 1
-				yield key, value
+				yield key, value.cast(type)
 			elif type == 1:
 				type = gdb.lookup_type("double")
 				if self.is_small:

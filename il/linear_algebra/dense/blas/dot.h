@@ -131,6 +131,7 @@ template <typename T, il::int_t n0, il::int_t n>
 il::StaticArray<T, n0> dot(const il::StaticArray2D<T, n, n0>& A,
                            il::Blas A_info, const il::StaticArray<T, n>& B) {
   IL_EXPECT_FAST(A_info == il::Blas::transpose);
+  IL_UNUSED(A_info);
 
   il::StaticArray<T, n0> C{};
   for (il::int_t i0 = 0; i0 < n0; ++i0) {
@@ -174,6 +175,7 @@ il::StaticArray2D<T, n0, n1> dot(const il::StaticArray2D<T, n, n0>& A,
                                  il::Blas A_info,
                                  const il::StaticArray2D<T, n, n1>& B) {
   IL_EXPECT_FAST(A_info == il::Blas::transpose);
+  IL_UNUSED(A_info);
 
   il::StaticArray2D<T, n0, n1> C{};
   for (il::int_t i1 = 0; i1 < n1; ++i1) {

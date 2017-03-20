@@ -14,7 +14,16 @@
 
 namespace il {
 
-enum class ErrorDomain : unsigned short { filesystem = 0, parse = 1 };
+enum class ErrorDomain : unsigned short {
+  filesystem = 0,
+  binary = 4,
+  parse = 1,
+  overflow = 2,
+  floating_point = 3,
+  matrix = 5,
+  unimplemented = 126,
+  undefined = 127
+};
 
 enum class Error : unsigned short {
   filesystem_file_not_found = 0 * 256 + 0,
@@ -22,10 +31,12 @@ enum class Error : unsigned short {
   filesystem_no_read_access = 0 * 256 + 2,
   filesystem_no_write_access = 0 * 256 + 3,
   filesystem_cannot_close_file = 0 * 256 + 4,
+  //
   binary_file_wrong_format = 4 * 256 + 0,
   binary_file_wrong_type = 4 * 256 + 1,
   binary_file_wrong_rank = 4 * 256 + 2,
   binary_file_wrong_endianness = 4 * 256 + 3,
+  //
   parse_bool = 1 * 256 + 0,
   parse_number = 1 * 256 + 11,
   parse_int = 1 * 256 + 1,
@@ -44,15 +55,20 @@ enum class Error : unsigned short {
   parse_duplicate_key = 1 * 256 + 14,
   parse_key = 1 * 256 + 15,
   parse_value = 1 * 256 + 16,
+  //
   overflow_int = 2 * 256 + 0,
   overflow_integer = 2 * 256 + 1,
+  //
   floating_point_nonnegative = 3 * 256 + 0,
   floating_point_positive = 3 * 256 + 1,
   floating_point_nonpositive = 3 * 256 + 2,
   floating_point_negative = 3 * 256 + 3,
+  //
   matrix_singular = 5 * 256 + 0,
   matrix_eigenvalue_no_convergence = 5 * 256 + 1,
+  //
   unimplemented = 126 * 256 + 0,
+  //
   undefined = 127 * 256 + 0
 };
 
@@ -188,8 +204,6 @@ inline void Status::set_ok() {
 
   ok_ = true;
   to_check_ = true;
-  error_ = il::Error::undefined;
-  info_.clear();
 }
 
 inline void Status::rearm() {
