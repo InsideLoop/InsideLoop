@@ -21,6 +21,7 @@ il::Array3D<unsigned char> load(const std::string &filename, il::png_t,
   FILE *fp{fopen(filename.c_str(), "rb")};
   if (fp == nullptr) {
     status.set_error(il::Error::not_found);
+    IL_SET_SOURCE(status);
     fclose(fp);
     return image;
   }
@@ -28,6 +29,7 @@ il::Array3D<unsigned char> load(const std::string &filename, il::png_t,
   fread(header, 1, 8, fp);
   if (png_sig_cmp(header, 0, 8)) {
     status.set_error(il::Error::binary_file_wrong_format);
+    IL_SET_SOURCE(status);
     fclose(fp);
     return image;
   }
@@ -36,17 +38,20 @@ il::Array3D<unsigned char> load(const std::string &filename, il::png_t,
       png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr)};
   if (png_ptr == nullptr) {
     status.set_error(il::Error::internal_error);
+    IL_SET_SOURCE(status);
     fclose(fp);
     return image;
   }
   png_infop info_ptr{png_create_info_struct(png_ptr)};
   if (info_ptr == nullptr) {
     status.set_error(il::Error::internal_error);
+    IL_SET_SOURCE(status);
     fclose(fp);
     return image;
   }
   if (setjmp(png_jmpbuf(png_ptr))) {
     status.set_error(il::Error::internal_error);
+    IL_SET_SOURCE(status);
     fclose(fp);
     return image;
   }
@@ -67,6 +72,7 @@ il::Array3D<unsigned char> load(const std::string &filename, il::png_t,
 
   if (setjmp(png_jmpbuf(png_ptr))) {
     status.set_error(il::Error::internal_error);
+    IL_SET_SOURCE(status);
     fclose(fp);
     return image;
   }
@@ -108,6 +114,7 @@ void save(const il::Array3D<unsigned char> &image, const std::string &filename,
   FILE *fp{fopen(filename.c_str(), "wb")};
   if (fp == nullptr) {
     status.set_error(il::Error::not_found);
+    IL_SET_SOURCE(status);
     return;
   }
 
@@ -115,22 +122,26 @@ void save(const il::Array3D<unsigned char> &image, const std::string &filename,
                                               nullptr, nullptr)};
   if (png_ptr == nullptr) {
     status.set_error(il::Error::internal_error);
+    IL_SET_SOURCE(status);
     return;
   }
 
   png_infop info_ptr{png_create_info_struct(png_ptr)};
   if (info_ptr == nullptr) {
     status.set_error(il::Error::internal_error);
+    IL_SET_SOURCE(status);
     return;
   }
   if (setjmp(png_jmpbuf(png_ptr))) {
     status.set_error(il::Error::internal_error);
+    IL_SET_SOURCE(status);
     return;
   }
 
   png_init_io(png_ptr, fp);
   if (setjmp(png_jmpbuf(png_ptr))) {
     status.set_error(il::Error::internal_error);
+    IL_SET_SOURCE(status);
     return;
   }
 
@@ -154,6 +165,7 @@ void save(const il::Array3D<unsigned char> &image, const std::string &filename,
   /* write bytes */
   if (setjmp(png_jmpbuf(png_ptr))) {
     status.set_error(il::Error::internal_error);
+    IL_SET_SOURCE(status);
     return;
   }
 
@@ -176,6 +188,7 @@ void save(const il::Array3D<unsigned char> &image, const std::string &filename,
   /* end write */
   if (setjmp(png_jmpbuf(png_ptr))) {
     status.set_error(il::Error::internal_error);
+    IL_SET_SOURCE(status);
     return;
   }
 

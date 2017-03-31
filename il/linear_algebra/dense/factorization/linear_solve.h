@@ -48,6 +48,7 @@ inline il::Array<double> linear_solve(il::Array2D<double> A,
     status.set_ok();
   } else {
     status.set_error(il::Error::matrix_singular);
+    IL_SET_SOURCE(status);
   }
 
   return y;
@@ -74,6 +75,7 @@ inline il::Array<double> linear_solve(il::Array2C<double> A,
     status.set_ok();
   } else {
     status.set_error(il::Error::matrix_singular);
+    IL_SET_SOURCE(status);
   }
 
   return y;
@@ -104,6 +106,7 @@ inline il::Array<double> linear_solve(il::BandArray2C<double> A,
     status.set_ok();
   } else {
     status.set_error(il::Error::matrix_singular);
+    IL_SET_SOURCE(status);
     status.set_info("rank", il::int_t{lapack_error - 1});
   }
 
@@ -128,6 +131,7 @@ inline il::Array<double> linear_solve(il::TriDiagonal<double> A,
     status.set_ok();
   } else {
     status.set_error(il::Error::matrix_singular);
+    IL_SET_SOURCE(status);
   }
 
   return y;

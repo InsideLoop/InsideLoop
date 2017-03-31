@@ -79,6 +79,7 @@ Eigen<il::Array2D<double>>::Eigen(il::Array2D<double> A, il::io_t,
     eigen_value_i_ = std::move(wi);
   } else {
     status.set_error(il::Error::matrix_eigenvalue_no_convergence);
+    IL_SET_SOURCE(status);
   }
 }
 

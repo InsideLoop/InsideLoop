@@ -94,6 +94,7 @@ LU<il::Array2D<double>>::LU(il::Array2D<double> A, il::io_t,
     lu_ = std::move(A);
   } else {
     status.set_error(il::Error::matrix_singular);
+    IL_SET_SOURCE(status);
     status.set_info("rank", il::int_t{lapack_error - 1});
   }
 }

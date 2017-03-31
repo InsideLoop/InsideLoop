@@ -76,6 +76,8 @@ inline il::ErrorDomain domain(il::Error error) {
   return static_cast<il::ErrorDomain>(static_cast<short>(error) >> 8);
 }
 
+#define IL_SET_SOURCE(status) status.set_source(__FILE__, __LINE__)
+
 class Status {
  private:
   bool ok_;
@@ -96,6 +98,7 @@ class Status {
   void set_info(const char* key, il::int_t value);
   void set_info(const char* key, double value);
   void set_info(const char* key, const char* value);
+  void set_source(const char* file, il::int_t line);
   int to_int(const char* key) const;
   il::int_t to_integer(const char* key) const;
   double to_double(const char* key) const;
@@ -173,6 +176,11 @@ inline void Status::set_info(const char* key, const char* value) {
   IL_EXPECT_MEDIUM(!ok_);
 
   info_.set(key, value);
+}
+
+inline void Status::set_source(const char* file, il::int_t line) {
+  set_info("source_file", file);
+  set_info("source_line", line);
 }
 
 inline int Status::to_int(const char* key) const {

@@ -28,6 +28,7 @@ int parse<int>(const std::string& src, il::io_t, il::Status& status) {
 
   if (*end != '\0') {
     status.set_error(il::Error::wrong_input);
+    IL_SET_SOURCE(status);
     return 0;
   }
 
@@ -35,6 +36,7 @@ int parse<int>(const std::string& src, il::io_t, il::Status& status) {
   if (long_value == std::numeric_limits<long>::min() ||
       long_value == std::numeric_limits<long>::max() || value != long_value) {
     status.set_error(il::Error::wrong_input);
+    IL_SET_SOURCE(status);
     return 0;
   }
 
@@ -49,6 +51,7 @@ double parse<double>(const std::string& src, il::io_t, il::Status& status) {
 
   if (*end != '\0') {
     status.set_error(il::Error::wrong_input);
+    IL_SET_SOURCE(status);
     return 0;
   }
 
