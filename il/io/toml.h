@@ -115,7 +115,7 @@ class SaveHelper<il::HashMap<il::String, il::Dynamic>> {
           error3 = std::fprintf(file, "%td", toml.value(i).to_integer());
           break;
         case il::DynamicType::floating_point:
-          error3 = std::fprintf(file, "%e", toml.value(i).to_floating_point());
+          error3 = std::fprintf(file, "%e", toml.value(i).to_double());
           break;
         case il::DynamicType::string:
           error2 = std::fputs("\"", file);

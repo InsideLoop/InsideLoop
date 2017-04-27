@@ -23,7 +23,13 @@ enum class DynamicType {
   floating_point,
   string,
   array,
-  hashmap
+  hashmap,
+  int8,
+  uint8,
+  int32,
+  int64,
+  float32,
+  float64
 };
 
 // A NaN is a number for which all the exponent bits are set to 1 and the
@@ -97,8 +103,8 @@ enum class DynamicType {
 // 000...000||0100[1111|1111|111]0: null
 // 000...000||0110[1111|1111|111]0: boolean
 // 000...000||0101[1111|1111|111]0: a 48-bit integer
-// 000...000||0111[1111|1111|111]0: a 48-bit positive integer
-// 000...000||0100[1111|1111|111]1: free slot
+// 000...000||0111[1111|1111|111]0: uint8
+// 000...000||0100[1111|1111|111]1: int32
 // 000...000||0110[1111|1111|111]1: free slot
 // 000...000||0101[1111|1111|111]1: empty on hash table
 // 000...000||0111[1111|1111|111]1: tombstone on hash table
@@ -113,6 +119,8 @@ class Dynamic {
 
     // For embedded types in the payload
     bool boolean_;
+	unsigned char uint8_;
+    std::int32_t int32_;
     std::int64_t n_;
     double x_;
     void* p_;
@@ -121,8 +129,9 @@ class Dynamic {
  public:
   Dynamic();
   Dynamic(bool value);
-  Dynamic(int n);
+  Dynamic(std::int32_t n);
   Dynamic(il::int_t n);
+  Dynamic(unsigned char n);
   Dynamic(double x);
   Dynamic(const char* string);
   Dynamic(const il::String& string);
@@ -137,14 +146,24 @@ class Dynamic {
   bool is_null() const;
   bool is_boolean() const;
   bool is_integer() const;
-  bool is_floating_point() const;
+
+  bool is_uint8() const;
+  bool is_int32() const;
+  bool is_float64() const;
+
+  bool is_double() const;
   bool is_string() const;
   bool is_hashmap() const;
   bool is_array() const;
   il::DynamicType type() const;
   bool to_boolean() const;
   il::int_t to_integer() const;
-  double to_floating_point() const;
+
+  unsigned char to_uint8() const;
+  int to_int32() const;
+  double to_float64() const;
+
+  double to_double() const;
   il::String& as_string();
   const il::String& as_string() const;
   const il::String& as_const_string() const;
@@ -168,7 +187,15 @@ inline Dynamic::Dynamic(bool value) {
   boolean_ = value;
 }
 
-inline Dynamic::Dynamic(int n) : Dynamic{static_cast<il::int_t>(n)} {}
+inline Dynamic::Dynamic(unsigned char value) {
+	data2_[3] = 0x7FFE;
+	uint8_ = value;
+}
+
+inline Dynamic::Dynamic(int n) {
+  data2_[3] = 0xFFF2;
+  int32_ = n;
+}
 
 inline Dynamic::Dynamic(il::int_t n) {
   const il::int_t max_integer = static_cast<il::int_t>(1) << 47;
@@ -221,10 +248,19 @@ inline Dynamic::Dynamic(il::DynamicType type) {
       boolean_ = false;
       data2_[3] = 0x7FF6;
       break;
+	case il::DynamicType::uint8:
+		uint8_ = 0;
+		data2_[3] = 0x7FFE;
+		break;
+    case il::DynamicType::int32:
+      int32_ = 0;
+      data2_[3] = 0xFFF2;
+      break;
     case il::DynamicType::integer:
       n_ = 0;
       data2_[3] = 0x7FFA;
       break;
+    case il::DynamicType::float64:
     case il::DynamicType::floating_point:
       x_ = 0.0;
       break;
@@ -441,9 +477,17 @@ inline bool Dynamic::is_null() const { return data2_[3] == 0x7FF2; }
 
 inline bool Dynamic::is_boolean() const { return data2_[3] == 0x7FF6; }
 
+inline bool Dynamic::is_uint8() const { return data2_[3] == 0x7FFE; }
+
+inline bool Dynamic::is_int32() const { return data2_[3] == 0xFFF2; }
+
+inline bool Dynamic::is_float64() const {
+  return is_double();
+}
+
 inline bool Dynamic::is_integer() const { return (data2_[3] == 0x7FFA) || (data2_[3] == 0xFFFF); }
 
-inline bool Dynamic::is_floating_point() const {
+inline bool Dynamic::is_double() const {
   return !((data2_[3] & 0x7FF0) == 0x7FF0 && (data2_[3] & 0x0003));
 }
 
@@ -454,7 +498,7 @@ inline bool Dynamic::is_array() const { return data2_[3] == 0x7FF3; }
 inline bool Dynamic::is_hashmap() const { return data2_[3] == 0x7FF5; }
 
 inline il::DynamicType Dynamic::type() const {
-  if (is_floating_point()) {
+  if (is_double()) {
     return il::DynamicType::floating_point;
   } else {
     switch (data2_[3]) {
@@ -462,6 +506,10 @@ inline il::DynamicType Dynamic::type() const {
         return il::DynamicType::null;
       case 0x7FF6:
         return il::DynamicType::boolean;
+	  case 0x7FFE:
+		return il::DynamicType::uint8;
+      case 0xFFF2:
+        return il::DynamicType::int32;
       case 0x7FFA:
       case 0xFFFF:
         return il::DynamicType::integer;
@@ -479,6 +527,10 @@ inline il::DynamicType Dynamic::type() const {
 }
 
 inline bool Dynamic::to_boolean() const { return boolean_; }
+
+inline unsigned char Dynamic::to_uint8() const { return uint8_; }
+
+inline std::int32_t Dynamic::to_int32() const { return int32_; }
 
 inline il::int_t Dynamic::to_integer() const {
   if (is_trivial()) {
@@ -529,7 +581,9 @@ inline const il::int_t& Dynamic::as_integer() const {
   return *p_integer;
 }
 
-inline double Dynamic::to_floating_point() const { return x_; }
+inline double Dynamic::to_float64() const { return x_; }
+
+inline double Dynamic::to_double() const { return x_; }
 
 inline il::String& Dynamic::as_string() {
   union {

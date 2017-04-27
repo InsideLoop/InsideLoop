@@ -7,15 +7,17 @@
 //
 //==============================================================================
 
-#include <il/Toml.h>
+#include <iostream>
+#include <il/Dynamic.h>
 
 int main() {
-  il::String filename = "/home/fayard/Desktop/config.toml";
+  il::Dynamic x = 5000000000;
+  if (x.is_int32()) {
+    std::cout << "32 bits: " << x.to_int32() << std::endl;
+  } else {
+    std::cout << "64 bits: " << x.to_integer() << std::endl;
 
-  il::Status status{};
-  auto config =
-      il::load<il::HashMap<il::String, il::Dynamic>>(filename, il::io, status);
-  status.ignore_error();
+  }
 
   return 0;
 }

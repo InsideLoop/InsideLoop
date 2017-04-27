@@ -112,6 +112,7 @@ class HashMap {
   HashMap& operator=(const HashMap<K, V, F>& map);
   HashMap& operator=(HashMap<K, V, F>&& map);
   ~HashMap();
+  void set(const K& key, const V& value, il::io_t, il::int_t& i);
   void set(const K& key, const V& value);
   il::int_t search(const K& key) const;
   bool found(il::int_t i) const;
@@ -309,6 +310,17 @@ HashMap<K, V, F>::~HashMap() {
 }
 
 template <typename K, typename V, typename F>
+void HashMap<K, V, F>::set(const K& key, const V& value, il::io_t, il::int_t& i) {
+  i = search(key);
+  if (!found(i)) {
+    insert(key, value, il::io, i);
+  } else {
+    (slot_ + i)->value.~V();
+    new (&((slot_ + i)->value)) V(value);
+  }
+}
+
+template <typename K, typename V, typename F>
 void HashMap<K, V, F>::set(const K& key, const V& value) {
   il::int_t i = search(key);
   if (!found(i)) {
@@ -317,12 +329,6 @@ void HashMap<K, V, F>::set(const K& key, const V& value) {
     (slot_ + i)->value.~V();
     new (&((slot_ + i)->value)) V(value);
   }
-
-  this->first();
-  this->last();
-  this->key(this->first());
-  this->const_value(this->first());
-  this->next(this->first());
 }
 
 template <typename K, typename V, typename F>
