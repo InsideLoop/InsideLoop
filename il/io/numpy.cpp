@@ -143,9 +143,9 @@ void save_numpy_info(const NumpyInfo& numpy_info, il::io_t, std::FILE* fp,
     header.append(",");
   }
   header.append("), }");
-  il::int_t remainder = 16 - (10 + header.size()) % 16;
+  il::int_t remainder = 16 - (10 + 1 + header.size()) % 16;
   header.append(remainder, ' ');
-  header.back() = '\n';
+  header.append('\n');
 
   il::String magic{};
   magic.append("\x93NUMPY");
@@ -154,10 +154,8 @@ void save_numpy_info(const NumpyInfo& numpy_info, il::io_t, std::FILE* fp,
   // Numpy format minor version
   magic.append(static_cast<char>(0x00));
   // Size of the header
-  il::String short_int = "  ";
-  *(reinterpret_cast<unsigned short*>(short_int.begin())) =
-      static_cast<unsigned short>(header.size());
-  magic.append(short_int);
+  unsigned short short_int = static_cast<unsigned short>(header.size());
+  magic.append(reinterpret_cast<const char*>(&short_int), 2);
   magic.append(header);
 
   std::size_t written = std::fwrite(magic.c_string(), sizeof(char),

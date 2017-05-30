@@ -220,12 +220,10 @@ set(SOURCE_FILES
     il/io/ppm.h
     il/io/numpy.h
     il/io/numpy.cpp
-    il/io/numpy.h
-    il/io/numpy.cpp
     il/io/toml.h
     il/io/toml.cpp
     il/io/png.h
-#    il/io/png.cpp
+    #il/io/png.cpp
     il/io/format/format.cc
     il/linear_algebra/dense/blas/blas.h
     il/linear_algebra/dense/blas/dot.h
@@ -288,7 +286,7 @@ set(UNIT_TEST_FILES
     il/linear_algebra/sparse/factorization/_test/GmresIlu0_test.cpp
     il/io/_test/numpy_test.cpp
     il/io/toml/_test/toml_valid_test.cpp
-    gtest/src/gtest-all.cc il/core/_test/Status_test.cpp)
+    gtest/src/gtest-all.cc il/core/_test/Status_test.cpp il/HashMapArray.h)
 
 add_executable(InsideLoopUnitTest ${SOURCE_FILES} ${UNIT_TEST_FILES} test.cpp)
 

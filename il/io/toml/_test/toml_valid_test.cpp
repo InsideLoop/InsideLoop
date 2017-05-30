@@ -11,8 +11,10 @@
 
 #include <il/Toml.h>
 
+#include <iostream>
+
 il::String directory =
-    "/home/fayard/Documents/Projects/InsideLoop/InsideLoop/il/io/toml/_test/"
+    "/Users/fayard/Documents/Projects/InsideLoop/InsideLoop/il/io/toml/_test/"
     "valid/";
 
 TEST(Toml, array_empty) {
@@ -212,11 +214,11 @@ TEST(Toml, comments_everywhere) {
     ans = false;
   } else {
     const il::int_t i = config.search("group");
-    if (!(config.found(i) && config.value(i).is_hashmap())) {
+    if (!(config.found(i) && config.value(i).is_hashmaparray())) {
       ans = false;
     } else {
-      il::HashMap<il::String, il::Dynamic> &group =
-          config.value(i).as_hashmap();
+      il::HashMapArray<il::String, il::Dynamic> &group =
+          config.value(i).as_hashmaparray();
       il::int_t j0 = group.search("answer");
       il::int_t j1 = group.search("more");
       if (!(group.size() == 2 && group.found(j0) &&
@@ -253,7 +255,7 @@ TEST(Toml, empty) {
   ASSERT_TRUE(ans);
 }
 
-TEST(Toml, floating_point) {
+TEST(Toml, double) {
   bool ans = true;
 
   il::String filename = directory;
@@ -289,23 +291,23 @@ TEST(Toml, implicit_and_explicit_after) {
     ans = false;
   } else {
     il::int_t i = config.search("a");
-    if (!(config.found(i) && config.value(i).is_hashmap())) {
+    if (!(config.found(i) && config.value(i).is_hashmaparray())) {
       ans = false;
     } else {
-      il::HashMap<il::String, il::Dynamic> &a = config.value(i).as_hashmap();
+      il::HashMapArray<il::String, il::Dynamic> &a = config.value(i).as_hashmaparray();
       il::int_t i0 = a.search("better");
       il::int_t i1 = a.search("b");
       if (!(a.size() == 2 && a.found(i0) && a.value(i0).is_integer() &&
             a.value(i0).to_integer() == 43 && a.found(i1) &&
-            a.value(i1).is_hashmap())) {
+            a.value(i1).is_hashmaparray())) {
         ans = false;
       } else {
-        il::HashMap<il::String, il::Dynamic> &b = a.value(i1).as_hashmap();
+        il::HashMapArray<il::String, il::Dynamic> &b = a.value(i1).as_hashmaparray();
         il::int_t j = b.search("c");
-        if (!(b.size() == 1 && b.found(j) && b.value(j).is_hashmap())) {
+        if (!(b.size() == 1 && b.found(j) && b.value(j).is_hashmaparray())) {
           ans = false;
         } else {
-          il::HashMap<il::String, il::Dynamic> &c = b.value(j).as_hashmap();
+          il::HashMapArray<il::String, il::Dynamic> &c = b.value(j).as_hashmaparray();
           il::int_t j0 = c.search("answer");
           if (!(c.size() == 1 && c.found(j0) && c.value(j0).is_integer() &&
                 c.value(j0).to_integer() == 42)) {
@@ -331,23 +333,23 @@ TEST(Toml, implicit_and_explicit_before) {
     ans = false;
   } else {
     il::int_t i = config.search("a");
-    if (!(config.found(i) && config.value(i).is_hashmap())) {
+    if (!(config.found(i) && config.value(i).is_hashmaparray())) {
       ans = false;
     } else {
-      il::HashMap<il::String, il::Dynamic> &a = config.value(i).as_hashmap();
+      il::HashMapArray<il::String, il::Dynamic> &a = config.value(i).as_hashmaparray();
       il::int_t i0 = a.search("better");
       il::int_t i1 = a.search("b");
       if (!(a.size() == 2 && a.found(i0) && a.value(i0).is_integer() &&
             a.value(i0).to_integer() == 43 && a.found(i1) &&
-            a.value(i1).is_hashmap())) {
+            a.value(i1).is_hashmaparray())) {
         ans = false;
       } else {
-        il::HashMap<il::String, il::Dynamic> &b = a.value(i1).as_hashmap();
+        il::HashMapArray<il::String, il::Dynamic> &b = a.value(i1).as_hashmaparray();
         il::int_t j = b.search("c");
-        if (!(b.size() == 1 && b.found(j) && b.value(j).is_hashmap())) {
+        if (!(b.size() == 1 && b.found(j) && b.value(j).is_hashmaparray())) {
           ans = false;
         } else {
-          il::HashMap<il::String, il::Dynamic> &c = b.value(j).as_hashmap();
+          il::HashMapArray<il::String, il::Dynamic> &c = b.value(j).as_hashmaparray();
           il::int_t j0 = c.search("answer");
           if (!(c.size() == 1 && c.found(j0) && c.value(j0).is_integer() &&
                 c.value(j0).to_integer() == 42)) {
@@ -373,20 +375,20 @@ TEST(Toml, implicit_groups) {
     ans = false;
   } else {
     il::int_t i = config.search("a");
-    if (!(config.found(i) && config.value(i).is_hashmap())) {
+    if (!(config.found(i) && config.value(i).is_hashmaparray())) {
       ans = false;
     } else {
-      il::HashMap<il::String, il::Dynamic> &a = config.value(i).as_hashmap();
+      il::HashMapArray<il::String, il::Dynamic> &a = config.value(i).as_hashmaparray();
       il::int_t i1 = a.search("b");
-      if (!(a.size() == 1 && a.found(i1) && a.value(i1).is_hashmap())) {
+      if (!(a.size() == 1 && a.found(i1) && a.value(i1).is_hashmaparray())) {
         ans = false;
       } else {
-        il::HashMap<il::String, il::Dynamic> &b = a.value(i1).as_hashmap();
+        il::HashMapArray<il::String, il::Dynamic> &b = a.value(i1).as_hashmaparray();
         il::int_t j = b.search("c");
-        if (!(b.size() == 1 && b.found(j) && b.value(j).is_hashmap())) {
+        if (!(b.size() == 1 && b.found(j) && b.value(j).is_hashmaparray())) {
           ans = false;
         } else {
-          il::HashMap<il::String, il::Dynamic> &c = b.value(j).as_hashmap();
+          il::HashMapArray<il::String, il::Dynamic> &c = b.value(j).as_hashmaparray();
           il::int_t j0 = c.search("answer");
           if (!(c.size() == 1 && c.found(j0) && c.value(j0).is_integer() &&
                 c.value(j0).to_integer() == 42)) {

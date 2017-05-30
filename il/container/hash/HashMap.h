@@ -21,6 +21,8 @@ template <typename K, typename V>
 struct KeyValue {
   const K key;
   V value;
+  KeyValue(const K& the_key, const V& the_value) : key{the_key}, value{the_value} {};
+  KeyValue(const K& the_key, V&& the_value) : key{the_key}, value{the_value} {};
 };
 
 template <typename K, typename V, typename F>
@@ -150,6 +152,9 @@ HashMap<K, V, F>::HashMap() {
 template <typename K, typename V, typename F>
 HashMap<K, V, F>::HashMap(il::int_t n) {
   IL_EXPECT_FAST(n >= 0);
+
+  // To be large
+  n = 2 * n;
 
   if (n > 0) {
     const int p = 1 + il::next_log2_32(n);

@@ -47,15 +47,10 @@ void TomlParser::check_end_of_line_or_comment(il::ConstStringView string,
 }
 
 il::String TomlParser::current_line() const {
-  il::String line{23};
-  std::sprintf(line.begin(), "%td", line_number_);
-  il::ConstStringView string{line.begin(), line.size()};
-  il::int_t i = 0;
-  while (i < string.size() && string[i] != '\0') {
-    ++i;
-  }
-  line.resize(i);
-
+  char line[24];
+  line[23] = '\0';
+  std::sprintf(line, "%td", line_number_);
+  il::String ans = line;
   return line;
 }
 
@@ -91,7 +86,7 @@ il::DynamicType TomlParser::parse_type(il::ConstStringView string, il::io_t,
     return il::DynamicType::array;
   } else if (string[0] == '{') {
     status.set_ok();
-    return il::DynamicType::hashmap;
+    return il::DynamicType::hashmaparray;
   } else {
     status.set_error(il::Error::parse_cannot_determine_type);
     IL_SET_SOURCE(status);
@@ -218,16 +213,14 @@ il::Dynamic TomlParser::parse_number(il::io_t, il::ConstStringView& string,
   }
 
   // Remove the '_' in the number
-  il::String number{i};
-  il::StringView view{number.begin(), i};
-  il::int_t k = 0;
+  il::String number{};
+  number.reserve(i);
   for (il::int_t j = 0; j < i; ++j) {
     if (string[j] != '_') {
-      view[k] = string[j];
-      ++k;
+      number.append(string[j]);
     }
   }
-  number.resize(k);
+  il::ConstStringView view{number.c_string(), i};
 
   if (is_float) {
     status.set_ok();
@@ -506,7 +499,7 @@ il::Dynamic TomlParser::parse_object_array(il::DynamicType object_type,
 il::Dynamic TomlParser::parse_inline_table(il::io_t,
                                            il::ConstStringView& string,
                                            il::Status& status) {
-  il::Dynamic ans = il::Dynamic{il::DynamicType::hashmap};
+  il::Dynamic ans = il::Dynamic{il::DynamicType::hashmaparray};
   do {
     string.shrink_left(1);
     if (string.is_empty()) {
@@ -517,7 +510,7 @@ il::Dynamic TomlParser::parse_inline_table(il::io_t,
     }
     string = il::remove_whitespace_left(string);
     il::Status parse_status{};
-    parse_key_value(il::io, string, ans.as_hashmap(), parse_status);
+    parse_key_value(il::io, string, ans.as_hashmaparray(), parse_status);
     if (!parse_status.ok()) {
       status = std::move(parse_status);
       return ans;
@@ -539,9 +532,9 @@ il::Dynamic TomlParser::parse_inline_table(il::io_t,
   return ans;
 }
 
-void TomlParser::parse_key_value(il::io_t, il::ConstStringView& string,
-                                 il::HashMap<il::String, il::Dynamic>& toml,
-                                 il::Status& status) {
+void TomlParser::parse_key_value(
+    il::io_t, il::ConstStringView& string,
+    il::HashMapArray<il::String, il::Dynamic>& toml, il::Status& status) {
   il::Status parse_status{};
   il::String key = parse_key('=', il::io, string, parse_status);
   if (!parse_status.ok()) {
@@ -707,7 +700,7 @@ il::Dynamic TomlParser::parse_value(il::io_t, il::ConstStringView& string,
     case il::DynamicType::array:
       ans = parse_array(il::io, string, parse_status);
       break;
-    case il::DynamicType::hashmap:
+    case il::DynamicType::hashmaparray:
       ans = parse_inline_table(il::io, string, parse_status);
       break;
     default:
@@ -724,7 +717,7 @@ il::Dynamic TomlParser::parse_value(il::io_t, il::ConstStringView& string,
 }
 
 void TomlParser::parse_table(il::io_t, il::ConstStringView& string,
-                             il::HashMap<il::String, il::Dynamic>*& toml,
+                             il::HashMapArray<il::String, il::Dynamic>*& toml,
                              il::Status& status) {
   // Skip the '[' at the beginning of the table
   string.shrink_left(1);
@@ -743,9 +736,9 @@ void TomlParser::parse_table(il::io_t, il::ConstStringView& string,
   }
 }
 
-void TomlParser::parse_single_table(il::io_t, il::ConstStringView& string,
-                                    il::HashMap<il::String, il::Dynamic>*& toml,
-                                    il::Status& status) {
+void TomlParser::parse_single_table(
+    il::io_t, il::ConstStringView& string,
+    il::HashMapArray<il::String, il::Dynamic>*& toml, il::Status& status) {
   if (string.is_empty() || string[0] == ']') {
     status.set_error(il::Error::parse_table);
     IL_SET_SOURCE(status);
@@ -761,25 +754,25 @@ void TomlParser::parse_single_table(il::io_t, il::ConstStringView& string,
       status = std::move(parse_status);
       return;
     }
-    if (table_name.is_empty()) {
+    if (table_name.empty()) {
       status.set_error(il::Error::parse_table);
       IL_SET_SOURCE(status);
       status.set_info("line", line_number_);
       return;
     }
-    if (!full_table_name.is_empty()) {
+    if (!full_table_name.empty()) {
       full_table_name.append('.');
     }
     full_table_name.append(table_name);
 
     il::int_t i = toml->search(table_name);
     if (toml->found(i)) {
-      if (toml->value(i).is_hashmap()) {
-        toml = &(toml->value(i).as_hashmap());
+      if (toml->value(i).is_hashmaparray()) {
+        toml = &(toml->value(i).as_hashmaparray());
       } else if (toml->value(i).is_array()) {
         if (toml->value(i).as_array().size() > 0 &&
-            toml->value(i).as_array().back().is_hashmap()) {
-          toml = &(toml->value(i).as_array().back().as_hashmap());
+            toml->value(i).as_array().back().is_hashmaparray()) {
+          toml = &(toml->value(i).as_array().back().as_hashmaparray());
         } else {
           status.set_error(il::Error::parse_duplicate_key);
           IL_SET_SOURCE(status);
@@ -794,9 +787,9 @@ void TomlParser::parse_single_table(il::io_t, il::ConstStringView& string,
       }
     } else {
       inserted = true;
-      toml->insert(table_name, il::Dynamic{il::DynamicType::hashmap}, il::io,
+      toml->insert(table_name, il::Dynamic{il::DynamicType::hashmaparray}, il::io,
                    i);
-      toml = &(toml->value(i).as_hashmap());
+      toml = &(toml->value(i).as_hashmaparray());
     }
 
     string = il::remove_whitespace_left(string);
@@ -817,9 +810,9 @@ void TomlParser::parse_single_table(il::io_t, il::ConstStringView& string,
   status.set_ok();
 }
 
-void TomlParser::parse_table_array(il::io_t, il::ConstStringView& string,
-                                   il::HashMap<il::String, il::Dynamic>*& toml,
-                                   il::Status& status) {
+void TomlParser::parse_table_array(
+    il::io_t, il::ConstStringView& string,
+    il::HashMapArray<il::String, il::Dynamic>*& toml, il::Status& status) {
   string.shrink_left(1);
   if (string.is_empty() || string[0] == ']') {
     status.set_error(il::Error::parse_table);
@@ -836,13 +829,13 @@ void TomlParser::parse_table_array(il::io_t, il::ConstStringView& string,
       status = std::move(parse_status);
       return;
     }
-    if (table_name.is_empty()) {
+    if (table_name.empty()) {
       status.set_error(il::Error::parse_table);
       IL_SET_SOURCE(status);
       status.set_info("line", line_number_);
       return;
     }
-    if (!full_table_name.is_empty()) {
+    if (!full_table_name.empty()) {
       full_table_name.append('.');
     }
     full_table_name.append(table_name);
@@ -859,19 +852,19 @@ void TomlParser::parse_table_array(il::io_t, il::ConstStringView& string,
           return;
         }
         il::Array<il::Dynamic>& v = b.as_array();
-        v.append(il::Dynamic{il::DynamicType::hashmap});
-        toml = &(v.back().as_hashmap());
+        v.append(il::Dynamic{il::DynamicType::hashmaparray});
+        toml = &(v.back().as_hashmaparray());
       }
     } else {
       if (!string.is_empty() && string[0] == ']') {
         toml->insert(table_name, il::Dynamic{il::DynamicType::array}, il::io,
                      i);
-        toml->value(i).as_array().append(il::Dynamic{il::DynamicType::hashmap});
-        toml = &(toml->value(i).as_array()[0].as_hashmap());
+        toml->value(i).as_array().append(il::Dynamic{il::DynamicType::hashmaparray});
+        toml = &(toml->value(i).as_array()[0].as_hashmaparray());
       } else {
-        toml->insert(table_name, il::Dynamic{il::DynamicType::hashmap}, il::io,
+        toml->insert(table_name, il::Dynamic{il::DynamicType::hashmaparray}, il::io,
                      i);
-        toml = &(toml->value(i).as_hashmap());
+        toml = &(toml->value(i).as_hashmaparray());
       }
     }
   }
@@ -903,10 +896,10 @@ void TomlParser::parse_table_array(il::io_t, il::ConstStringView& string,
   return;
 }
 
-il::HashMap<il::String, il::Dynamic> TomlParser::parse(
+il::HashMapArray<il::String, il::Dynamic> TomlParser::parse(
     const il::String& filename, il::io_t, il::Status& status) {
-  il::HashMap<il::String, il::Dynamic> root_toml{};
-  il::HashMap<il::String, il::Dynamic>* pointer_toml = &root_toml;
+  il::HashMapArray<il::String, il::Dynamic> root_toml{};
+  il::HashMapArray<il::String, il::Dynamic>* pointer_toml = &root_toml;
 
   file_ = std::fopen(filename.c_string(), "r+b");
   if (!file_) {
@@ -961,4 +954,4 @@ il::HashMap<il::String, il::Dynamic> TomlParser::parse(
   status.set_ok();
   return root_toml;
 }
-}
+}  // namespace il

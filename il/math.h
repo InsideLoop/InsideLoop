@@ -36,11 +36,6 @@ const double pi = 3.1415926535897932385;
 const std::complex<double> I = std::complex<double>{0.0, 1.0};
 
 template <typename T>
-T min(T a, T b) {
-  return a <= b ? a : b;
-}
-
-template <typename T>
 T min(T a, T b, T c, T d) {
   return min(min(a, b), min(c, d));
 }
@@ -57,10 +52,6 @@ T min(const il::Array<T>& A) {
   return ans;
 }
 
-template <typename T>
-T max(T a, T b) {
-  return a >= b ? a : b;
-}
 
 template <typename T>
 T max(T a, T b, T c) {

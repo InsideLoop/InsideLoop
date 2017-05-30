@@ -25,7 +25,7 @@ TEST(Dynamic, default_constructor) {
 
   ASSERT_TRUE(a.is_null() && !a.is_boolean() && !a.is_integer() &&
               !a.is_floating_point() && !a.is_string() && !a.is_array() &&
-              !a.is_hashmap() && a.type() == il::DynamicType::null);
+              !a.is_hashmaparray() && a.type() == il::DynamicType::null);
 }
 
 TEST(Dynamic, boolean_constructor_0) {
@@ -33,7 +33,7 @@ TEST(Dynamic, boolean_constructor_0) {
 
   ASSERT_TRUE(a.is_boolean() && a.to_boolean() && !a.is_null() &&
               !a.is_integer() && !a.is_floating_point() && !a.is_string() &&
-              !a.is_array() && !a.is_hashmap() &&
+              !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::boolean);
 }
 
@@ -42,7 +42,7 @@ TEST(Dynamic, boolean_constructor_1) {
 
   ASSERT_TRUE(a.is_boolean() && a.to_boolean() == false && !a.is_null() &&
               !a.is_integer() && !a.is_floating_point() && !a.is_string() &&
-              !a.is_array() && !a.is_hashmap() &&
+              !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::boolean);
 }
 
@@ -51,7 +51,7 @@ TEST(Dynamic, integer_constructor_0) {
 
   ASSERT_TRUE(a.is_integer() && a.to_integer() == 3 && !a.is_null() &&
               !a.is_boolean() && !a.is_floating_point() && !a.is_string() &&
-              !a.is_array() && !a.is_hashmap() &&
+              !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::integer);
 }
 
@@ -60,7 +60,7 @@ TEST(Dynamic, integer_constructor_1) {
 
   ASSERT_TRUE(a.is_integer() && a.to_integer() == -3 && !a.is_null() &&
               !a.is_boolean() && !a.is_floating_point() && !a.is_string() &&
-              !a.is_array() && !a.is_hashmap() &&
+              !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::integer);
 }
 
@@ -70,7 +70,7 @@ TEST(Dynamic, integer_constructor_2) {
 
   ASSERT_TRUE(a.is_integer() && a.to_integer() == n && !a.is_null() &&
               !a.is_boolean() && !a.is_floating_point() && !a.is_string() &&
-              !a.is_array() && !a.is_hashmap() &&
+              !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::integer);
 }
 
@@ -80,78 +80,81 @@ TEST(Dynamic, integer_constructor_3) {
 
   ASSERT_TRUE(a.is_integer() && a.to_integer() == n && !a.is_null() &&
               !a.is_boolean() && !a.is_floating_point() && !a.is_string() &&
-              !a.is_array() && !a.is_hashmap() &&
+              !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::integer);
 }
 
-TEST(Dynamic, floating_point_constructor_0) {
+TEST(Dynamic, double_constructor_0) {
   const double x = 3.14159;
   il::Dynamic a = x;
 
+  bool b0 = a.is_floating_point();
+  IL_UNUSED(b0);
+
   ASSERT_TRUE(a.is_floating_point() && a.to_floating_point() == x &&
               !a.is_null() && !a.is_boolean() && !a.is_integer() &&
-              !a.is_string() && !a.is_array() && !a.is_hashmap() &&
+              !a.is_string() && !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::floating_point);
 }
 
-TEST(Dynamic, floating_point_constructor_1) {
+TEST(Dynamic, double_constructor_1) {
   const double x = 0.0 / 0.0;
   il::Dynamic a = x;
 
   ASSERT_TRUE(a.is_floating_point() && std::isnan(a.to_floating_point()) &&
               !a.is_null() && !a.is_boolean() && !a.is_integer() &&
-              !a.is_string() && !a.is_array() && !a.is_hashmap() &&
+              !a.is_string() && !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::floating_point);
 }
 
-TEST(Dynamic, floating_point_constructor_2) {
+TEST(Dynamic, double_constructor_2) {
   const double x = std::numeric_limits<double>::quiet_NaN();
   il::Dynamic a = x;
 
   ASSERT_TRUE(a.is_floating_point() && std::isnan(a.to_floating_point()) &&
               !a.is_null() && !a.is_boolean() && !a.is_integer() &&
-              !a.is_string() && !a.is_array() && !a.is_hashmap() &&
+              !a.is_string() && !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::floating_point);
 }
 
-TEST(Dynamic, floating_point_constructor_3) {
+TEST(Dynamic, double_constructor_3) {
   const double x = std::numeric_limits<double>::signaling_NaN();
   il::Dynamic a = x;
 
   ASSERT_TRUE(a.is_floating_point() && std::isnan(a.to_floating_point()) &&
               !a.is_null() && !a.is_boolean() && !a.is_integer() &&
-              !a.is_string() && !a.is_array() && !a.is_hashmap() &&
+              !a.is_string() && !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::floating_point);
 }
 
-TEST(Dynamic, floating_point_constructor_4) {
+TEST(Dynamic, double_constructor_4) {
   double x = std::numeric_limits<double>::signaling_NaN();
   x += 1.0;
   il::Dynamic a = x;
 
   ASSERT_TRUE(a.is_floating_point() && std::isnan(a.to_floating_point()) &&
               !a.is_null() && !a.is_boolean() && !a.is_integer() &&
-              !a.is_string() && !a.is_array() && !a.is_hashmap() &&
+              !a.is_string() && !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::floating_point);
 }
 
-TEST(Dynamic, floating_point_constructor_5) {
+TEST(Dynamic, double_constructor_5) {
   const double x = std::numeric_limits<double>::infinity();
   il::Dynamic a = x;
 
   ASSERT_TRUE(a.is_floating_point() && a.to_floating_point() == x &&
               !a.is_null() && !a.is_boolean() && !a.is_integer() &&
-              !a.is_string() && !a.is_array() && !a.is_hashmap() &&
+              !a.is_string() && !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::floating_point);
 }
 
-TEST(Dynamic, floating_point_constructor_6) {
+TEST(Dynamic, double_constructor_6) {
   const double x = -std::numeric_limits<double>::infinity();
   il::Dynamic a = x;
 
   ASSERT_TRUE(a.is_floating_point() && a.to_floating_point() == x &&
               !a.is_null() && !a.is_boolean() && !a.is_integer() &&
-              !a.is_string() && !a.is_array() && !a.is_hashmap() &&
+              !a.is_string() && !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::floating_point);
 }
 
@@ -161,7 +164,7 @@ TEST(Dynamic, string_constructor_0) {
 
   ASSERT_TRUE(a.is_string() && a.as_string() == string && !a.is_null() &&
               !a.is_boolean() && !a.is_integer() && !a.is_floating_point() &&
-              !a.is_array() && !a.is_hashmap() &&
+              !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::string);
 }
 
@@ -171,7 +174,7 @@ TEST(Dynamic, string_constructor_1) {
 
   ASSERT_TRUE(a.is_string() && a.as_string() == string && !a.is_null() &&
               !a.is_boolean() && !a.is_integer() && !a.is_floating_point() &&
-              !a.is_array() && !a.is_hashmap() &&
+              !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::string);
 }
 
@@ -182,7 +185,7 @@ TEST(Dynamic, string_constructor_2) {
 
   ASSERT_TRUE(a.is_string() && a.as_string() == string && !a.is_null() &&
               !a.is_boolean() && !a.is_integer() && !a.is_floating_point() &&
-              !a.is_array() && !a.is_hashmap() &&
+              !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::string);
 }
 
@@ -191,7 +194,7 @@ TEST(Dynamic, dynamic_constructor_0) {
 
   ASSERT_TRUE(a.is_null() && !a.is_boolean() && !a.is_integer() &&
               !a.is_floating_point() && !a.is_string() && !a.is_array() &&
-              !a.is_hashmap() && a.type() == il::DynamicType::null);
+              !a.is_hashmaparray() && a.type() == il::DynamicType::null);
 }
 
 TEST(Dynamic, dynamic_constructor_1) {
@@ -199,7 +202,7 @@ TEST(Dynamic, dynamic_constructor_1) {
 
   ASSERT_TRUE(!a.is_null() && a.is_boolean() && a.to_boolean() == false &&
               !a.is_integer() && !a.is_floating_point() && !a.is_string() &&
-              !a.is_array() && !a.is_hashmap() &&
+              !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::boolean);
 }
 
@@ -208,7 +211,7 @@ TEST(Dynamic, dynamic_constructor_2) {
 
   ASSERT_TRUE(!a.is_null() && !a.is_boolean() && a.is_integer() &&
               a.to_integer() == 0 && !a.is_floating_point() && !a.is_string() &&
-              !a.is_array() && !a.is_hashmap() &&
+              !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::integer);
 }
 
@@ -217,7 +220,7 @@ TEST(Dynamic, dynamic_constructor_3) {
 
   ASSERT_TRUE(!a.is_null() && !a.is_boolean() && !a.is_integer() &&
               a.is_floating_point() && a.to_floating_point() == 0.0 &&
-              !a.is_string() && !a.is_array() && !a.is_hashmap() &&
+              !a.is_string() && !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::floating_point);
 }
 
@@ -226,7 +229,7 @@ TEST(Dynamic, dynamic_constructor_4) {
 
   ASSERT_TRUE(!a.is_null() && !a.is_boolean() && !a.is_integer() &&
               !a.is_floating_point() && a.is_string() &&
-              a.as_string().size() == 0 && !a.is_array() && !a.is_hashmap() &&
+              a.as_string().size() == 0 && !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::string);
 }
 
@@ -236,18 +239,18 @@ TEST(Dynamic, dynamic_constructor_5) {
   ASSERT_TRUE(a.is_array() && a.as_const_array().size() == 0 &&
               a.as_const_array().capacity() == 0 && !a.is_null() &&
               !a.is_boolean() && !a.is_integer() && !a.is_floating_point() &&
-              !a.is_string() && !a.is_hashmap() &&
+              !a.is_string() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::array);
 }
 
 TEST(Dynamic, dynamic_constructor_6) {
-  il::Dynamic a{il::DynamicType::hashmap};
+  il::Dynamic a{il::DynamicType::hashmaparray};
 
-  ASSERT_TRUE(a.is_hashmap() && a.as_const_hashmap().size() == 0 &&
-              a.as_const_hashmap().capacity() == 0 && !a.is_null() &&
+  ASSERT_TRUE(a.is_hashmaparray() && a.as_const_hashmaparray().size() == 0 &&
+              a.as_const_hashmaparray().capacity() == 0 && !a.is_null() &&
               !a.is_boolean() && !a.is_integer() && !a.is_floating_point() &&
               !a.is_string() && !a.is_array() &&
-              a.type() == il::DynamicType::hashmap);
+              a.type() == il::DynamicType::hashmaparray);
 }
 
 TEST(Dynamic, copy_constructor_null) {
@@ -256,7 +259,7 @@ TEST(Dynamic, copy_constructor_null) {
 
   ASSERT_TRUE(a.is_null() && !a.is_boolean() && !a.is_integer() &&
               !a.is_floating_point() && !a.is_string() && !a.is_array() &&
-              !a.is_hashmap() && a.type() == il::DynamicType::null);
+              !a.is_hashmaparray() && a.type() == il::DynamicType::null);
 }
 
 TEST(Dynamic, copy_constructor_boolean_0) {
@@ -265,7 +268,7 @@ TEST(Dynamic, copy_constructor_boolean_0) {
 
   ASSERT_TRUE(a.is_boolean() && a.to_boolean() && !a.is_null() &&
               !a.is_integer() && !a.is_floating_point() && !a.is_string() &&
-              !a.is_array() && !a.is_hashmap() &&
+              !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::boolean);
 }
 
@@ -275,7 +278,7 @@ TEST(Dynamic, copy_constructor_boolean_1) {
 
   ASSERT_TRUE(a.is_boolean() && a.to_boolean() == false && !a.is_null() &&
               !a.is_integer() && !a.is_floating_point() && !a.is_string() &&
-              !a.is_array() && !a.is_hashmap() &&
+              !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::boolean);
 }
 
@@ -286,7 +289,7 @@ TEST(Dynamic, copy_constructor_integer_0) {
 
   ASSERT_TRUE(a.is_integer() && a.to_integer() == 3 && !a.is_null() &&
               !a.is_boolean() && !a.is_floating_point() && !a.is_string() &&
-              !a.is_array() && !a.is_hashmap() &&
+              !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::integer);
 }
 
@@ -297,7 +300,7 @@ TEST(Dynamic, copy_constructor_floating_point_0) {
 
   ASSERT_TRUE(a.is_floating_point() && a.to_floating_point() == x &&
               !a.is_null() && !a.is_boolean() && !a.is_integer() &&
-              !a.is_string() && !a.is_array() && !a.is_hashmap() &&
+              !a.is_string() && !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::floating_point);
 }
 
@@ -308,7 +311,7 @@ TEST(Dynamic, copy_constructor_string_0) {
 
   ASSERT_TRUE(a.is_string() && a.as_string() == string && !a.is_null() &&
               !a.is_boolean() && !a.is_integer() && !a.is_floating_point() &&
-              !a.is_array() && !a.is_hashmap() &&
+              !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::string);
 }
 
@@ -323,24 +326,24 @@ TEST(Dynamic, copy_constructor_array_0) {
       a.as_const_array().capacity() == 3 && a.as_const_array()[0].is_null() &&
       a.as_const_array()[1].is_null() && a.as_const_array()[2].is_null() &&
       !a.is_null() && !a.is_boolean() && !a.is_integer() &&
-      !a.is_floating_point() && !a.is_string() && !a.is_hashmap() &&
+      !a.is_floating_point() && !a.is_string() && !a.is_hashmaparray() &&
       a.type() == il::DynamicType::array);
 }
 
-TEST(Dynamic, copy_constructor_hashmap_0) {
-  il::HashMap<il::String, il::Dynamic> map{};
+TEST(Dynamic, copy_constructor_hashmaparray_0) {
+  il::HashMapArray<il::String, il::Dynamic> map{};
   map.set(il::String{"Hello"}, il::Dynamic{5});
   map.set(il::String{"World!"}, il::Dynamic{6});
 
   il::Dynamic b = map;
   il::Dynamic a{b};
 
-  ASSERT_TRUE(a.is_hashmap() && a.as_const_hashmap().size() == 2 &&
-              a.as_const_hashmap().search("Hello") >= 0 &&
-              a.as_const_hashmap().search("World!") >= 0 && !a.is_null() &&
+  ASSERT_TRUE(a.is_hashmaparray() && a.as_const_hashmaparray().size() == 2 &&
+              a.as_const_hashmaparray().search("Hello") >= 0 &&
+              a.as_const_hashmaparray().search("World!") >= 0 && !a.is_null() &&
               !a.is_boolean() && !a.is_integer() && !a.is_floating_point() &&
               !a.is_string() && !a.is_array() &&
-              a.type() == il::DynamicType::hashmap);
+              a.type() == il::DynamicType::hashmaparray);
 }
 
 TEST(Dynamic, move_constructor_null) {
@@ -349,7 +352,7 @@ TEST(Dynamic, move_constructor_null) {
 
   ASSERT_TRUE(a.is_null() && !a.is_boolean() && !a.is_integer() &&
               !a.is_floating_point() && !a.is_string() && !a.is_array() &&
-              !a.is_hashmap() && a.type() == il::DynamicType::null &&
+              !a.is_hashmaparray() && a.type() == il::DynamicType::null &&
               b.is_floating_point() && b.to_floating_point() == 0);
 }
 
@@ -359,7 +362,7 @@ TEST(Dynamic, move_constructor_boolean_0) {
 
   ASSERT_TRUE(a.is_boolean() && a.to_boolean() && !a.is_null() &&
               !a.is_integer() && !a.is_floating_point() && !a.is_string() &&
-              !a.is_array() && !a.is_hashmap() &&
+              !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::boolean && b.is_floating_point() &&
               b.to_floating_point() == 0);
 }
@@ -370,7 +373,7 @@ TEST(Dynamic, move_constructor_boolean_1) {
 
   ASSERT_TRUE(a.is_boolean() && a.to_boolean() == false && !a.is_null() &&
               !a.is_integer() && !a.is_floating_point() && !a.is_string() &&
-              !a.is_array() && !a.is_hashmap() &&
+              !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::boolean && b.is_floating_point() &&
               b.to_floating_point() == 0);
 }
@@ -382,7 +385,7 @@ TEST(Dynamic, move_constructor_integer_0) {
 
   ASSERT_TRUE(a.is_integer() && a.to_integer() == 3 && !a.is_null() &&
               !a.is_boolean() && !a.is_floating_point() && !a.is_string() &&
-              !a.is_array() && !a.is_hashmap() &&
+              !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::integer && b.is_floating_point() &&
               b.to_floating_point() == 0);
 }
@@ -394,7 +397,7 @@ TEST(Dynamic, move_constructor_floating_point_0) {
 
   ASSERT_TRUE(a.is_floating_point() && a.to_floating_point() == x &&
               !a.is_null() && !a.is_boolean() && !a.is_integer() &&
-              !a.is_string() && !a.is_array() && !a.is_hashmap() &&
+              !a.is_string() && !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::floating_point &&
               b.is_floating_point() && b.to_floating_point() == 0);
 }
@@ -406,7 +409,7 @@ TEST(Dynamic, move_constructor_string_0) {
 
   ASSERT_TRUE(a.is_string() && a.as_string() == string && !a.is_null() &&
               !a.is_boolean() && !a.is_integer() && !a.is_floating_point() &&
-              !a.is_array() && !a.is_hashmap() &&
+              !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::string && b.is_floating_point() &&
               b.to_floating_point() == 0);
 }
@@ -422,25 +425,25 @@ TEST(Dynamic, move_constructor_array_0) {
       a.as_const_array().capacity() == 3 && a.as_const_array()[0].is_null() &&
       a.as_const_array()[1].is_null() && a.as_const_array()[2].is_null() &&
       !a.is_null() && !a.is_boolean() && !a.is_integer() &&
-      !a.is_floating_point() && !a.is_string() && !a.is_hashmap() &&
+      !a.is_floating_point() && !a.is_string() && !a.is_hashmaparray() &&
       a.type() == il::DynamicType::array && b.is_floating_point() &&
       b.to_floating_point() == 0);
 }
 
-TEST(Dynamic, move_constructor_hashmap_0) {
-  il::HashMap<il::String, il::Dynamic> map{};
+TEST(Dynamic, move_constructor_hashmaparray_0) {
+  il::HashMapArray<il::String, il::Dynamic> map{};
   map.set(il::String{"Hello"}, il::Dynamic{5});
   map.set(il::String{"World!"}, il::Dynamic{6});
 
   il::Dynamic b = map;
   il::Dynamic a = std::move(b);
 
-  ASSERT_TRUE(a.is_hashmap() && a.as_const_hashmap().size() == 2 &&
-              a.as_const_hashmap().search("Hello") >= 0 &&
-              a.as_const_hashmap().search("World!") >= 0 && !a.is_null() &&
+  ASSERT_TRUE(a.is_hashmaparray() && a.as_const_hashmaparray().size() == 2 &&
+              a.as_const_hashmaparray().search("Hello") >= 0 &&
+              a.as_const_hashmaparray().search("World!") >= 0 && !a.is_null() &&
               !a.is_boolean() && !a.is_integer() && !a.is_floating_point() &&
               !a.is_string() && !a.is_array() &&
-              a.type() == il::DynamicType::hashmap && b.is_floating_point() &&
+              a.type() == il::DynamicType::hashmaparray && b.is_floating_point() &&
               b.to_floating_point() == 0);
 }
 
@@ -451,7 +454,7 @@ TEST(Dynamic, copy_assignement_null) {
 
   ASSERT_TRUE(a.is_null() && !a.is_boolean() && !a.is_integer() &&
               !a.is_floating_point() && !a.is_string() && !a.is_array() &&
-              !a.is_hashmap() && a.type() == il::DynamicType::null);
+              !a.is_hashmaparray() && a.type() == il::DynamicType::null);
 }
 
 TEST(Dynamic, copy_assignement_boolean_0) {
@@ -461,7 +464,7 @@ TEST(Dynamic, copy_assignement_boolean_0) {
 
   ASSERT_TRUE(a.is_boolean() && a.to_boolean() && !a.is_null() &&
               !a.is_integer() && !a.is_floating_point() && !a.is_string() &&
-              !a.is_array() && !a.is_hashmap() &&
+              !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::boolean);
 }
 
@@ -472,7 +475,7 @@ TEST(Dynamic, copy_assignement_boolean_1) {
 
   ASSERT_TRUE(a.is_boolean() && a.to_boolean() == false && !a.is_null() &&
               !a.is_integer() && !a.is_floating_point() && !a.is_string() &&
-              !a.is_array() && !a.is_hashmap() &&
+              !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::boolean);
 }
 
@@ -484,7 +487,7 @@ TEST(Dynamic, copy_assignement_integer_0) {
 
   ASSERT_TRUE(a.is_integer() && a.to_integer() == 3 && !a.is_null() &&
               !a.is_boolean() && !a.is_floating_point() && !a.is_string() &&
-              !a.is_array() && !a.is_hashmap() &&
+              !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::integer);
 }
 
@@ -496,7 +499,7 @@ TEST(Dynamic, copy_assignement_floating_point_0) {
 
   ASSERT_TRUE(a.is_floating_point() && a.to_floating_point() == x &&
               !a.is_null() && !a.is_boolean() && !a.is_integer() &&
-              !a.is_string() && !a.is_array() && !a.is_hashmap() &&
+              !a.is_string() && !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::floating_point);
 }
 
@@ -508,7 +511,7 @@ TEST(Dynamic, copy_assignement_string_0) {
 
   ASSERT_TRUE(a.is_string() && a.as_string() == string && !a.is_null() &&
               !a.is_boolean() && !a.is_integer() && !a.is_floating_point() &&
-              !a.is_array() && !a.is_hashmap() &&
+              !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::string);
 }
 
@@ -524,12 +527,12 @@ TEST(Dynamic, copy_assignement_array_0) {
       a.as_const_array().capacity() == 3 && a.as_const_array()[0].is_null() &&
       a.as_const_array()[1].is_null() && a.as_const_array()[2].is_null() &&
       !a.is_null() && !a.is_boolean() && !a.is_integer() &&
-      !a.is_floating_point() && !a.is_string() && !a.is_hashmap() &&
+      !a.is_floating_point() && !a.is_string() && !a.is_hashmaparray() &&
       a.type() == il::DynamicType::array);
 }
 
-TEST(Dynamic, copy_assignement_hashmap_0) {
-  il::HashMap<il::String, il::Dynamic> map{};
+TEST(Dynamic, copy_assignement_hashmaparray_0) {
+  il::HashMapArray<il::String, il::Dynamic> map{};
   map.set(il::String{"Hello"}, il::Dynamic{5});
   map.set(il::String{"World!"}, il::Dynamic{6});
 
@@ -537,12 +540,12 @@ TEST(Dynamic, copy_assignement_hashmap_0) {
   il::Dynamic a{};
   a = b;
 
-  ASSERT_TRUE(a.is_hashmap() && a.as_const_hashmap().size() == 2 &&
-              a.as_const_hashmap().search("Hello") >= 0 &&
-              a.as_const_hashmap().search("World!") >= 0 && !a.is_null() &&
+  ASSERT_TRUE(a.is_hashmaparray() && a.as_const_hashmaparray().size() == 2 &&
+              a.as_const_hashmaparray().search("Hello") >= 0 &&
+              a.as_const_hashmaparray().search("World!") >= 0 && !a.is_null() &&
               !a.is_boolean() && !a.is_integer() && !a.is_floating_point() &&
               !a.is_string() && !a.is_array() &&
-              a.type() == il::DynamicType::hashmap);
+              a.type() == il::DynamicType::hashmaparray);
 }
 
 TEST(Dynamic, move_assignement_null) {
@@ -552,7 +555,7 @@ TEST(Dynamic, move_assignement_null) {
 
   ASSERT_TRUE(a.is_null() && !a.is_boolean() && !a.is_integer() &&
               !a.is_floating_point() && !a.is_string() && !a.is_array() &&
-              !a.is_hashmap() && a.type() == il::DynamicType::null &&
+              !a.is_hashmaparray() && a.type() == il::DynamicType::null &&
               b.is_floating_point() && b.to_floating_point() == 0);
 }
 
@@ -563,7 +566,7 @@ TEST(Dynamic, move_assignement_boolean_0) {
 
   ASSERT_TRUE(a.is_boolean() && a.to_boolean() && !a.is_null() &&
               !a.is_integer() && !a.is_floating_point() && !a.is_string() &&
-              !a.is_array() && !a.is_hashmap() &&
+              !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::boolean && b.is_floating_point() &&
               b.to_floating_point() == 0);
 }
@@ -575,7 +578,7 @@ TEST(Dynamic, move_assignement_boolean_1) {
 
   ASSERT_TRUE(a.is_boolean() && a.to_boolean() == false && !a.is_null() &&
               !a.is_integer() && !a.is_floating_point() && !a.is_string() &&
-              !a.is_array() && !a.is_hashmap() &&
+              !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::boolean && b.is_floating_point() &&
               b.to_floating_point() == 0);
 }
@@ -588,7 +591,7 @@ TEST(Dynamic, move_assignement_integer_0) {
 
   ASSERT_TRUE(a.is_integer() && a.to_integer() == 3 && !a.is_null() &&
               !a.is_boolean() && !a.is_floating_point() && !a.is_string() &&
-              !a.is_array() && !a.is_hashmap() &&
+              !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::integer && b.is_floating_point() &&
               b.to_floating_point() == 0);
 }
@@ -601,7 +604,7 @@ TEST(Dynamic, move_assignement_floating_point_0) {
 
   ASSERT_TRUE(a.is_floating_point() && a.to_floating_point() == x &&
               !a.is_null() && !a.is_boolean() && !a.is_integer() &&
-              !a.is_string() && !a.is_array() && !a.is_hashmap() &&
+              !a.is_string() && !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::floating_point &&
               b.is_floating_point() && b.to_floating_point() == 0);
 }
@@ -614,7 +617,7 @@ TEST(Dynamic, move_assignement_string_0) {
 
   ASSERT_TRUE(a.is_string() && a.as_string() == string && !a.is_null() &&
               !a.is_boolean() && !a.is_integer() && !a.is_floating_point() &&
-              !a.is_array() && !a.is_hashmap() &&
+              !a.is_array() && !a.is_hashmaparray() &&
               a.type() == il::DynamicType::string && b.is_floating_point() &&
               b.to_floating_point() == 0);
 }
@@ -631,13 +634,13 @@ TEST(Dynamic, move_assignement_array_0) {
       a.as_const_array().capacity() == 3 && a.as_const_array()[0].is_null() &&
       a.as_const_array()[1].is_null() && a.as_const_array()[2].is_null() &&
       !a.is_null() && !a.is_boolean() && !a.is_integer() &&
-      !a.is_floating_point() && !a.is_string() && !a.is_hashmap() &&
+      !a.is_floating_point() && !a.is_string() && !a.is_hashmaparray() &&
       a.type() == il::DynamicType::array && b.is_floating_point() &&
       b.to_floating_point() == 0);
 }
 
-TEST(Dynamic, move_assignement_hashmap_0) {
-  il::HashMap<il::String, il::Dynamic> map{};
+TEST(Dynamic, move_assignement_hashmaparray_0) {
+  il::HashMapArray<il::String, il::Dynamic> map{};
   map.set(il::String{"Hello"}, il::Dynamic{5});
   map.set(il::String{"World!"}, il::Dynamic{6});
 
@@ -645,11 +648,11 @@ TEST(Dynamic, move_assignement_hashmap_0) {
   il::Dynamic a{};
   a = std::move(b);
 
-  ASSERT_TRUE(a.is_hashmap() && a.as_const_hashmap().size() == 2 &&
-              a.as_const_hashmap().search("Hello") >= 0 &&
-              a.as_const_hashmap().search("World!") >= 0 && !a.is_null() &&
+  ASSERT_TRUE(a.is_hashmaparray() && a.as_const_hashmaparray().size() == 2 &&
+              a.as_const_hashmaparray().search("Hello") >= 0 &&
+              a.as_const_hashmaparray().search("World!") >= 0 && !a.is_null() &&
               !a.is_boolean() && !a.is_integer() && !a.is_floating_point() &&
               !a.is_string() && !a.is_array() &&
-              a.type() == il::DynamicType::hashmap && b.is_floating_point() &&
+              a.type() == il::DynamicType::hashmaparray && b.is_floating_point() &&
               b.to_floating_point() == 0);
 }
