@@ -494,6 +494,6 @@ inline void Info::clear() {
   set_small_size(0);
 }
 
-}
+}  // namespace il
 
 #endif  // IL_INFO_H

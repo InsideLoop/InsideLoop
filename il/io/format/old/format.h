@@ -157,19 +157,19 @@ void format_align(const T& value, il::AlignStyle align_style, il::int_t amount,
       stream.append(std::string(pad_amount, ' '));
       stream.append(item);
       break;
-
     }
   }
 }
 
 template <typename T>
-void format_style(const T& value, const std::string& style, il::io_t, std::string& stream) {
+void format_style(const T& value, const std::string& style, il::io_t,
+                  std::string& stream) {
   il::AlignStyle align_style;
   il::int_t amount;
   std::string new_style{};
   if (style[0] == ',') {
     il::int_t pos = 1;
-    switch(style[pos]) {
+    switch (style[pos]) {
       case '-':
         align_style = il::AlignStyle::left;
         ++pos;
@@ -186,10 +186,12 @@ void format_style(const T& value, const std::string& style, il::io_t, std::strin
         align_style = il::AlignStyle::right;
     }
     il::int_t pos_column = pos;
-    while (pos_column < static_cast<il::int_t>(style.size()) && style[pos_column] != ':') {
+    while (pos_column < static_cast<il::int_t>(style.size()) &&
+           style[pos_column] != ':') {
       ++pos_column;
     }
-    amount = std::stoi(std::string(style.begin() + pos, style.begin() + pos_column));
+    amount =
+        std::stoi(std::string(style.begin() + pos, style.begin() + pos_column));
     if (pos_column < static_cast<il::int_t>(style.size())) {
       new_style = std::string(style.begin() + pos_column + 1, style.end());
     } else {
@@ -204,6 +206,6 @@ void format_style(const T& value, const std::string& style, il::io_t, std::strin
   il::format_align(value, align_style, amount, new_style, il::io, stream);
 }
 
-}
+}  // namespace il
 
 #endif  // IL_FORMAT_H

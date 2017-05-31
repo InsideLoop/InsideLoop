@@ -122,7 +122,7 @@ class StaticArray {
   const T* end() const;
 
   /* \brief Returns a pointer to the one after the last element of the array
-  */
+   */
   T* end();
 };
 
@@ -217,6 +217,6 @@ template <typename T, il::int_t n>
 T* StaticArray<T, n>::end() {
   return data_ + n;
 }
-}
+}  // namespace il
 
 #endif  // IL_STATICARRAY_H

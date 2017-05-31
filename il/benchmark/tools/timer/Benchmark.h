@@ -18,15 +18,16 @@ namespace il {
 class BStateShort {
  private:
   il::int_t n_;
+
  public:
-  BStateShort(il::int_t n) : n_{n} { };
+  BStateShort(il::int_t n) : n_{n} {};
   bool keep_running() {
     --n_;
     return n_ >= 0;
   };
 };
 
-template<typename P>
+template <typename P>
 double benchmark_short(const P &program, double time_goal = 1.0) {
   double total_time = 0.0;
   il::int_t nb_iterations = 1;
@@ -42,15 +43,13 @@ double benchmark_short(const P &program, double time_goal = 1.0) {
     auto end = std::chrono::high_resolution_clock::now();
     total_time =
         1.0e-9 *
-            (1 +
-                std::chrono::duration_cast<std::chrono::nanoseconds>(
-                    end - begin)
-                    .count());
+        (1 + std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin)
+                 .count());
     const il::int_t estimated_nb_iterations{
         static_cast<il::int_t>(time_goal / (total_time / nb_iterations))};
     nb_iterations = estimated_nb_iterations <= growth_factor * nb_iterations
-                    ? estimated_nb_iterations
-                    : growth_factor * nb_iterations;
+                        ? estimated_nb_iterations
+                        : growth_factor * nb_iterations;
     ++count;
   }
 
@@ -64,6 +63,7 @@ class BState {
   std::size_t time_;
   bool started_;
   std::chrono::time_point<std::chrono::high_resolution_clock> point_begin_;
+
  public:
   BState(il::int_t n) {
     n_ = n;
@@ -89,16 +89,15 @@ class BState {
   void pause_timing() {
     std::chrono::time_point<std::chrono::high_resolution_clock> point_end{
         std::chrono::high_resolution_clock::now()};
-    time_ += std::chrono::duration_cast<std::chrono::nanoseconds>(
-        point_end - point_begin_).count();
+    time_ += std::chrono::duration_cast<std::chrono::nanoseconds>(point_end -
+                                                                  point_begin_)
+                 .count();
     started_ = false;
   }
-  double time() const {
-    return (1.0e-9 * time_) / n_;
-  }
+  double time() const { return (1.0e-9 * time_) / n_; }
 };
 
-template<typename P>
+template <typename P>
 double benchmark(const P &program, double time_goal = 1.0) {
   double total_time = 0.0;
   il::int_t nb_iterations = 1;
@@ -114,20 +113,19 @@ double benchmark(const P &program, double time_goal = 1.0) {
     const il::int_t estimated_nb_iterations{
         static_cast<il::int_t>(time_goal / (total_time / nb_iterations))};
     nb_iterations = estimated_nb_iterations <= growth_factor * nb_iterations
-                    ? estimated_nb_iterations
-                    : growth_factor * nb_iterations;
+                        ? estimated_nb_iterations
+                        : growth_factor * nb_iterations;
     ++count;
   }
 
   return total_time / nb_iterations;
 }
 
-template<typename T>
+template <typename T>
 void do_not_optimize(const T &value) {
-  asm volatile("" : "+rm" (const_cast<T &>(value)));
+  asm volatile("" : "+rm"(const_cast<T &>(value)));
 }
 
-}
+}  // namespace il
 
 #endif  // IL_BENCHMARK_H
-

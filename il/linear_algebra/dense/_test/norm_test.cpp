@@ -11,7 +11,6 @@
 
 #include <il/norm.h>
 
-
 TEST(norm_staticarray, L1) {
   il::StaticArray<double, 3> v{il::value, {-2.0, 0.5, 1.0}};
 

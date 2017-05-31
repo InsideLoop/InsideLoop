@@ -102,11 +102,11 @@ class StaticArray3D {
   il::int_t size(il::int_t d) const;
 
   /* \brief Get an const array view to the container
-  */
+   */
   //  ConstArray3DView<T> const_view() const;
 
   /* \brief Get an array view to the container
-  */
+   */
   //  Array3DView<T> view();
 
   /* \brief Get an const array view to a subpart of the container with
@@ -206,6 +206,6 @@ T* StaticArray3D<T, n0, n1, n2>::data() {
   return data_;
 }
 
-}
+}  // namespace il
 
 #endif  // IL_STATICARRAY3D_H

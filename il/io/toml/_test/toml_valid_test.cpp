@@ -294,7 +294,8 @@ TEST(Toml, implicit_and_explicit_after) {
     if (!(config.found(i) && config.value(i).is_hashmaparray())) {
       ans = false;
     } else {
-      il::HashMapArray<il::String, il::Dynamic> &a = config.value(i).as_hashmaparray();
+      il::HashMapArray<il::String, il::Dynamic> &a =
+          config.value(i).as_hashmaparray();
       il::int_t i0 = a.search("better");
       il::int_t i1 = a.search("b");
       if (!(a.size() == 2 && a.found(i0) && a.value(i0).is_integer() &&
@@ -302,12 +303,14 @@ TEST(Toml, implicit_and_explicit_after) {
             a.value(i1).is_hashmaparray())) {
         ans = false;
       } else {
-        il::HashMapArray<il::String, il::Dynamic> &b = a.value(i1).as_hashmaparray();
+        il::HashMapArray<il::String, il::Dynamic> &b =
+            a.value(i1).as_hashmaparray();
         il::int_t j = b.search("c");
         if (!(b.size() == 1 && b.found(j) && b.value(j).is_hashmaparray())) {
           ans = false;
         } else {
-          il::HashMapArray<il::String, il::Dynamic> &c = b.value(j).as_hashmaparray();
+          il::HashMapArray<il::String, il::Dynamic> &c =
+              b.value(j).as_hashmaparray();
           il::int_t j0 = c.search("answer");
           if (!(c.size() == 1 && c.found(j0) && c.value(j0).is_integer() &&
                 c.value(j0).to_integer() == 42)) {
@@ -336,7 +339,8 @@ TEST(Toml, implicit_and_explicit_before) {
     if (!(config.found(i) && config.value(i).is_hashmaparray())) {
       ans = false;
     } else {
-      il::HashMapArray<il::String, il::Dynamic> &a = config.value(i).as_hashmaparray();
+      il::HashMapArray<il::String, il::Dynamic> &a =
+          config.value(i).as_hashmaparray();
       il::int_t i0 = a.search("better");
       il::int_t i1 = a.search("b");
       if (!(a.size() == 2 && a.found(i0) && a.value(i0).is_integer() &&
@@ -344,12 +348,14 @@ TEST(Toml, implicit_and_explicit_before) {
             a.value(i1).is_hashmaparray())) {
         ans = false;
       } else {
-        il::HashMapArray<il::String, il::Dynamic> &b = a.value(i1).as_hashmaparray();
+        il::HashMapArray<il::String, il::Dynamic> &b =
+            a.value(i1).as_hashmaparray();
         il::int_t j = b.search("c");
         if (!(b.size() == 1 && b.found(j) && b.value(j).is_hashmaparray())) {
           ans = false;
         } else {
-          il::HashMapArray<il::String, il::Dynamic> &c = b.value(j).as_hashmaparray();
+          il::HashMapArray<il::String, il::Dynamic> &c =
+              b.value(j).as_hashmaparray();
           il::int_t j0 = c.search("answer");
           if (!(c.size() == 1 && c.found(j0) && c.value(j0).is_integer() &&
                 c.value(j0).to_integer() == 42)) {
@@ -378,17 +384,20 @@ TEST(Toml, implicit_groups) {
     if (!(config.found(i) && config.value(i).is_hashmaparray())) {
       ans = false;
     } else {
-      il::HashMapArray<il::String, il::Dynamic> &a = config.value(i).as_hashmaparray();
+      il::HashMapArray<il::String, il::Dynamic> &a =
+          config.value(i).as_hashmaparray();
       il::int_t i1 = a.search("b");
       if (!(a.size() == 1 && a.found(i1) && a.value(i1).is_hashmaparray())) {
         ans = false;
       } else {
-        il::HashMapArray<il::String, il::Dynamic> &b = a.value(i1).as_hashmaparray();
+        il::HashMapArray<il::String, il::Dynamic> &b =
+            a.value(i1).as_hashmaparray();
         il::int_t j = b.search("c");
         if (!(b.size() == 1 && b.found(j) && b.value(j).is_hashmaparray())) {
           ans = false;
         } else {
-          il::HashMapArray<il::String, il::Dynamic> &c = b.value(j).as_hashmaparray();
+          il::HashMapArray<il::String, il::Dynamic> &c =
+              b.value(j).as_hashmaparray();
           il::int_t j0 = c.search("answer");
           if (!(c.size() == 1 && c.found(j0) && c.value(j0).is_integer() &&
                 c.value(j0).to_integer() == 42)) {
@@ -529,7 +538,7 @@ TEST(Toml, long_integer) {
     if (!(config.found(i0) && config.value(i0).is_integer() &&
           config.value(i0).to_integer() == 9223372036854775807 &&
           config.found(i1) && config.value(i1).is_integer() &&
-          config.value(i1).to_integer() == (-9223372036854775807 -1))) {
+          config.value(i1).to_integer() == (-9223372036854775807 - 1))) {
       ans = false;
     }
   }

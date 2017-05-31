@@ -21,7 +21,8 @@ template <typename K, typename V>
 struct KeyValue {
   const K key;
   V value;
-  KeyValue(const K& the_key, const V& the_value) : key{the_key}, value{the_value} {};
+  KeyValue(const K& the_key, const V& the_value)
+      : key{the_key}, value{the_value} {};
   KeyValue(const K& the_key, V&& the_value) : key{the_key}, value{the_value} {};
 };
 
@@ -315,7 +316,8 @@ HashMap<K, V, F>::~HashMap() {
 }
 
 template <typename K, typename V, typename F>
-void HashMap<K, V, F>::set(const K& key, const V& value, il::io_t, il::int_t& i) {
+void HashMap<K, V, F>::set(const K& key, const V& value, il::io_t,
+                           il::int_t& i) {
   i = search(key);
   if (!found(i)) {
     insert(key, value, il::io, i);
@@ -522,7 +524,8 @@ il::int_t HashMap<K, V, F>::first() const {
   const il::int_t m = il::int_t{1} << p_;
 
   il::int_t i = 0;
-  while (i < m && (F::is_empty(slot_[i].key) || F::is_tombstone(slot_[i].key))) {
+  while (i < m &&
+         (F::is_empty(slot_[i].key) || F::is_tombstone(slot_[i].key))) {
     ++i;
   }
   return i;
@@ -538,7 +541,8 @@ il::int_t HashMap<K, V, F>::next(il::int_t i) const {
   const il::int_t m = il::int_t{1} << p_;
 
   ++i;
-  while (i < m && (F::is_empty(slot_[i].key) || F::is_tombstone(slot_[i].key))) {
+  while (i < m &&
+         (F::is_empty(slot_[i].key) || F::is_tombstone(slot_[i].key))) {
     ++i;
   }
   return i;
@@ -574,6 +578,6 @@ void HashMap<K, V, F>::grow(il::int_t r) {
     ::operator delete(old_slot_);
   }
 }
-}
+}  // namespace il
 
 #endif  // IL_HASHMAP_H

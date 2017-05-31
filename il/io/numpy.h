@@ -15,8 +15,8 @@
 #include <il/Array.h>
 #include <il/Array2D.h>
 #include <il/SparseMatrixCSR.h>
-#include <il/String.h>
 #include <il/Status.h>
+#include <il/String.h>
 #include <il/io/io_base.h>
 
 namespace il {
@@ -142,7 +142,6 @@ class SaveHelper<il::Array2D<T>> {
     return;
   }
 };
-
 
 template <typename T>
 class LoadHelper<il::Array<T>> {
@@ -282,6 +281,6 @@ class LoadHelper<il::SparseMatrixCSR<il::int_t, double>> {
         n, n, std::move(column), std::move(row), std::move(element)};
   }
 };
-}
+}  // namespace il
 
 #endif  // IL_NUMPY_H

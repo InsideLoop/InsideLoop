@@ -170,4 +170,3 @@ TEST(dot, matrix_c_simd_1) {
 
   ASSERT_TRUE(C.size(0) == 1 && C.size(1) == 3 && error <= 1.0e-15);
 }
-

@@ -12,7 +12,7 @@
 #include <il/container/info/Status.h>
 
 //// You are not allowed to asked if it is ok until the status has been set
-//TEST(Status, default_constructor) {
+// TEST(Status, default_constructor) {
 //  il::Status status{};
 //
 //  bool success = false;
@@ -25,7 +25,7 @@
 //  ASSERT_TRUE(success);
 //}
 //
-//TEST(Status, check_error) {
+// TEST(Status, check_error) {
 //  il::Status status{};
 //  status.set_ok();
 //
@@ -33,7 +33,7 @@
 //}
 //
 //// You don't have to check is the status has not been set
-//TEST(Status, destructor) {
+// TEST(Status, destructor) {
 //  {
 //    il::Status  status{};
 //  }

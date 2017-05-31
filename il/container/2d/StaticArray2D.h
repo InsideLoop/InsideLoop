@@ -195,6 +195,6 @@ template <typename T, il::int_t n0, il::int_t n1>
 T* StaticArray2D<T, n0, n1>::data() {
   return data_;
 }
-}
+}  // namespace il
 
 #endif  // IL_STATICARRAY2D_H

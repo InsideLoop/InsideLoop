@@ -104,7 +104,7 @@ class Array2D {
   Array2D(const Array2D<T>& A);
 
   /* \brief The move constructor
-  */
+   */
   Array2D(Array2D<T>&& A);
 
   /* \brief The copy assignment
@@ -115,11 +115,11 @@ class Array2D {
   Array2D& operator=(const Array2D<T>& A);
 
   /* \brief The move assignment
-  */
+   */
   Array2D& operator=(Array2D<T>&& A);
 
   /* \brief The destructor
-  */
+   */
   ~Array2D();
 
   /* \brief Accessor for a const il::2DArray<T>
@@ -182,7 +182,7 @@ class Array2D {
   void reserve(il::int_t r0, il::int_t r1);
 
   /* \brief Get the alignment of the pointer returned by data()
-  */
+   */
   il::int_t alignment() const;
 
   /* \brief Get a pointer to const to the first element of the array
@@ -212,7 +212,7 @@ class Array2D {
 
  private:
   /* \brief Used internally in debug mode to check the invariance of the object
-  */
+   */
   bool invariance() const;
 };
 
@@ -1056,6 +1056,6 @@ bool Array2D<T>::invariance() const {
   }
   return ans;
 }
-}
+}  // namespace il
 
 #endif  // IL_ARRAY2D_H

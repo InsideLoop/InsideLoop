@@ -37,7 +37,8 @@ class SparseMatrixCSR {
   template <Index n>
   SparseMatrixCSR(il::int_t width, il::int_t height,
                   const il::Array<il::SmallArray<Index, n>> &column);
-  SparseMatrixCSR(il::int_t n, const il::Array<il::StaticArray<Index, 2>> &position,
+  SparseMatrixCSR(il::int_t n,
+                  const il::Array<il::StaticArray<Index, 2>> &position,
                   il::io_t, il::Array<Index> &index);
   const T &operator[](il::int_t k) const;
   T &operator[](il::int_t k);
@@ -242,7 +243,7 @@ template <typename Index, typename T>
 T const &SparseMatrixCSR<Index, T>::operator()(il::int_t i, il::int_t k) const {
   IL_EXPECT_FAST(static_cast<std::size_t>(i) < static_cast<std::size_t>(n0_));
   IL_EXPECT_FAST(static_cast<std::size_t>(row_[i] + k) <
-            static_cast<std::size_t>(row_[i + 1]));
+                 static_cast<std::size_t>(row_[i + 1]));
   return element_[row_[i] + k];
 }
 
@@ -250,7 +251,7 @@ template <typename Index, typename T>
 T &SparseMatrixCSR<Index, T>::operator()(il::int_t i, il::int_t k) {
   IL_EXPECT_FAST(static_cast<std::size_t>(i) < static_cast<std::size_t>(n0_));
   IL_EXPECT_FAST(static_cast<std::size_t>(row_[i] + k) <
-            static_cast<std::size_t>(row_[i + 1]));
+                 static_cast<std::size_t>(row_[i + 1]));
   return element_[row_[i] + k];
 }
 
@@ -334,6 +335,6 @@ inline double norm(const il::SparseMatrixCSR<Index, double> &A, Norm norm_type,
 
   return norm;
 }
-}
+}  // namespace il
 
 #endif  // IL_SPARSEMATRIXCSR_H

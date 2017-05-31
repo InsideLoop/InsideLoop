@@ -101,7 +101,6 @@ TEST(Pardiso, heat3D) {
   solver.numerical_factorization(A);
   il::Array<double> x = solver.solve(A, y);
 
-
   double max_err = 0.0;
   for (il::int_t i = 0; i < x.size(); ++i) {
     max_err = il::max(max_err, il::abs(x[i] - 1.0));
@@ -111,4 +110,4 @@ TEST(Pardiso, heat3D) {
   ASSERT_TRUE(max_err <= 10 * epsilon);
 }
 
-#endif // IL_MKL
+#endif  // IL_MKL

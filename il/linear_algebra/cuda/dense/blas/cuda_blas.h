@@ -77,6 +77,6 @@ inline void blas(double alpha, const il::CudaArray2D<double>& A,
   cublasDgemm(handle.handle(), CUBLAS_OP_N, CUBLAS_OP_N, n, n, n, &alpha,
               A.data(), n, B.data(), n, &beta, C.data(), n);
 }
-}
+}  // namespace il
 
 #endif  // IL_CUDA_BLAS_H

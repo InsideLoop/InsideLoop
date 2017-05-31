@@ -35,6 +35,6 @@ inline void blas(float alpha, const il::CudaSparseMatrixCSR<float> &A,
   IL_EXPECT_FAST(status == CUSPARSE_STATUS_SUCCESS);
 }
 
-}
+}  // namespace il
 
 #endif  // IL_CUDA_SPARSE_BLAS_H

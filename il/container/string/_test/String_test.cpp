@@ -15,8 +15,7 @@ TEST(String, default_constructor) {
   il::String s{};
   const char* p = s.c_string();
 
-  ASSERT_TRUE(s.size() == 0 && s.small() && s.capacity() == 23 &&
-              p[0] == '\0');
+  ASSERT_TRUE(s.size() == 0 && s.small() && s.capacity() == 23 && p[0] == '\0');
 }
 
 TEST(String, c_string_constructor_0) {
@@ -39,8 +38,7 @@ TEST(String, c_string_constructor_2) {
   il::String s{"A quite\0 large string !!!"};
   const char* p = s.c_string();
 
-  ASSERT_TRUE(s.size() == 7 && s.small() &&
-              0 == std::strcmp(p, "A quite"));
+  ASSERT_TRUE(s.size() == 7 && s.small() && 0 == std::strcmp(p, "A quite"));
 }
 
 TEST(String, reserve_0) {

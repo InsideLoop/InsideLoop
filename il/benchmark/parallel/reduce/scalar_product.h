@@ -10,10 +10,10 @@
 #ifndef IL_SCALAR_PRODUCT_H
 #define IL_SCALAR_PRODUCT_H
 
-#include <cstdio>
 #include <il/Array.h>
-#include <il/benchmark/tools/timer/Benchmark.h>
 #include <il/benchmark/tools/memory/memory.h>
+#include <il/benchmark/tools/timer/Benchmark.h>
+#include <cstdio>
 
 #ifdef IL_TBB
 #include <tbb/tbb.h>
@@ -25,11 +25,13 @@
 #endif
 
 void scalar_product() {
-  std::printf("****************************************************************"
-                  "****************\n");
+  std::printf(
+      "****************************************************************"
+      "****************\n");
   std::printf("* Scalar product\n");
-  std::printf("****************************************************************"
-                  "****************\n");
+  std::printf(
+      "****************************************************************"
+      "****************\n");
 
   il::Array<il::int_t> size{
       il::value, {100, 1000, 10000, 100000, 1000000, 10000000, 100000000}};

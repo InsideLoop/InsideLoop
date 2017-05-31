@@ -29,15 +29,11 @@
 
 namespace il {
 struct abort_exception {
-  abort_exception() {
-    (void)0;
-  }
+  abort_exception() { (void)0; }
 };
 
-inline void abort() {
-  std::abort();
-}
-}
+inline void abort() { std::abort(); }
+}  // namespace il
 
 // Use this when the expectation is fast to compute compared to the function
 #ifdef IL_UNIT_TEST
@@ -52,8 +48,7 @@ inline void abort() {
 #ifdef NDEBUG
 #define IL_EXPECT_FAST_NOTHROW(condition) ((void)0)
 #else
-#define IL_EXPECT_FAST_NOTHROW(condition) \
-  (condition) ? ((void)0) : il::abort();
+#define IL_EXPECT_FAST_NOTHROW(condition) (condition) ? ((void)0) : il::abort();
 #endif
 
 // Use this when the the expectation is as expensive to compute as the function
@@ -114,7 +109,6 @@ template <typename T>
 T min(T a, T b) {
   return a <= b ? a : b;
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // For arrays
@@ -320,6 +314,6 @@ template <>
 inline long double default_value<long double>() {
   return 0.0l / 0.0l;
 }
-}
+}  // namespace il
 
 #endif  // IL_BASE_H

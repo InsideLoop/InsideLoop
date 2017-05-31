@@ -10,9 +10,9 @@
 #ifndef IL_CUDA_DOT_H
 #define IL_CUDA_DOT_H
 
-#include <il/linear_algebra/cuda/dense/blas/CublasHandle.h>
 #include <il/container/cuda/1d/CudaArray.h>
 #include <il/container/cuda/2d/CudaArray2D.h>
+#include <il/linear_algebra/cuda/dense/blas/CublasHandle.h>
 
 #include <cublas_v2.h>
 
@@ -32,6 +32,6 @@ inline float dot(const il::CudaArray<float>& x, const il::CudaArray<float>& y,
   return ans;
 }
 
-}
+}  // namespace il
 
 #endif  // IL_CUDA_DOT_H

@@ -12,8 +12,8 @@
 
 #include <limits>
 
-#include <il/base.h>
 #include <il/String.h>
+#include <il/base.h>
 
 namespace il {
 
@@ -134,6 +134,6 @@ class HashFunction<il::String> {
     return i == n0;
   }
 };
-}
+}  // namespace il
 
 #endif  // IL_HASHFUNCTION_H

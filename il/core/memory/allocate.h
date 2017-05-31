@@ -80,6 +80,6 @@ T* allocate_array(il::int_t n, il::int_t align_r, il::int_t align_mod, il::io_t,
 }
 
 inline void deallocate(void* p) { std::free(p); }
-}
+}  // namespace il
 
 #endif  // IL_ALLOCATE_H

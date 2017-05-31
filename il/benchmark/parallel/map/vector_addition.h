@@ -10,9 +10,9 @@
 #ifndef IL_VECTOR_ADDITION_H
 #define IL_VECTOR_ADDITION_H
 
-#include <cstdio>
 #include <il/Array.h>
 #include <il/benchmark/tools/timer/Benchmark.h>
+#include <cstdio>
 
 #ifdef IL_TBB
 #include <tbb/tbb.h>
@@ -23,10 +23,12 @@
 #endif
 
 void vector_addition() {
-  std::printf("****************************************************************"
+  std::printf(
+      "****************************************************************"
       "****************\n");
   std::printf("* Vector addition\n");
-  std::printf("****************************************************************"
+  std::printf(
+      "****************************************************************"
       "****************\n");
 
   il::Array<il::int_t> size{
@@ -58,7 +60,8 @@ void vector_addition() {
       }
     };
     double time_openmp{il::benchmark(vector_addition_openmp) / n};
-    std::printf("OpenMP: %7.3e s, Ratio: %5.3f\n", time_openmp, time_serial / time_openmp);
+    std::printf("OpenMP: %7.3e s, Ratio: %5.3f\n", time_openmp,
+                time_serial / time_openmp);
 #endif
 
 #ifdef IL_TBB
@@ -76,7 +79,8 @@ void vector_addition() {
       }
     };
     double time_tbb{il::benchmark(vector_addition_tbb) / n};
-    std::printf("   TBB: %7.3e s, Ratio: %5.3f\n", time_tbb, time_serial / time_tbb);
+    std::printf("   TBB: %7.3e s, Ratio: %5.3f\n", time_tbb,
+                time_serial / time_tbb);
 #endif
 
 #ifdef IL_CILK
@@ -88,7 +92,8 @@ void vector_addition() {
       }
     };
     double time_cilk{il::benchmark(vector_addition_cilk) / n};
-    std::printf("  Cilk: %7.3e s, Ratio: %5.3f\n", time_cilk, time_serial / time_cilk);
+    std::printf("  Cilk: %7.3e s, Ratio: %5.3f\n", time_cilk,
+                time_serial / time_cilk);
 #endif
 
     std::printf("\n");

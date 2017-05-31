@@ -32,6 +32,6 @@ il::StaticArray<T, 3> cross(const il::StaticArray<T, 3>& x,
   return ans;
 }
 
-}
+}  // namespace il
 
 #endif  // IL_CROSS_H

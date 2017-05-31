@@ -83,8 +83,8 @@ enum class DynamicType {
 // 000...000||1000[1111|1111|111]1: <**> a 2D array of float
 // 000...000||1100[1111|1111|111]1: <**> a 2D array of double
 // 000...000||1010[1111|1111|111]1: a HashMapArray of <il::String, il::Dynamic>
-// 000...000||1110[1111|1111|111]1: <**> a HashMapArray of <il::String, il::Dynamic>
-// 000...000||1001[1111|1111|111]1: <**> a HashSet of int
+// 000...000||1110[1111|1111|111]1: <**> a HashMapArray of <il::String,
+// il::Dynamic> 000...000||1001[1111|1111|111]1: <**> a HashSet of int
 // 000...000||1101[1111|1111|111]1: <**> a HashSet of il::int_t
 // 000...000||1011[1111|1111|111]1: <**> a HashSet of float
 // 000...000||1111[1111|1111|111]1: a 64-bit integer
@@ -153,7 +153,8 @@ class Dynamic {
   const il::Array<il::Dynamic>& as_const_array() const;
   il::HashMapArray<il::String, il::Dynamic>& as_hashmaparray();
   const il::HashMapArray<il::String, il::Dynamic>& as_hashmaparray() const;
-  const il::HashMapArray<il::String, il::Dynamic>& as_const_hashmaparray() const;
+  const il::HashMapArray<il::String, il::Dynamic>& as_const_hashmaparray()
+      const;
 
  private:
   bool is_trivial() const;
@@ -176,9 +177,9 @@ inline Dynamic::Dynamic(il::int_t n) {
   if (n < max_integer && n >= -max_integer) {
     // Store the integer on the stack
     n_ = n + static_cast<std::int64_t>(
-        (static_cast<std::uint64_t>(n) & 0x8000000000000000)
-        ? 0x0001000000000000
-        : 0x0);
+                 (static_cast<std::uint64_t>(n) & 0x8000000000000000)
+                     ? 0x0001000000000000
+                     : 0x0);
     data2_[3] = 0x7FFA;
   } else {
     // Store the integer on the heap
@@ -207,8 +208,10 @@ inline Dynamic::Dynamic(const il::Array<il::Dynamic>& array) {
   data2_[3] = 0x7FF3;
 }
 
-inline Dynamic::Dynamic(const il::HashMapArray<il::String, il::Dynamic>& hashmaparray) {
-  p_ = static_cast<void*>(new il::HashMapArray<il::String, il::Dynamic>{hashmaparray});
+inline Dynamic::Dynamic(
+    const il::HashMapArray<il::String, il::Dynamic>& hashmaparray) {
+  p_ = static_cast<void*>(
+      new il::HashMapArray<il::String, il::Dynamic>{hashmaparray});
   data2_[3] = 0x7FF5;
 }
 
@@ -265,8 +268,8 @@ inline Dynamic::Dynamic(const Dynamic& other) {
         data2_[3] = 0x7FF3;
         break;
       case il::DynamicType::hashmaparray:
-        p_ = static_cast<void*>(
-            new il::HashMapArray<il::String, il::Dynamic>{other.as_hashmaparray()});
+        p_ = static_cast<void*>(new il::HashMapArray<il::String, il::Dynamic>{
+            other.as_hashmaparray()});
         data2_[3] = 0x7FF5;
         break;
       default:
@@ -347,8 +350,8 @@ inline il::Dynamic& Dynamic::operator=(const Dynamic& other) {
         data2_[3] = 0x7FF3;
         break;
       case il::DynamicType::hashmaparray:
-        p_ = static_cast<void*>(
-            new il::HashMapArray<il::String, il::Dynamic>{other.as_hashmaparray()});
+        p_ = static_cast<void*>(new il::HashMapArray<il::String, il::Dynamic>{
+            other.as_hashmaparray()});
         data2_[3] = 0x7FF5;
         break;
       default:
@@ -441,7 +444,9 @@ inline bool Dynamic::is_null() const { return data2_[3] == 0x7FF2; }
 
 inline bool Dynamic::is_boolean() const { return data2_[3] == 0x7FF6; }
 
-inline bool Dynamic::is_integer() const { return (data2_[3] == 0x7FFA) || (data2_[3] == 0xFFFF); }
+inline bool Dynamic::is_integer() const {
+  return (data2_[3] == 0x7FFA) || (data2_[3] == 0xFFFF);
+}
 
 inline bool Dynamic::is_floating_point() const {
   return !((data2_[3] & 0x7FF0) == 0x7FF0 && (data2_[3] & 0x0003));
@@ -497,7 +502,7 @@ inline il::int_t Dynamic::to_integer() const {
     // If this bit is equal to 1, we need to substract 2^48 to the result.
     // Otherwise, the previous result was fine.
     return n - static_cast<il::int_t>(
-        (data8 & 0x0000800000000000) ? 0x0001000000000000 : 0x0);
+                   (data8 & 0x0000800000000000) ? 0x0001000000000000 : 0x0);
   } else {
     union {
       il::int_t* p_integer;
@@ -601,7 +606,8 @@ inline il::HashMapArray<il::String, il::Dynamic>& Dynamic::as_hashmaparray() {
   return *p_hashmaparray;
 }
 
-inline const il::HashMapArray<il::String, il::Dynamic>& Dynamic::as_hashmaparray() const {
+inline const il::HashMapArray<il::String, il::Dynamic>&
+Dynamic::as_hashmaparray() const {
   union {
     il::HashMapArray<il::String, il::Dynamic>* p_hashmaparray;
     std::size_t data8;
@@ -611,8 +617,8 @@ inline const il::HashMapArray<il::String, il::Dynamic>& Dynamic::as_hashmaparray
   return *p_hashmaparray;
 }
 
-inline const il::HashMapArray<il::String, il::Dynamic>& Dynamic::as_const_hashmaparray()
-    const {
+inline const il::HashMapArray<il::String, il::Dynamic>&
+Dynamic::as_const_hashmaparray() const {
   union {
     il::HashMapArray<il::String, il::Dynamic>* p_hashmaparray;
     std::size_t data8;
@@ -625,6 +631,6 @@ inline const il::HashMapArray<il::String, il::Dynamic>& Dynamic::as_const_hashma
 inline bool Dynamic::is_trivial() const {
   return !(((data2_[3] & 0x7FF0) == 0x7FF0) && (data2_[3] & 0x0001));
 }
-}
+}  // namespace il
 
 #endif  // IL_DYNAMIC_H

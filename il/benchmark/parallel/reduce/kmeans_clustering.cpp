@@ -164,13 +164,11 @@ il::Array2D<float> kmeans_clustering_1(const il::Array2D<float>& point,
   return centroid;
 }
 
-
 struct Group {
   il::Array2D<float> centroid;
   il::Array<int> point_per_centroid;
   Group(int nb_cluster = 0)
-      : centroid{nb_cluster, 3},
-        point_per_centroid{nb_cluster} {}
+      : centroid{nb_cluster, 3}, point_per_centroid{nb_cluster} {}
 };
 
 il::Array2D<float> kmeans_clustering_2(const il::Array2D<float>& point,
@@ -193,7 +191,7 @@ il::Array2D<float> kmeans_clustering_2(const il::Array2D<float>& point,
   std::default_random_engine engine{};
   int iteration{-1};
   while (true) {
-    // Compute the centroid of the clusters
+// Compute the centroid of the clusters
 #pragma omp parallel for
     for (int id = 0; id < nb_thread; ++id) {
       for (int i = 0; i < nb_cluster; ++i) {
@@ -229,9 +227,10 @@ il::Array2D<float> kmeans_clustering_2(const il::Array2D<float>& point,
       }
     }
     // Fix the empty clusters
-    fix_clusters(point, il::io, cluster, group.centroid, group.point_per_centroid, engine);
+    fix_clusters(point, il::io, cluster, group.centroid,
+                 group.point_per_centroid, engine);
 
-    // Finish to compute the centroids of the clusters
+// Finish to compute the centroids of the clusters
 #pragma omp parallel for
     for (int i = 0; i < nb_cluster; ++i) {
       group.centroid(i, 0) /= group.point_per_centroid[i];
@@ -245,7 +244,7 @@ il::Array2D<float> kmeans_clustering_2(const il::Array2D<float>& point,
       break;
     }
 
-    // Reassign points to clusters
+// Reassign points to clusters
 #pragma omp parallel for
     for (int k = 0; k < nb_point; ++k) {
       float best_distance{std::numeric_limits<float>::max()};
@@ -311,7 +310,7 @@ il::Array2D<float> kmeans_clustering_3(const il::Array2D<float>& point,
   std::default_random_engine engine{};
   int iteration{-1};
   while (true) {
-    // Reduce local sums to global sum
+// Reduce local sums to global sum
 #pragma omp parallel for
     for (int i = 0; i < nb_cluster; ++i) {
       group.centroid(i, 0) = 0.0f;
@@ -351,7 +350,7 @@ il::Array2D<float> kmeans_clustering_3(const il::Array2D<float>& point,
       break;
     }
 
-    // Compute the new clusters and their local sums
+// Compute the new clusters and their local sums
 #pragma omp parallel for
     for (int k = 0; k < nb_point; ++k) {
       int id{omp_get_thread_num()};
@@ -454,4 +453,4 @@ void fix_clusters(const il::Array2D<float>& point, il::io_t,
     }
   }
 }
-}
+}  // namespace il

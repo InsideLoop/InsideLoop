@@ -59,5 +59,4 @@ double parse<double>(const std::string& src, il::io_t, il::Status& status) {
   return value;
 }
 
-
-}
+}  // namespace il

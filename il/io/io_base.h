@@ -12,8 +12,8 @@
 
 #include <string>
 
-#include <il/String.h>
 #include <il/Status.h>
+#include <il/String.h>
 
 namespace il {
 
@@ -72,6 +72,6 @@ void save(const T& x, const std::string& filename, il::io_t,
   il::SaveHelper<T>::save(x, il_filename, il::io, status);
 }
 
-}
+}  // namespace il
 
 #endif  // IL_IO_BASE

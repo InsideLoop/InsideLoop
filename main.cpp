@@ -14,7 +14,9 @@
 
 int main() {
   il::String string{};
-  string.append(10, il::Unicode::smiling_face_with_horns);
+  string.append(il::CodePoint::greek_small_letter_alpha);
+  string.append(il::CodePoint::greek_small_letter_beta);
+  string.append(" = 0");
 
   std::cout << string.c_string() << std::endl;
 

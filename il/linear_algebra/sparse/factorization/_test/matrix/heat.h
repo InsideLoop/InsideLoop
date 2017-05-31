@@ -56,21 +56,21 @@ il::SparseMatrixCSR<Index, double> heat_2d(Index n) {
     for (Index j = 0; j < n; ++j) {
       const Index idx = i * n + j;
       if (i >= 1) {
-        position.append(il::StaticArray<Index, 2>{
-            il::value, {idx, (i - 1) * n + j}});
+        position.append(
+            il::StaticArray<Index, 2>{il::value, {idx, (i - 1) * n + j}});
       }
       if (j >= 1) {
-        position.append(il::StaticArray<Index, 2>{
-            il::value, {idx, i * n + (j - 1)}});
+        position.append(
+            il::StaticArray<Index, 2>{il::value, {idx, i * n + (j - 1)}});
       }
       position.append(il::StaticArray<Index, 2>{il::value, {idx, idx}});
       if (j < n - 1) {
-        position.append(il::StaticArray<Index, 2>{
-            il::value, {idx, i * n + (j + 1)}});
+        position.append(
+            il::StaticArray<Index, 2>{il::value, {idx, i * n + (j + 1)}});
       }
       if (i < n - 1) {
-        position.append(il::StaticArray<Index, 2>{
-            il::value, {idx, (i + 1) * n + j}});
+        position.append(
+            il::StaticArray<Index, 2>{il::value, {idx, (i + 1) * n + j}});
       }
     }
   }
@@ -182,6 +182,6 @@ il::SparseMatrixCSR<Index, T> heat_3d(Index n) {
 
   return A;
 }
-}
+}  // namespace il
 
 #endif  // IL_HEAT_H

@@ -56,8 +56,8 @@ TEST(Eigen, test1) {
   const double epsilon = 1.0e-5;
 
   ASSERT_TRUE(ev.size() == 3 && std::abs(ev[0] - result[0]) <= epsilon &&
-      std::abs(ev[1] - result[1]) <= epsilon &&
-      std::abs(ev[2] - result[2]) <= epsilon);
+              std::abs(ev[1] - result[1]) <= epsilon &&
+              std::abs(ev[2] - result[2]) <= epsilon);
 }
 
 TEST(Eigen, test2) {
@@ -74,8 +74,8 @@ TEST(Eigen, test2) {
                                          {{1.0, 0.0}, {1.0, 0.0}, {1.0, 0.0}}};
   const double epsilon = 1.0e-4;
   ASSERT_TRUE(ev.size() == 3 && std::abs(ev[0] - result[0]) <= epsilon &&
-      std::abs(ev[1] - result[1]) <= epsilon &&
-      std::abs(ev[2] - result[2]) <= epsilon);
+              std::abs(ev[1] - result[1]) <= epsilon &&
+              std::abs(ev[2] - result[2]) <= epsilon);
 }
 
 TEST(Eigen, test3) {

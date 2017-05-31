@@ -52,6 +52,6 @@ inline std::string time_to_string(double time) {
     return std::to_string(time / il::year) + std::string{" years"};
   }
 }
-}
+}  // namespace il
 
 #endif  // IL_TIME_H

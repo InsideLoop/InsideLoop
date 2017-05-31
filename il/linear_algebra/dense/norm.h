@@ -10,11 +10,11 @@
 #ifndef IL_NORM_H
 #define IL_NORM_H
 
-#include <il/math.h>
 #include <il/Array.h>
-#include <il/StaticArray.h>
 #include <il/Array2D.h>
+#include <il/StaticArray.h>
 #include <il/TriDiagonal.h>
+#include <il/math.h>
 
 namespace il {
 
@@ -71,7 +71,8 @@ inline double norm(const il::Array<double>& v, Norm norm_type) {
   return ans;
 }
 
-inline double norm(const il::Array<double>& x, Norm norm_type, const il::Array<double>& alpha) {
+inline double norm(const il::Array<double>& x, Norm norm_type,
+                   const il::Array<double>& alpha) {
   IL_EXPECT_FAST(alpha.size() == x.size());
   IL_EXPECT_AXIOM("All alpha elements must be positive");
 
@@ -141,7 +142,7 @@ double norm(const il::TriDiagonal<T>& A, Norm norm_type) {
       il::Array<T> sum_row{n};
       sum_row[0] = il::abs(A(0, 0)) + il::abs(A(0, 1));
       for (il::int_t i = 1; i < n - 1; ++i) {
-        sum_row[i] = il::abs(A(i, -1)) + il::abs(A(i, 0))+ il::abs(A(i, 1));
+        sum_row[i] = il::abs(A(i, -1)) + il::abs(A(i, 0)) + il::abs(A(i, 1));
       }
       sum_row[n - 1] = il::abs(A(n - 1, -1)) + il::abs(A(n - 1, 0));
       for (il::int_t i = 0; i < sum_row.size(); ++i) {
@@ -155,6 +156,6 @@ double norm(const il::TriDiagonal<T>& A, Norm norm_type) {
   return ans;
 }
 
-}
+}  // namespace il
 
 #endif  // IL_NORM_H

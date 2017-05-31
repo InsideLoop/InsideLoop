@@ -247,6 +247,6 @@ inline il::Error Status::error() const {
 
   return error_;
 }
-}
+}  // namespace il
 
 #endif  // IL_STATUS_H

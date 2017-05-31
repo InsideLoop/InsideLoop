@@ -28,15 +28,10 @@ inline CusparseHandle::CusparseHandle() : handle_{} {
   cusparseCreate(&handle_);
 }
 
-inline CusparseHandle::~CusparseHandle() {
-  cusparseDestroy(handle_);
-}
+inline CusparseHandle::~CusparseHandle() { cusparseDestroy(handle_); }
 
-inline cusparseHandle_t CusparseHandle::handle() {
-  return handle_;
-}
+inline cusparseHandle_t CusparseHandle::handle() { return handle_; }
 
-}
+}  // namespace il
 
 #endif  // IL_CUSPARSEHANDLE_H
-

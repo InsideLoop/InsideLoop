@@ -69,7 +69,7 @@ class ConstArrayView {
   const T* data() const;
 
   /* \brief Returns a pointer to const to the first element of the array view
-  */
+   */
   const T* begin() const;
 
   /* \brief Returns a pointer to const to the one after the last element of
@@ -183,7 +183,7 @@ class ArrayView : public ConstArrayView<T> {
   T* data();
 
   /* \brief Returns a pointer to the first element of the array view
-  */
+   */
   T* begin();
 
   /* \brief Returns a pointer to the one after the last element of the array
@@ -227,6 +227,6 @@ template <typename T>
 T* ArrayView<T>::end() {
   return this->size_;
 }
-}
+}  // namespace il
 
 #endif  // IL_ARRAYVIEW_H

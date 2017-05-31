@@ -18,7 +18,8 @@ namespace il {
 
 inline il::ConstStringView remove_whitespace_left(ConstStringView string) {
   il::int_t i = 0;
-  while (i < string.size() && (string[i] == ' ' || string[i] == '\t')) {
+  while (i < string.size() &&
+         (string.ascii(i) == ' ' || string.ascii(i) == '\t')) {
     ++i;
   }
   string.shrink_left(i);
@@ -35,7 +36,7 @@ inline il::int_t search(ConstStringView a, ConstStringView b) {
     il::int_t i = 0;
     found = true;
     while (found && i < na) {
-      if (a[i] != b[k + i]) {
+      if (a.ascii(i) != b.ascii(k + i)) {
         found = false;
       }
       ++i;
@@ -63,14 +64,13 @@ inline il::int_t search(const char* a, const String& b) {
 inline il::int_t count(char c, ConstStringView a) {
   il::int_t ans = 0;
   for (il::int_t i = 0; i < a.size(); ++i) {
-    if (a[i] == c) {
+    if (a.ascii(i) == c) {
       ++ans;
     }
   }
   return ans;
 }
 
-}
+}  // namespace il
 
 #endif  // IL_ALGORITHM_STRING_H
-

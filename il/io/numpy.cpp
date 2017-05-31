@@ -19,7 +19,7 @@ NumpyInfo get_numpy_info(il::io_t, std::FILE* fp, il::Status& status) {
   NumpyInfo numpy_info;
 
   char first_buffer[10];
-  StringView buffer{first_buffer, 10};
+  il::StringView buffer{first_buffer, 10};
 
   // Read the first 10 bytes of the files. It should contain:
   // - The magic string "\x93NUMPY"
@@ -39,8 +39,8 @@ NumpyInfo get_numpy_info(il::io_t, std::FILE* fp, il::Status& status) {
     IL_SET_SOURCE(status);
     return numpy_info;
   }
-  unsigned char major_version = buffer[6];
-  unsigned char minor_version = buffer[7];
+  unsigned char major_version = buffer.ascii(6);
+  unsigned char minor_version = buffer.ascii(7);
   unsigned short header_length =
       *reinterpret_cast<unsigned short*>(buffer.begin() + 8);
   if (major_version != 1 || minor_version != 0) {
@@ -53,8 +53,8 @@ NumpyInfo get_numpy_info(il::io_t, std::FILE* fp, il::Status& status) {
   //
   il::Array<char> second_buffer{header_length + 1};
   StringView header = StringView{second_buffer.begin(), header_length + 1};
-  char* success = fgets(header.begin(), header_length + 1, fp);
-  if (success == nullptr || header[header.size() - 2] != '\n') {
+  char* success = fgets(header.c_string(), header_length + 1, fp);
+  if (success == nullptr || header.ascii(header.size() - 2) != '\n') {
     status.set_error(il::Error::binary_file_wrong_format);
     IL_SET_SOURCE(status);
     return numpy_info;
@@ -68,7 +68,8 @@ NumpyInfo get_numpy_info(il::io_t, std::FILE* fp, il::Status& status) {
     IL_SET_SOURCE(status);
     return numpy_info;
   }
-  const bool little_endian = header[i4 + 9] == '<' || header[i4 + 9] == '|';
+  const bool little_endian =
+      header.ascii(i4 + 9) == '<' || header.ascii(i4 + 9) == '|';
   if (!little_endian) {
     status.set_error(il::Error::binary_file_wrong_format);
     IL_SET_SOURCE(status);
@@ -77,7 +78,7 @@ NumpyInfo get_numpy_info(il::io_t, std::FILE* fp, il::Status& status) {
 
   ConstStringView type_string = header.substring(i4 + 10);
   const il::int_t i5 = il::search("'", type_string);
-  numpy_info.type = il::String{type_string.begin(), i5};
+  numpy_info.type = il::String{type_string.c_string(), i5};
 
   // Read the ordering for multidimensional arrays
   //
@@ -101,7 +102,7 @@ NumpyInfo get_numpy_info(il::io_t, std::FILE* fp, il::Status& status) {
     return numpy_info;
   }
   ConstStringView shape_string = header.substring(i1 + 1, i2);
-  if (shape_string.back() == ',') {
+  if (shape_string.ascii_back() == ',') {
     numpy_info.shape.resize(1);
   } else {
     const il::int_t n_dim = il::count(',', shape_string) + 1;
@@ -155,7 +156,7 @@ void save_numpy_info(const NumpyInfo& numpy_info, il::io_t, std::FILE* fp,
   magic.append(static_cast<char>(0x00));
   // Size of the header
   unsigned short short_int = static_cast<unsigned short>(header.size());
-  magic.append(reinterpret_cast<const char*>(&short_int), 2);
+  magic.append(reinterpret_cast<char*>(&short_int), 2);
   magic.append(header);
 
   std::size_t written = std::fwrite(magic.c_string(), sizeof(char),
@@ -168,4 +169,4 @@ void save_numpy_info(const NumpyInfo& numpy_info, il::io_t, std::FILE* fp,
 
   status.set_ok();
 }
-}
+}  // namespace il

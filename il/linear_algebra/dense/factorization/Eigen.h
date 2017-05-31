@@ -12,9 +12,9 @@
 
 #include <complex>
 
+#include <il/Status.h>
 #include <il/container/1d/Array.h>
 #include <il/container/2d/Array2D.h>
-#include <il/Status.h>
 #include <il/linear_algebra/dense/norm.h>
 
 #ifdef IL_MKL
@@ -93,6 +93,6 @@ il::Array<std::complex<double>> Eigen<il::Array2D<double>>::eigen_value()
 
   return ans;
 }
-}
+}  // namespace il
 
 #endif  // IL_EIGEN_H

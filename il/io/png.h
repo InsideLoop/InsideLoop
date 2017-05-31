@@ -21,10 +21,10 @@ struct png_t {};
 const png_t png{};
 
 il::Array3D<unsigned char> load(const std::string& filename, il::png_t,
-                                il::io_t, il::Status &status);
+                                il::io_t, il::Status& status);
 
 void save(const il::Array3D<unsigned char>& v, const std::string& filename,
-          il::png_t, il::io_t, il::Status &status);
-}
+          il::png_t, il::io_t, il::Status& status);
+}  // namespace il
 
 #endif  // IL_PNG_H

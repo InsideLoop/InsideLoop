@@ -165,7 +165,6 @@ TEST(safe_arithmetic, division_int_1) {
   ASSERT_TRUE(error);
 }
 
-
 TEST(safe_arithmetic, safe_convert_0) {
   std::size_t a = std::numeric_limits<il::int_t>::max();
   a = a + 1;

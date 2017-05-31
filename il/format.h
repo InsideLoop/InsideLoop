@@ -15,7 +15,6 @@
 namespace il {
 
 FMT_VARIADIC(void, print, fmt::CStringRef)
-
 }
 
 #endif  // IL_ARRAY_H

@@ -419,6 +419,6 @@ inline bool U16String::valid_code_point(std::int32_t cp) {
   return ucp <= code_point_max &&
          (ucp < lead_surrogate_min || ucp > lead_surrogate_max);
 }
-}
+}  // namespace il
 
 #endif  // IL_U16STRING_H

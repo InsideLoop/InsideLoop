@@ -72,7 +72,7 @@ class ConstArray2DView {
   const T* data() const;
 
   /* \brief Memory distance (in sizeof(T)) in between A(i, j) and A(i + 1, j)
-  */
+   */
   il::int_t stride(il::int_t d) const;
 };
 
@@ -186,8 +186,7 @@ class Array2DView : public ConstArray2DView<T> {
 };
 
 template <typename T>
-Array2DView<T>::Array2DView()
-    : ConstArray2DView<T>{} {}
+Array2DView<T>::Array2DView() : ConstArray2DView<T>{} {}
 
 template <typename T>
 Array2DView<T>::Array2DView(T* data, il::int_t n0, il::int_t n1,
@@ -207,6 +206,6 @@ template <typename T>
 T* Array2DView<T>::data() {
   return this->data_;
 }
-}
+}  // namespace il
 
 #endif  // IL_ARRAY2DVIEW_H

@@ -36,6 +36,6 @@ void matrix_multiplication_6(const il::Array2C<double> &A,
                              const il::Array2C<double> &B,
                              il::Array2C<double> &C);
 
-}
+}  // namespace il
 
 #endif  // IL_MATRIX_MULTIPLICATION_H

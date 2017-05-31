@@ -133,11 +133,11 @@ class Cholesky<LowerArray2D<double>> {
   il::LowerArray2D<double> l_;
 
  public:
-  Cholesky(il::LowerArray2D<double> A, il::io_t, il::Status &status);
+  Cholesky(il::LowerArray2D<double> A, il::io_t, il::Status& status);
 };
 
 Cholesky<LowerArray2D<double>>::Cholesky(il::LowerArray2D<double> A, il::io_t,
-                             il::Status &status)
+                                         il::Status& status)
     : l_{} {
   const int layout = LAPACK_COL_MAJOR;
   const char uplo = 'L';
@@ -152,6 +152,6 @@ Cholesky<LowerArray2D<double>>::Cholesky(il::LowerArray2D<double> A, il::io_t,
   }
 }
 
-}
+}  // namespace il
 
 #endif  // IL_CHOLESKY_H

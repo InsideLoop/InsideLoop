@@ -587,4 +587,4 @@ double kmeans_clustering_il(int nb_point, int nb_cluster, int nb_iteration) {
 
   return 0.0;
 }
-}
+}  // namespace il

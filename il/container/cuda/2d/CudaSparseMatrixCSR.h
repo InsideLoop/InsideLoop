@@ -70,6 +70,6 @@ const T* CudaSparseMatrixCSR<T>::element_data() const {
   return element_.data();
 }
 
-}
+}  // namespace il
 
 #endif  // IL_CUDASPARSEMATRIXCSR_H

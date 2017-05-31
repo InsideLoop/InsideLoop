@@ -102,6 +102,6 @@ template <typename T, il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3>
 T* StaticArray4D<T, n0, n1, n2, n3>::data() {
   return data_;
 }
-}
+}  // namespace il
 
 #endif  // IL_STATICARRAY4D_H

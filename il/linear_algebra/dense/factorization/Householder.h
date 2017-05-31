@@ -10,9 +10,9 @@
 #ifndef IL_HOUSEHOLDER_H
 #define IL_HOUSEHOLDER_H
 
+#include <il/Status.h>
 #include <il/container/1d/Array.h>
 #include <il/container/2d/Array2D.h>
-#include <il/Status.h>
 #include <il/linear_algebra/dense/factorization/norm.h>
 
 #ifdef IL_MKL
@@ -40,10 +40,10 @@ class Householder<il::Array2D<double>> {
   Householder(il::Array2D<double> A);
 
   // Size of the matrix
-//  il::int_t size(il::int_t d) const;
+  //  il::int_t size(il::int_t d) const;
 
   // Solve the system of equation with one second member
-//  il::Array<double> solve(il::Array<double> y) const;
+  //  il::Array<double> solve(il::Array<double> y) const;
 };
 
 Householder<il::Array2D<double>>::Householder(il::Array2D<double> A)
@@ -62,6 +62,6 @@ Householder<il::Array2D<double>>::Householder(il::Array2D<double> A)
   IL_EXPECT_FAST(lapack_error >= 0);
 }
 
-}
+}  // namespace il
 
 #endif  // IL_HOUSEHOLDER_H

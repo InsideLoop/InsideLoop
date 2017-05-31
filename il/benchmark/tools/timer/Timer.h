@@ -11,11 +11,10 @@
 #define IL_TIMER_H
 
 #include <chrono>
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <cstdlib>
 #include <limits>
-
 
 #include <il/core/base.h>
 
@@ -53,10 +52,9 @@ inline void Timer::stop() {
       std::chrono::high_resolution_clock::now();
   IL_EXPECT_FAST(launched_);
   launched_ = false;
-  time_ += 1.0e-9 *
-           std::chrono::duration_cast<std::chrono::nanoseconds>(point_end -
-                                                                point_begin_)
-               .count();
+  time_ += 1.0e-9 * std::chrono::duration_cast<std::chrono::nanoseconds>(
+                        point_end - point_begin_)
+                        .count();
 }
 
 inline void Timer::reset() {
@@ -97,6 +95,6 @@ inline void TimerCycles::stop() {
 inline long int TimerCycles::cycles() const {
   return static_cast<long int>(nb_cycles_);
 }
-}
+}  // namespace il
 
 #endif  // IL_TIMER_H

@@ -10,12 +10,12 @@
 #ifndef IL_PARTIALLU_H
 #define IL_PARTIALLU_H
 
+#include <il/Status.h>
 #include <il/container/1d/Array.h>
 #include <il/container/2d/Array2C.h>
 #include <il/container/2d/Array2D.h>
 #include <il/container/2d/LowerArray2D.h>
 #include <il/container/2d/UpperArray2D.h>
-#include <il/Status.h>
 #include <il/linear_algebra/dense/norm.h>
 
 #ifdef IL_MKL
@@ -43,7 +43,7 @@ class LU<il::Array2D<double>> {
   //
   // where P is a permutation matrix, L is lower triangular with unit diagonal
   // elements, and U is upper triangular.
-  LU(il::Array2D<double> A, il::io_t, il::Status &status);
+  LU(il::Array2D<double> A, il::io_t, il::Status& status);
 
   // Size of the matrix
   il::int_t size(il::int_t d) const;
@@ -76,8 +76,7 @@ class LU<il::Array2D<double>> {
   il::UpperArray2D<double> U() const;
 };
 
-LU<il::Array2D<double>>::LU(il::Array2D<double> A, il::io_t,
-                                          il::Status &status)
+LU<il::Array2D<double>>::LU(il::Array2D<double> A, il::io_t, il::Status& status)
     : ipiv_{}, lu_{} {
   const int layout = LAPACK_COL_MAJOR;
   const lapack_int m = static_cast<lapack_int>(A.size(0));
@@ -104,8 +103,7 @@ il::int_t LU<il::Array2D<double>>::size(il::int_t d) const {
   return lu_.size(d);
 }
 
-il::Array<double> LU<il::Array2D<double>>::solve(
-    il::Array<double> y) const {
+il::Array<double> LU<il::Array2D<double>>::solve(il::Array<double> y) const {
   IL_EXPECT_FAST(lu_.size(0) == lu_.size(1));
 
   const int layout = LAPACK_COL_MAJOR;
@@ -165,7 +163,7 @@ double LU<il::Array2D<double>>::determinant() const {
 }
 
 double LU<il::Array2D<double>>::condition_number(il::Norm norm_type,
-                                                        double norm_a) const {
+                                                 double norm_a) const {
   IL_EXPECT_FAST(lu_.size(0) == lu_.size(1));
   IL_EXPECT_FAST(norm_type == il::Norm::L1 || norm_type == il::Norm::Linf);
 
@@ -181,14 +179,12 @@ double LU<il::Array2D<double>>::condition_number(il::Norm norm_type,
   return 1.0 / rcond;
 }
 
-const double& LU<il::Array2D<double>>::L(il::int_t i,
-                                                il::int_t j) const {
+const double& LU<il::Array2D<double>>::L(il::int_t i, il::int_t j) const {
   IL_EXPECT_MEDIUM(j < i);
   return lu_(i, j);
 }
 
-const double& LU<il::Array2D<double>>::U(il::int_t i,
-                                                il::int_t j) const {
+const double& LU<il::Array2D<double>>::U(il::int_t i, il::int_t j) const {
   IL_EXPECT_MEDIUM(j >= i);
   return lu_(i, j);
 }
@@ -219,6 +215,6 @@ il::UpperArray2D<double> LU<il::Array2D<double>>::U() const {
   }
   return U;
 }
-}
+}  // namespace il
 
 #endif  // IL_PARTIALLU_H

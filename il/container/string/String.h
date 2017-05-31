@@ -57,6 +57,7 @@ class String {
   ~String();
   il::int_t size() const;
   il::int_t capacity() const;
+  bool empty() const;
   bool small() const;
   void reserve(il::int_t r);
   void append(const String& s);
@@ -66,7 +67,6 @@ class String {
   void append(std::int32_t cp);
   void append(il::int_t n, char c);
   void append(il::int_t n, std::int32_t cp);
-  bool empty() const;
   il::int_t next_cp(il::int_t i) const;
   std::int32_t cp(il::int_t i) const;
   const std::uint8_t* begin() const;
@@ -365,7 +365,8 @@ inline void String::append(il::int_t n, std::int32_t cp) {
     const il::int_t new_capacity = il::max(new_size, 2 * old_size);
     reserve(new_capacity);
     std::uint8_t* data = end();
-    const std::uint8_t cu0 = static_cast<std::uint8_t>((ucp >> 6) | 0x000000C0u);
+    const std::uint8_t cu0 =
+        static_cast<std::uint8_t>((ucp >> 6) | 0x000000C0u);
     const std::uint8_t cu1 =
         static_cast<std::uint8_t>((ucp & 0x0000003Fu) | 0x00000080u);
     for (il::int_t i = 0; i < n; ++i) {
@@ -462,7 +463,6 @@ inline bool String::small() const {
   return (data_[max_small_size_] & category_extract_mask) == 0;
 }
 
-
 inline bool String::operator==(const il::String& other) const {
   if (size() != other.size()) {
     return false;
@@ -551,6 +551,6 @@ inline bool String::valid_code_point(std::int32_t cp) {
   return ucp <= code_point_max &&
          (ucp < lead_surrogate_min || ucp > lead_surrogate_max);
 }
-}
+}  // namespace il
 
 #endif  // IL_STRING_H

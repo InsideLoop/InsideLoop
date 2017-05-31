@@ -86,7 +86,7 @@ class SmallArray {
   SmallArray(const SmallArray<T, small_size>& A);
 
   /* \brief The move constructor
-  */
+   */
   SmallArray(SmallArray<T, small_size>&& A);
 
   /* \brief The copy assignment
@@ -97,7 +97,7 @@ class SmallArray {
   SmallArray& operator=(const SmallArray<T, small_size>& A);
 
   /* \brief The move assignment
-  */
+   */
   SmallArray& operator=(SmallArray<T, small_size>&& A);
 
   /* \brief The destructor
@@ -157,7 +157,7 @@ class SmallArray {
   void resize(il::int_t n);
 
   /* \brief Get the capacity of the array
-  */
+   */
   il::int_t capacity() const;
 
   /* \brief Change the capacity of the array to at least p
@@ -190,7 +190,7 @@ class SmallArray {
   T* data();
 
   /* \brief Returns a pointer to const to the first element of the array
-  */
+   */
   const T* begin() const;
 
   /* \brief Returns a pointer to const to the one after the last element of
@@ -200,15 +200,15 @@ class SmallArray {
 
  private:
   /* \brief Used internally to check if the stack array is used
-  */
+   */
   bool small_data_used() const;
 
   /* \brief Used internally to increase the capacity of the array
-  */
+   */
   void increase_capacity(il::int_t r);
 
   /* \brief Used internally in debug mode to check the invariance of the object
-  */
+   */
   bool invariance() const;
 };
 
@@ -613,6 +613,6 @@ bool SmallArray<T, small_size>::invariance() const {
   }
   return ans;
 }
-}
+}  // namespace il
 
 #endif  // IL_SMALLARRAY_H

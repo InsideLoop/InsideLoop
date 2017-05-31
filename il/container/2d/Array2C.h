@@ -64,9 +64,8 @@ class Array2C {
   // \details The pointer data, when considered as an integer, satisfies
   // data_ = align_r (Modulo align_mod)
   */
-  explicit Array2C(il::int_t n0, il::int_t n1, il::align_t,
-                   il::int_t alignment, il::int_t align_r,
-                   il::int_t align_mod);
+  explicit Array2C(il::int_t n0, il::int_t n1, il::align_t, il::int_t alignment,
+                   il::int_t align_r, il::int_t align_mod);
 
   /* \brief Construct an il::Array2C<T> of n rows and p columns
   // \details The pointer data, when considered as an integer, satisfies
@@ -105,7 +104,7 @@ class Array2C {
   Array2C(const Array2C<T>& A);
 
   /* \brief The move constructor
-  */
+   */
   Array2C(Array2C<T>&& A);
 
   /* \brief The copy assignment
@@ -116,11 +115,11 @@ class Array2C {
   Array2C& operator=(const Array2C<T>& A);
 
   /* \brief The move assignment
-  */
+   */
   Array2C& operator=(Array2C<T>&& A);
 
   /* \brief The destructor
-  */
+   */
   ~Array2C();
 
   /* \brief Accessor for a const il::2DArray<T>
@@ -183,7 +182,7 @@ class Array2C {
   void reserve(il::int_t r0, il::int_t r1);
 
   /* \brief Get the alignment of the pointer returned by data()
-  */
+   */
   il::int_t alignment() const;
 
   /* \brief Get a pointer to const to the first element of the array
@@ -203,12 +202,12 @@ class Array2C {
   T* data(il::int_t i0);
 
   /* \brief Memory distance (in sizeof(T)) in between A(i, j) and A(i + 1, j)
-  */
+   */
   il::int_t stride(il::int_t d) const;
 
  private:
   /* \brief Used internally in debug mode to check the invariance of the object
-  */
+   */
   bool invariance() const;
 };
 
@@ -1051,6 +1050,6 @@ bool Array2C<T>::invariance() const {
   }
   return ans;
 }
-}
+}  // namespace il
 
 #endif  // IL_ARRAY2C_H

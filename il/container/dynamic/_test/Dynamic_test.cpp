@@ -229,8 +229,8 @@ TEST(Dynamic, dynamic_constructor_4) {
 
   ASSERT_TRUE(!a.is_null() && !a.is_boolean() && !a.is_integer() &&
               !a.is_floating_point() && a.is_string() &&
-              a.as_string().size() == 0 && !a.is_array() && !a.is_hashmaparray() &&
-              a.type() == il::DynamicType::string);
+              a.as_string().size() == 0 && !a.is_array() &&
+              !a.is_hashmaparray() && a.type() == il::DynamicType::string);
 }
 
 TEST(Dynamic, dynamic_constructor_5) {
@@ -443,8 +443,8 @@ TEST(Dynamic, move_constructor_hashmaparray_0) {
               a.as_const_hashmaparray().search("World!") >= 0 && !a.is_null() &&
               !a.is_boolean() && !a.is_integer() && !a.is_floating_point() &&
               !a.is_string() && !a.is_array() &&
-              a.type() == il::DynamicType::hashmaparray && b.is_floating_point() &&
-              b.to_floating_point() == 0);
+              a.type() == il::DynamicType::hashmaparray &&
+              b.is_floating_point() && b.to_floating_point() == 0);
 }
 
 TEST(Dynamic, copy_assignement_null) {
@@ -653,6 +653,6 @@ TEST(Dynamic, move_assignement_hashmaparray_0) {
               a.as_const_hashmaparray().search("World!") >= 0 && !a.is_null() &&
               !a.is_boolean() && !a.is_integer() && !a.is_floating_point() &&
               !a.is_string() && !a.is_array() &&
-              a.type() == il::DynamicType::hashmaparray && b.is_floating_point() &&
-              b.to_floating_point() == 0);
+              a.type() == il::DynamicType::hashmaparray &&
+              b.is_floating_point() && b.to_floating_point() == 0);
 }

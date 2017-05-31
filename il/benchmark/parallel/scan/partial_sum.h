@@ -10,10 +10,10 @@
 #ifndef IL_PARTIAL_SUM_H
 #define IL_PARTIAL_SUM_H
 
-#include <cstdio>
 #include <il/Array.h>
-#include <il/benchmark/tools/timer/Benchmark.h>
 #include <il/benchmark/tools/memory/memory.h>
+#include <il/benchmark/tools/timer/Benchmark.h>
+#include <cstdio>
 
 #ifdef IL_TBB
 #include <tbb/tbb.h>
@@ -32,14 +32,13 @@ class Body {
   double sum_;
   const il::Array<double>& v_;
   il::Array<double>& p_;
+
  public:
   Body(const il::Array<double>& v, il::io_t, il::Array<double>& p)
       : v_{v}, p_{p} {
     sum_ = 0;
   };
-  double get_sum() {
-    return sum_;
-  };
+  double get_sum() { return sum_; };
   template <typename Tag>
   void operator()(const tbb::blocked_range<il::int_t>& range, Tag) {
     double temp{sum_};
@@ -51,24 +50,20 @@ class Body {
       sum_ = temp;
     }
   }
-  Body(Body& b, tbb::split) : v_{b.v_}, p_{b.p_} {
-    sum_ = 0;
-  }
-  void reverse_join(Body& a) {
-    sum_ += a.sum_;
-  }
-  void assign(Body& b) {
-    sum_ = b.sum_;
-  }
+  Body(Body& b, tbb::split) : v_{b.v_}, p_{b.p_} { sum_ = 0; }
+  void reverse_join(Body& a) { sum_ += a.sum_; }
+  void assign(Body& b) { sum_ = b.sum_; }
 };
 #endif
 
 void partial_sum() {
-  std::printf("****************************************************************"
-                  "****************\n");
+  std::printf(
+      "****************************************************************"
+      "****************\n");
   std::printf("* Partial sum\n");
-  std::printf("****************************************************************"
-                  "****************\n");
+  std::printf(
+      "****************************************************************"
+      "****************\n");
 
   il::Array<il::int_t> size{
       il::value, {100, 1000, 10000, 100000, 1000000, 10000000, 100000000}};
@@ -113,11 +108,6 @@ void partial_sum() {
     std::printf("\n");
   }
 }
-
 }
 
-
-
-
 #endif  // IL_PARTIAL_SUM_H
-

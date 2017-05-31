@@ -109,7 +109,7 @@ class Array {
   Array(const Array<T>& v);
 
   /* \brief The move constructor
-  */
+   */
   Array(Array<T>&& v);
 
   /* \brief The copy assignment
@@ -120,11 +120,11 @@ class Array {
   Array& operator=(const Array<T>& v);
 
   /* \brief The move assignment
-  */
+   */
   Array& operator=(Array<T>&& v);
 
   /* \brief The destructor
-  */
+   */
   ~Array();
 
   /* \brief Accessor for a const il::Array<T>
@@ -182,7 +182,7 @@ class Array {
   void resize(il::int_t n);
 
   /* \brief Get the capacity of the il::Array<T>
-  */
+   */
   il::int_t capacity() const;
 
   /* \brief Change the capacity of the array to at least p
@@ -211,7 +211,7 @@ class Array {
   void append(il::emplace_t, Args&&... args);
 
   /* \brief Get the alignment of the pointer returned by data()
-  */
+   */
   il::int_t alignment() const;
 
   /* \brief Get a pointer to const to the first element of the array
@@ -225,11 +225,11 @@ class Array {
   T* data();
 
   /* \brief Returns a pointer to const to the first element of the array
-  */
+   */
   const T* begin() const;
 
   /* \brief Returns a pointer to const to the first element of the array
-  */
+   */
   T* begin();
 
   /* \brief Returns a pointer to const to the one after the last element of
@@ -244,11 +244,11 @@ class Array {
 
  private:
   /* \brief Used internally to increase the capacity of the array
-  */
+   */
   void increase_capacity(il::int_t r);
 
   /* \brief Used internally in debug mode to check the invariance of the object
-  */
+   */
   bool invariance() const;
 };
 
@@ -820,6 +820,6 @@ bool Array<T>::invariance() const {
   }
   return ans;
 }
-}
+}  // namespace il
 
 #endif  // IL_ARRAY_H

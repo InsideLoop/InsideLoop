@@ -28,6 +28,6 @@ inline ConstStringView view(const char* string) {
   return ConstStringView{string, size};
 }
 
-}
+}  // namespace il
 
 #endif  // IL_VIEW_STRING_H

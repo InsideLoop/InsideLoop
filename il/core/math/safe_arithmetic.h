@@ -477,7 +477,8 @@ inline long safe_upper_round(long a, long b, il::io_t, bool& error) {
   }
 }
 
-inline long long safe_upper_round(long long a, long long b, il::io_t, bool& error) {
+inline long long safe_upper_round(long long a, long long b, il::io_t,
+                                  bool& error) {
   IL_EXPECT_FAST(a >= 0);
   IL_EXPECT_FAST(b > 0);
 
@@ -491,9 +492,11 @@ inline long long safe_upper_round(long long a, long long b, il::io_t, bool& erro
   } else {
     bool error_sum = false;
     bool error_product = false;
-    const long long q_plus_one = il::safe_sum(
-        static_cast<long long>(q), static_cast<long long>(1), il::io, error_sum);
-    const long long ans = il::safe_product(q_plus_one, b, il::io, error_product);
+    const long long q_plus_one =
+        il::safe_sum(static_cast<long long>(q), static_cast<long long>(1),
+                     il::io, error_sum);
+    const long long ans =
+        il::safe_product(q_plus_one, b, il::io, error_product);
     if (error_sum || error_product) {
       error = true;
       return 0;
@@ -580,6 +583,6 @@ inline unsigned long long safe_convert(long long n, il::io_t, bool& error) {
     return static_cast<unsigned long long>(n);
   }
 }
-}
+}  // namespace il
 
 #endif  // IL_SAFE_ARITHMETIC_H

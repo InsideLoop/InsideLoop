@@ -24,19 +24,12 @@ class CublasHandle {
   cublasHandle_t handle();
 };
 
-inline CublasHandle::CublasHandle() : handle_{} {
-  cublasCreate(&handle_);
-}
+inline CublasHandle::CublasHandle() : handle_{} { cublasCreate(&handle_); }
 
-inline CublasHandle::~CublasHandle() {
-  cublasDestroy(handle_);
-}
+inline CublasHandle::~CublasHandle() { cublasDestroy(handle_); }
 
-cublasHandle_t CublasHandle::handle() {
- return handle_;
-}
+cublasHandle_t CublasHandle::handle() { return handle_; }
 
-}
+}  // namespace il
 
 #endif  // IL_CUBLAS_HANDLE_H
-

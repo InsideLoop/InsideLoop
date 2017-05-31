@@ -104,6 +104,6 @@ template <typename T>
 T* BandArray2C<T>::data() {
   return element_.data();
 }
-}
+}  // namespace il
 
 #endif  // IL_BANDARRAY2C_H

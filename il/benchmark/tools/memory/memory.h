@@ -34,6 +34,6 @@ void warm_cache(il::io_t, il::Array2D<T>& A) {
     data[k] = T{};
   }
 }
-}
+}  // namespace il
 
 #endif  // IL_MEMORY_H

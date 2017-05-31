@@ -12,10 +12,10 @@
 
 #include <cstdio>
 
-#include <il/math.h>
 #include <il/Array.h>
-#include <il/benchmark/tools/timer/Benchmark.h>
 #include <il/benchmark/tools/memory/memory.h>
+#include <il/benchmark/tools/timer/Benchmark.h>
+#include <il/math.h>
 
 #ifdef IL_TBB
 #include <tbb/tbb.h>
@@ -33,13 +33,10 @@ class IntegrateBody {
  private:
   double sum_;
   il::Array<double>& f_;
+
  public:
-  IntegrateBody(il::io_t, il::Array<double>& f) : f_{f} {
-    sum_ = 0;
-  };
-  double get_sum() {
-    return sum_;
-  };
+  IntegrateBody(il::io_t, il::Array<double>& f) : f_{f} { sum_ = 0; };
+  double get_sum() { return sum_; };
   template <typename Tag>
   void operator()(const tbb::blocked_range<il::int_t>& range, Tag) {
     const il::int_t n{f_.size()};
@@ -52,24 +49,20 @@ class IntegrateBody {
       sum_ = tmp;
     }
   }
-  IntegrateBody(IntegrateBody& b, tbb::split) : f_{b.f_} {
-    sum_ = 0;
-  }
-  void reverse_join(IntegrateBody& a) {
-    sum_ += a.sum_;
-  }
-  void assign(IntegrateBody& b) {
-    sum_ = b.sum_;
-  }
+  IntegrateBody(IntegrateBody& b, tbb::split) : f_{b.f_} { sum_ = 0; }
+  void reverse_join(IntegrateBody& a) { sum_ += a.sum_; }
+  void assign(IntegrateBody& b) { sum_ = b.sum_; }
 };
 #endif
 
 void integrate() {
-  std::printf("****************************************************************"
-                  "****************\n");
+  std::printf(
+      "****************************************************************"
+      "****************\n");
   std::printf("* Integration\n");
-  std::printf("****************************************************************"
-                  "****************\n");
+  std::printf(
+      "****************************************************************"
+      "****************\n");
 
   il::Array<il::int_t> size{
       il::value, {100, 1000, 10000, 100000, 1000000, 10000000, 100000000}};
@@ -104,10 +97,6 @@ void integrate() {
     std::printf("\n");
   }
 }
-
 }
-
-
-
 
 #endif  // IL_INTEGRATE_H

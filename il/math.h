@@ -52,7 +52,6 @@ T min(const il::Array<T>& A) {
   return ans;
 }
 
-
 template <typename T>
 T max(T a, T b, T c) {
   auto temp = T{max(b, c)};
@@ -246,16 +245,16 @@ static const int table_log2_64[64] = {
     56, 45, 25, 31, 35, 16, 9,  12, 44, 24, 15, 8,  23, 7,  6,  5};
 
 inline int next_log2_64(std::uint64_t x) {
-//  x |= x >> 1;
-//  x |= x >> 2;
-//  x |= x >> 4;
-//  x |= x >> 8;
-//  x |= x >> 16;
-//  x |= x >> 32;
-//  const il::int_t index =
-//      static_cast<il::int_t>((x * 0x07EDD5E59A4E28C2) >> 58);
-//
-//  return table_log2_64[index];
+  //  x |= x >> 1;
+  //  x |= x >> 2;
+  //  x |= x >> 4;
+  //  x |= x >> 8;
+  //  x |= x >> 16;
+  //  x |= x >> 32;
+  //  const il::int_t index =
+  //      static_cast<il::int_t>((x * 0x07EDD5E59A4E28C2) >> 58);
+  //
+  //  return table_log2_64[index];
   std::uint64_t power = 1;
   int k = 0;
   while (power < x) {
@@ -271,14 +270,14 @@ static const int table_log2_32[32] = {
     8, 12, 20, 28, 15, 17, 24, 7,  19, 27, 23, 6,  26, 5,  4, 31};
 
 inline int next_log2_32(std::uint32_t x) {
-//  x |= x >> 1;
-//  x |= x >> 2;
-//  x |= x >> 4;
-//  x |= x >> 8;
-//  x |= x >> 16;
-//  const int32_t index = static_cast<std::int32_t>(x * 0x07C4ACDD) >> 27;
-//
-//  return table_log2_32[index];
+  //  x |= x >> 1;
+  //  x |= x >> 2;
+  //  x |= x >> 4;
+  //  x |= x >> 8;
+  //  x |= x >> 16;
+  //  const int32_t index = static_cast<std::int32_t>(x * 0x07C4ACDD) >> 27;
+  //
+  //  return table_log2_32[index];
   std::uint32_t power = 1;
   int k = 0;
   while (power < x) {
@@ -288,6 +287,6 @@ inline int next_log2_32(std::uint32_t x) {
 
   return k;
 }
-}
+}  // namespace il
 
 #endif  // IL_MATH_H

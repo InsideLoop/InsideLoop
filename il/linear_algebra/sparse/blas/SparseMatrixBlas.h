@@ -17,11 +17,12 @@
 
 namespace il {
 
-template <typename Index, typename T> class SparseMatrixBlas {
-private:
+template <typename Index, typename T>
+class SparseMatrixBlas {
+ private:
   sparse_matrix_t sparse_matrix_handle_;
 
-public:
+ public:
   SparseMatrixBlas(il::io_t, il::SparseMatrixCSR<Index, T> &A);
   ~SparseMatrixBlas();
   void set_nb_matrix_vector(il::int_t n);
@@ -122,8 +123,8 @@ sparse_matrix_t SparseMatrixBlas<Index, float>::handle() {
   return sparse_matrix_handle_;
 }
 
-}
+}  // namespace il
 
-#endif // IL_MKL
+#endif  // IL_MKL
 
-#endif // IL_SPARSEMATRIXOPTIMIZED_H
+#endif  // IL_SPARSEMATRIXOPTIMIZED_H

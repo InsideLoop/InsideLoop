@@ -23,9 +23,9 @@ namespace il {
 
 // A is a matrix, x, y are vectors
 // C <- A.B
-inline il::SparseMatrixCSR<int, double> dot(il::io_t,
-                                          il::SparseMatrixCSR<int, double> &A,
-                                          il::SparseMatrixCSR<int, double> &B) {
+inline il::SparseMatrixCSR<int, double> dot(
+    il::io_t, il::SparseMatrixCSR<int, double> &A,
+    il::SparseMatrixCSR<int, double> &B) {
   IL_EXPECT_FAST(A.size(1) == B.size(0));
 
   const char trans = 'n';
@@ -96,11 +96,11 @@ inline il::SparseMatrixCSR<int, double> dot(il::io_t,
     --column[i];
   }
 
-  return il::SparseMatrixCSR<int, double>{m, k, std::move(column), std::move(row),
-                                        std::move(element)};
+  return il::SparseMatrixCSR<int, double>{m, k, std::move(column),
+                                          std::move(row), std::move(element)};
 }
 
-}
-#endif // IL_MKL
+}  // namespace il
+#endif  // IL_MKL
 
 #endif  // IL_SPARSE_DOT_H

@@ -11,8 +11,8 @@
 //   linear_solve_benchmark.cpp -o main -lbenchmark
 
 #include <il/Array.h>
-#include <il/Array2D.h>
 #include <il/Array2C.h>
+#include <il/Array2D.h>
 #include <il/linear_algebra.h>
 
 #include <benchmark/benchmark.h>

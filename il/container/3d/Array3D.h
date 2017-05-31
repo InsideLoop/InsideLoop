@@ -73,8 +73,7 @@ class Array3D {
   // data_ = align_r (Modulo align_mod)
   */
   explicit Array3D(il::int_t n0, il::int_t n1, il::int_t n2, il::align_t,
-                   il::int_t alignment, il::int_t align_r,
-                   il::int_t align_mod);
+                   il::int_t alignment, il::int_t align_r, il::int_t align_mod);
 
   /* \brief Construct an array of n0 rows and n1 columns and n2 slices with a
   // value
@@ -112,7 +111,7 @@ class Array3D {
   Array3D(const Array3D<T>& A);
 
   /* \brief The move constructor
-  */
+   */
   Array3D(Array3D<T>&& A);
 
   /* \brief The copy assignment
@@ -123,11 +122,11 @@ class Array3D {
   Array3D& operator=(const Array3D<T>& A);
 
   /* \brief The move assignment
-  */
+   */
   Array3D& operator=(Array3D<T>&& A);
 
   /* \brief The destructor
-  */
+   */
   ~Array3D();
 
   /* \brief Accessor for a const il::3DArray<T>
@@ -193,7 +192,7 @@ class Array3D {
   void reserve(il::int_t r0, il::int_t r1, il::int_t r2);
 
   /* \brief Get the alignment of the pointer returned by data()
-  */
+   */
   il::int_t alignment() const;
 
   /* \brief Get a pointer to const to the first element of the array
@@ -223,7 +222,7 @@ class Array3D {
 
  private:
   /* \brief Used internally in debug mode to check the invariance of the object
-  */
+   */
   bool invariance() const;
 };
 
@@ -548,8 +547,9 @@ Array3D<T>::Array3D(
         IL_EXPECT_FAST(static_cast<il::int_t>((list.begin() + i2)->size()) ==
                        n1);
         for (il::int_t i1 = 0; i1 < n1; ++i1) {
-          IL_EXPECT_FAST(static_cast<il::int_t>(((list.begin() + i2)->begin() +
-                                                 i1)->size()) == n0);
+          IL_EXPECT_FAST(static_cast<il::int_t>(
+                             ((list.begin() + i2)->begin() + i1)->size()) ==
+                         n0);
           memcpy(data_ + (i2 * r1 + i1) * r0,
                  ((list.begin() + i2)->begin() + i1)->begin(), n0 * sizeof(T));
         }
@@ -559,8 +559,9 @@ Array3D<T>::Array3D(
         IL_EXPECT_FAST(static_cast<il::int_t>((list.begin() + i2)->size()) ==
                        n1);
         for (il::int_t i1 = 0; i1 < n1; ++i1) {
-          IL_EXPECT_FAST(static_cast<il::int_t>(((list.begin() + i2)->begin() +
-                                                 i1)->size()) == n0);
+          IL_EXPECT_FAST(static_cast<il::int_t>(
+                             ((list.begin() + i2)->begin() + i1)->size()) ==
+                         n0);
           for (il::int_t i0 = 0; i0 < n0; ++i0) {
             new (data_ + (i2 * r1 + i1) * r0 + i0)
                 T(*(((list.begin() + i2)->begin() + i1)->begin() + i0));
@@ -1204,8 +1205,8 @@ bool Array3D<T>::invariance() const {
         ans = ans && (align_mod_ % alignment_ == 0);
         ans = ans && (align_r_ < align_mod_);
         ans = ans && (reinterpret_cast<std::size_t>(data_) %
-            static_cast<std::size_t>(align_mod_) ==
-            static_cast<std::size_t>(align_r_));
+                          static_cast<std::size_t>(align_mod_) ==
+                      static_cast<std::size_t>(align_r_));
       } else {
         ans = ans && (align_r_ == 0);
         ans = ans && (align_mod_ == 0);
@@ -1218,6 +1219,6 @@ bool Array3D<T>::invariance() const {
   }
   return ans;
 }
-}
+}  // namespace il
 
 #endif  // IL_ARRAY3D_H

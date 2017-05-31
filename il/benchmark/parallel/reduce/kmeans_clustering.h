@@ -23,6 +23,6 @@ il::Array2D<float> kmeans_clustering_2(const il::Array2D<float>& point,
                                        int nb_cluster, int nb_iteration);
 il::Array2D<float> kmeans_clustering_3(const il::Array2D<float>& point,
                                        int nb_cluster, int nb_iteration);
-}
+}  // namespace il
 
 #endif  // IL_KMEANS_CLUSTERING_H

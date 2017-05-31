@@ -116,4 +116,4 @@ TEST(GmresIlu0, heat3D) {
   ASSERT_TRUE(max_err <= 10 * relative_precision);
 }
 
-#endif // IL_MKL
+#endif  // IL_MKL

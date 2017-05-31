@@ -258,6 +258,6 @@ il::StaticArray3D<T, n0, n1, n2> dot(
   }
   return C;
 }
-}
+}  // namespace il
 
 #endif  // IL_DOT_H

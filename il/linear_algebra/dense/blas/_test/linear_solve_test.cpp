@@ -100,8 +100,7 @@ TEST(linear_solve, singular_matrix_0) {
 
   il::Status status{};
   il::Array<double> x{il::linear_solve(A, y, il::io, status)};
-  if (!status.ok() &&
-      status.error() == il::Error::matrix_singular) {
+  if (!status.ok() && status.error() == il::Error::matrix_singular) {
     test_passed = true;
   }
 
@@ -115,8 +114,7 @@ TEST(linear_solve, singular_matrix_1) {
 
   il::Status status{};
   il::Array<double> x{il::linear_solve(A, y, il::io, status)};
-  if (!status.ok() &&
-      status.error() == il::Error::matrix_singular) {
+  if (!status.ok() && status.error() == il::Error::matrix_singular) {
     test_passed = true;
   }
 

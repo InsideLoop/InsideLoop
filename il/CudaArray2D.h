@@ -9,4 +9,3 @@
 
 #include <il/container/cuda/2d/CudaArray2D.h>
 #include <il/container/cuda/cuda_copy.h>
-

@@ -29,25 +29,25 @@ class CudaArray {
 
  public:
   /* \brief Construct an array of n elements
-  */
+   */
   explicit CudaArray(il::int_t n);
   CudaArray(const il::CudaArray<T>& x);
   CudaArray(CudaArray<T>&& x);
 
   /* \brief The destructor
-  */
+   */
   ~CudaArray();
 
   /* \brief Get the size of the il::CudaArray<T>
-  */
+   */
   il::int_t size() const;
 
   /* \brief Get a pointer to the first element of the array
-  */
+   */
   const T* data() const;
 
   /* \brief Get a pointer to the first element of the array
-  */
+   */
   T* data();
 };
 
@@ -105,5 +105,5 @@ template <typename T>
 T* CudaArray<T>::data() {
   return data_;
 }
-}
+}  // namespace il
 #endif  // IL_CUDAARRAY_H

@@ -12,8 +12,8 @@
 
 #include <cstdio>
 
-#include <il/Timer.h>
 #include <il/Array.h>
+#include <il/Timer.h>
 
 namespace il {
 
@@ -142,6 +142,6 @@ inline void conditional_assignment() {
     std::printf("Cache aligned timing: %7.3e\n", timer.elapsed());
   }
 }
-}
+}  // namespace il
 
 #endif  // IL_ALIGNMENT_H

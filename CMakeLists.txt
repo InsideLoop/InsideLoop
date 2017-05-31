@@ -179,6 +179,8 @@ set(SOURCE_FILES
     il/Timer.h
     il/Toml.h
     il/TriDiagonal.h
+    il/U16String.h
+    il/unicode.h
     il/UpperArray2D.h
     il/container/1d/Array.h
     il/container/1d/ArrayView.h
@@ -207,14 +209,19 @@ set(SOURCE_FILES
     il/container/cuda/cuda_copy.h
     il/container/hash/HashFunction.h
     il/container/hash/HashMap.h
+    il/container/hash/HashMapArray.h
     il/container/string/String.h
     il/container/string/StringView.h
+    il/container/string/U16String.h
+    il/container/string/unicode.h
     il/container/string/view_string.h
     il/container/string/algorithm_string.h
     il/container/dynamic/Dynamic.h
     il/container/info/Info.h
     il/container/info/Status.h
     il/core/base.h
+    il/core/math/safe_arithmetic.h
+    il/core/memory/allocate.h
     il/io/io_base.h
     il/io/parse.h
     il/io/ppm.h

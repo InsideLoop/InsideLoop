@@ -357,6 +357,6 @@ void blas(double alpha, const il::StaticArray4D<T, n0, n1, n2, n>& A,
     }
   }
 }
-}
+}  // namespace il
 
 #endif  // IL_BLAS_H

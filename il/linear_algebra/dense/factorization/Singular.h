@@ -10,9 +10,9 @@
 #ifndef IL_SINGULAR_H
 #define IL_SINGULAR_H
 
+#include <il/Status.h>
 #include <il/container/1d/Array.h>
 #include <il/container/2d/Array2D.h>
-#include <il/Status.h>
 #include <il/linear_algebra/dense/blas/norm.h>
 
 #ifdef IL_MKL
@@ -79,6 +79,6 @@ Singular<il::Array2D<double>>::Singular(il::Array2D<double> A, il::io_t,
     status.set(ErrorCode::no_convergence);
   }
 }
-}
+}  // namespace il
 
 #endif  // IL_SINGULAR_H

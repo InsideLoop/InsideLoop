@@ -70,7 +70,7 @@ class ConstArray3DView {
   const T* data() const;
 
   /* \brief Memory distance (in sizeof(T)) in between A(i, j) and A(i + 1, j)
-  */
+   */
   il::int_t stride(il::int_t d) const;
 };
 
@@ -118,9 +118,12 @@ ConstArray3DView<T>::ConstArray3DView(const T* data, il::int_t n, il::int_t p,
 template <typename T>
 const T& ConstArray3DView<T>::operator()(il::int_t i, il::int_t j,
                                          il::int_t k) const {
-  IL_EXPECT_FAST(static_cast<std::size_t>(i) < static_cast<std::size_t>(size(0)));
-  IL_EXPECT_FAST(static_cast<std::size_t>(j) < static_cast<std::size_t>(size(1)));
-  IL_EXPECT_FAST(static_cast<std::size_t>(k) < static_cast<std::size_t>(size(2)));
+  IL_EXPECT_FAST(static_cast<std::size_t>(i) <
+                 static_cast<std::size_t>(size(0)));
+  IL_EXPECT_FAST(static_cast<std::size_t>(j) <
+                 static_cast<std::size_t>(size(1)));
+  IL_EXPECT_FAST(static_cast<std::size_t>(k) <
+                 static_cast<std::size_t>(size(2)));
   return data_[(i * stride(0) + j) * stride(1) + k];
 }
 
@@ -175,8 +178,7 @@ class Array3DView : public ConstArray3DView<T> {
 };
 
 template <typename T>
-Array3DView<T>::Array3DView()
-    : ConstArray3DView<T>{} {}
+Array3DView<T>::Array3DView() : ConstArray3DView<T>{} {}
 
 template <typename T>
 Array3DView<T>::Array3DView(T* data, il::int_t n, il::int_t p, il::int_t q,
@@ -186,11 +188,11 @@ Array3DView<T>::Array3DView(T* data, il::int_t n, il::int_t p, il::int_t q,
 template <typename T>
 T& Array3DView<T>::operator()(il::int_t i, il::int_t j, il::int_t k) {
   IL_EXPECT_FAST(static_cast<std::size_t>(i) <
-            static_cast<std::size_t>(this->size(0)));
+                 static_cast<std::size_t>(this->size(0)));
   IL_EXPECT_FAST(static_cast<std::size_t>(j) <
-            static_cast<std::size_t>(this->size(1)));
+                 static_cast<std::size_t>(this->size(1)));
   IL_EXPECT_FAST(static_cast<std::size_t>(k) <
-            static_cast<std::size_t>(this->size(2)));
+                 static_cast<std::size_t>(this->size(2)));
   return this->data_[(i * this->stride(0) + j) * this->stride(1) + k];
 }
 
@@ -198,6 +200,6 @@ template <typename T>
 T* Array3DView<T>::data() {
   return this->data_;
 }
-}
+}  // namespace il
 
 #endif  // IL_ARRAY3DVIEW_H

@@ -7,7 +7,6 @@
 //
 //==============================================================================
 
-
 // This benchmark was designed to figure out if there is a difference in terms
 // of performance between 32-bit integers and 64-bit integers.
 //
@@ -112,4 +111,3 @@ void maze() {
 
   std::printf("Best path length: %d\n", static_cast<int>(length));
 }
-

@@ -267,6 +267,6 @@ template <typename T>
 T* UpperArray2D<T>::data() {
   return data_;
 }
-}
+}  // namespace il
 
 #endif  // IL_UPPERARRAY2D_H

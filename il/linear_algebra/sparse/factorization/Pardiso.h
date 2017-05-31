@@ -13,8 +13,8 @@
 #include <chrono>
 #include <iostream>
 
-#include <il/container/1d/Array.h>
 #include <il/SparseMatrixCSR.h>
+#include <il/container/1d/Array.h>
 
 #ifdef IL_MKL
 
@@ -112,8 +112,9 @@ class Pardiso {
   void numerical_factorization(const il::SparseMatrixCSR<il::int_t, double> &A);
   il::Array<double> solve(const il::SparseMatrixCSR<il::int_t, double> &A,
                           const il::Array<double> &y);
-  il::Array<double> solve_iterative(const il::SparseMatrixCSR<il::int_t, double> &A,
-                                    const il::Array<double> &y);
+  il::Array<double> solve_iterative(
+      const il::SparseMatrixCSR<il::int_t, double> &A,
+      const il::Array<double> &y);
 
  private:
   void release();
@@ -283,7 +284,8 @@ inline Pardiso::Pardiso() {
 
 inline Pardiso::~Pardiso() { release(); }
 
-void Pardiso::symbolic_factorization(const il::SparseMatrixCSR<il::int_t, double> &A) {
+void Pardiso::symbolic_factorization(
+    const il::SparseMatrixCSR<il::int_t, double> &A) {
   IL_EXPECT_FAST(A.size(0) == A.size(1));
   n_ = A.size(0);
 
@@ -327,7 +329,8 @@ void Pardiso::numerical_factorization(
 }
 
 inline il::Array<double> Pardiso::solve(
-    const il::SparseMatrixCSR<il::int_t, double> &A, const il::Array<double> &y) {
+    const il::SparseMatrixCSR<il::int_t, double> &A,
+    const il::Array<double> &y) {
   IL_EXPECT_FAST(matrix_element_ = A.element_data());
   IL_EXPECT_FAST(is_numerical_factorization_);
   IL_EXPECT_FAST(A.size(0) == n_);
@@ -350,7 +353,8 @@ inline il::Array<double> Pardiso::solve(
 }
 
 inline il::Array<double> Pardiso::solve_iterative(
-    const il::SparseMatrixCSR<il::int_t, double> &A, const il::Array<double> &y) {
+    const il::SparseMatrixCSR<il::int_t, double> &A,
+    const il::Array<double> &y) {
   IL_EXPECT_FAST(matrix_element_ = A.element_data());
   IL_EXPECT_FAST(is_numerical_factorization_);
   IL_EXPECT_FAST(A.size(0) == n_);
@@ -392,7 +396,7 @@ inline void Pardiso::release() {
     is_numerical_factorization_ = false;
   }
 }
-}
+}  // namespace il
 
-#endif // IL_MKL
-#endif // IL_Pardiso_H
+#endif  // IL_MKL
+#endif  // IL_Pardiso_H

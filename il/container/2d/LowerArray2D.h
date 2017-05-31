@@ -267,6 +267,6 @@ template <typename T>
 T* LowerArray2D<T>::data() {
   return data_;
 }
-}
+}  // namespace il
 
 #endif  // IL_LOWERARRAY2D_H

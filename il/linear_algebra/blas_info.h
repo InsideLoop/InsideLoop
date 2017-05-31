@@ -21,7 +21,6 @@ enum class Blas {
   hermitian_upper,
   hermitian_lower
 };
-
 }
 
 #endif  // IL_BLAS_INFO_H

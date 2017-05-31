@@ -28,6 +28,6 @@ double kmeans_clustering_6(int nb_point, int nb_cluster, int nb_iteration);
 
 double kmeans_clustering_il(int nb_point, int nb_cluster, int nb_iteration);
 
-}
+}  // namespace il
 
 #endif  // IL_KMEANS_CLUSTERING_0_H

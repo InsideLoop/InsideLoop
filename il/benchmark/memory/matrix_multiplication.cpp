@@ -230,4 +230,4 @@ void matrix_multiplication_6(const il::Array2C<double> &A,
     }
   }
 }
-}
+}  // namespace il
