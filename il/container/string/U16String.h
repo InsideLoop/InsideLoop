@@ -12,6 +12,8 @@
 
 // <cstring> is needed for memcpy
 #include <cstring>
+// <cstdint> is needed for std::uint16_t
+#include <cstdint>
 
 #include <il/base.h>
 #include <il/core/memory/allocate.h>
@@ -32,6 +34,12 @@ namespace il {
 // 10: not a String object, used as empty key for hash tables
 // 11: not a String object, used as tombstone key for hash tables
 
+#if defined(_WIN32) || defined(WIN32)
+#define IL_U16CHAR wchar_t
+#else
+#define IL_U16CHAR char16_t
+#endif
+
 class U16String {
  private:
   struct LargeU16String {
@@ -46,7 +54,7 @@ class U16String {
 
  public:
   U16String();
-  U16String(const char16_t* data);
+  U16String(const IL_U16CHAR* data);
   U16String(const il::U16String& s);
   U16String(il::U16String&& s);
   U16String& operator=(const il::U16String& s);
@@ -57,7 +65,7 @@ class U16String {
   bool small() const;
   void reserve(il::int_t r);
   void append(const U16String& s);
-  void append(const char16_t* data);
+  void append(const IL_U16CHAR* data);
   void append(char c);
   void append(std::int32_t cp);
   void append(il::int_t n, char c);
@@ -67,7 +75,7 @@ class U16String {
   bool empty() const;
   const std::uint16_t* begin() const;
   const std::uint16_t* end() const;
-  const char16_t* w_string() const;
+  const IL_U16CHAR* c16_string() const;
   bool operator==(const il::U16String& other) const;
 
  private:
@@ -75,7 +83,7 @@ class U16String {
   void set_large_capacity(il::int_t r);
   std::uint16_t* begin();
   std::uint16_t* end();
-  void append(const char16_t*, il::int_t n);
+  void append(const IL_U16CHAR*, il::int_t n);
   bool valid_code_point(std::int32_t cp);
   constexpr static il::int_t max_small_size_ =
       static_cast<il::int_t>(sizeof(LargeU16String) / 2 - 1);
@@ -86,11 +94,11 @@ inline U16String::U16String() {
   set_small_size(0);
 }
 
-inline U16String::U16String(const char16_t* data) {
+inline U16String::U16String(const IL_U16CHAR* data) {
   IL_EXPECT_AXIOM("data is a UTF-16 null terminated string");
 
   il::int_t size = 0;
-  while (data[size] != static_cast<char16_t>('\0')) {
+  while (data[size] != static_cast<IL_U16CHAR>('\0')) {
     ++size;
   }
   if (size <= max_small_size_) {
@@ -107,11 +115,11 @@ inline U16String::U16String(const char16_t* data) {
 inline U16String::U16String(const U16String& s) {
   const il::int_t size = s.size();
   if (size <= max_small_size_) {
-    std::memcpy(data_, s.w_string(), 2 * (static_cast<std::size_t>(size) + 1));
+    std::memcpy(data_, s.begin(), 2 * (static_cast<std::size_t>(size) + 1));
     set_small_size(size);
   } else {
     large_.data = il::allocate_array<std::uint16_t>(size + 1);
-    std::memcpy(large_.data, s.w_string(),
+    std::memcpy(large_.data, s.begin(),
                 2 * (static_cast<std::size_t>(size) + 1));
     large_.size = static_cast<std::size_t>(size);
     set_large_capacity(size);
@@ -121,7 +129,7 @@ inline U16String::U16String(const U16String& s) {
 inline U16String::U16String(U16String&& s) {
   const il::int_t size = s.size();
   if (size <= max_small_size_) {
-    std::memcpy(data_, s.w_string(), 2 * (static_cast<std::size_t>(size) + 1));
+    std::memcpy(data_, s.begin(), 2 * (static_cast<std::size_t>(size) + 1));
     set_small_size(size);
   } else {
     large_.data = s.large_.data;
@@ -138,11 +146,11 @@ inline U16String& U16String::operator=(const U16String& s) {
     if (!small()) {
       il::deallocate(large_.data);
     }
-    std::memcpy(data_, s.w_string(), 2 * (static_cast<std::size_t>(size) + 1));
+    std::memcpy(data_, s.begin(), 2 * (static_cast<std::size_t>(size) + 1));
     set_small_size(size);
   } else {
     if (size <= capacity()) {
-      std::memcpy(large_.data, s.w_string(),
+      std::memcpy(large_.data, s.begin(),
                   2 * (static_cast<std::size_t>(size) + 1));
       large_.size = static_cast<std::size_t>(size);
     } else {
@@ -150,7 +158,7 @@ inline U16String& U16String::operator=(const U16String& s) {
         il::deallocate(large_.data);
       }
       large_.data = il::allocate_array<std::uint16_t>(size + 1);
-      std::memcpy(large_.data, s.w_string(),
+      std::memcpy(large_.data, s.begin(),
                   2 * (static_cast<std::size_t>(size) + 1));
       large_.size = static_cast<std::size_t>(size);
       set_large_capacity(size);
@@ -166,7 +174,7 @@ inline U16String& U16String::operator=(U16String&& s) {
       if (!small()) {
         il::deallocate(large_.data);
       }
-      std::memcpy(data_, s.w_string(),
+      std::memcpy(data_, s.begin(),
                   2 * (static_cast<std::size_t>(size) + 1));
       set_small_size(size);
     } else {
@@ -217,7 +225,7 @@ inline void U16String::reserve(il::int_t r) {
 
   const il::int_t old_size = size();
   std::uint16_t* new_data = il::allocate_array<std::uint16_t>(r + 1);
-  std::memcpy(new_data, w_string(),
+  std::memcpy(new_data, begin(),
               2 * (static_cast<std::size_t>(old_size) + 1));
   if (!old_is_small) {
     il::deallocate(large_.data);
@@ -228,10 +236,10 @@ inline void U16String::reserve(il::int_t r) {
 }
 
 inline void U16String::append(const U16String& s) {
-  append(s.w_string(), s.size());
+  append(reinterpret_cast<const IL_U16CHAR*>(s.begin()), s.size());
 }
 
-inline void U16String::append(const char16_t* data) {
+inline void U16String::append(const IL_U16CHAR* data) {
   il::int_t size = 0;
   while (data[size] != static_cast<std::uint16_t>('\0')) {
     ++size;
@@ -311,11 +319,19 @@ inline void U16String::append(il::int_t n, std::int32_t cp) {
   IL_EXPECT_FAST(valid_code_point(cp));
 }
 
-inline const char16_t* U16String::w_string() const {
+inline const std::uint16_t* U16String::begin() const {
   if (small()) {
-    return reinterpret_cast<const char16_t*>(data_);
+    return reinterpret_cast<const std::uint16_t*>(data_);
   } else {
-    return reinterpret_cast<const char16_t*>(large_.data);
+    return reinterpret_cast<const std::uint16_t*>(large_.data);
+  }
+}
+
+inline const IL_U16CHAR* U16String::c16_string() const {
+  if (small()) {
+    return reinterpret_cast<const IL_U16CHAR*>(data_);
+  } else {
+    return reinterpret_cast<const IL_U16CHAR*>(large_.data);
   }
 }
 
@@ -342,6 +358,21 @@ inline std::int32_t U16String::cp(il::int_t i) const {
   }
 }
 
+inline bool U16String::operator==(const il::U16String& other) const {
+  if (size() != other.size()) {
+    return false;
+  } else {
+    const std::uint16_t* p0 = begin();
+    const std::uint16_t* p1 = other.begin();
+    for (il::int_t i = 0; i < size(); ++i) {
+      if (p0[i] != p1[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+}
+
 inline bool U16String::small() const {
   const std::uint16_t category_extract_mask = 0xC000;
   return (data_[max_small_size_] & category_extract_mask) == 0;
@@ -358,14 +389,6 @@ inline void U16String::set_large_capacity(il::int_t r) {
   large_.capacity =
       static_cast<std::size_t>(r) |
       (static_cast<std::size_t>(0x80) << ((sizeof(std::size_t) - 1) * 8));
-}
-
-inline const std::uint16_t* U16String::begin() const {
-  if (small()) {
-    return data_;
-  } else {
-    return large_.data;
-  }
 }
 
 inline std::uint16_t* U16String::begin() {
@@ -392,7 +415,7 @@ inline std::uint16_t* U16String::end() {
   }
 }
 
-inline void U16String::append(const char16_t* data, il::int_t n) {
+inline void U16String::append(const IL_U16CHAR* data, il::int_t n) {
   IL_EXPECT_FAST(n >= 0);
   IL_EXPECT_AXIOM("data must point to an array of length at least n");
 
