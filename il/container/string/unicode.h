@@ -19,7 +19,7 @@ il::U16String to_u16(const il::String& string) {
   il::U16String ans{};
 
   for (il::int_t i = 0; i < string.size(); i = string.next_cp(i)) {
-    ans.append(string.cp(i));
+    ans.append(string.to_cp(i));
   }
   ans.append('\0');
   return ans;
@@ -31,6 +31,17 @@ enum CodePoint : std::int32_t {
   grinning_face = 0x0001F600,
   grinning_face_with_smiling_eyes = 0x0001F601,
   smiling_face_with_horns = 0x0001F608,
+  for_all = 0x2200,
+  partial_differential = 0x2202,
+  there_exists = 0x2203,
+  there_does_not_exist = 0x2204,
+  empty_set = 0x2205,
+  nabla = 0x2207,
+  element_of = 0x2208,
+  not_an_element_of = 0x2209,
+  ring_operator = 0x2218,
+  infinity = 0x221E,
+  double_struck_capital_r = 0x211D,
   greek_small_letter_alpha = 0x03B1,
   greek_small_letter_beta = 0x03B2,
   greek_small_letter_gamma = 0x03B3,

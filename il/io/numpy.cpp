@@ -39,8 +39,8 @@ NumpyInfo get_numpy_info(il::io_t, std::FILE* fp, il::Status& status) {
     IL_SET_SOURCE(status);
     return numpy_info;
   }
-  unsigned char major_version = buffer.ascii(6);
-  unsigned char minor_version = buffer.ascii(7);
+  unsigned char major_version = buffer.to_cu(6);
+  unsigned char minor_version = buffer.to_cu(7);
   unsigned short header_length =
       *reinterpret_cast<unsigned short*>(buffer.begin() + 8);
   if (major_version != 1 || minor_version != 0) {
@@ -54,7 +54,7 @@ NumpyInfo get_numpy_info(il::io_t, std::FILE* fp, il::Status& status) {
   il::Array<char> second_buffer{header_length + 1};
   StringView header = StringView{second_buffer.begin(), header_length + 1};
   char* success = fgets(header.c_string(), header_length + 1, fp);
-  if (success == nullptr || header.ascii(header.size() - 2) != '\n') {
+  if (success == nullptr || !(header.is_char(header.size() - 2, '\n'))) {
     status.set_error(il::Error::binary_file_wrong_format);
     IL_SET_SOURCE(status);
     return numpy_info;
@@ -69,7 +69,7 @@ NumpyInfo get_numpy_info(il::io_t, std::FILE* fp, il::Status& status) {
     return numpy_info;
   }
   const bool little_endian =
-      header.ascii(i4 + 9) == '<' || header.ascii(i4 + 9) == '|';
+      header.is_char(i4 + 9, '<') || header.is_char(i4 + 9, '|');
   if (!little_endian) {
     status.set_error(il::Error::binary_file_wrong_format);
     IL_SET_SOURCE(status);
@@ -102,7 +102,7 @@ NumpyInfo get_numpy_info(il::io_t, std::FILE* fp, il::Status& status) {
     return numpy_info;
   }
   ConstStringView shape_string = header.substring(i1 + 1, i2);
-  if (shape_string.ascii_back() == ',') {
+  if (shape_string.is_char_back(',')) {
     numpy_info.shape.resize(1);
   } else {
     const il::int_t n_dim = il::count(',', shape_string) + 1;

@@ -56,6 +56,7 @@ class String {
   String& operator=(il::String&& s);
   ~String();
   il::int_t size() const;
+  il::int_t length() const;
   il::int_t capacity() const;
   bool empty() const;
   bool small() const;
@@ -68,7 +69,7 @@ class String {
   void append(il::int_t n, char c);
   void append(il::int_t n, std::int32_t cp);
   il::int_t next_cp(il::int_t i) const;
-  std::int32_t cp(il::int_t i) const;
+  std::int32_t to_cp(il::int_t i) const;
   const std::uint8_t* begin() const;
   const std::uint8_t* end() const;
   const char* c_string() const;
@@ -207,6 +208,14 @@ inline il::int_t String::size() const {
   } else {
     return static_cast<il::int_t>(large_.size);
   }
+}
+
+inline il::int_t String::length() const {
+  il::int_t k = 0;
+  for (il::int_t i = 0; i < size(); i = next_cp(i)) {
+    ++k;
+  }
+  return k;
 }
 
 inline il::int_t String::capacity() const {
@@ -437,7 +446,7 @@ inline il::int_t String::next_cp(il::int_t i) const {
   return i;
 }
 
-inline std::int32_t String::cp(il::int_t i) const {
+inline std::int32_t String::to_cp(il::int_t i) const {
   std::uint32_t ans = 0;
   const std::uint8_t* data = begin();
   if ((data[i] & 0x80u) == 0) {

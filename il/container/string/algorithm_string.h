@@ -19,7 +19,7 @@ namespace il {
 inline il::ConstStringView remove_whitespace_left(ConstStringView string) {
   il::int_t i = 0;
   while (i < string.size() &&
-         (string.ascii(i) == ' ' || string.ascii(i) == '\t')) {
+         (string.is_char(i, ' ') || string.is_char(i, '\t'))) {
     ++i;
   }
   string.shrink_left(i);
@@ -36,7 +36,7 @@ inline il::int_t search(ConstStringView a, ConstStringView b) {
     il::int_t i = 0;
     found = true;
     while (found && i < na) {
-      if (a.ascii(i) != b.ascii(k + i)) {
+      if (a.to_cu(i) != b.to_cu(k + i)) {
         found = false;
       }
       ++i;
@@ -64,7 +64,7 @@ inline il::int_t search(const char* a, const String& b) {
 inline il::int_t count(char c, ConstStringView a) {
   il::int_t ans = 0;
   for (il::int_t i = 0; i < a.size(); ++i) {
-    if (a.ascii(i) == c) {
+    if (a.is_char(i, c)) {
       ++ans;
     }
   }
