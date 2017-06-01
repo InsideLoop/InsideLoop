@@ -39,7 +39,7 @@ class Info {
   Info& operator=(const Info& other);
   Info& operator=(Info&& other);
 
-  bool empty() const;
+  bool is_empty() const;
   void clear();
 
   void set(const char* key, bool value);
@@ -76,7 +76,7 @@ class Info {
   unsigned char* data();
   void resize(il::int_t n);
 
-  bool small() const;
+  bool is_small() const;
   void set_small_size(il::int_t n);
   void set_large_capacity(il::int_t r);
   il::int_t large_capacity() const;
@@ -118,7 +118,7 @@ inline Info::Info(Info&& other) {
 inline Info& Info::operator=(const Info& other) {
   const il::int_t size = other.size();
   if (size <= max_small_size_) {
-    if (!small()) {
+    if (!is_small()) {
       delete[] large_.data;
     }
     std::memcpy(small_, other.data(), size);
@@ -128,7 +128,7 @@ inline Info& Info::operator=(const Info& other) {
       std::memcpy(large_.data, other.data(), size);
       large_.size = size;
     } else {
-      if (!small()) {
+      if (!is_small()) {
         delete[] large_.data;
       }
       large_.data = new unsigned char[size];
@@ -144,7 +144,7 @@ inline Info& Info::operator=(Info&& other) {
   if (this != &other) {
     const il::int_t size = other.size();
     if (size <= max_small_size_) {
-      if (!small()) {
+      if (!is_small()) {
         delete[] large_.data;
       }
       std::memcpy(small_, other.data(), size);
@@ -423,14 +423,14 @@ inline il::int_t Info::get_integer(il::int_t i) const {
 }
 
 inline il::int_t Info::size() const {
-  return small() ? small_[max_small_size_] : large_.size;
+  return is_small() ? small_[max_small_size_] : large_.size;
 }
 
 inline il::int_t Info::capacity() const {
-  return small() ? max_small_size_ : large_capacity();
+  return is_small() ? max_small_size_ : large_capacity();
 }
 
-inline bool Info::small() const {
+inline bool Info::is_small() const {
   return (small_[max_small_size_] & category_extract_mask_) == 0;
 }
 
@@ -452,18 +452,18 @@ inline il::int_t Info::large_capacity() const {
 }
 
 inline const unsigned char* Info::data() const {
-  return small() ? small_ : large_.data;
+  return is_small() ? small_ : large_.data;
 }
 
-inline unsigned char* Info::data() { return small() ? small_ : large_.data; }
+inline unsigned char* Info::data() { return is_small() ? small_ : large_.data; }
 
-inline bool Info::empty() const { return size() == 0; }
+inline bool Info::is_empty() const { return size() == 0; }
 
 inline void Info::resize(il::int_t n) {
   IL_EXPECT_FAST(n >= 0);
 
   const il::int_t old_size = size();
-  if (small()) {
+  if (is_small()) {
     if (n <= max_small_size_) {
       set_small_size(n);
     } else {
@@ -488,7 +488,7 @@ inline void Info::resize(il::int_t n) {
 }
 
 inline void Info::clear() {
-  if (!small()) {
+  if (!is_small()) {
     delete[] large_.data;
   }
   set_small_size(0);

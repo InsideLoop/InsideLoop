@@ -10,11 +10,19 @@
 #ifndef IL_ALGORITHM_STRING_H
 #define IL_ALGORITHM_STRING_H
 
+#include <cstdio>
+
 #include <il/String.h>
 #include <il/StringView.h>
 #include <il/container/string/view_string.h>
 
 namespace il {
+
+inline il::String to_string(il::int_t n) {
+  char tmp[11];
+  std::sprintf(tmp, "%td", n);
+  return il::String{tmp};
+}
 
 inline il::ConstStringView remove_whitespace_left(ConstStringView string) {
   il::int_t i = 0;

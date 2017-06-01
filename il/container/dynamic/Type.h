@@ -7,14 +7,30 @@
 //
 //==============================================================================
 
-#include <iostream>
+#ifndef IL_TYPE_H
+#define IL_TYPE_H
 
-#include <il/String.h>
+namespace il {
 
-int main() {
-  il::String welcome = "Hello World!";
+enum class Type {
+  bool_t,
+  int8_t,
+  uint8_t,
+  int16_t,
+  uint16_t,
+  int32_t,
+  uint32_t,
+  int64_t,
+  uint64_t,
+  float16_t,
+  float32_t,
+  float64_t,
+  ascii_string_t,
+  utf8_string_t,
+  utf16_string_t,
+  utf32_string_t
+};
 
-  std::cout << welcome.c_string() << std::endl;
-
-  return 0;
 }
+
+#endif  // IL_TYPE_H

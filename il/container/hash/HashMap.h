@@ -120,12 +120,13 @@ class HashMap {
   il::int_t search(const K& key) const;
   bool found(il::int_t i) const;
   void insert(const K& key, const V& value, il::io_t, il::int_t& i);
+  void insert(const K& key, const V& value);
   void erase(il::int_t i);
   const K& key(il::int_t i) const;
   const V& value(il::int_t i) const;
   V& value(il::int_t i);
   const V& const_value(il::int_t i) const;
-  bool empty() const;
+  bool is_empty() const;
   il::int_t size() const;
   il::int_t capacity() const;
   il::int_t first() const;
@@ -392,6 +393,25 @@ void HashMap<K, V, F>::insert(const K& key, const V& value, il::io_t,
 }
 
 template <typename K, typename V, typename F>
+void HashMap<K, V, F>::insert(const K& key, const V& value) {
+  const il::int_t i = search(key);
+  IL_EXPECT_FAST(!found(i));
+
+  // FIXME: What it the place is a tombstone. We should update the number of
+  // tombstones in the hash table.
+
+  il::int_t i_local = -(1 + i);
+  if (2 * (nb_element_ + 1) > (1 << p_)) {
+    grow(il::next_power_of_2_32(2 * (nb_element_ + 1)));
+    il::int_t j = search(key);
+    i_local = -(1 + j);
+  }
+  new (const_cast<K*>(&((slot_ + i_local)->key))) K(key);
+  new (&((slot_ + i_local)->value)) V(value);
+  ++nb_element_;
+}
+
+template <typename K, typename V, typename F>
 void HashMap<K, V, F>::erase(il::int_t i) {
   IL_EXPECT_FAST(found(i));
 
@@ -495,13 +515,13 @@ double HashMap<K, V, F>::displaced_twice() const {
 }
 
 template <typename K, typename V, typename F>
-bool HashMap<K, V, F>::empty() const {
+bool HashMap<K, V, F>::is_empty() const {
   return nb_element_ == 0;
 }
 
 template <typename K, typename V, typename F>
 HashMapIterator<K, V, F> HashMap<K, V, F>::begin() {
-  if (empty()) {
+  if (is_empty()) {
     return end();
   } else {
     il::int_t i = 0;

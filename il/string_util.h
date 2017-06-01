@@ -7,14 +7,5 @@
 //
 //==============================================================================
 
-#include <iostream>
+#include <il/container/string/algorithm_string.h>
 
-#include <il/String.h>
-
-int main() {
-  il::String welcome = "Hello World!";
-
-  std::cout << welcome.c_string() << std::endl;
-
-  return 0;
-}

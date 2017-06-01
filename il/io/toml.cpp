@@ -765,13 +765,13 @@ void TomlParser::parse_single_table(
       status = std::move(parse_status);
       return;
     }
-    if (table_name.empty()) {
+    if (table_name.is_empty()) {
       status.set_error(il::Error::parse_table);
       IL_SET_SOURCE(status);
       status.set_info("line", line_number_);
       return;
     }
-    if (!full_table_name.empty()) {
+    if (!full_table_name.is_empty()) {
       full_table_name.append('.');
     }
     full_table_name.append(table_name);
@@ -841,13 +841,13 @@ void TomlParser::parse_table_array(
       status = std::move(parse_status);
       return;
     }
-    if (table_name.empty()) {
+    if (table_name.is_empty()) {
       status.set_error(il::Error::parse_table);
       IL_SET_SOURCE(status);
       status.set_info("line", line_number_);
       return;
     }
-    if (!full_table_name.empty()) {
+    if (!full_table_name.is_empty()) {
       full_table_name.append('.');
     }
     full_table_name.append(table_name);

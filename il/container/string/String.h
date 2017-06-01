@@ -58,8 +58,8 @@ class String {
   il::int_t size() const;
   il::int_t length() const;
   il::int_t capacity() const;
-  bool empty() const;
-  bool small() const;
+  bool is_empty() const;
+  bool is_small() const;
   void reserve(il::int_t r);
   void append(const String& s);
   void append(const char* data);
@@ -152,7 +152,7 @@ inline String::String(String&& s) {
 inline String& String::operator=(const String& s) {
   const il::int_t size = s.size();
   if (size <= max_small_size_) {
-    if (!small()) {
+    if (!is_small()) {
       il::deallocate(large_.data);
     }
     std::memcpy(data_, s.c_string(), static_cast<std::size_t>(size) + 1);
@@ -163,7 +163,7 @@ inline String& String::operator=(const String& s) {
                   static_cast<std::size_t>(size) + 1);
       large_.size = static_cast<std::size_t>(size);
     } else {
-      if (!small()) {
+      if (!is_small()) {
         il::deallocate(large_.data);
       }
       large_.data = il::allocate_array<std::uint8_t>(size + 1);
@@ -180,7 +180,7 @@ inline String& String::operator=(String&& s) {
   if (this != &s) {
     const il::int_t size = s.size();
     if (size <= max_small_size_) {
-      if (!small()) {
+      if (!is_small()) {
         il::deallocate(large_.data);
       }
       std::memcpy(data_, s.c_string(), static_cast<std::size_t>(size) + 1);
@@ -197,13 +197,13 @@ inline String& String::operator=(String&& s) {
 }
 
 inline String::~String() {
-  if (!small()) {
+  if (!is_small()) {
     il::deallocate(large_.data);
   }
 }
 
 inline il::int_t String::size() const {
-  if (small()) {
+  if (is_small()) {
     return max_small_size_ - static_cast<il::int_t>(data_[max_small_size_]);
   } else {
     return static_cast<il::int_t>(large_.size);
@@ -219,7 +219,7 @@ inline il::int_t String::length() const {
 }
 
 inline il::int_t String::capacity() const {
-  if (small()) {
+  if (is_small()) {
     return max_small_size_;
   } else {
     const std::uint8_t category_extract_mask = 0xC0;
@@ -233,7 +233,7 @@ inline il::int_t String::capacity() const {
 inline void String::reserve(il::int_t r) {
   IL_EXPECT_FAST(r >= 0);
 
-  const bool old_is_small = small();
+  const bool old_is_small = is_small();
   const il::int_t old_capacity = capacity();
   if (r <= old_capacity) {
     return;
@@ -270,7 +270,7 @@ inline void String::append(char c) {
   std::uint8_t* data = begin() + old_size;
   data[0] = static_cast<std::uint8_t>(c);
   data[1] = static_cast<std::uint8_t>('\0');
-  if (small()) {
+  if (is_small()) {
     set_small_size(new_size);
   } else {
     large_.size = new_size;
@@ -290,7 +290,7 @@ inline void String::append(il::int_t n, char c) {
     data[i] = static_cast<std::uint8_t>(c);
   }
   data[n] = static_cast<std::uint8_t>('\0');
-  if (small()) {
+  if (is_small()) {
     set_small_size(new_size);
   } else {
     large_.size = new_size;
@@ -345,7 +345,7 @@ inline void String::append(std::int32_t cp) {
     data[3] = static_cast<std::uint8_t>((ucp & 0x0000003Fu) | 0x00000080u);
     data[4] = static_cast<std::uint8_t>('\0');
   }
-  if (small()) {
+  if (is_small()) {
     set_small_size(new_size);
   } else {
     large_.size = new_size;
@@ -421,7 +421,7 @@ inline void String::append(il::int_t n, std::int32_t cp) {
     }
     data[4 * n] = static_cast<std::uint8_t>('\0');
   }
-  if (small()) {
+  if (is_small()) {
     set_small_size(new_size);
   } else {
     large_.size = new_size;
@@ -429,14 +429,14 @@ inline void String::append(il::int_t n, std::int32_t cp) {
 }
 
 inline const char* String::c_string() const {
-  if (small()) {
+  if (is_small()) {
     return reinterpret_cast<const char*>(data_);
   } else {
     return reinterpret_cast<const char*>(large_.data);
   }
 }
 
-inline bool String::empty() const { return size() == 0; }
+inline bool String::is_empty() const { return size() == 0; }
 
 inline il::int_t String::next_cp(il::int_t i) const {
   const std::uint8_t* data = begin();
@@ -467,7 +467,7 @@ inline std::int32_t String::to_cp(il::int_t i) const {
   return static_cast<std::int32_t>(ans);
 }
 
-inline bool String::small() const {
+inline bool String::is_small() const {
   const std::uint8_t category_extract_mask = 0xC0;
   return (data_[max_small_size_] & category_extract_mask) == 0;
 }
@@ -501,7 +501,7 @@ inline void String::set_large_capacity(il::int_t r) {
 }
 
 inline const std::uint8_t* String::begin() const {
-  if (small()) {
+  if (is_small()) {
     return data_;
   } else {
     return large_.data;
@@ -509,7 +509,7 @@ inline const std::uint8_t* String::begin() const {
 }
 
 inline std::uint8_t* String::begin() {
-  if (small()) {
+  if (is_small()) {
     return data_;
   } else {
     return large_.data;
@@ -517,7 +517,7 @@ inline std::uint8_t* String::begin() {
 }
 
 inline const std::uint8_t* String::end() const {
-  if (small()) {
+  if (is_small()) {
     return data_ + size();
   } else {
     return large_.data + size();
@@ -525,7 +525,7 @@ inline const std::uint8_t* String::end() const {
 }
 
 inline std::uint8_t* String::end() {
-  if (small()) {
+  if (is_small()) {
     return data_ + size();
   } else {
     return large_.data + size();
@@ -541,7 +541,7 @@ inline void String::append(const char* data, il::int_t n) {
       il::max(old_size + n, il::min(max_small_size_, 2 * old_size));
   reserve(new_capacity);
 
-  if (small()) {
+  if (is_small()) {
     std::memcpy(data_ + old_size, data, static_cast<std::size_t>(n));
     data_[old_size + n] = static_cast<std::uint8_t>('\0');
     set_small_size(old_size + n);
@@ -560,6 +560,7 @@ inline bool String::valid_code_point(std::int32_t cp) {
   return ucp <= code_point_max &&
          (ucp < lead_surrogate_min || ucp > lead_surrogate_max);
 }
+
 }  // namespace il
 
 #endif  // IL_STRING_H

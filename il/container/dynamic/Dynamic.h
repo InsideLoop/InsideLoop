@@ -13,6 +13,7 @@
 #include <il/Array.h>
 #include <il/HashMapArray.h>
 #include <il/String.h>
+#include <il/container/dynamic/Type.h>
 
 namespace il {
 
