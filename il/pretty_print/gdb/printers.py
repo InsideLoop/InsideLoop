@@ -501,20 +501,20 @@ class ConstStringViewPrinter:
 class StringPrinter:
 	def __init__(self, val):
 		self.val = val
-		if self.val['large_']['capacity_'] >= 2**63:
+		if self.val['large_']['capacity'] >= 2**63:
 			self.is_small = False
 			self.size = self.val['large_']['size']
-			self.capacity = self.val['large_']['capacity_'] - 2**63
+			self.capacity = self.val['large_']['capacity'] - 2**63
 			self.string = ""
 			for k in range(0, self.size):
 				self.string += chr(self.val['large_']['data'][k])
 		else:
 			self.is_small = True
-			self.size = 23 - self.val['small_'][23]
+			self.size = 23 - self.val['data_'][23]
 			self.capacity = 23
 			self.string = ""
 			for k in range(0, self.size):
-				self.string += chr(self.val['small_'][k])
+				self.string += chr(self.val['data_'][k])
 
 	def to_string(self):
 		# return "[string: \"%s\"] [size: %s] [capacity: %s] [is small: %s]" % (self.string, self.size, self.capacity, self.is_small)

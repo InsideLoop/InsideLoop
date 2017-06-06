@@ -603,7 +603,7 @@ template <typename T, il::int_t small_size>
 bool SmallArray<T, small_size>::invariance() const {
   bool ans = true;
 
-  if (data_ == reinterpret_cast<T*>(small_data_)) {
+  if (data_ == reinterpret_cast<const T*>(small_data_)) {
     ans = ans && (size_ - data_ <= small_size);
     ans = ans && (capacity_ - data_ == small_size);
   } else {

@@ -111,7 +111,7 @@ class HashFunction<il::String> {
   static std::size_t hash(const il::String& s, int p) {
     const std::size_t mask = (1 << p) - 1;
     const il::int_t n = s.size();
-    const char* p_string = s.c_string();
+    const char* p_string = s.as_c_string();
     std::size_t hash = 5381;
     for (il::int_t i = 0; i < n; ++i) {
       hash = ((hash << 5) + hash) + p_string[i];
@@ -125,8 +125,8 @@ class HashFunction<il::String> {
       return false;
     }
 
-    const char* p0 = s0.c_string();
-    const char* p1 = s1.c_string();
+    const char* p0 = s0.as_c_string();
+    const char* p1 = s1.as_c_string();
     il::int_t i = 0;
     while (i < n0 && p0[i] == p1[i]) {
       ++i;

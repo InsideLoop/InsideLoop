@@ -14,7 +14,7 @@
 #include <iostream>
 
 il::String directory =
-    "/Users/fayard/Documents/Projects/InsideLoop/InsideLoop/il/io/toml/_test/"
+    "/home/fayard/Documents/Projects/InsideLoop/InsideLoop/il/io/toml/_test/"
     "valid/";
 
 TEST(Toml, array_empty) {
@@ -25,7 +25,7 @@ TEST(Toml, array_empty) {
 
   il::Status status{};
   il::Toml config = il::load<il::Toml>(filename, il::io, status);
-  if (!status.ok() || config.size() != 1) {
+  if (status.is_error() || config.size() != 1) {
     ans = false;
   } else {
     const il::int_t i0 = config.search("thevoid");
@@ -70,7 +70,7 @@ TEST(Toml, array_nospaces) {
 
   il::Status status{};
   il::Toml config = il::load<il::Toml>(filename, il::io, status);
-  if (!status.ok() || config.size() != 1) {
+  if (status.is_error() || config.size() != 1) {
     ans = false;
   } else {
     const il::int_t i = config.search("ints");
@@ -98,7 +98,7 @@ TEST(Toml, arrays_heterogeneous) {
 
   il::Status status{};
   il::Toml config = il::load<il::Toml>(filename, il::io, status);
-  if (!status.ok() || config.size() != 1) {
+  if (status.is_error() || config.size() != 1) {
     ans = false;
   } else {
     const il::int_t i = config.search("mixed");
@@ -145,7 +145,7 @@ TEST(Toml, arrays_nested) {
 
   il::Status status{};
   il::Toml config = il::load<il::Toml>(filename, il::io, status);
-  if (!status.ok() || config.size() != 1) {
+  if (status.is_error() || config.size() != 1) {
     ans = false;
   } else {
     const il::int_t i = config.search("nest");
@@ -183,7 +183,7 @@ TEST(Toml, boolean) {
 
   il::Status status{};
   il::Toml config = il::load<il::Toml>(filename, il::io, status);
-  if (!status.ok() || config.size() != 2) {
+  if (status.is_error() || config.size() != 2) {
     ans = false;
   } else {
     const il::int_t i = config.search("t");
@@ -210,7 +210,7 @@ TEST(Toml, comments_everywhere) {
 
   il::Status status{};
   il::Toml config = il::load<il::Toml>(filename, il::io, status);
-  if (!status.ok() || config.size() != 1) {
+  if (status.is_error() || config.size() != 1) {
     ans = false;
   } else {
     const il::int_t i = config.search("group");
@@ -248,7 +248,7 @@ TEST(Toml, empty) {
 
   il::Status status{};
   il::Toml config = il::load<il::Toml>(filename, il::io, status);
-  if (!status.ok() || config.size() != 0) {
+  if (status.is_error() || config.size() != 0) {
     ans = false;
   }
 
@@ -263,7 +263,7 @@ TEST(Toml, double) {
 
   il::Status status{};
   il::Toml config = il::load<il::Toml>(filename, il::io, status);
-  if (!status.ok() || config.size() != 2) {
+  if (status.is_error() || config.size() != 2) {
     ans = false;
   } else {
     il::int_t i0 = config.search("pi");
@@ -287,7 +287,7 @@ TEST(Toml, implicit_and_explicit_after) {
 
   il::Status status{};
   il::Toml config = il::load<il::Toml>(filename, il::io, status);
-  if (!status.ok() || config.size() != 1) {
+  if (status.is_error() || config.size() != 1) {
     ans = false;
   } else {
     il::int_t i = config.search("a");
@@ -332,7 +332,7 @@ TEST(Toml, implicit_and_explicit_before) {
 
   il::Status status{};
   il::Toml config = il::load<il::Toml>(filename, il::io, status);
-  if (!status.ok() || config.size() != 1) {
+  if (status.is_error() || config.size() != 1) {
     ans = false;
   } else {
     il::int_t i = config.search("a");
@@ -377,7 +377,7 @@ TEST(Toml, implicit_groups) {
 
   il::Status status{};
   il::Toml config = il::load<il::Toml>(filename, il::io, status);
-  if (!status.ok() || config.size() != 1) {
+  if (status.is_error() || config.size() != 1) {
     ans = false;
   } else {
     il::int_t i = config.search("a");
@@ -419,7 +419,7 @@ TEST(Toml, integer) {
 
   il::Status status{};
   il::Toml config = il::load<il::Toml>(filename, il::io, status);
-  if (!status.ok() || config.size() != 2) {
+  if (status.is_error() || config.size() != 2) {
     ans = false;
   } else {
     il::int_t i0 = config.search("answer");
@@ -443,7 +443,7 @@ TEST(Toml, key_equals_nospace) {
 
   il::Status status{};
   il::Toml config = il::load<il::Toml>(filename, il::io, status);
-  if (!status.ok() || config.size() != 1) {
+  if (status.is_error() || config.size() != 1) {
     ans = false;
   } else {
     il::int_t i = config.search("answer");
@@ -464,7 +464,7 @@ TEST(Toml, key_space) {
 
   il::Status status{};
   il::Toml config = il::load<il::Toml>(filename, il::io, status);
-  if (!status.ok() || config.size() != 1) {
+  if (status.is_error() || config.size() != 1) {
     ans = false;
   } else {
     il::int_t i = config.search("a b");
@@ -485,7 +485,7 @@ TEST(Toml, key_special_chars) {
 
   il::Status status{};
   il::Toml config = il::load<il::Toml>(filename, il::io, status);
-  if (!status.ok() || config.size() != 1) {
+  if (status.is_error() || config.size() != 1) {
     ans = false;
   } else {
     il::int_t i = config.search("~!@$^&*()_+-`1234567890[]|/?><.,;:'");
@@ -506,7 +506,7 @@ TEST(Toml, long_floating_point) {
 
   il::Status status{};
   il::Toml config = il::load<il::Toml>(filename, il::io, status);
-  if (!status.ok() || config.size() != 2) {
+  if (status.is_error() || config.size() != 2) {
     ans = false;
   } else {
     il::int_t i0 = config.search("longpi");
@@ -530,7 +530,7 @@ TEST(Toml, long_integer) {
 
   il::Status status{};
   il::Toml config = il::load<il::Toml>(filename, il::io, status);
-  if (!status.ok() || config.size() != 2) {
+  if (status.is_error() || config.size() != 2) {
     ans = false;
   } else {
     il::int_t i0 = config.search("answer");

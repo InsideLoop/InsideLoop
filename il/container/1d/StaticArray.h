@@ -172,14 +172,14 @@ T& StaticArray<T, n>::operator[](il::int_t i) {
 template <typename T, il::int_t n>
 const T& StaticArray<T, n>::back() const {
   static_assert(n > 0,
-                "il::StaticArray<T, n>: n must be positive to call last()");
+                "il::StaticArray<T, n>: n must be positive to call back()");
   return data_[n - 1];
 }
 
 template <typename T, il::int_t n>
 T& StaticArray<T, n>::back() {
   static_assert(n > 0,
-                "il::StaticArray<T, n>: n must be positive to call last()");
+                "il::StaticArray<T, n>: n must be positive to call back()");
   return data_[n - 1];
 }
 

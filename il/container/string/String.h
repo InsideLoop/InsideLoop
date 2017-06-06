@@ -63,7 +63,7 @@ class String {
   void reserve(il::int_t r);
   void append(const String& s);
   void append(const char* data);
-  void append(const char*, il::int_t n);
+  void append(const char* data, il::int_t n);
   void append(char c);
   void append(std::int32_t cp);
   void append(il::int_t n, char c);
@@ -72,7 +72,7 @@ class String {
   std::int32_t to_cp(il::int_t i) const;
   const std::uint8_t* begin() const;
   const std::uint8_t* end() const;
-  const char* c_string() const;
+  const char* as_c_string() const;
   bool operator==(const il::String& other) const;
 
  private:
@@ -125,11 +125,12 @@ inline String::String(const char* data, il::int_t n) {
 inline String::String(const String& s) {
   const il::int_t size = s.size();
   if (size <= max_small_size_) {
-    std::memcpy(data_, s.c_string(), static_cast<std::size_t>(size) + 1);
+    std::memcpy(data_, s.as_c_string(), static_cast<std::size_t>(size) + 1);
     set_small_size(size);
   } else {
     large_.data = il::allocate_array<std::uint8_t>(size + 1);
-    std::memcpy(large_.data, s.c_string(), static_cast<std::size_t>(size) + 1);
+    std::memcpy(large_.data, s.as_c_string(),
+                static_cast<std::size_t>(size) + 1);
     large_.size = static_cast<std::size_t>(size);
     set_large_capacity(size);
   }
@@ -138,7 +139,7 @@ inline String::String(const String& s) {
 inline String::String(String&& s) {
   const il::int_t size = s.size();
   if (size <= max_small_size_) {
-    std::memcpy(data_, s.c_string(), static_cast<std::size_t>(size) + 1);
+    std::memcpy(data_, s.as_c_string(), static_cast<std::size_t>(size) + 1);
     set_small_size(size);
   } else {
     large_.data = s.large_.data;
@@ -155,11 +156,11 @@ inline String& String::operator=(const String& s) {
     if (!is_small()) {
       il::deallocate(large_.data);
     }
-    std::memcpy(data_, s.c_string(), static_cast<std::size_t>(size) + 1);
+    std::memcpy(data_, s.as_c_string(), static_cast<std::size_t>(size) + 1);
     set_small_size(size);
   } else {
     if (size <= capacity()) {
-      std::memcpy(large_.data, s.c_string(),
+      std::memcpy(large_.data, s.as_c_string(),
                   static_cast<std::size_t>(size) + 1);
       large_.size = static_cast<std::size_t>(size);
     } else {
@@ -167,7 +168,7 @@ inline String& String::operator=(const String& s) {
         il::deallocate(large_.data);
       }
       large_.data = il::allocate_array<std::uint8_t>(size + 1);
-      std::memcpy(large_.data, s.c_string(),
+      std::memcpy(large_.data, s.as_c_string(),
                   static_cast<std::size_t>(size) + 1);
       large_.size = static_cast<std::size_t>(size);
       set_large_capacity(size);
@@ -183,7 +184,7 @@ inline String& String::operator=(String&& s) {
       if (!is_small()) {
         il::deallocate(large_.data);
       }
-      std::memcpy(data_, s.c_string(), static_cast<std::size_t>(size) + 1);
+      std::memcpy(data_, s.as_c_string(), static_cast<std::size_t>(size) + 1);
       set_small_size(size);
     } else {
       large_.data = s.large_.data;
@@ -241,7 +242,7 @@ inline void String::reserve(il::int_t r) {
 
   const il::int_t old_size = size();
   std::uint8_t* new_data = il::allocate_array<std::uint8_t>(r + 1);
-  std::memcpy(new_data, c_string(), static_cast<std::size_t>(old_size) + 1);
+  std::memcpy(new_data, as_c_string(), static_cast<std::size_t>(old_size) + 1);
   if (!old_is_small) {
     il::deallocate(large_.data);
   }
@@ -250,7 +251,9 @@ inline void String::reserve(il::int_t r) {
   set_large_capacity(r);
 }
 
-inline void String::append(const String& s) { append(s.c_string(), s.size()); }
+inline void String::append(const String& s) {
+  append(s.as_c_string(), s.size());
+}
 
 inline void String::append(const char* data) {
   il::int_t size = 0;
@@ -428,7 +431,7 @@ inline void String::append(il::int_t n, std::int32_t cp) {
   }
 }
 
-inline const char* String::c_string() const {
+inline const char* String::as_c_string() const {
   if (is_small()) {
     return reinterpret_cast<const char*>(data_);
   } else {

@@ -30,7 +30,6 @@ enum class Type {
   utf16_string_t,
   utf32_string_t
 };
-
 }
 
 #endif  // IL_TYPE_H

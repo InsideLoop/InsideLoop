@@ -53,7 +53,7 @@ NumpyInfo get_numpy_info(il::io_t, std::FILE* fp, il::Status& status) {
   //
   il::Array<char> second_buffer{header_length + 1};
   StringView header = StringView{second_buffer.begin(), header_length + 1};
-  char* success = fgets(header.c_string(), header_length + 1, fp);
+  char* success = fgets(header.as_c_string(), header_length + 1, fp);
   if (success == nullptr || !(header.is_char(header.size() - 2, '\n'))) {
     status.set_error(il::Error::binary_file_wrong_format);
     IL_SET_SOURCE(status);
@@ -78,7 +78,7 @@ NumpyInfo get_numpy_info(il::io_t, std::FILE* fp, il::Status& status) {
 
   ConstStringView type_string = header.substring(i4 + 10);
   const il::int_t i5 = il::search("'", type_string);
-  numpy_info.type = il::String{type_string.c_string(), i5};
+  numpy_info.type = il::String{type_string.as_c_string(), i5};
 
   // Read the ordering for multidimensional arrays
   //
@@ -110,7 +110,8 @@ NumpyInfo get_numpy_info(il::io_t, std::FILE* fp, il::Status& status) {
   }
   for (il::int_t i = 0; i < numpy_info.shape.size(); ++i) {
     const il::int_t i3 = il::search(",", shape_string);
-    numpy_info.shape[i] = std::atoll(shape_string.substring(0, i3).c_string());
+    numpy_info.shape[i] =
+        std::atoll(shape_string.substring(0, i3).as_c_string());
     shape_string = shape_string.substring(i3 + 1);
   }
 
@@ -159,7 +160,7 @@ void save_numpy_info(const NumpyInfo& numpy_info, il::io_t, std::FILE* fp,
   magic.append(reinterpret_cast<char*>(&short_int), 2);
   magic.append(header);
 
-  std::size_t written = std::fwrite(magic.c_string(), sizeof(char),
+  std::size_t written = std::fwrite(magic.as_c_string(), sizeof(char),
                                     static_cast<std::size_t>(magic.size()), fp);
   if (static_cast<il::int_t>(written) != magic.size()) {
     status.set_error(il::Error::filesystem_no_write_access);

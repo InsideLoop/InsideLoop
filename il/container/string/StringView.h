@@ -46,7 +46,7 @@ class ConstStringView {
   ConstStringView substring(il::int_t i0, il::int_t i1) const;
   bool is_empty() const;
   bool operator==(const char* string) const;
-  const char* c_string() const;
+  const char* as_c_string() const;
   const std::uint8_t* begin() const;
   const std::uint8_t* end() const;
 };
@@ -231,7 +231,7 @@ inline bool ConstStringView::operator==(const char* string) const {
   return match;
 }
 
-inline const char* ConstStringView::c_string() const {
+inline const char* ConstStringView::as_c_string() const {
   return reinterpret_cast<const char*>(data_);
 }
 
@@ -247,7 +247,7 @@ class StringView : public ConstStringView {
   StringView substring(il::int_t i0, il::int_t i1);
   StringView substring(il::int_t i0);
   std::uint8_t* begin();
-  char* c_string();
+  char* as_c_string();
 };
 
 inline StringView::StringView(std::uint8_t* data, il::int_t n) {
@@ -262,7 +262,9 @@ inline StringView::StringView(char* data, il::int_t n)
 
 inline std::uint8_t* StringView::begin() { return data_; }
 
-inline char* StringView::c_string() { return reinterpret_cast<char*>(data_); }
+inline char* StringView::as_c_string() {
+  return reinterpret_cast<char*>(data_);
+}
 
 // inline std::uint8_t& StringView::operator[](il::int_t i) {
 //  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <

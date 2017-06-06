@@ -51,7 +51,7 @@ class SaveHelper<il::Array<T>> {
  public:
   static void save(const il::Array<T>& v, const il::String& filename, il::io_t,
                    il::Status& status) {
-    std::FILE* file = std::fopen(filename.c_string(), "wb");
+    std::FILE* file = std::fopen(filename.as_c_string(), "wb");
     if (!file) {
       status.set_error(il::Error::filesystem_file_not_found);
       IL_SET_SOURCE(status);
@@ -65,7 +65,7 @@ class SaveHelper<il::Array<T>> {
 
     il::Status info_status{};
     il::save_numpy_info(numpy_info, il::io, file, info_status);
-    if (!info_status.ok()) {
+    if (info_status.is_error()) {
       const int error = std::fclose(file);
       if (error != 0) {
         il::abort();
@@ -99,7 +99,7 @@ class SaveHelper<il::Array2D<T>> {
  public:
   static void save(const il::Array2D<T>& A, const il::String& filename,
                    il::io_t, il::Status& status) {
-    std::FILE* file = std::fopen(filename.c_string(), "wb");
+    std::FILE* file = std::fopen(filename.as_c_string(), "wb");
     if (!file) {
       status.set_error(il::Error::filesystem_file_not_found);
       IL_SET_SOURCE(status);
@@ -113,7 +113,7 @@ class SaveHelper<il::Array2D<T>> {
 
     il::Status info_status{};
     il::save_numpy_info(numpy_info, il::io, file, info_status);
-    if (!info_status.ok()) {
+    if (info_status.is_error()) {
       const int error = std::fclose(file);
       if (error != 0) {
         il::abort();
@@ -150,7 +150,7 @@ class LoadHelper<il::Array<T>> {
                            il::Status& status) {
     il::Array<T> v{};
 
-    std::FILE* file = std::fopen(filename.c_string(), "r+b");
+    std::FILE* file = std::fopen(filename.as_c_string(), "r+b");
     if (!file) {
       status.set_error(il::Error::filesystem_file_not_found);
       IL_SET_SOURCE(status);
@@ -159,7 +159,7 @@ class LoadHelper<il::Array<T>> {
 
     il::Status info_status{};
     il::NumpyInfo numpy_info = il::get_numpy_info(il::io, file, info_status);
-    if (!info_status.ok()) {
+    if (info_status.is_error()) {
       status = std::move(info_status);
       return v;
     }
@@ -201,7 +201,7 @@ class LoadHelper<il::Array2D<T>> {
                              il::Status& status) {
     il::Array2D<T> v{};
 
-    std::FILE* file = std::fopen(filename.c_string(), "r+b");
+    std::FILE* file = std::fopen(filename.as_c_string(), "r+b");
     if (!file) {
       status.set_error(il::Error::filesystem_file_not_found);
       IL_SET_SOURCE(status);
@@ -210,7 +210,7 @@ class LoadHelper<il::Array2D<T>> {
 
     il::Status info_status{};
     il::NumpyInfo numpy_info = il::get_numpy_info(il::io, file, info_status);
-    if (!info_status.ok()) {
+    if (info_status.is_error()) {
       status = std::move(info_status);
       return v;
     }

@@ -117,7 +117,7 @@ inline void save_array(const il::Array<il::Dynamic> &array, il::io_t,
       case il::DynamicType::string: {
         const int error2 = std::fputs("\"", file);
         const int error3 =
-            std::fputs(array[j].as_const_string().c_string(), file);
+            std::fputs(array[j].as_const_string().as_c_string(), file);
         const int error4 = std::fputs("\"", file);
         IL_UNUSED(error2);
         IL_UNUSED(error3);
@@ -125,7 +125,7 @@ inline void save_array(const il::Array<il::Dynamic> &array, il::io_t,
       } break;
       case il::DynamicType::array: {
         save_array(array[j].as_const_array(), il::io, file, status);
-        if (!status.ok()) {
+        if (status.is_error()) {
           status.rearm();
           return;
         }
@@ -145,7 +145,7 @@ inline void save_aux(const il::HashMapArray<il::String, il::Dynamic> &toml,
   for (il::int_t i = 0; i != toml.size(); ++i) {
     il::DynamicType type = toml.value(i).type();
     if (type != il::DynamicType::hashmaparray) {
-      int error0 = std::fputs(toml.key(i).c_string(), file);
+      int error0 = std::fputs(toml.key(i).as_c_string(), file);
       int error1 = std::fputs(" = ", file);
       int error2;
       int error3;
@@ -166,7 +166,8 @@ inline void save_aux(const il::HashMapArray<il::String, il::Dynamic> &toml,
           break;
         case il::DynamicType::string:
           error2 = std::fputs("\"", file);
-          error3 = std::fputs(toml.value(i).as_const_string().c_string(), file);
+          error3 =
+              std::fputs(toml.value(i).as_const_string().as_c_string(), file);
           error4 = std::fputs("\"", file);
           break;
         case il::DynamicType::array: {
@@ -185,18 +186,18 @@ inline void save_aux(const il::HashMapArray<il::String, il::Dynamic> &toml,
       const int error0 = std::fputs("\n[", file);
       IL_UNUSED(error0);
       if (name.size() != 0) {
-        const int error1 = std::fputs(name.c_string(), file);
+        const int error1 = std::fputs(name.as_c_string(), file);
         const int error2 = std::fputs(".", file);
         IL_UNUSED(error1);
         IL_UNUSED(error2);
       }
-      const int error3 = std::fputs(toml.key(i).c_string(), file);
+      const int error3 = std::fputs(toml.key(i).as_c_string(), file);
       const int error4 = std::fputs("]\n", file);
       save_aux(toml.value(i).as_const_hashmaparray(), toml.key(i), il::io, file,
                status);
       IL_UNUSED(error3);
       IL_UNUSED(error4);
-      if (!status.ok()) {
+      if (status.is_error()) {
         status.rearm();
         return;
       }
@@ -212,7 +213,7 @@ class SaveHelper<il::HashMapArray<il::String, il::Dynamic>> {
  public:
   static void save(const il::HashMapArray<il::String, il::Dynamic> &toml,
                    const il::String &filename, il::io_t, il::Status &status) {
-    std::FILE *file = std::fopen(filename.c_string(), "wb");
+    std::FILE *file = std::fopen(filename.as_c_string(), "wb");
     if (!file) {
       status.set_error(il::Error::filesystem_file_not_found);
       return;
@@ -220,7 +221,7 @@ class SaveHelper<il::HashMapArray<il::String, il::Dynamic>> {
 
     il::String root_name{};
     save_aux(toml, root_name, il::io, file, status);
-    if (!status.ok()) {
+    if (status.is_error()) {
       status.rearm();
       return;
     }

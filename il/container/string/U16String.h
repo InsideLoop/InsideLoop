@@ -174,8 +174,7 @@ inline U16String& U16String::operator=(U16String&& s) {
       if (!is_small()) {
         il::deallocate(large_.data);
       }
-      std::memcpy(data_, s.begin(),
-                  2 * (static_cast<std::size_t>(size) + 1));
+      std::memcpy(data_, s.begin(), 2 * (static_cast<std::size_t>(size) + 1));
       set_small_size(size);
     } else {
       large_.data = s.large_.data;
@@ -225,8 +224,7 @@ inline void U16String::reserve(il::int_t r) {
 
   const il::int_t old_size = size();
   std::uint16_t* new_data = il::allocate_array<std::uint16_t>(r + 1);
-  std::memcpy(new_data, begin(),
-              2 * (static_cast<std::size_t>(old_size) + 1));
+  std::memcpy(new_data, begin(), 2 * (static_cast<std::size_t>(old_size) + 1));
   if (!old_is_small) {
     il::deallocate(large_.data);
   }

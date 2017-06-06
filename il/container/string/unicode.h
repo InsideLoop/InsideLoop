@@ -23,7 +23,7 @@ il::U16String to_u16(const il::String& string) {
   }
   ans.append('\0');
   return ans;
-};
+}
 
 enum CodePoint : std::int32_t {
   snowman = 0x2603,
