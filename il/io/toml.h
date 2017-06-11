@@ -43,11 +43,11 @@ class TomlParser {
                           il::Status &status);
   il::Dynamic parse_array(il::io_t, il::ConstStringView &string,
                           il::Status &status);
-  il::Dynamic parse_value_array(il::DynamicType value_type, il::io_t,
+  il::Dynamic parse_value_array(il::Type value_type, il::io_t,
                                 il::ConstStringView &string,
                                 il::Status &status);
-  il::Dynamic parse_object_array(il::DynamicType object_type, char delimiter,
-                                 il::io_t, il::ConstStringView &string,
+  il::Dynamic parse_object_array(il::Type object_type, char delimiter, il::io_t,
+                                 il::ConstStringView &string,
                                  il::Status &status);
   il::Dynamic parse_inline_table(il::io_t, il::ConstStringView &string,
                                  il::Status &status);
@@ -59,8 +59,7 @@ class TomlParser {
   il::String current_line() const;
   il::Dynamic parse_number(il::io_t, il::ConstStringView &string,
                            il::Status &status);
-  il::DynamicType parse_type(il::ConstStringView string, il::io_t,
-                             il::Status &status);
+  il::Type parse_type(il::ConstStringView string, il::io_t, il::Status &status);
   il::Dynamic parse_boolean(il::io_t, il::ConstStringView &string,
                             Status &status);
   il::String parse_string_literal(char delimiter, il::io_t,
@@ -96,8 +95,8 @@ inline void save_array(const il::Array<il::Dynamic> &array, il::io_t,
       IL_UNUSED(error1);
     }
     switch (array[j].type()) {
-      case il::DynamicType::boolean: {
-        if (array[j].to_boolean()) {
+      case il::Type::bool_t: {
+        if (array[j].to_bool()) {
           const int error2 = std::fputs("true", file);
           IL_UNUSED(error2);
         } else {
@@ -105,26 +104,24 @@ inline void save_array(const il::Array<il::Dynamic> &array, il::io_t,
           IL_UNUSED(error2);
         }
       } break;
-      case il::DynamicType::integer: {
+      case il::Type::integer_t: {
         const int error2 = std::fprintf(file, "%td", array[j].to_integer());
         IL_UNUSED(error2);
       } break;
-      case il::DynamicType::floating_point: {
-        const int error2 =
-            std::fprintf(file, "%e", array[j].to_floating_point());
+      case il::Type::double_t: {
+        const int error2 = std::fprintf(file, "%e", array[j].to_double());
         IL_UNUSED(error2);
       } break;
-      case il::DynamicType::string: {
+      case il::Type::string_t: {
         const int error2 = std::fputs("\"", file);
-        const int error3 =
-            std::fputs(array[j].as_const_string().as_c_string(), file);
+        const int error3 = std::fputs(array[j].as_string().as_c_string(), file);
         const int error4 = std::fputs("\"", file);
         IL_UNUSED(error2);
         IL_UNUSED(error3);
         IL_UNUSED(error4);
       } break;
-      case il::DynamicType::array: {
-        save_array(array[j].as_const_array(), il::io, file, status);
+      case il::Type::array_t: {
+        save_array(array[j].as_array(), il::io, file, status);
         if (status.is_error()) {
           status.rearm();
           return;
@@ -143,34 +140,73 @@ inline void save_aux(const il::HashMapArray<il::String, il::Dynamic> &toml,
                      const il::String &name, il::io_t, std::FILE *file,
                      il::Status &status) {
   for (il::int_t i = 0; i != toml.size(); ++i) {
-    il::DynamicType type = toml.value(i).type();
-    if (type != il::DynamicType::hashmaparray) {
+    il::Type type = toml.value(i).type();
+    if (type != il::Type::hash_map_array_t) {
       int error0 = std::fputs(toml.key(i).as_c_string(), file);
       int error1 = std::fputs(" = ", file);
       int error2;
       int error3;
       int error4;
       switch (type) {
-        case il::DynamicType::boolean:
-          if (toml.value(i).to_boolean()) {
+        case il::Type::bool_t:
+          if (toml.value(i).to_bool()) {
             error2 = std::fputs("true", file);
           } else {
             error2 = std::fputs("false", file);
           }
           break;
-        case il::DynamicType::integer:
+        case il::Type::integer_t:
           error3 = std::fprintf(file, "%td", toml.value(i).to_integer());
           break;
-        case il::DynamicType::floating_point:
-          error3 = std::fprintf(file, "%e", toml.value(i).to_floating_point());
+        case il::Type::double_t:
+          error3 = std::fprintf(file, "%e", toml.value(i).to_double());
           break;
-        case il::DynamicType::string:
+        case il::Type::string_t:
           error2 = std::fputs("\"", file);
-          error3 =
-              std::fputs(toml.value(i).as_const_string().as_c_string(), file);
+          error3 = std::fputs(toml.value(i).as_string().as_c_string(), file);
           error4 = std::fputs("\"", file);
           break;
-        case il::DynamicType::array: {
+        case il::Type::array_of_double_t: {
+          const il::Array<double> &v = toml.value(i).as_array_of_double();
+          const int error0 = std::fputs("[ ", file);
+          for (il::int_t i = 0; i < v.size(); ++i) {
+            std::fprintf(file, "%e", v[i]);
+            if (i + 1 < v.size()) {
+              const int error2 = std::fputs(", ", file);
+              IL_UNUSED(error2);
+            }
+          }
+          const int error1 = std::fputs(" ]", file);
+          IL_UNUSED(error0);
+          IL_UNUSED(error1);
+        } break;
+        case il::Type::array2d_of_double_t: {
+          const il::Array2D<double> &v = toml.value(i).as_array2d_of_double();
+          const int error0 = std::fputs("[ ", file);
+          for (il::int_t i = 0; i < v.size(0); ++i) {
+            const int error0 = std::fputs("[ ", file);
+            for (il::int_t j = 0; j < v.size(1); ++j) {
+              std::fprintf(file, "%e", v(i, j));
+              if (j + 1 < v.size(1)) {
+                const int error3 = std::fputs(", ", file);
+                IL_UNUSED(error3);
+              }
+            }
+            const int error1 = std::fputs(" ]", file);
+            if (i + 1 < v.size(0)) {
+              const int error2 = std::fputs(", ", file);
+              IL_UNUSED(error2);
+            }
+            IL_UNUSED(error0);
+            IL_UNUSED(error1);
+          }
+          const int error1 = std::fputs(" ]", file);
+          IL_UNUSED(error0);
+          IL_UNUSED(error1);
+        } break;
+        case il::Type::array_t: {
+          save_array(toml.value(i).as_array(), il::io, file, status);
+          status.abort_on_error();
         } break;
         default:
           IL_UNREACHABLE;
@@ -193,7 +229,7 @@ inline void save_aux(const il::HashMapArray<il::String, il::Dynamic> &toml,
       }
       const int error3 = std::fputs(toml.key(i).as_c_string(), file);
       const int error4 = std::fputs("]\n", file);
-      save_aux(toml.value(i).as_const_hashmaparray(), toml.key(i), il::io, file,
+      save_aux(toml.value(i).as_hash_map_array(), toml.key(i), il::io, file,
                status);
       IL_UNUSED(error3);
       IL_UNUSED(error4);

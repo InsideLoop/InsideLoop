@@ -112,11 +112,13 @@ inline String::String(const char* data, il::int_t n) {
   IL_EXPECT_FAST(n >= 0);
 
   if (n <= max_small_size_) {
-    std::memcpy(data_, data, static_cast<std::size_t>(n) + 1);
+    std::memcpy(data_, data, static_cast<std::size_t>(n));
+    data_[n] = '\0';
     set_small_size(n);
   } else {
     large_.data = il::allocate_array<std::uint8_t>(n + 1);
-    std::memcpy(large_.data, data, static_cast<std::size_t>(n) + 1);
+    std::memcpy(large_.data, data, static_cast<std::size_t>(n));
+    large_.data[n] = '\0';
     large_.size = static_cast<std::size_t>(n);
     set_large_capacity(n);
   }

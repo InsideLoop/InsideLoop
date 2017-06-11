@@ -23,7 +23,7 @@ project(Program CXX)
 
 set(IL_OPENMP 0)
 set(IL_OPENBLAS 0)
-set(IL_MKL 1)
+set(IL_MKL 0)
 set(IL_PNG 0)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++11")
@@ -231,6 +231,7 @@ set(SOURCE_FILES
     il/io/toml.cpp
     il/io/png.h
     #il/io/png.cpp
+    il/io/filepack/filepack.h
     il/io/format/format.cc
     il/linear_algebra/dense/blas/blas.h
     il/linear_algebra/dense/blas/dot.h

@@ -14,7 +14,7 @@
 #include <iostream>
 
 il::String directory =
-    "/home/fayard/Documents/Projects/InsideLoop/InsideLoop/il/io/toml/_test/"
+    "/Users/fayard/Documents/Projects/InsideLoop/InsideLoop/il/io/toml/_test/"
     "valid/";
 
 TEST(Toml, array_empty) {
@@ -122,10 +122,9 @@ TEST(Toml, arrays_heterogeneous) {
             ans = false;
           } else {
             const il::Array<il::Dynamic> &subarray2 = array[2].as_array();
-            if (!(subarray2[0].is_floating_point() &&
-                  subarray2[0].to_floating_point() == 1.1 &&
-                  subarray2[1].is_floating_point() &&
-                  subarray2[1].to_floating_point() == 2.1)) {
+            if (!(subarray2[0].is_double() && subarray2[0].to_double() == 1.1 &&
+                  subarray2[1].is_double() &&
+                  subarray2[1].to_double() == 2.1)) {
               ans = false;
             }
           }
@@ -187,13 +186,13 @@ TEST(Toml, boolean) {
     ans = false;
   } else {
     const il::int_t i = config.search("t");
-    if (!(config.found(i) && config.value(i).is_boolean() &&
-          config.value(i).to_boolean())) {
+    if (!(config.found(i) && config.value(i).is_bool() &&
+          config.value(i).to_bool())) {
       ans = false;
     } else {
       const il::int_t i = config.search("f");
-      if (!(config.found(i) && config.value(i).is_boolean() &&
-            config.value(i).to_boolean() == false)) {
+      if (!(config.found(i) && config.value(i).is_bool() &&
+            config.value(i).to_bool() == false)) {
         ans = false;
       }
     }
@@ -214,11 +213,11 @@ TEST(Toml, comments_everywhere) {
     ans = false;
   } else {
     const il::int_t i = config.search("group");
-    if (!(config.found(i) && config.value(i).is_hashmaparray())) {
+    if (!(config.found(i) && config.value(i).is_hash_map_array())) {
       ans = false;
     } else {
       il::HashMapArray<il::String, il::Dynamic> &group =
-          config.value(i).as_hashmaparray();
+          config.value(i).as_hash_map_array();
       il::int_t j0 = group.search("answer");
       il::int_t j1 = group.search("more");
       if (!(group.size() == 2 && group.found(j0) &&
@@ -268,10 +267,10 @@ TEST(Toml, double) {
   } else {
     il::int_t i0 = config.search("pi");
     il::int_t i1 = config.search("negpi");
-    if (!(config.found(i0) && config.value(i0).is_floating_point() &&
-          config.value(i0).to_floating_point() == 3.14 && config.found(i1) &&
-          config.value(i1).is_floating_point() &&
-          config.value(i1).to_floating_point() == -3.14)) {
+    if (!(config.found(i0) && config.value(i0).is_double() &&
+          config.value(i0).to_double() == 3.14 && config.found(i1) &&
+          config.value(i1).is_double() &&
+          config.value(i1).to_double() == -3.14)) {
       ans = false;
     }
   }
@@ -291,26 +290,26 @@ TEST(Toml, implicit_and_explicit_after) {
     ans = false;
   } else {
     il::int_t i = config.search("a");
-    if (!(config.found(i) && config.value(i).is_hashmaparray())) {
+    if (!(config.found(i) && config.value(i).is_hash_map_array())) {
       ans = false;
     } else {
       il::HashMapArray<il::String, il::Dynamic> &a =
-          config.value(i).as_hashmaparray();
+          config.value(i).as_hash_map_array();
       il::int_t i0 = a.search("better");
       il::int_t i1 = a.search("b");
       if (!(a.size() == 2 && a.found(i0) && a.value(i0).is_integer() &&
             a.value(i0).to_integer() == 43 && a.found(i1) &&
-            a.value(i1).is_hashmaparray())) {
+            a.value(i1).is_hash_map_array())) {
         ans = false;
       } else {
         il::HashMapArray<il::String, il::Dynamic> &b =
-            a.value(i1).as_hashmaparray();
+            a.value(i1).as_hash_map_array();
         il::int_t j = b.search("c");
-        if (!(b.size() == 1 && b.found(j) && b.value(j).is_hashmaparray())) {
+        if (!(b.size() == 1 && b.found(j) && b.value(j).is_hash_map_array())) {
           ans = false;
         } else {
           il::HashMapArray<il::String, il::Dynamic> &c =
-              b.value(j).as_hashmaparray();
+              b.value(j).as_hash_map_array();
           il::int_t j0 = c.search("answer");
           if (!(c.size() == 1 && c.found(j0) && c.value(j0).is_integer() &&
                 c.value(j0).to_integer() == 42)) {
@@ -336,26 +335,26 @@ TEST(Toml, implicit_and_explicit_before) {
     ans = false;
   } else {
     il::int_t i = config.search("a");
-    if (!(config.found(i) && config.value(i).is_hashmaparray())) {
+    if (!(config.found(i) && config.value(i).is_hash_map_array())) {
       ans = false;
     } else {
       il::HashMapArray<il::String, il::Dynamic> &a =
-          config.value(i).as_hashmaparray();
+          config.value(i).as_hash_map_array();
       il::int_t i0 = a.search("better");
       il::int_t i1 = a.search("b");
       if (!(a.size() == 2 && a.found(i0) && a.value(i0).is_integer() &&
             a.value(i0).to_integer() == 43 && a.found(i1) &&
-            a.value(i1).is_hashmaparray())) {
+            a.value(i1).is_hash_map_array())) {
         ans = false;
       } else {
         il::HashMapArray<il::String, il::Dynamic> &b =
-            a.value(i1).as_hashmaparray();
+            a.value(i1).as_hash_map_array();
         il::int_t j = b.search("c");
-        if (!(b.size() == 1 && b.found(j) && b.value(j).is_hashmaparray())) {
+        if (!(b.size() == 1 && b.found(j) && b.value(j).is_hash_map_array())) {
           ans = false;
         } else {
           il::HashMapArray<il::String, il::Dynamic> &c =
-              b.value(j).as_hashmaparray();
+              b.value(j).as_hash_map_array();
           il::int_t j0 = c.search("answer");
           if (!(c.size() == 1 && c.found(j0) && c.value(j0).is_integer() &&
                 c.value(j0).to_integer() == 42)) {
@@ -381,23 +380,23 @@ TEST(Toml, implicit_groups) {
     ans = false;
   } else {
     il::int_t i = config.search("a");
-    if (!(config.found(i) && config.value(i).is_hashmaparray())) {
+    if (!(config.found(i) && config.value(i).is_hash_map_array())) {
       ans = false;
     } else {
       il::HashMapArray<il::String, il::Dynamic> &a =
-          config.value(i).as_hashmaparray();
+          config.value(i).as_hash_map_array();
       il::int_t i1 = a.search("b");
-      if (!(a.size() == 1 && a.found(i1) && a.value(i1).is_hashmaparray())) {
+      if (!(a.size() == 1 && a.found(i1) && a.value(i1).is_hash_map_array())) {
         ans = false;
       } else {
         il::HashMapArray<il::String, il::Dynamic> &b =
-            a.value(i1).as_hashmaparray();
+            a.value(i1).as_hash_map_array();
         il::int_t j = b.search("c");
-        if (!(b.size() == 1 && b.found(j) && b.value(j).is_hashmaparray())) {
+        if (!(b.size() == 1 && b.found(j) && b.value(j).is_hash_map_array())) {
           ans = false;
         } else {
           il::HashMapArray<il::String, il::Dynamic> &c =
-              b.value(j).as_hashmaparray();
+              b.value(j).as_hash_map_array();
           il::int_t j0 = c.search("answer");
           if (!(c.size() == 1 && c.found(j0) && c.value(j0).is_integer() &&
                 c.value(j0).to_integer() == 42)) {
@@ -511,10 +510,10 @@ TEST(Toml, long_floating_point) {
   } else {
     il::int_t i0 = config.search("longpi");
     il::int_t i1 = config.search("neglongpi");
-    if (!(config.found(i0) && config.value(i0).is_floating_point() &&
-          config.value(i0).to_floating_point() == 3.141592653589793 &&
-          config.found(i1) && config.value(i1).is_floating_point() &&
-          config.value(i1).to_floating_point() == -3.141592653589793)) {
+    if (!(config.found(i0) && config.value(i0).is_double() &&
+          config.value(i0).to_double() == 3.141592653589793 &&
+          config.found(i1) && config.value(i1).is_double() &&
+          config.value(i1).to_double() == -3.141592653589793)) {
       ans = false;
     }
   }

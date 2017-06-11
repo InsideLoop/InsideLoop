@@ -99,7 +99,7 @@ class Status {
   void set_info(const char* key, double value);
   void set_info(const char* key, const char* value);
   void set_source(const char* file, il::int_t line);
-  int to_int(const char* key) const;
+  int to_int32(const char* key) const;
   il::int_t to_integer(const char* key) const;
   double to_double(const char* key) const;
   const char* as_c_string(const char* key) const;
@@ -184,10 +184,10 @@ inline void Status::set_source(const char* file, il::int_t line) {
   set_info("source_line", line);
 }
 
-inline int Status::to_int(const char* key) const {
+inline int Status::to_int32(const char* key) const {
   IL_EXPECT_MEDIUM(!ok_);
 
-  return info_.to_int(key);
+  return info_.to_int32(key);
 }
 
 inline il::int_t Status::to_integer(const char* key) const {

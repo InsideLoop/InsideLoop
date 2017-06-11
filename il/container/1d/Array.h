@@ -702,11 +702,11 @@ void Array<T>::append(T&& x) {
     }
     increase_capacity(new_capacity);
   }
-  if (il::is_trivial<T>::value) {
-    *size_ = std::move(x);
-  } else {
-    new (size_) T(std::move(x));
-  }
+  //  if (il::is_trivial<T>::value) {
+  //    *size_ = std::move(x);
+  //  } else {
+  new (size_) T(std::move(x));
+  //  }
   ++size_;
 }
 
@@ -724,7 +724,7 @@ void Array<T>::append(il::emplace_t, Args&&... args) {
     }
     increase_capacity(new_capacity);
   };
-  new (size_) T(args...);
+  new (size_) T(std::forward<Args>(args)...);
   ++size_;
 }
 

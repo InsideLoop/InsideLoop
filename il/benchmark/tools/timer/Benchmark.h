@@ -43,9 +43,8 @@ double benchmark_short(const P &program, double time_goal = 1.0) {
     auto end = std::chrono::high_resolution_clock::now();
     total_time =
         1.0e-9 *
-        (1 +
-         std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin)
-             .count());
+        (1 + std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin)
+                 .count());
     const il::int_t estimated_nb_iterations{
         static_cast<il::int_t>(time_goal / (total_time / nb_iterations))};
     nb_iterations = estimated_nb_iterations <= growth_factor * nb_iterations

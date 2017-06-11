@@ -49,7 +49,7 @@ class Info {
   void set(const char* key, const char* value);
 
   bool to_bool(const char* key) const;
-  int to_int(const char* key) const;
+  int to_int32(const char* key) const;
   il::int_t to_integer(const char* key) const;
   double to_double(const char* key) const;
   const char* as_c_string(const char* key) const;
@@ -64,7 +64,7 @@ class Info {
   bool is_string(il::int_t i) const;
 
   bool to_bool(il::int_t i) const;
-  int to_int(il::int_t i) const;
+  int to_int32(il::int_t i) const;
   il::int_t to_integer(il::int_t i) const;
   double to_double(il::int_t i) const;
   const char* as_c_string(il::int_t i) const;
@@ -268,7 +268,7 @@ inline il::int_t Info::search(const char* key) const {
     }
   }
 
-  return found ? i + sizeof(int) + j + 1 : -1;
+  return found ? i + static_cast<il::int_t>(sizeof(int)) + j + 1 : -1;
 }
 
 inline bool Info::found(il::int_t i) const { return i >= 0; }
@@ -281,7 +281,7 @@ inline bool Info::is_double(il::int_t i) const { return data()[i] == 1; }
 
 inline bool Info::is_string(il::int_t i) const { return data()[i] == 2; }
 
-inline int Info::to_int(il::int_t i) const {
+inline int Info::to_int32(il::int_t i) const {
   IL_EXPECT_FAST(is_int(i));
 
   const unsigned char* p = data();
@@ -332,11 +332,11 @@ inline const char* Info::as_c_string(il::int_t i) const {
   return reinterpret_cast<const char*>(data()) + i + 1;
 }
 
-inline int Info::to_int(const char* key) const {
+inline int Info::to_int32(const char* key) const {
   const il::int_t i = search(key);
   IL_ENSURE(found(i));
 
-  return to_int(i);
+  return to_int32(i);
 }
 
 inline il::int_t Info::to_integer(const char* key) const {

@@ -19,11 +19,16 @@ namespace il {
 
 template <typename K, typename V>
 struct KeyValue {
-  const K key;
+  K key;
   V value;
   KeyValue(const K& the_key, const V& the_value)
       : key{the_key}, value{the_value} {};
-  KeyValue(const K& the_key, V&& the_value) : key{the_key}, value{the_value} {};
+  KeyValue(const K& the_key, V&& the_value)
+      : key{the_key}, value{std::move(the_value)} {};
+  KeyValue(K&& the_key, const V& the_value)
+      : key{std::move(the_key)}, value{the_value} {};
+  KeyValue(K&& the_key, V&& the_value)
+      : key{std::move(the_key)}, value{std::move(the_value)} {};
 };
 
 template <typename K, typename V, typename F>
@@ -117,12 +122,17 @@ class HashMap {
   ~HashMap();
   void set(const K& key, const V& value, il::io_t, il::int_t& i);
   void set(const K& key, V&& value, il::io_t, il::int_t& i);
+  void set(K&& key, V&& value, il::io_t, il::int_t& i);
   void set(const K& key, const V& value);
+  void set(K&& key, const V& value);
   void set(const K& key, V&& value);
+  void set(K&& key, V&& value);
   il::int_t search(const K& key) const;
   bool found(il::int_t i) const;
   void insert(const K& key, const V& value, il::io_t, il::int_t& i);
   void insert(const K& key, V&& value, il::io_t, il::int_t& i);
+  void insert(K&& key, const V& value, il::io_t, il::int_t& i);
+  void insert(K&& key, V&& value, il::io_t, il::int_t& i);
   void insert(const K& key, const V& value);
   void insert(const K& key, V&& value);
   void erase(il::int_t i);
@@ -344,6 +354,17 @@ void HashMap<K, V, F>::set(const K& key, V&& value, il::io_t, il::int_t& i) {
 }
 
 template <typename K, typename V, typename F>
+void HashMap<K, V, F>::set(K&& key, V&& value, il::io_t, il::int_t& i) {
+  i = search(key);
+  if (!found(i)) {
+    insert(std::move(key), std::move(value), il::io, i);
+  } else {
+    (slot_ + i)->value.~V();
+    new (&((slot_ + i)->value)) V(std::move(value));
+  }
+}
+
+template <typename K, typename V, typename F>
 void HashMap<K, V, F>::set(const K& key, const V& value) {
   il::int_t i = search(key);
   if (!found(i)) {
@@ -358,10 +379,32 @@ template <typename K, typename V, typename F>
 void HashMap<K, V, F>::set(const K& key, V&& value) {
   il::int_t i = search(key);
   if (!found(i)) {
-    insert(key, value, il::io, i);
+    insert(key, std::move(value), il::io, i);
   } else {
     (slot_ + i)->value.~V();
-    new (&((slot_ + i)->value)) V(value);
+    new (&((slot_ + i)->value)) V(std::move(value));
+  }
+}
+
+template <typename K, typename V, typename F>
+void HashMap<K, V, F>::set(K&& key, const V& value) {
+  il::int_t i = search(key);
+  if (!found(i)) {
+    insert(std::move(key), value, il::io, i);
+  } else {
+    (slot_ + i)->value.~V();
+    new (&((slot_ + i)->value)) V(std::move(value));
+  }
+}
+
+template <typename K, typename V, typename F>
+void HashMap<K, V, F>::set(K&& key, V&& value) {
+  il::int_t i = search(key);
+  if (!found(i)) {
+    insert(std::move(key), std::move(value), il::io, i);
+  } else {
+    (slot_ + i)->value.~V();
+    new (&((slot_ + i)->value)) V(std::move(value));
   }
 }
 
@@ -433,6 +476,44 @@ void HashMap<K, V, F>::insert(const K& key, V&& value, il::io_t, il::int_t& i) {
   }
   new (const_cast<K*>(&((slot_ + i_local)->key))) K(key);
   new (&((slot_ + i_local)->value)) V(value);
+  ++nb_element_;
+  i = i_local;
+}
+
+template <typename K, typename V, typename F>
+void HashMap<K, V, F>::insert(K&& key, const V& value, il::io_t, il::int_t& i) {
+  IL_EXPECT_FAST(!found(i));
+
+  // FIXME: What it the place is a tombstone. We should update the number of
+  // tombstones in the hash table.
+
+  il::int_t i_local = -(1 + i);
+  if (2 * (nb_element_ + 1) > (1 << p_)) {
+    grow(il::next_power_of_2_32(2 * (nb_element_ + 1)));
+    il::int_t j = search(key);
+    i_local = -(1 + j);
+  }
+  new (const_cast<K*>(&((slot_ + i_local)->key))) K(std::move(key));
+  new (&((slot_ + i_local)->value)) V(value);
+  ++nb_element_;
+  i = i_local;
+}
+
+template <typename K, typename V, typename F>
+void HashMap<K, V, F>::insert(K&& key, V&& value, il::io_t, il::int_t& i) {
+  IL_EXPECT_FAST(!found(i));
+
+  // FIXME: What it the place is a tombstone. We should update the number of
+  // tombstones in the hash table.
+
+  il::int_t i_local = -(1 + i);
+  if (2 * (nb_element_ + 1) > (1 << p_)) {
+    grow(il::next_power_of_2_32(2 * (nb_element_ + 1)));
+    il::int_t j = search(key);
+    i_local = -(1 + j);
+  }
+  new (const_cast<K*>(&((slot_ + i_local)->key))) K(std::move(key));
+  new (&((slot_ + i_local)->value)) V(std::move(value));
   ++nb_element_;
   i = i_local;
 }
@@ -655,7 +736,9 @@ void HashMap<K, V, F>::grow(il::int_t r) {
       if (!F::is_empty(old_slot_[i].key) &&
           !F::is_tombstone(old_slot_[i].key)) {
         il::int_t new_i = search(old_slot_[i].key);
-        insert(old_slot_[i].key, old_slot_[i].value, il::io, new_i);
+        insert(std::move(old_slot_[i].key), std::move(old_slot_[i].value),
+               il::io, new_i);
+        (&((old_slot_ + i)->key))->~K();
         (&((old_slot_ + i)->value))->~V();
       }
     }

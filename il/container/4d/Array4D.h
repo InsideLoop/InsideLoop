@@ -356,9 +356,8 @@ Array4D<T>::Array4D(const Array4D<T>& A) {
       for (il::int_t i2 = 0; i2 < n2; ++i2) {
         for (il::int_t i1 = 0; i1 < n1; ++i1) {
           memcpy(data_ + ((i3 * r2 + i2) * r1 + i1) * r0,
-                 A.data_ +
-                     ((i3 * A.capacity(2) + i2) * A.capacity(1) + i1) *
-                         A.capacity(0),
+                 A.data_ + ((i3 * A.capacity(2) + i2) * A.capacity(1) + i1) *
+                               A.capacity(0),
                  n0 * sizeof(T));
         }
       }
@@ -480,11 +479,11 @@ Array4D<T>& Array4D<T>::operator=(const Array4D<T>& A) {
         for (il::int_t i3 = 0; i3 < n3; ++i3) {
           for (il::int_t i2 = 0; i2 < n2; ++i2) {
             for (il::int_t i1 = 0; i1 < n1; ++i1) {
-              memcpy(data_ + ((i3 * r2 + i2) * r1 + i1) * r0,
-                     A.data_ +
-                         ((i3 * A.capacity(2) + i2) * A.capacity(1) + i1) *
-                             A.capacity(0),
-                     n0 * sizeof(T));
+              memcpy(
+                  data_ + ((i3 * r2 + i2) * r1 + i1) * r0,
+                  A.data_ + ((i3 * A.capacity(2) + i2) * A.capacity(1) + i1) *
+                                A.capacity(0),
+                  n0 * sizeof(T));
             }
           }
         }
@@ -496,7 +495,8 @@ Array4D<T>& Array4D<T>::operator=(const Array4D<T>& A) {
                 for (il::int_t i0 = size(0) - 1; i0 >= 0; --i0) {
                   (data_ +
                    ((i3 * capacity(2) + i2) * capacity(1) + i1) * capacity(0) +
-                   i0)->~T();
+                   i0)
+                      ->~T();
                 }
               }
             }
@@ -531,13 +531,12 @@ Array4D<T>& Array4D<T>::operator=(const Array4D<T>& A) {
         for (il::int_t i3 = 0; i3 < n3; ++i3) {
           for (il::int_t i2 = 0; i2 < n2; ++i2) {
             for (il::int_t i1 = 0; i1 < n1; ++i1) {
-              memcpy(data_ +
-                         ((i3 * capacity(2) + i2) * capacity(1) + i1) *
-                             capacity(0),
-                     A.data_ +
-                         ((i3 * A.capacity(2) + i2) * A.capacity(1) + i1) *
-                             A.capacity(0),
-                     n0 * sizeof(T));
+              memcpy(
+                  data_ + ((i3 * capacity(2) + i2) * capacity(1) + i1) *
+                              capacity(0),
+                  A.data_ + ((i3 * A.capacity(2) + i2) * A.capacity(1) + i1) *
+                                A.capacity(0),
+                  n0 * sizeof(T));
             }
           }
         }
@@ -561,7 +560,8 @@ Array4D<T>& Array4D<T>::operator=(const Array4D<T>& A) {
                    --i0) {
                 (data_ +
                  ((i3 * capacity(2) + i2) * capacity(1) + i1) * capacity(0) +
-                 i0)->~T();
+                 i0)
+                    ->~T();
               }
             }
           }
@@ -587,7 +587,8 @@ Array4D<T>& Array4D<T>::operator=(Array4D<T>&& A) {
               for (il::int_t i0 = size(0) - 1; i0 >= 0; --i0) {
                 (data_ +
                  ((i3 * capacity(2) + i2) * capacity(1) + i1) * capacity(0) +
-                 i0)->~T();
+                 i0)
+                    ->~T();
               }
             }
           }
@@ -636,8 +637,8 @@ Array4D<T>::~Array4D() {
           for (il::int_t i1 = size(1) - 1; i1 >= 0; --i1) {
             for (il::int_t i0 = size(0) - 1; i0 >= 0; --i0) {
               (data_ +
-               ((i3 * capacity(2) + i2) * capacity(1) + i1) * capacity(0) +
-               i0)->~T();
+               ((i3 * capacity(2) + i2) * capacity(1) + i1) * capacity(0) + i0)
+                  ->~T();
             }
           }
         }
@@ -750,9 +751,8 @@ void Array4D<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2,
           for (il::int_t i2 = 0; i2 < (n2 < n2_old ? n2 : n2_old); ++i2) {
             for (il::int_t i1 = 0; i1 < (n1 < n1_old ? n1 : n1_old); ++i1) {
               memcpy(new_data + ((i3 * r2 + i2) * r1 + i1) * r0,
-                     data_ +
-                         ((i3 * capacity(2) + i2) * capacity(1) + i1) *
-                             capacity(0),
+                     data_ + ((i3 * capacity(2) + i2) * capacity(1) + i1) *
+                                 capacity(0),
                      (n0 < n0_old ? n0 : n0_old) * sizeof(T));
             }
           }
@@ -784,7 +784,8 @@ void Array4D<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2,
                    i0 >= (i3 < n3 && i2 < n2 && i1 < n1 ? n0 : 0); --i0) {
                 (data_ +
                  ((i3 * capacity(2) + i2) * capacity(1) + i1) * capacity(0) +
-                 i0)->~T();
+                 i0)
+                    ->~T();
               }
             }
           }
@@ -802,7 +803,8 @@ void Array4D<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2,
                               i0]));
                 (data_ +
                  ((i3 * capacity(2) + i2) * capacity(1) + i1) * capacity(0) +
-                 i0)->~T();
+                 i0)
+                    ->~T();
               }
             }
           }
@@ -850,8 +852,8 @@ void Array4D<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2,
             for (il::int_t i0 = n0_old - 1;
                  i0 >= ((i3 < n3 && i2 < n2 && i1 < n1) ? n0 : 0); --i0) {
               (data_ +
-               ((i3 * capacity(2) + i2) * capacity(1) + i1) * capacity(0) +
-               i0)->~T();
+               ((i3 * capacity(2) + i2) * capacity(1) + i1) * capacity(0) + i0)
+                  ->~T();
             }
           }
         }
@@ -932,9 +934,8 @@ void Array4D<T>::reserve(il::int_t r0, il::int_t r1, il::int_t r2,
           for (il::int_t i2 = 0; i2 < n2_old; ++i2) {
             for (il::int_t i1 = 0; i1 < n1_old; ++i1) {
               memcpy(new_data + ((i3 * r2 + i2) * r1 + i1) * r0,
-                     data_ +
-                         ((i3 * capacity(2) + i2) * capacity(1) + i1) *
-                             capacity(0),
+                     data_ + ((i3 * capacity(2) + i2) * capacity(1) + i1) *
+                                 capacity(0),
                      n0_old * sizeof(T));
             }
           }
@@ -953,8 +954,8 @@ void Array4D<T>::reserve(il::int_t r0, il::int_t r1, il::int_t r2,
                                       capacity(0) +
                                   i0]));
               (data_ +
-               ((i3 * capacity(2) + i2) * capacity(1) + i1) * capacity(0) +
-               i0)->~T();
+               ((i3 * capacity(2) + i2) * capacity(1) + i1) * capacity(0) + i0)
+                  ->~T();
             }
           }
         }

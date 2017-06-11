@@ -26,10 +26,12 @@ class HashMapArray {
   HashMapArray(il::int_t n);
   void set(const K& key, const V& value);
   void set(const K& key, V&& value);
+  void set(K&& key, V&& value);
   void insert(const K& key, const V& value);
   void insert(const K& key, V&& value);
   void insert(const K& key, const V& value, il::io_t, il::int_t& i);
   void insert(const K& key, V&& value, il::io_t, il::int_t& i);
+  void insert(K&& key, V&& value, il::io_t, il::int_t& i);
   il::int_t size() const;
   il::int_t capacity() const;
   il::int_t search(const K& key) const;
@@ -57,8 +59,16 @@ void HashMapArray<K, V, F>::set(const K& key, const V& value) {
 template <typename K, typename V, typename F>
 void HashMapArray<K, V, F>::set(const K& key, V&& value) {
   const il::int_t i = array_.size();
-  array_.append(il::emplace, key, value);
+  //  array_.append(il::KeyValue<K, V>{key, std::move(value)});
+  array_.append(il::emplace, key, std::move(value));
   map_.set(key, i);
+}
+
+template <typename K, typename V, typename F>
+void HashMapArray<K, V, F>::set(K&& key, V&& value) {
+  const il::int_t i = array_.size();
+  array_.append(il::emplace, key, std::move(value));
+  map_.set(std::move(key), i);
 }
 
 template <typename K, typename V, typename F>
@@ -88,8 +98,16 @@ template <typename K, typename V, typename F>
 void HashMapArray<K, V, F>::insert(const K& key, V&& value, il::io_t,
                                    il::int_t& i) {
   const il::int_t j = array_.size();
-  array_.append(il::emplace, key, value);
+  array_.append(il::emplace, key, std::move(value));
   map_.insert(key, j, il::io, i);
+  i = j;
+}
+
+template <typename K, typename V, typename F>
+void HashMapArray<K, V, F>::insert(K&& key, V&& value, il::io_t, il::int_t& i) {
+  const il::int_t j = array_.size();
+  array_.append(il::emplace, key, std::move(value));
+  map_.insert(std::move(key), j, il::io, i);
   i = j;
 }
 
