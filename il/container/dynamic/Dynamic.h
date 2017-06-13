@@ -134,6 +134,7 @@ class Dynamic {
   const il::HashMap<il::String, il::Dynamic>& as_hash_map() const;
   il::HashMap<il::String, il::Dynamic>& as_hash_map();
   const il::HashMapArray<il::String, il::Dynamic>& as_hash_map_array() const;
+  const il::HashMapArray<il::String, il::Dynamic>& as_const_hash_map_array() const;
   il::HashMapArray<il::String, il::Dynamic>& as_hash_map_array();
 
  private:
@@ -399,6 +400,11 @@ inline il::HashMap<il::String, il::Dynamic>& Dynamic::as_hash_map() {
 
 inline const il::HashMapArray<il::String, il::Dynamic>&
 Dynamic::as_hash_map_array() const {
+  return *hash_map_array_val_;
+}
+
+inline const il::HashMapArray<il::String, il::Dynamic>&
+Dynamic::as_const_hash_map_array() const {
   return *hash_map_array_val_;
 }
 

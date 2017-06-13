@@ -715,20 +715,20 @@ il::Dynamic d = 3.14159;
 il::Dynamic e = "Hello world!";
 
 // The dynamic object f contains an empty il::Array<il::Dynamic>
-il::Dynamic f{il::DynamicType::array};
+il::Dynamic f{il::Type::array_t};
 
 
 // The dynamic object g contains an empty il::HashMap<il::String, il::Dynamic>
-il::Dynamic f{il::DynamicType::hashmap};
+il::Dynamic f{il::Type::hash_map_t};
 ```
 
 At runtime, one can query the type of an `il::Dynamic` object `a` with the
-method `type()` which returns an `il::DynamicType`. One can also check if `a` is
+method `type()` which returns an `il::Type`. One can also check if `a` is
 of a given type with the methods `is_null()`, `is_boolean()`, `is_integer()`,
-`is_floating_point()`, `is_string()`, `is_array()` and `is_hashmap()`. Once
+`is_double()`, `is_string()`, `is_array()` and `is_hash_map()`. Once
 you know the type, you can extract the value from a dynamic object with the
-methods `to_boolean()`, `to_integer()`, `to_floating_point()`, `as_string()`,
-`as_array`, `as_hashmap()`. The methods starting with `to` returns a value
+methods `to_boolean()`, `to_integer()`, `to_double()`, `as_string()`,
+`as_array`, `as_hash_map()`. The methods starting with `to` returns a value
 whereas the methods starting with `as` returns a reference. For instance, here
 is a function that takes a dynamic object and and prints its value if it holds
 a numeric type:
@@ -738,8 +738,8 @@ void f(const il::Dynamic& a) {
   if (a.is_integer()) {
     il::int_t i = a.to_integer();
     std::cout << i << std::endl;
-  } else if (a.is_floating_point()) {
-    double x = a.to_floating_point();
+  } else if (a.is_double()) {
+    double x = a.to_double();
     std::cout << x << std::endl;
   }
 }
@@ -795,7 +795,7 @@ int main() {
   
   il::Status status{};
   auto config =
-      il::load<il::HashMap<il::String, il::Dynamic>>(filename, il::io, status);
+      il::load<il::HashMapArray<il::String, il::Dynamic>>(filename, il::io, status);
   status.abort_on_error();
   
   // get the name
@@ -816,18 +816,18 @@ int main() {
   double density;
   double compressibility;
   i = config.search("water");
-  if (config.found(i) && config.value(i).is_hashmap()) {
-    const il::HashMap<il::String, il::Dynamic>& water =
-        config.value(i).as_const_hashmap();
+  if (config.found(i) && config.value(i).is_hash_map_array()) {
+    const il::HashMapArray<il::String, il::Dynamic>& water =
+        config.value(i).as_const_hash_map_array();
     
     il::int_t j = water.search("density");
-    if (water.found(j) && water.value(j).is_floating_point()) {
-      density = water.value(j).to_floating_point();
+    if (water.found(j) && water.value(j).is_double()) {
+      density = water.value(j).to_double();
     }
     
     j = water.search("compressibility");
-    if (water.found(j) && water.value(j).is_floating_point()) {
-      compressibility = water.value(j).to_floating_point();
+    if (water.found(j) && water.value(j).is_double()) {
+      compressibility = water.value(j).to_double();
     }
   }
 }
