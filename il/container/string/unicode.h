@@ -18,8 +18,8 @@ namespace il {
 il::U16String to_u16(const il::String& string) {
   il::U16String ans{};
 
-  for (il::int_t i = 0; i < string.size(); i = string.next_cp(i)) {
-    ans.append(string.to_cp(i));
+  for (il::int_t i = 0; i < string.size(); i = string.next_code_point(i)) {
+    ans.append(string.to_code_point(i));
   }
   ans.append('\0');
   return ans;

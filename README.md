@@ -192,7 +192,7 @@ il::Array<il::SmallArray<double, 5>> A{n};
 for (il::int_t i = 0; i < n; ++i) {
   LOOP {
     const il::int_t column = ...;
-    A[i].push_back(column);
+    A[i].append(column);
   }
 }
 ```
@@ -327,7 +327,7 @@ il::Array<double> y(n);
 
 il::Status status;
 il::LU<il::Array2D<double>> lu_decomposition(A, il::io, status);
-if (!status.ok()) {
+if (status.not_ok()) {
   // The matrix is singular to the machine precision. You should deal with the error.
 }
 
@@ -375,7 +375,7 @@ il::Array<double> y(n);
 
 il::Status status;
 il::LU<il::Array2D<double>> lu_decomposition(std::move(A), il::io, status);
-if (!status.ok()) {
+if (status.not_ok()) {
   // The matrix is singular to the machine precision. You should deal with the error.
 }
 

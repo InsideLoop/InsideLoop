@@ -177,7 +177,7 @@ set(SOURCE_FILES
     il/String.h
     il/StringView.h
     il/Timer.h
-    il/Toml.h
+        il/toml.h
     il/TriDiagonal.h
     il/U16String.h
     il/unicode.h
@@ -228,7 +228,7 @@ set(SOURCE_FILES
     il/io/numpy.h
     il/io/numpy.cpp
     il/io/toml.h
-    il/io/toml.cpp
+        il/io/toml.cpp
     il/io/png.h
     #il/io/png.cpp
     il/io/filepack/filepack.h

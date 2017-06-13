@@ -29,21 +29,23 @@ class ConstStringView {
   explicit ConstStringView(const char* data, il::int_t n);
   explicit ConstStringView(const unsigned char* data, il::int_t n);
   il::int_t size() const;
-  bool is_char(il::int_t i) const;
-  bool is_char(il::int_t i, char c) const;
+  bool is_ascii(il::int_t i) const;
+  bool is_ascii(il::int_t i, char c) const;
   bool is_digit(il::int_t i) const;
   // A new line is a "\n" (Unix convention) or a "\r\n" // (Windows convention)
   bool is_newline(il::int_t i) const;
 
-  bool last_is_char() const;
-  bool last_is_char(char c) const;
+  bool last_is_ascii() const;
+  bool last_is_ascii(char c) const;
 
-  char to_char(il::int_t i) const;
-  unsigned char to_cu(il::int_t i) const;
-  int to_cp(il::int_t i) const;
+  char to_ascii(il::int_t i) const;
+  unsigned char to_code_unit(il::int_t i) const;
+  int to_code_point(il::int_t i) const;
 
-  il::int_t next_cp(il::int_t i) const;
+  il::int_t next_code_point(il::int_t i) const;
 
+  void trim_prefix();  // remove the whitespace
+  void trim_suffix();
   void remove_prefix(il::int_t i1);
   void remove_suffix(il::int_t i0);
   ConstStringView suffix(il::int_t i0) const;
@@ -87,17 +89,16 @@ inline ConstStringView::ConstStringView(const unsigned char* data,
 inline ConstStringView::ConstStringView(const char* data, il::int_t n)
     : ConstStringView{reinterpret_cast<const unsigned char*>(data), n} {}
 
-inline bool ConstStringView::is_char(il::int_t i) const {
+inline bool ConstStringView::is_ascii(il::int_t i) const {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
                    static_cast<std::size_t>(size()));
 
   return data_[i] < 128;
 }
 
-inline bool ConstStringView::is_char(il::int_t i, char c) const {
+inline bool ConstStringView::is_ascii(il::int_t i, char c) const {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
                    static_cast<std::size_t>(size()));
-  IL_EXPECT_MEDIUM(data_[i] < 128);
   IL_EXPECT_MEDIUM(static_cast<unsigned char>(c) < 128);
 
   return data_[i] == c;
@@ -119,27 +120,27 @@ inline bool ConstStringView::is_newline(il::int_t i) const {
          (i + 1 < size() && data_[i] == '\r' && data_[i + 1] == '\n');
 }
 
-inline bool ConstStringView::last_is_char() const {
+inline bool ConstStringView::last_is_ascii() const {
   IL_EXPECT_MEDIUM(size() > 0);
 
   return size_[-1] < 128;
 }
 
-inline bool ConstStringView::last_is_char(char c) const {
+inline bool ConstStringView::last_is_ascii(char c) const {
   IL_EXPECT_MEDIUM(size() > 0);
   IL_EXPECT_MEDIUM(static_cast<unsigned char>(c) < 128);
 
   return size_[-1] == c;
 }
 
-inline unsigned char ConstStringView::to_cu(il::int_t i) const {
+inline unsigned char ConstStringView::to_code_unit(il::int_t i) const {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
                    static_cast<std::size_t>(size()));
 
   return data_[i];
 }
 
-inline int ConstStringView::to_cp(il::int_t i) const {
+inline int ConstStringView::to_code_point(il::int_t i) const {
   unsigned int ans = 0;
   const unsigned char* data = begin();
   if ((data[i] & 0x80u) == 0) {
@@ -160,7 +161,7 @@ inline int ConstStringView::to_cp(il::int_t i) const {
   return static_cast<int>(ans);
 }
 
-inline char ConstStringView::to_char(il::int_t i) const {
+inline char ConstStringView::to_ascii(il::int_t i) const {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
                    static_cast<std::size_t>(size()));
   IL_EXPECT_MEDIUM(data_[i] < 128);
@@ -185,7 +186,7 @@ inline char ConstStringView::to_char(il::int_t i) const {
 
 inline il::int_t ConstStringView::size() const { return size_ - data_; }
 
-inline il::int_t ConstStringView::next_cp(il::int_t i) const {
+inline il::int_t ConstStringView::next_code_point(il::int_t i) const {
   do {
     ++i;
   } while (i < size() && ((data_[i] & 0xC0u) == 0x80u));

@@ -39,6 +39,9 @@ class HashMapArray {
   const K& key(il::int_t i) const;
   const V& value(il::int_t i) const;
   V& value(il::int_t i);
+  il::int_t next(il::int_t i) const;
+  il::int_t first() const;
+  il::int_t broom() const;
 };
 
 template <typename K, typename V, typename F>
@@ -145,6 +148,21 @@ const V& HashMapArray<K, V, F>::value(il::int_t i) const {
 template <typename K, typename V, typename F>
 V& HashMapArray<K, V, F>::value(il::int_t i) {
   return array_[i].value;
+}
+
+template <typename K, typename V, typename F>
+il::int_t HashMapArray<K, V, F>::next(il::int_t i) const {
+  return i + 1;
+}
+
+template <typename K, typename V, typename F>
+il::int_t HashMapArray<K, V, F>::first() const {
+  return 0;
+}
+
+template <typename K, typename V, typename F>
+il::int_t HashMapArray<K, V, F>::broom() const {
+  return array_.size();
 }
 
 }  // namespace il

@@ -13,9 +13,11 @@
 #include <cstdio>
 
 #include <il/Array.h>
+#include <il/HashMap.h>
 #include <il/HashMapArray.h>
 #include <il/String.h>
 #include <il/container/dynamic/Dynamic.h>
+#include <il/io/io_base.h>
 
 namespace il {
 
@@ -267,40 +269,49 @@ void aux_load(il::int_t n, il::io_t,
   }
 }
 
-il::HashMapArray<il::String, il::Dynamic> load_filepack(
-    const il::String& filename, il::io_t, il::Status& status) {
-  il::HashMapArray<il::String, il::Dynamic> ans{};
+template <>
+class LoadHelperData<il::HashMapArray<il::String, il::Dynamic>> {
+ public:
+  static il::HashMapArray<il::String, il::Dynamic> load(
+      const il::String& filename, il::io_t, il::Status& status) {
+    il::HashMapArray<il::String, il::Dynamic> ans{};
 
-  std::FILE* file = std::fopen(filename.as_c_string(), "rb");
+    std::FILE* file = std::fopen(filename.as_c_string(), "rb");
 
-  aux_load(-1, il::io, ans, file);
+    aux_load(-1, il::io, ans, file);
 
-  const int error = std::fclose(file);
-  if (error != 0) {
-    status.set_error(il::Error::filesystem_cannot_close_file);
+    const int error = std::fclose(file);
+    if (error != 0) {
+      status.set_error(il::Error::filesystem_cannot_close_file);
+      return ans;
+    }
+
+    status.set_ok();
     return ans;
   }
-
-  status.set_ok();
-  return ans;
 };
 
-il::HashMap<il::String, il::Dynamic> load_filepack_raw(
-    const il::String& filename, il::io_t, il::Status& status) {
-  il::HashMap<il::String, il::Dynamic> ans{};
+template <>
+class LoadHelperData<il::HashMap<il::String, il::Dynamic>> {
+ public:
+  static il::HashMap<il::String, il::Dynamic> load(const il::String& filename,
+                                                   il::io_t,
+                                                   il::Status& status) {
+    il::HashMap<il::String, il::Dynamic> ans{};
 
-  std::FILE* file = std::fopen(filename.as_c_string(), "rb");
+    std::FILE* file = std::fopen(filename.as_c_string(), "rb");
 
-  aux_load(-1, il::io, ans, file);
+    aux_load(-1, il::io, ans, file);
 
-  const int error = std::fclose(file);
-  if (error != 0) {
-    status.set_error(il::Error::filesystem_cannot_close_file);
+    const int error = std::fclose(file);
+    if (error != 0) {
+      status.set_error(il::Error::filesystem_cannot_close_file);
+      return ans;
+    }
+
+    status.set_ok();
     return ans;
   }
-
-  status.set_ok();
-  return ans;
 };
 
 void aux_save(const il::HashMapArray<il::String, il::Dynamic>& data, il::io_t,
@@ -403,21 +414,25 @@ void aux_save(const il::HashMapArray<il::String, il::Dynamic>& data, il::io_t,
   write_varint(0, il::io, n, file);
 }
 
-void save_filepack(const il::HashMapArray<il::String, il::Dynamic>& data,
+template <>
+class SaveHelperData<il::HashMapArray<il::String, il::Dynamic>> {
+ public:
+  static void save(const il::HashMapArray<il::String, il::Dynamic>& data,
                    const il::String& filename, il::io_t, il::Status& status) {
-  std::FILE* file = std::fopen(filename.as_c_string(), "wb");
+    std::FILE* file = std::fopen(filename.as_c_string(), "wb");
 
-  il::int_t n = 0;
-  aux_save(data, il::io, n, file);
+    il::int_t n = 0;
+    aux_save(data, il::io, n, file);
 
-  const int error = std::fclose(file);
-  if (error != 0) {
-    status.set_error(il::Error::filesystem_cannot_close_file);
+    const int error = std::fclose(file);
+    if (error != 0) {
+      status.set_error(il::Error::filesystem_cannot_close_file);
+      return;
+    }
+
+    status.set_ok();
     return;
   }
-
-  status.set_ok();
-  return;
 };
 
 }  // namespace il

@@ -9,7 +9,7 @@
 
 #include <gtest/gtest.h>
 
-#include <il/Toml.h>
+#include <il/toml.h>
 
 #include <iostream>
 
@@ -24,7 +24,8 @@ TEST(Toml, array_empty) {
   filename.append("array-empty.toml");
 
   il::Status status{};
-  il::Toml config = il::load<il::Toml>(filename, il::io, status);
+  auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
+      filename, il::io, status);
   if (status.not_ok() || config.size() != 1) {
     ans = false;
   } else {
@@ -69,7 +70,8 @@ TEST(Toml, array_nospaces) {
   filename.append("array-nospaces.toml");
 
   il::Status status{};
-  il::Toml config = il::load<il::Toml>(filename, il::io, status);
+  auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
+      filename, il::io, status);
   if (status.not_ok() || config.size() != 1) {
     ans = false;
   } else {
@@ -97,7 +99,8 @@ TEST(Toml, arrays_heterogeneous) {
   filename.append("arrays-hetergeneous.toml");
 
   il::Status status{};
-  il::Toml config = il::load<il::Toml>(filename, il::io, status);
+  auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
+      filename, il::io, status);
   if (status.not_ok() || config.size() != 1) {
     ans = false;
   } else {
@@ -143,7 +146,8 @@ TEST(Toml, arrays_nested) {
   filename.append("arrays-nested.toml");
 
   il::Status status{};
-  il::Toml config = il::load<il::Toml>(filename, il::io, status);
+  auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
+      filename, il::io, status);
   if (status.not_ok() || config.size() != 1) {
     ans = false;
   } else {
@@ -181,7 +185,8 @@ TEST(Toml, boolean) {
   filename.append("bool.toml");
 
   il::Status status{};
-  il::Toml config = il::load<il::Toml>(filename, il::io, status);
+  auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
+      filename, il::io, status);
   if (status.not_ok() || config.size() != 2) {
     ans = false;
   } else {
@@ -208,7 +213,8 @@ TEST(Toml, comments_everywhere) {
   filename.append("comments-everywhere.toml");
 
   il::Status status{};
-  il::Toml config = il::load<il::Toml>(filename, il::io, status);
+  auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
+      filename, il::io, status);
   if (status.not_ok() || config.size() != 1) {
     ans = false;
   } else {
@@ -246,7 +252,8 @@ TEST(Toml, empty) {
   filename.append("empty.toml");
 
   il::Status status{};
-  il::Toml config = il::load<il::Toml>(filename, il::io, status);
+  auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
+      filename, il::io, status);
   if (status.not_ok() || config.size() != 0) {
     ans = false;
   }
@@ -261,7 +268,8 @@ TEST(Toml, double) {
   filename.append("float.toml");
 
   il::Status status{};
-  il::Toml config = il::load<il::Toml>(filename, il::io, status);
+  auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
+      filename, il::io, status);
   if (status.not_ok() || config.size() != 2) {
     ans = false;
   } else {
@@ -285,7 +293,8 @@ TEST(Toml, implicit_and_explicit_after) {
   filename.append("implicit-and-explicit-after.toml");
 
   il::Status status{};
-  il::Toml config = il::load<il::Toml>(filename, il::io, status);
+  auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
+      filename, il::io, status);
   if (status.not_ok() || config.size() != 1) {
     ans = false;
   } else {
@@ -330,7 +339,8 @@ TEST(Toml, implicit_and_explicit_before) {
   filename.append("implicit-and-explicit-before.toml");
 
   il::Status status{};
-  il::Toml config = il::load<il::Toml>(filename, il::io, status);
+  auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
+      filename, il::io, status);
   if (status.not_ok() || config.size() != 1) {
     ans = false;
   } else {
@@ -375,7 +385,8 @@ TEST(Toml, implicit_groups) {
   filename.append("implicit-groups.toml");
 
   il::Status status{};
-  il::Toml config = il::load<il::Toml>(filename, il::io, status);
+  auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
+      filename, il::io, status);
   if (status.not_ok() || config.size() != 1) {
     ans = false;
   } else {
@@ -417,7 +428,8 @@ TEST(Toml, integer) {
   filename.append("integer.toml");
 
   il::Status status{};
-  il::Toml config = il::load<il::Toml>(filename, il::io, status);
+  auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
+      filename, il::io, status);
   if (status.not_ok() || config.size() != 2) {
     ans = false;
   } else {
@@ -441,7 +453,8 @@ TEST(Toml, key_equals_nospace) {
   filename.append("key-equals-nospace.toml");
 
   il::Status status{};
-  il::Toml config = il::load<il::Toml>(filename, il::io, status);
+  auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
+      filename, il::io, status);
   if (status.not_ok() || config.size() != 1) {
     ans = false;
   } else {
@@ -462,7 +475,8 @@ TEST(Toml, key_space) {
   filename.append("key-space.toml");
 
   il::Status status{};
-  il::Toml config = il::load<il::Toml>(filename, il::io, status);
+  auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
+      filename, il::io, status);
   if (status.not_ok() || config.size() != 1) {
     ans = false;
   } else {
@@ -483,7 +497,8 @@ TEST(Toml, key_special_chars) {
   filename.append("key-special-chars.toml");
 
   il::Status status{};
-  il::Toml config = il::load<il::Toml>(filename, il::io, status);
+  auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
+      filename, il::io, status);
   if (status.not_ok() || config.size() != 1) {
     ans = false;
   } else {
@@ -504,7 +519,8 @@ TEST(Toml, long_floating_point) {
   filename.append("long-float.toml");
 
   il::Status status{};
-  il::Toml config = il::load<il::Toml>(filename, il::io, status);
+  auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
+      filename, il::io, status);
   if (status.not_ok() || config.size() != 2) {
     ans = false;
   } else {
@@ -528,7 +544,8 @@ TEST(Toml, long_integer) {
   filename.append("long-integer.toml");
 
   il::Status status{};
-  il::Toml config = il::load<il::Toml>(filename, il::io, status);
+  auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
+      filename, il::io, status);
   if (status.not_ok() || config.size() != 2) {
     ans = false;
   } else {
@@ -552,7 +569,8 @@ TEST(Toml, windows_lines) {
   filename.append("windows-lines.toml");
 
   il::Status status{};
-  il::Toml config = il::load<il::Toml>(filename, il::io, status);
+  auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
+      filename, il::io, status);
   if (status.not_ok() || config.size() != 2) {
     ans = false;
   } else {
@@ -576,7 +594,8 @@ TEST(Toml, zero) {
   filename.append("zero.toml");
 
   il::Status status{};
-  il::Toml config = il::load<il::Toml>(filename, il::io, status);
+  auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
+      filename, il::io, status);
   if (status.not_ok() || config.size() != 2) {
     ans = false;
   } else {

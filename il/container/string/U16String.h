@@ -70,7 +70,7 @@ class U16String {
   void append(int cp);
   void append(il::int_t n, char c);
   void append(il::int_t n, int cp);
-  il::int_t next_cp(il::int_t i) const;
+  il::int_t next_code_point(il::int_t i) const;
   int cp(il::int_t i) const;
   bool is_empty() const;
   const std::uint16_t* begin() const;
@@ -335,7 +335,7 @@ inline const IL_U16CHAR* U16String::c16_string() const {
 
 inline bool U16String::is_empty() const { return size() == 0; }
 
-inline il::int_t U16String::next_cp(il::int_t i) const {
+inline il::int_t U16String::next_code_point(il::int_t i) const {
   const std::uint16_t* data = begin();
   if (data[i] < 0xD800u || data[i] >= 0xDC00u) {
     return i + 1;

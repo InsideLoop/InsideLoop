@@ -23,8 +23,6 @@
 
 namespace il {
 
-typedef il::HashMapArray<il::String, il::Dynamic> Toml;
-
 class TomlParser {
  private:
   static const il::int_t max_line_length_ = 200;
@@ -136,12 +134,12 @@ inline void save_array(const il::Array<il::Dynamic> &array, il::io_t,
   status.set_ok();
 }
 
-inline void save_aux(const il::HashMapArray<il::String, il::Dynamic> &toml,
-                     const il::String &name, il::io_t, std::FILE *file,
-                     il::Status &status) {
-  for (il::int_t i = 0; i != toml.size(); ++i) {
+template <typename M>
+inline void save_aux(const M &toml, const il::String &name, il::io_t,
+                     std::FILE *file, il::Status &status) {
+  for (il::int_t i = toml.first(); i < toml.broom(); i = toml.next(i)) {
     il::Type type = toml.value(i).type();
-    if (type != il::Type::hash_map_array_t) {
+    if (type != il::Type::hash_map_array_t && type != il::Type::hash_map_t) {
       int error0 = std::fputs(toml.key(i).as_c_string(), file);
       int error1 = std::fputs(" = ", file);
       int error2;
@@ -218,7 +216,7 @@ inline void save_aux(const il::HashMapArray<il::String, il::Dynamic> &toml,
       IL_UNUSED(error3);
       IL_UNUSED(error4);
       IL_UNUSED(error5);
-    } else {
+    } else if (type == il::Type::hash_map_array_t) {
       const int error0 = std::fputs("\n[", file);
       IL_UNUSED(error0);
       if (name.size() != 0) {
@@ -237,6 +235,24 @@ inline void save_aux(const il::HashMapArray<il::String, il::Dynamic> &toml,
         status.rearm();
         return;
       }
+    } else if (type == il::Type::hash_map_t) {
+      const int error0 = std::fputs("\n[", file);
+      IL_UNUSED(error0);
+      if (name.size() != 0) {
+        const int error1 = std::fputs(name.as_c_string(), file);
+        const int error2 = std::fputs(".", file);
+        IL_UNUSED(error1);
+        IL_UNUSED(error2);
+      }
+      const int error3 = std::fputs(toml.key(i).as_c_string(), file);
+      const int error4 = std::fputs("]\n", file);
+      save_aux(toml.value(i).as_hash_map(), toml.key(i), il::io, file, status);
+      IL_UNUSED(error3);
+      IL_UNUSED(error4);
+      if (status.not_ok()) {
+        status.rearm();
+        return;
+      }
     }
   }
 
@@ -245,7 +261,36 @@ inline void save_aux(const il::HashMapArray<il::String, il::Dynamic> &toml,
 }
 
 template <>
-class SaveHelper<il::HashMapArray<il::String, il::Dynamic>> {
+class SaveHelper<il::HashMap<il::String, il::Dynamic>> {
+ public:
+  static void save(const il::HashMap<il::String, il::Dynamic> &toml,
+                   const il::String &filename, il::io_t, il::Status &status) {
+    std::FILE *file = std::fopen(filename.as_c_string(), "wb");
+    if (!file) {
+      status.set_error(il::Error::filesystem_file_not_found);
+      return;
+    }
+
+    il::String root_name{};
+    save_aux(toml, root_name, il::io, file, status);
+    if (status.not_ok()) {
+      status.rearm();
+      return;
+    }
+
+    const int error = std::fclose(file);
+    if (error != 0) {
+      status.set_error(il::Error::filesystem_cannot_close_file);
+      return;
+    }
+
+    status.set_ok();
+    return;
+  }
+};
+
+template <>
+class SaveHelperToml<il::HashMapArray<il::String, il::Dynamic>> {
  public:
   static void save(const il::HashMapArray<il::String, il::Dynamic> &toml,
                    const il::String &filename, il::io_t, il::Status &status) {
@@ -277,7 +322,7 @@ il::HashMapArray<il::String, il::Dynamic> parse(const il::String &filename,
                                                 il::io_t, il::Status &status);
 
 template <>
-class LoadHelper<il::HashMapArray<il::String, il::Dynamic>> {
+class LoadHelperToml<il::HashMapArray<il::String, il::Dynamic>> {
  public:
   static il::HashMapArray<il::String, il::Dynamic> load(
       const il::String &filename, il::io_t, il::Status &status) {

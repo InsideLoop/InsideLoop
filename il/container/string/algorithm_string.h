@@ -27,7 +27,7 @@ inline il::String to_string(il::int_t n) {
 inline il::ConstStringView remove_whitespace_left(ConstStringView string) {
   il::int_t i = 0;
   while (i < string.size() &&
-         (string.is_char(i, ' ') || string.is_char(i, '\t'))) {
+         (string.is_ascii(i, ' ') || string.is_ascii(i, '\t'))) {
     ++i;
   }
   string.remove_prefix(i);
@@ -44,7 +44,7 @@ inline il::int_t search(ConstStringView a, ConstStringView b) {
     il::int_t i = 0;
     found = true;
     while (found && i < na) {
-      if (a.to_cu(i) != b.to_cu(k + i)) {
+      if (a.to_code_unit(i) != b.to_code_unit(k + i)) {
         found = false;
       }
       ++i;
@@ -72,7 +72,7 @@ inline il::int_t search(const char* a, const String& b) {
 inline il::int_t count(char c, ConstStringView a) {
   il::int_t ans = 0;
   for (il::int_t i = 0; i < a.size(); ++i) {
-    if (a.is_char(i, c)) {
+    if (a.is_ascii(i, c)) {
       ++ans;
     }
   }

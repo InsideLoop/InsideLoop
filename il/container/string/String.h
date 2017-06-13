@@ -65,12 +65,14 @@ class String {
   void append(int cp);
   void append(il::int_t n, char c);
   void append(il::int_t n, int cp);
-  il::int_t next_cp(il::int_t i) const;
-  int to_cp(il::int_t i) const;
+  il::int_t next_code_point(il::int_t i) const;
+  // il::int_t next_line(il::int_t i) const;
+  int to_code_point(il::int_t i) const;
   const unsigned char* begin() const;
   const unsigned char* end() const;
   const char* as_c_string() const;
   bool operator==(const il::String& other) const;
+  bool has_suffix(const char* data) const;
 
  private:
   void set_small_size(il::int_t n);
@@ -432,7 +434,7 @@ inline const char* String::as_c_string() const {
 
 inline bool String::is_empty() const { return size() == 0; }
 
-inline il::int_t String::next_cp(il::int_t i) const {
+inline il::int_t String::next_code_point(il::int_t i) const {
   const unsigned char* data = begin();
   do {
     ++i;
@@ -440,7 +442,7 @@ inline il::int_t String::next_cp(il::int_t i) const {
   return i;
 }
 
-inline int String::to_cp(il::int_t i) const {
+inline int String::to_code_point(il::int_t i) const {
   unsigned int ans = 0;
   const unsigned char* data = begin();
   if ((data[i] & 0x80u) == 0) {
@@ -473,6 +475,25 @@ inline bool String::operator==(const il::String& other) const {
     const unsigned char* p0 = begin();
     const unsigned char* p1 = other.begin();
     for (il::int_t i = 0; i < size(); ++i) {
+      if (p0[i] != p1[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+}
+
+inline bool String::has_suffix(const char* data) const {
+  il::int_t n = 0;
+  while (data[n] != '\0') {
+    ++n;
+  };
+  if (size() < n) {
+    return false;
+  } else {
+    const unsigned char* p0 = end() - n;
+    const unsigned char* p1 = reinterpret_cast<const unsigned char*>(data);
+    for (il::int_t i = 0; i < n; ++i) {
       if (p0[i] != p1[i]) {
         return false;
       }
