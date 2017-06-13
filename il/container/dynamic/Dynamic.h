@@ -40,9 +40,15 @@ enum class Type : unsigned char {
   double_t,
   string_t,
   array_t,
+  array_of_uint8_t,
+  array_of_float_t,
   array_of_double_t,
   array2d_of_uint8_t,
+  array2d_of_float_t,
   array2d_of_double_t,
+  array2c_of_uint8_t,
+  array2c_of_float_t,
+  array2c_of_double_t,
   hash_map_t,
   hash_map_array_t
 };

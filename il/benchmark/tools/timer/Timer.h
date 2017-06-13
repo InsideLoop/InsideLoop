@@ -76,16 +76,16 @@ class TimerCycles {
 };
 
 inline TimerCycles::TimerCycles() {
-  std::uint32_t low;
-  std::uint32_t high;
+  unsigned int low;
+  unsigned int high;
   asm volatile("rdtsc" : "=a"(low), "=d"(high));
   point_begin_ = static_cast<std::uint64_t>(low) |
                  (static_cast<std::uint64_t>(high) << 32);
 }
 
 inline void TimerCycles::stop() {
-  std::uint32_t low;
-  std::uint32_t high;
+  unsigned int low;
+  unsigned int high;
   asm volatile("rdtsc" : "=a"(low), "=d"(high));
   std::uint64_t point_end{static_cast<std::uint64_t>(low) |
                           (static_cast<std::uint64_t>(high) << 32)};

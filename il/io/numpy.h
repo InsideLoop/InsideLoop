@@ -65,7 +65,7 @@ class SaveHelper<il::Array<T>> {
 
     il::Status info_status{};
     il::save_numpy_info(numpy_info, il::io, file, info_status);
-    if (info_status.is_error()) {
+    if (info_status.not_ok()) {
       const int error = std::fclose(file);
       if (error != 0) {
         il::abort();
@@ -113,7 +113,7 @@ class SaveHelper<il::Array2D<T>> {
 
     il::Status info_status{};
     il::save_numpy_info(numpy_info, il::io, file, info_status);
-    if (info_status.is_error()) {
+    if (info_status.not_ok()) {
       const int error = std::fclose(file);
       if (error != 0) {
         il::abort();
@@ -159,7 +159,7 @@ class LoadHelper<il::Array<T>> {
 
     il::Status info_status{};
     il::NumpyInfo numpy_info = il::get_numpy_info(il::io, file, info_status);
-    if (info_status.is_error()) {
+    if (info_status.not_ok()) {
       status = std::move(info_status);
       return v;
     }
@@ -210,7 +210,7 @@ class LoadHelper<il::Array2D<T>> {
 
     il::Status info_status{};
     il::NumpyInfo numpy_info = il::get_numpy_info(il::io, file, info_status);
-    if (info_status.is_error()) {
+    if (info_status.not_ok()) {
       status = std::move(info_status);
       return v;
     }

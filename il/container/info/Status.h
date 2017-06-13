@@ -105,7 +105,7 @@ class Status {
   const char* as_c_string(const char* key) const;
   void rearm();
   bool is_ok();
-  bool is_error();
+  bool not_ok();
   void abort_on_error();
   void ignore_error();
   il::Error error() const;
@@ -228,7 +228,7 @@ inline bool Status::is_ok() {
   return ok_;
 }
 
-inline bool Status::is_error() {
+inline bool Status::not_ok() {
   IL_EXPECT_MEDIUM(to_check_);
 
   to_check_ = false;

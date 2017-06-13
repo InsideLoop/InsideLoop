@@ -7,29 +7,16 @@
 //
 //==============================================================================
 
-#include <bitset>
-#include <iostream>
-
-#include <il/Array.h>
-#include <il/Dynamic.h>
-#include <il/HashMapArray.h>
-#include <il/String.h>
-#include <il/Timer.h>
-#include <il/io/filepack/filepack.h>
-#include <il/string_util.h>
+#include <il/io/numpy.h>
 
 int main() {
-  il::String filename_filepack = "/Users/fayard/Desktop/config.fp";
+  il::String filename = "/Users/fayard/Desktop/a.npy";
 
-  il::Timer timer{};
+  il::Array<double> v{10, 0.0};
+
   il::Status status{};
-
-  timer.start();
-  auto config_bis = il::load_filepack(filename_filepack, il::io, status);
-  timer.stop();
+  il::save(v, filename, il::io, status);
   status.abort_on_error();
-
-  std::cout << "Time to load: " << timer.elapsed() << " s" << std::endl;
 
   return 0;
 }

@@ -25,7 +25,7 @@ TEST(Toml, array_empty) {
 
   il::Status status{};
   il::Toml config = il::load<il::Toml>(filename, il::io, status);
-  if (status.is_error() || config.size() != 1) {
+  if (status.not_ok() || config.size() != 1) {
     ans = false;
   } else {
     const il::int_t i0 = config.search("thevoid");
@@ -70,7 +70,7 @@ TEST(Toml, array_nospaces) {
 
   il::Status status{};
   il::Toml config = il::load<il::Toml>(filename, il::io, status);
-  if (status.is_error() || config.size() != 1) {
+  if (status.not_ok() || config.size() != 1) {
     ans = false;
   } else {
     const il::int_t i = config.search("ints");
@@ -98,7 +98,7 @@ TEST(Toml, arrays_heterogeneous) {
 
   il::Status status{};
   il::Toml config = il::load<il::Toml>(filename, il::io, status);
-  if (status.is_error() || config.size() != 1) {
+  if (status.not_ok() || config.size() != 1) {
     ans = false;
   } else {
     const il::int_t i = config.search("mixed");
@@ -144,7 +144,7 @@ TEST(Toml, arrays_nested) {
 
   il::Status status{};
   il::Toml config = il::load<il::Toml>(filename, il::io, status);
-  if (status.is_error() || config.size() != 1) {
+  if (status.not_ok() || config.size() != 1) {
     ans = false;
   } else {
     const il::int_t i = config.search("nest");
@@ -182,7 +182,7 @@ TEST(Toml, boolean) {
 
   il::Status status{};
   il::Toml config = il::load<il::Toml>(filename, il::io, status);
-  if (status.is_error() || config.size() != 2) {
+  if (status.not_ok() || config.size() != 2) {
     ans = false;
   } else {
     const il::int_t i = config.search("t");
@@ -209,7 +209,7 @@ TEST(Toml, comments_everywhere) {
 
   il::Status status{};
   il::Toml config = il::load<il::Toml>(filename, il::io, status);
-  if (status.is_error() || config.size() != 1) {
+  if (status.not_ok() || config.size() != 1) {
     ans = false;
   } else {
     const il::int_t i = config.search("group");
@@ -247,7 +247,7 @@ TEST(Toml, empty) {
 
   il::Status status{};
   il::Toml config = il::load<il::Toml>(filename, il::io, status);
-  if (status.is_error() || config.size() != 0) {
+  if (status.not_ok() || config.size() != 0) {
     ans = false;
   }
 
@@ -262,7 +262,7 @@ TEST(Toml, double) {
 
   il::Status status{};
   il::Toml config = il::load<il::Toml>(filename, il::io, status);
-  if (status.is_error() || config.size() != 2) {
+  if (status.not_ok() || config.size() != 2) {
     ans = false;
   } else {
     il::int_t i0 = config.search("pi");
@@ -286,7 +286,7 @@ TEST(Toml, implicit_and_explicit_after) {
 
   il::Status status{};
   il::Toml config = il::load<il::Toml>(filename, il::io, status);
-  if (status.is_error() || config.size() != 1) {
+  if (status.not_ok() || config.size() != 1) {
     ans = false;
   } else {
     il::int_t i = config.search("a");
@@ -331,7 +331,7 @@ TEST(Toml, implicit_and_explicit_before) {
 
   il::Status status{};
   il::Toml config = il::load<il::Toml>(filename, il::io, status);
-  if (status.is_error() || config.size() != 1) {
+  if (status.not_ok() || config.size() != 1) {
     ans = false;
   } else {
     il::int_t i = config.search("a");
@@ -376,7 +376,7 @@ TEST(Toml, implicit_groups) {
 
   il::Status status{};
   il::Toml config = il::load<il::Toml>(filename, il::io, status);
-  if (status.is_error() || config.size() != 1) {
+  if (status.not_ok() || config.size() != 1) {
     ans = false;
   } else {
     il::int_t i = config.search("a");
@@ -418,7 +418,7 @@ TEST(Toml, integer) {
 
   il::Status status{};
   il::Toml config = il::load<il::Toml>(filename, il::io, status);
-  if (status.is_error() || config.size() != 2) {
+  if (status.not_ok() || config.size() != 2) {
     ans = false;
   } else {
     il::int_t i0 = config.search("answer");
@@ -442,7 +442,7 @@ TEST(Toml, key_equals_nospace) {
 
   il::Status status{};
   il::Toml config = il::load<il::Toml>(filename, il::io, status);
-  if (status.is_error() || config.size() != 1) {
+  if (status.not_ok() || config.size() != 1) {
     ans = false;
   } else {
     il::int_t i = config.search("answer");
@@ -463,7 +463,7 @@ TEST(Toml, key_space) {
 
   il::Status status{};
   il::Toml config = il::load<il::Toml>(filename, il::io, status);
-  if (status.is_error() || config.size() != 1) {
+  if (status.not_ok() || config.size() != 1) {
     ans = false;
   } else {
     il::int_t i = config.search("a b");
@@ -484,7 +484,7 @@ TEST(Toml, key_special_chars) {
 
   il::Status status{};
   il::Toml config = il::load<il::Toml>(filename, il::io, status);
-  if (status.is_error() || config.size() != 1) {
+  if (status.not_ok() || config.size() != 1) {
     ans = false;
   } else {
     il::int_t i = config.search("~!@$^&*()_+-`1234567890[]|/?><.,;:'");
@@ -505,7 +505,7 @@ TEST(Toml, long_floating_point) {
 
   il::Status status{};
   il::Toml config = il::load<il::Toml>(filename, il::io, status);
-  if (status.is_error() || config.size() != 2) {
+  if (status.not_ok() || config.size() != 2) {
     ans = false;
   } else {
     il::int_t i0 = config.search("longpi");
@@ -529,7 +529,7 @@ TEST(Toml, long_integer) {
 
   il::Status status{};
   il::Toml config = il::load<il::Toml>(filename, il::io, status);
-  if (status.is_error() || config.size() != 2) {
+  if (status.not_ok() || config.size() != 2) {
     ans = false;
   } else {
     il::int_t i0 = config.search("answer");
@@ -538,6 +538,54 @@ TEST(Toml, long_integer) {
           config.value(i0).to_integer() == 9223372036854775807 &&
           config.found(i1) && config.value(i1).is_integer() &&
           config.value(i1).to_integer() == (-9223372036854775807 - 1))) {
+      ans = false;
+    }
+  }
+
+  ASSERT_TRUE(ans);
+}
+
+TEST(Toml, windows_lines) {
+  bool ans = true;
+
+  il::String filename = directory;
+  filename.append("windows-lines.toml");
+
+  il::Status status{};
+  il::Toml config = il::load<il::Toml>(filename, il::io, status);
+  if (status.not_ok() || config.size() != 2) {
+    ans = false;
+  } else {
+    il::int_t i0 = config.search("input_directory");
+    il::int_t i1 = config.search("Young_modulus");
+    if (!(config.found(i0) && config.value(i0).is_string() &&
+          config.value(i0).as_string() == "Mesh_Files" && config.found(i1) &&
+          config.value(i1).is_double() &&
+          config.value(i1).to_double() == 1.0)) {
+      ans = false;
+    }
+  }
+
+  ASSERT_TRUE(ans);
+}
+
+TEST(Toml, zero) {
+  bool ans = true;
+
+  il::String filename = directory;
+  filename.append("zero.toml");
+
+  il::Status status{};
+  il::Toml config = il::load<il::Toml>(filename, il::io, status);
+  if (status.not_ok() || config.size() != 2) {
+    ans = false;
+  } else {
+    il::int_t i0 = config.search("a");
+    il::int_t i1 = config.search("b");
+    if (!(config.found(i0) && config.value(i0).is_double() &&
+          config.value(i0).to_double() == 0.0 && config.found(i1) &&
+          config.value(i1).is_integer() &&
+          config.value(i1).to_integer() == 0)) {
       ans = false;
     }
   }

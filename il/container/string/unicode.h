@@ -25,7 +25,7 @@ il::U16String to_u16(const il::String& string) {
   return ans;
 }
 
-enum CodePoint : std::int32_t {
+enum CodePoint : int {
   snowman = 0x2603,
   mahjong_tile_red_dragon = 0x0001F004,
   grinning_face = 0x0001F600,

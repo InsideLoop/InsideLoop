@@ -30,7 +30,7 @@ inline il::ConstStringView remove_whitespace_left(ConstStringView string) {
          (string.is_char(i, ' ') || string.is_char(i, '\t'))) {
     ++i;
   }
-  string.shrink_left(i);
+  string.remove_prefix(i);
 
   return string;
 }

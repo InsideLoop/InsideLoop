@@ -189,7 +189,7 @@ double ipow(T x, il::int_t n) {
   return ans;
 }
 
-inline std::uint32_t previous_power_of_2_32(std::uint32_t x) {
+inline unsigned int previous_power_of_2_32(unsigned int x) {
   x |= x >> 1;
   x |= x >> 2;
   x |= x >> 4;
@@ -200,7 +200,7 @@ inline std::uint32_t previous_power_of_2_32(std::uint32_t x) {
   return x;
 }
 
-inline std::uint32_t next_power_of_2_32(std::uint32_t x) {
+inline unsigned int next_power_of_2_32(unsigned int x) {
   x -= 1;
   x |= x >> 1;
   x |= x >> 2;
@@ -269,16 +269,16 @@ static const int table_log2_32[32] = {
     0, 9,  1,  10, 13, 21, 2,  29, 11, 14, 16, 18, 22, 25, 3, 30,
     8, 12, 20, 28, 15, 17, 24, 7,  19, 27, 23, 6,  26, 5,  4, 31};
 
-inline int next_log2_32(std::uint32_t x) {
+inline int next_log2_32(unsigned int x) {
   //  x |= x >> 1;
   //  x |= x >> 2;
   //  x |= x >> 4;
   //  x |= x >> 8;
   //  x |= x >> 16;
-  //  const int32_t index = static_cast<std::int32_t>(x * 0x07C4ACDD) >> 27;
+  //  const int32_t index = static_cast<int>(x * 0x07C4ACDD) >> 27;
   //
   //  return table_log2_32[index];
-  std::uint32_t power = 1;
+  unsigned int power = 1;
   int k = 0;
   while (power < x) {
     power *= 2;

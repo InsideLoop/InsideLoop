@@ -67,11 +67,11 @@ class U16String {
   void append(const U16String& s);
   void append(const IL_U16CHAR* data);
   void append(char c);
-  void append(std::int32_t cp);
+  void append(int cp);
   void append(il::int_t n, char c);
-  void append(il::int_t n, std::int32_t cp);
+  void append(il::int_t n, int cp);
   il::int_t next_cp(il::int_t i) const;
-  std::int32_t cp(il::int_t i) const;
+  int cp(il::int_t i) const;
   bool is_empty() const;
   const std::uint16_t* begin() const;
   const std::uint16_t* end() const;
@@ -84,7 +84,7 @@ class U16String {
   std::uint16_t* begin();
   std::uint16_t* end();
   void append(const IL_U16CHAR*, il::int_t n);
-  bool valid_code_point(std::int32_t cp);
+  bool valid_code_point(int cp);
   constexpr static il::int_t max_small_size_ =
       static_cast<il::int_t>(sizeof(LargeU16String) / 2 - 1);
 };
@@ -282,10 +282,10 @@ inline void U16String::append(il::int_t n, char c) {
   }
 }
 
-inline void U16String::append(std::int32_t cp) {
+inline void U16String::append(int cp) {
   IL_EXPECT_MEDIUM(valid_code_point(cp));
 
-  const std::uint32_t ucp = static_cast<std::uint32_t>(cp);
+  const unsigned int ucp = static_cast<unsigned int>(cp);
   const il::int_t old_size = size();
   il::int_t new_size;
   if (ucp < 0x00010000u) {
@@ -300,7 +300,7 @@ inline void U16String::append(std::int32_t cp) {
     const il::int_t new_capacity = il::max(new_size, 2 * old_size);
     reserve(new_capacity);
     std::uint16_t* data = end();
-    const std::uint32_t a = ucp - 0x00010000u;
+    const unsigned int a = ucp - 0x00010000u;
     data[0] = static_cast<std::uint16_t>(a >> 10) + 0xD800u;
     data[1] = static_cast<std::uint16_t>(a & 0x3FF) + 0xDC00u;
     data[2] = static_cast<std::uint16_t>('\0');
@@ -312,7 +312,7 @@ inline void U16String::append(std::int32_t cp) {
   }
 }
 
-inline void U16String::append(il::int_t n, std::int32_t cp) {
+inline void U16String::append(il::int_t n, int cp) {
   IL_EXPECT_FAST(n >= 0);
   IL_EXPECT_FAST(valid_code_point(cp));
 }
@@ -344,15 +344,15 @@ inline il::int_t U16String::next_cp(il::int_t i) const {
   }
 }
 
-inline std::int32_t U16String::cp(il::int_t i) const {
+inline int U16String::cp(il::int_t i) const {
   const std::uint16_t* data = begin();
   if (data[i] < 0xD800u || data[i] >= 0xDC00u) {
-    return static_cast<std::int32_t>(data[i]);
+    return static_cast<int>(data[i]);
   } else {
-    std::uint32_t a = static_cast<std::uint32_t>(data[i]);
-    std::uint32_t b = static_cast<std::uint32_t>(data[i + 1]);
-    return static_cast<std::int32_t>(((a & 0x03FFu) << 10) + (b & 0x03FFu) +
-                                     0x00010000u);
+    unsigned int a = static_cast<unsigned int>(data[i]);
+    unsigned int b = static_cast<unsigned int>(data[i + 1]);
+    return static_cast<int>(((a & 0x03FFu) << 10) + (b & 0x03FFu) +
+                            0x00010000u);
   }
 }
 
@@ -432,11 +432,11 @@ inline void U16String::append(const IL_U16CHAR* data, il::int_t n) {
   }
 }
 
-inline bool U16String::valid_code_point(std::int32_t cp) {
-  const std::uint32_t code_point_max = 0x0010FFFFu;
-  const std::uint32_t lead_surrogate_min = 0x0000D800u;
-  const std::uint32_t lead_surrogate_max = 0x0000DBFFu;
-  const std::uint32_t ucp = static_cast<std::uint32_t>(cp);
+inline bool U16String::valid_code_point(int cp) {
+  const unsigned int code_point_max = 0x0010FFFFu;
+  const unsigned int lead_surrogate_min = 0x0000D800u;
+  const unsigned int lead_surrogate_max = 0x0000DBFFu;
+  const unsigned int ucp = static_cast<unsigned int>(cp);
   return ucp <= code_point_max &&
          (ucp < lead_surrogate_min || ucp > lead_surrogate_max);
 }

@@ -141,9 +141,12 @@ void aux_load(il::int_t n, il::io_t,
       } break;
       case il::Type::hash_map_array_t:
       case il::Type::hash_map_t: {
+        il::int_t n_map = 0;
+        const il::int_t n = read_varint(il::io, n_map, file);
         il::int_t size = 0;
         il::int_t i = config.search(string);
-        config.insert(std::move(string), il::Dynamic{il::Type::hash_map_t},
+        config.insert(std::move(string),
+                      il::Dynamic{il::HashMap<il::String, il::Dynamic>{n}},
                       il::io, i);
         if (!config.found(i)) {
         }
@@ -244,10 +247,12 @@ void aux_load(il::int_t n, il::io_t,
       } break;
       case il::Type::hash_map_t:
       case il::Type::hash_map_array_t: {
+        il::int_t n_map = 0;
+        const il::int_t n = read_varint(il::io, n_map, file);
         il::int_t size = 0;
         il::int_t i = config.search(string);
         config.insert(std::move(string),
-                      il::Dynamic{il::HashMapArray<il::String, il::Dynamic>{}},
+                      il::Dynamic{il::HashMapArray<il::String, il::Dynamic>{n}},
                       il::io, i);
         if (!config.found(i)) {
         }
@@ -384,6 +389,8 @@ void aux_save(const il::HashMapArray<il::String, il::Dynamic>& data, il::io_t,
       case il::Type::hash_map_array_t: {
         il::int_t n_map = 0;
         //        std::fwrite(&n_map, sizeof(il::int_t), 1, file);
+        write_varint(data.value(i).as_hash_map_array().size(), il::io, n_map,
+                     file);
         aux_save(data.value(i).as_hash_map_array(), il::io, n_map, file);
         //        std::fseek(file, -(n_map + sizeof(il::int_t)), SEEK_CUR);
         //        std::fwrite(&n_map, sizeof(il::int_t), 1, file);

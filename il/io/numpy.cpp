@@ -102,17 +102,21 @@ NumpyInfo get_numpy_info(il::io_t, std::FILE* fp, il::Status& status) {
     return numpy_info;
   }
   ConstStringView shape_string = header.substring(i1 + 1, i2);
-  if (shape_string.is_char_back(',')) {
+  if (shape_string.last_is_char(',')) {
     numpy_info.shape.resize(1);
   } else {
     const il::int_t n_dim = il::count(',', shape_string) + 1;
     numpy_info.shape.resize(n_dim);
   }
-  for (il::int_t i = 0; i < numpy_info.shape.size(); ++i) {
+  il::int_t i = 0;
+  while (true) {
+    numpy_info.shape[i] = std::atoll(shape_string.as_c_string());
+    if (i == numpy_info.shape.size() - 1) {
+      break;
+    }
     const il::int_t i3 = il::search(",", shape_string);
-    numpy_info.shape[i] =
-        std::atoll(shape_string.substring(0, i3).as_c_string());
-    shape_string = shape_string.substring(i3 + 1);
+    shape_string = shape_string.suffix(i3 + 1);
+    ++i;
   }
 
   status.set_ok();
