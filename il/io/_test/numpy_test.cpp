@@ -9,7 +9,7 @@
 
 #include <gtest/gtest.h>
 
-#include <il/io/numpy.h>
+#include <il/io/numpy/numpy.h>
 
 il::String filename = "/Users/fayard/Desktop/b.npy";
 

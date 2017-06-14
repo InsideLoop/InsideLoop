@@ -212,7 +212,7 @@ set(SOURCE_FILES
     il/container/hash/HashMapArray.h
     il/container/string/String.h
     il/container/string/StringView.h
-        il/container/string/UTF16String.h
+    il/container/string/UTF16String.h
     il/container/string/unicode.h
     il/container/string/view_string.h
     il/container/string/algorithm_string.h
@@ -223,14 +223,13 @@ set(SOURCE_FILES
     il/core/math/safe_arithmetic.h
     il/core/memory/allocate.h
     il/io/io_base.h
-    il/io/parse.h
-    il/io/ppm.h
-    il/io/numpy.h
-    il/io/numpy.cpp
-    il/io/toml.h
-    il/io/toml.cpp
-    il/io/png.h
-    il/io/png.cpp
+        il/io/ppm/ppm.h
+    il/io/numpy/numpy.h
+    il/io/numpy/numpy.cpp
+    il/io/toml/toml.h
+    il/io/toml/toml.cpp
+    il/io/png/png.h
+    #il/io/png.cpp
     il/io/filepack/filepack.h
     il/io/format/format.cc
     il/linear_algebra/dense/blas/blas.h

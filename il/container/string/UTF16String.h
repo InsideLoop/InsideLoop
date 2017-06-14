@@ -32,7 +32,7 @@ namespace il {
 // 10: not a String object, used as empty key for hash tables
 // 11: not a String object, used as tombstone key for hash tables
 
-#if IL_WINDOWS
+#ifdef IL_WINDOWS
 #define IL_UTF16CHAR wchar_t
 #else
 #define IL_UTF16CHAR char16_t

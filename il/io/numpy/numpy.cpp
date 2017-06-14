@@ -7,7 +7,7 @@
 //
 //==============================================================================
 
-#include <il/io/numpy.h>
+#include <il/io/numpy/numpy.h>
 
 #include <il/String.h>
 #include <il/StringView.h>
