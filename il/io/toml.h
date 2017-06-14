@@ -21,6 +21,11 @@
 #include <il/StringView.h>
 #include <il/container/string/algorithm_string.h>
 
+#ifdef IL_WINDOWS
+#include <il/unicode.h>
+#include <il/UTF16String.h>
+#endif
+
 namespace il {
 
 class TomlParser {
@@ -265,7 +270,12 @@ class SaveHelper<il::HashMap<il::String, il::Dynamic>> {
  public:
   static void save(const il::HashMap<il::String, il::Dynamic> &toml,
                    const il::String &filename, il::io_t, il::Status &status) {
+#ifdef IL_UNIX
     std::FILE *file = std::fopen(filename.as_c_string(), "wb");
+#else
+    il::UTF16String filename_utf16 = il::to_utf16(filename);
+    std::FILE* file = _wfopen(filename_utf16.as_w_string(), L"wb");
+#endif
     if (!file) {
       status.set_error(il::Error::filesystem_file_not_found);
       return;
@@ -294,7 +304,12 @@ class SaveHelperToml<il::HashMapArray<il::String, il::Dynamic>> {
  public:
   static void save(const il::HashMapArray<il::String, il::Dynamic> &toml,
                    const il::String &filename, il::io_t, il::Status &status) {
+#ifdef IL_UNIX
     std::FILE *file = std::fopen(filename.as_c_string(), "wb");
+#else
+    il::UTF16String filename_utf16 = il::to_utf16(filename);
+    std::FILE* file = _wfopen(filename_utf16.as_w_string(), L"wb");
+#endif
     if (!file) {
       status.set_error(il::Error::filesystem_file_not_found);
       return;

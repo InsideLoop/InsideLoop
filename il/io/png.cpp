@@ -13,14 +13,14 @@
 
 namespace il {
 
-il::Array3D<unsigned char> load(const std::string &filename, il::png_t,
+il::Array3C<unsigned char> load_png(const std::string &filename,
                                 il::io_t, il::Status &status) {
-  il::Array3D<unsigned char> image{};
+  il::Array3C<unsigned char> image{};
 
   unsigned char header[8];
   FILE *fp{fopen(filename.c_str(), "rb")};
   if (fp == nullptr) {
-    status.set_error(il::Error::not_found);
+    status.set_error(il::Error::filesystem_file_not_found);
     IL_SET_SOURCE(status);
     fclose(fp);
     return image;
@@ -37,20 +37,20 @@ il::Array3D<unsigned char> load(const std::string &filename, il::png_t,
   png_structp png_ptr{
       png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr)};
   if (png_ptr == nullptr) {
-    status.set_error(il::Error::internal_error);
+    status.set_error(il::Error::undefined);
     IL_SET_SOURCE(status);
     fclose(fp);
     return image;
   }
   png_infop info_ptr{png_create_info_struct(png_ptr)};
   if (info_ptr == nullptr) {
-    status.set_error(il::Error::internal_error);
+    status.set_error(il::Error::undefined);
     IL_SET_SOURCE(status);
     fclose(fp);
     return image;
   }
   if (setjmp(png_jmpbuf(png_ptr))) {
-    status.set_error(il::Error::internal_error);
+    status.set_error(il::Error::undefined);
     IL_SET_SOURCE(status);
     fclose(fp);
     return image;
@@ -71,7 +71,7 @@ il::Array3D<unsigned char> load(const std::string &filename, il::png_t,
   png_read_update_info(png_ptr, info_ptr);
 
   if (setjmp(png_jmpbuf(png_ptr))) {
-    status.set_error(il::Error::internal_error);
+    status.set_error(il::Error::undefined);
     IL_SET_SOURCE(status);
     fclose(fp);
     return image;
@@ -85,35 +85,34 @@ il::Array3D<unsigned char> load(const std::string &filename, il::png_t,
 
   png_read_image(png_ptr, row_pointers);
 
-  image.resize(static_cast<il::int_t>(width), static_cast<il::int_t>(height),
+  image.resize(static_cast<il::int_t>(height), static_cast<il::int_t>(width),
                static_cast<il::int_t>(nb_colors));
   for (int ky = 0; ky < height; ++ky) {
     png_bytep row{row_pointers[ky]};
     for (int kx = 0; kx < width; ++kx) {
       for (int kc = 0; kc < image.size(2); ++kc) {
-        image(kx, ky, kc) = row[nb_colors * kx + kc];
+        image(ky, kx, kc) = row[nb_colors * kx + kc];
       }
     }
   }
 
   png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
-  for (int ky = 0; ky < image.size(1); ky++) {
+  for (int ky = 0; ky < image.size(0); ky++) {
     free(row_pointers[ky]);
   }
   free(row_pointers);
 
   fclose(fp);
 
-  status.set(ErrorCode::ok);
+  status.set_ok();
 
   return image;
 }
 
-void save(const il::Array3D<unsigned char> &image, const std::string &filename,
-          il::png_t, il::io_t, il::Status &status) {
-  FILE *fp{fopen(filename.c_str(), "wb")};
+void save_png(const il::Array3C<unsigned char> &image, const il::String &filename,il::io_t, il::Status &status) {
+  FILE *fp{fopen(filename.as_c_string(), "wb")};
   if (fp == nullptr) {
-    status.set_error(il::Error::not_found);
+    status.set_error(il::Error::filesystem_file_not_found);
     IL_SET_SOURCE(status);
     return;
   }
@@ -121,34 +120,34 @@ void save(const il::Array3D<unsigned char> &image, const std::string &filename,
   png_structp png_ptr{png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr,
                                               nullptr, nullptr)};
   if (png_ptr == nullptr) {
-    status.set_error(il::Error::internal_error);
+    status.set_error(il::Error::undefined);
     IL_SET_SOURCE(status);
     return;
   }
 
   png_infop info_ptr{png_create_info_struct(png_ptr)};
   if (info_ptr == nullptr) {
-    status.set_error(il::Error::internal_error);
+    status.set_error(il::Error::undefined);
     IL_SET_SOURCE(status);
     return;
   }
   if (setjmp(png_jmpbuf(png_ptr))) {
-    status.set_error(il::Error::internal_error);
+    status.set_error(il::Error::undefined);
     IL_SET_SOURCE(status);
     return;
   }
 
   png_init_io(png_ptr, fp);
   if (setjmp(png_jmpbuf(png_ptr))) {
-    status.set_error(il::Error::internal_error);
+    status.set_error(il::Error::undefined);
     IL_SET_SOURCE(status);
     return;
   }
 
-  const png_uint_32 width{static_cast<png_uint_32>(image.size(0))};
-  const png_uint_32 height{static_cast<png_uint_32>(image.size(1))};
+  const png_uint_32 width{static_cast<png_uint_32>(image.size(1))};
+  const png_uint_32 height{static_cast<png_uint_32>(image.size(0))};
   const int bit_depth = 8;
-  int color_type;
+  int color_type = 0;
   switch (image.size(2)) {
     case 3:
       color_type = 2;
@@ -164,21 +163,21 @@ void save(const il::Array3D<unsigned char> &image, const std::string &filename,
 
   /* write bytes */
   if (setjmp(png_jmpbuf(png_ptr))) {
-    status.set_error(il::Error::internal_error);
+    status.set_error(il::Error::undefined);
     IL_SET_SOURCE(status);
     return;
   }
 
   png_bytep *row_pointers{(png_bytep *)malloc(sizeof(png_bytep) * height)};
-  for (il::int_t ky = 0; ky < image.size(1); ++ky) {
+  for (il::int_t ky = 0; ky < image.size(0); ++ky) {
     row_pointers[ky] = (png_byte *)malloc(png_get_rowbytes(png_ptr, info_ptr));
   }
 
-  for (il::int_t ky = 0; ky < image.size(1); ++ky) {
+  for (il::int_t ky = 0; ky < image.size(0); ++ky) {
     png_bytep row{row_pointers[ky]};
-    for (il::int_t kx = 0; kx < image.size(0); ++kx) {
+    for (il::int_t kx = 0; kx < image.size(1); ++kx) {
       for (il::int_t kc = 0; kc < image.size(2); ++kc) {
-        row[image.size(2) * kx + kc] = image(kx, ky, kc);
+        row[image.size(2) * kx + kc] = image(ky, kx, kc);
       }
     }
   }
@@ -187,18 +186,19 @@ void save(const il::Array3D<unsigned char> &image, const std::string &filename,
 
   /* end write */
   if (setjmp(png_jmpbuf(png_ptr))) {
-    status.set_error(il::Error::internal_error);
+    status.set_error(il::Error::undefined);
     IL_SET_SOURCE(status);
     return;
   }
 
   png_write_end(png_ptr, nullptr);
 
-  for (il::int_t ky = 0; ky < image.size(1); ky++) {
+  for (il::int_t ky = 0; ky < image.size(0); ky++) {
     free(row_pointers[ky]);
   }
   free(row_pointers);
 
   fclose(fp);
+  status.set_ok();
 }
 }  // namespace il

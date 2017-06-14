@@ -179,7 +179,7 @@ set(SOURCE_FILES
     il/Timer.h
         il/toml.h
     il/TriDiagonal.h
-    il/U16String.h
+        il/UTF16String.h
     il/unicode.h
     il/UpperArray2D.h
     il/container/1d/Array.h
@@ -212,7 +212,7 @@ set(SOURCE_FILES
     il/container/hash/HashMapArray.h
     il/container/string/String.h
     il/container/string/StringView.h
-    il/container/string/U16String.h
+        il/container/string/UTF16String.h
     il/container/string/unicode.h
     il/container/string/view_string.h
     il/container/string/algorithm_string.h
@@ -228,9 +228,9 @@ set(SOURCE_FILES
     il/io/numpy.h
     il/io/numpy.cpp
     il/io/toml.h
-        il/io/toml.cpp
+    il/io/toml.cpp
     il/io/png.h
-    #il/io/png.cpp
+    il/io/png.cpp
     il/io/filepack/filepack.h
     il/io/format/format.cc
     il/linear_algebra/dense/blas/blas.h

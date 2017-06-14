@@ -654,10 +654,10 @@ void print_population_country(
     const std::string& country) {
   il::int_t i = population.search(country);
   if (population.found(i)) {
-    std::printf("The population of %s is %td\n", country.c_str(),
+    std::printf("The population of %s is %td\n", country.as_c_string(),
         population.value(i));
   } else {
-    std::printf("I don't know the population of %s\n", country.c_str());
+    std::printf("I don't know the population of %s\n", country.as_c_string());
   }
 }
 ```

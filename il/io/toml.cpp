@@ -921,7 +921,12 @@ il::HashMapArray<il::String, il::Dynamic> TomlParser::parse(
   il::HashMapArray<il::String, il::Dynamic> root_toml{};
   il::HashMapArray<il::String, il::Dynamic>* pointer_toml = &root_toml;
 
+#ifdef IL_UNIX
   file_ = std::fopen(filename.as_c_string(), "r+b");
+#else
+  il::UTF16String filename_utf16 = il::to_utf16(filename);
+  file_ = _wfopen(filename_utf16.as_w_string(), L"r+b");
+#endif
   if (!file_) {
     status.set_error(il::Error::filesystem_file_not_found);
     IL_SET_SOURCE(status);

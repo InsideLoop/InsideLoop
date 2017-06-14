@@ -17,7 +17,7 @@
 
 namespace il {
 
-enum class FileType { npy, toml, data };
+enum class FileType { npy, toml, data, png };
 
 inline il::FileType file_type(const il::String& file, il::io_t,
                               il::Status& status) {
@@ -30,6 +30,9 @@ inline il::FileType file_type(const il::String& file, il::io_t,
   } else if (file.has_suffix(".data")) {
     status.set_ok();
     return il::FileType::data;
+  } else if (file.has_suffix(".png")) {
+    status.set_ok();
+    return il::FileType::png;
   } else {
     status.set_error(il::Error::undefined);
     return il::FileType::npy;
@@ -155,6 +158,22 @@ void SaveHelperData<T>::save(const T& x, const il::String& filename, il::io_t,
 }
 
 template <typename T>
+class SaveHelperPng {
+ public:
+  static void save(const T& x, const il::String& filename, il::io_t,
+                   il::Status& status);
+};
+
+template <typename T>
+void SaveHelperPng<T>::save(const T& x, const il::String& filename, il::io_t,
+                             il::Status& status) {
+  IL_UNUSED(x);
+  IL_UNUSED(filename);
+  status.set_error(il::Error::unimplemented);
+  IL_SET_SOURCE(status);
+}
+
+template <typename T>
 void save(const T& x, const il::String& filename, il::io_t,
           il::Status& status) {
   const il::FileType ft = il::file_type(filename, il::io, status);
@@ -169,17 +188,14 @@ void save(const T& x, const il::String& filename, il::io_t,
     case il::FileType::data:
       il::SaveHelperData<T>::save(x, filename, il::io, status);
       break;
+    case il::FileType::png:
+      il::SaveHelperPng<T>::save(x, filename, il::io, status);
+      break;
     default:
       il::SaveHelper<T>::save(x, filename, il::io, status);
   }
 }
 
-template <typename T>
-void save(const T& x, const std::string& filename, il::io_t,
-          il::Status& status) {
-  il::String il_filename = filename.c_str();
-  il::SaveHelper<T>::save(x, il_filename, il::io, status);
-}
 
 }  // namespace il
 

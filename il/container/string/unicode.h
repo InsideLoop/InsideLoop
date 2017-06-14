@@ -11,12 +11,12 @@
 #define IL_UNICODE_H
 
 #include <il/container/string/String.h>
-#include <il/container/string/U16String.h>
+#include <il/container/string/UTF16String.h>
 
 namespace il {
 
-il::U16String to_u16(const il::String& string) {
-  il::U16String ans{};
+inline il::UTF16String to_utf16(const il::String& string) {
+  il::UTF16String ans{};
 
   for (il::int_t i = 0; i < string.size(); i = string.next_code_point(i)) {
     ans.append(string.to_code_point(i));

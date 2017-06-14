@@ -7,4 +7,4 @@
 //
 //==============================================================================
 
-#include <il/container/string/U16String.h>
+#include <il/container/string/UTF16String.h>

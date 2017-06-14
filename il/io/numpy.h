@@ -19,6 +19,11 @@
 #include <il/String.h>
 #include <il/io/io_base.h>
 
+#ifdef IL_WINDOWS
+#include <il/unicode.h>
+#include <il/UTF16String.h>
+#endif
+
 namespace il {
 
 template <typename T>
@@ -51,7 +56,12 @@ class SaveHelper<il::Array<T>> {
  public:
   static void save(const il::Array<T>& v, const il::String& filename, il::io_t,
                    il::Status& status) {
+#ifdef IL_UNIX
     std::FILE* file = std::fopen(filename.as_c_string(), "wb");
+#else
+    il::UTF16String filename_utf16 = il::to_utf16(filename);
+    std::FILE* file = _wfopen(filename_utf16.as_w_string(), L"wb");
+#endif
     if (!file) {
       status.set_error(il::Error::filesystem_file_not_found);
       IL_SET_SOURCE(status);
@@ -99,7 +109,12 @@ class SaveHelper<il::Array2D<T>> {
  public:
   static void save(const il::Array2D<T>& A, const il::String& filename,
                    il::io_t, il::Status& status) {
+#ifdef IL_UNIX
     std::FILE* file = std::fopen(filename.as_c_string(), "wb");
+#else
+    il::UTF16String filename_utf16 = il::to_utf16(filename);
+    std::FILE* file = _wfopen(filename_utf16.as_w_string(), L"wb");
+#endif
     if (!file) {
       status.set_error(il::Error::filesystem_file_not_found);
       IL_SET_SOURCE(status);
@@ -150,7 +165,12 @@ class LoadHelper<il::Array<T>> {
                            il::Status& status) {
     il::Array<T> v{};
 
+#ifdef IL_UNIX
     std::FILE* file = std::fopen(filename.as_c_string(), "r+b");
+#else
+    il::UTF16String filename_utf16 = il::to_utf16(filename);
+    std::FILE* file = _wfopen(filename_utf16.as_w_string(), L"r+b");
+#endif
     if (!file) {
       status.set_error(il::Error::filesystem_file_not_found);
       IL_SET_SOURCE(status);
@@ -201,7 +221,12 @@ class LoadHelper<il::Array2D<T>> {
                              il::Status& status) {
     il::Array2D<T> v{};
 
+#ifdef IL_UNIX
     std::FILE* file = std::fopen(filename.as_c_string(), "r+b");
+#else
+    il::UTF16String filename_utf16 = il::to_utf16(filename);
+    std::FILE* file = _wfopen(filename_utf16.as_w_string(), L"r+b");
+#endif
     if (!file) {
       status.set_error(il::Error::filesystem_file_not_found);
       IL_SET_SOURCE(status);

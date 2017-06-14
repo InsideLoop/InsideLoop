@@ -19,6 +19,11 @@
 #include <il/container/dynamic/Dynamic.h>
 #include <il/io/io_base.h>
 
+#ifdef IL_WINDOWS
+#include <il/unicode.h>
+#include <il/UTF16String.h>
+#endif
+
 namespace il {
 
 il::int_t read_varint(il::io_t, il::int_t& k, std::FILE* file) {
@@ -276,7 +281,12 @@ class LoadHelperData<il::HashMapArray<il::String, il::Dynamic>> {
       const il::String& filename, il::io_t, il::Status& status) {
     il::HashMapArray<il::String, il::Dynamic> ans{};
 
+#ifdef IL_UNIX
     std::FILE* file = std::fopen(filename.as_c_string(), "rb");
+#else
+    il::UTF16String filename_utf16 = il::to_utf16(filename);
+    std::FILE* file = _wfopen(filename_utf16.as_w_string(), L"rb");
+#endif
 
     aux_load(-1, il::io, ans, file);
 
@@ -299,7 +309,12 @@ class LoadHelperData<il::HashMap<il::String, il::Dynamic>> {
                                                    il::Status& status) {
     il::HashMap<il::String, il::Dynamic> ans{};
 
+#ifdef IL_UNIX
     std::FILE* file = std::fopen(filename.as_c_string(), "rb");
+#else
+    il::UTF16String filename_utf16 = il::to_utf16(filename);
+    std::FILE* file = _wfopen(filename_utf16.as_w_string(), L"rb");
+#endif
 
     aux_load(-1, il::io, ans, file);
 
@@ -419,7 +434,12 @@ class SaveHelperData<il::HashMapArray<il::String, il::Dynamic>> {
  public:
   static void save(const il::HashMapArray<il::String, il::Dynamic>& data,
                    const il::String& filename, il::io_t, il::Status& status) {
+#ifdef IL_UNIX
     std::FILE* file = std::fopen(filename.as_c_string(), "wb");
+#else
+    il::UTF16String filename_utf16 = il::to_utf16(filename);
+    std::FILE* file = _wfopen(filename_utf16.as_w_string(), L"wb");
+#endif
 
     il::int_t n = 0;
     aux_save(data, il::io, n, file);
