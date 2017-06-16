@@ -14,6 +14,7 @@
 #include <cstring>
 
 #include <il/base.h>
+#include <il/core/math/safe_arithmetic.h>
 #include <il/core/memory/allocate.h>
 
 namespace il {
@@ -71,6 +72,7 @@ class String {
   const unsigned char* begin() const;
   const unsigned char* end() const;
   const char* as_c_string() const;
+  const unsigned char* data() const;
   bool operator==(const il::String& other) const;
   bool has_suffix(const char* data) const;
 
@@ -515,6 +517,14 @@ inline void String::set_large_capacity(il::int_t r) {
       (static_cast<std::size_t>(0x80) << ((sizeof(std::size_t) - 1) * 8));
 }
 
+inline const unsigned char* String::data() const {
+  if (is_small()) {
+    return data_;
+  } else {
+    return large_.data;
+  }
+}
+
 inline const unsigned char* String::begin() const {
   if (is_small()) {
     return data_;
@@ -552,18 +562,39 @@ inline void String::append(const char* data, il::int_t n) {
   IL_EXPECT_AXIOM("data must point to an array of length at least n");
 
   const il::int_t old_size = size();
-  const il::int_t new_capacity =
-      il::max(old_size + n, il::min(max_small_size_, 2 * old_size));
-  reserve(new_capacity);
+  const il::int_t old_capacity = capacity();
+  const bool old_is_small = is_small();
+  bool error0;
+  bool error1;
+  bool error2;
+  const il::int_t needed_size = il::safe_sum(old_size, n, il::io, error0);
+  il::int_t confort_capacity =
+      il::safe_product(static_cast<il::int_t>(2), old_size, il::io, error1);
+  confort_capacity = il::safe_sum(confort_capacity, n, il::io, error2);
+  if (error0 || error1 || error2) {
+    il::abort();
+  }
+  const il::int_t new_capacity = needed_size <= old_capacity ? old_capacity : il::max(needed_size, confort_capacity);
+  unsigned char* old_data = old_is_small ? data_ : large_.data;
+  unsigned char* new_data = old_data;
+  if (new_capacity > old_capacity) {
+    new_data = il::allocate_array<unsigned char>(new_capacity + 1);
+    std::memcpy(new_data, old_data, static_cast<std::size_t>(old_size));
+  }
 
-  if (is_small()) {
+  if (new_capacity <= max_small_size_) {
     std::memcpy(data_ + old_size, data, static_cast<std::size_t>(n));
     data_[old_size + n] = static_cast<unsigned char>('\0');
     set_small_size(old_size + n);
   } else {
-    std::memcpy(large_.data + old_size, data, static_cast<std::size_t>(n));
-    large_.data[old_size + n] = static_cast<unsigned char>('\0');
+    std::memcpy(new_data + old_size, data, static_cast<std::size_t>(n));
+    new_data[old_size + n] = static_cast<unsigned char>('\0');
+    if (new_data != old_data && !old_is_small) {
+      il::deallocate(old_data);
+    }
+    large_.data = new_data;
     large_.size = old_size + n;
+    set_large_capacity(new_capacity);
   }
 }
 

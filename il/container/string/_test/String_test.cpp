@@ -104,3 +104,11 @@ TEST(String, append_3) {
               0 == std::strcmp(s.as_c_string(),
                                "Hello world! I am so happy to be there"));
 }
+
+TEST(String, append_4) {
+  il::String s = "HelloHelloHelloHello";
+  s.append(s);
+
+  ASSERT_TRUE(s.size() == 40 && s == "HelloHelloHelloHelloHelloHelloHelloHello");
+}
+

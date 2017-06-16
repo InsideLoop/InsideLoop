@@ -302,7 +302,11 @@ struct is_trivial<float> {
 
 template <>
 inline float default_value<float>() {
+#ifdef IL_UNIX
   return 0.0f / 0.0f;
+#else
+  return 0.0f;
+#endif
 }
 
 template <>
@@ -312,7 +316,11 @@ struct is_trivial<double> {
 
 template <>
 inline double default_value<double>() {
+#ifdef IL_UNIX
   return 0.0 / 0.0;
+#else
+  return 0.0;
+#endif
 }
 
 template <>
@@ -322,7 +330,11 @@ struct is_trivial<long double> {
 
 template <>
 inline long double default_value<long double>() {
+#ifdef IL_UNIX
   return 0.0l / 0.0l;
+#else
+  return 0.0l;
+#endif
 }
 }  // namespace il
 

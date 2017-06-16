@@ -39,7 +39,8 @@ class ArrayPrinter:
 		yield "size", self.size
 		yield "capacity", self.capacity
 		# if self.val['alignement_'] != 0:
-		yield "alignment", self.val['alignment_']
+		if self.val['alignment_'] > 0:
+			yield "alignment", self.val['alignment_']
 		# yield "alignment_r", self.val['align_r_']
 		# yield "alignment_mod", self.val['align_mod_']
 		for k in range(0, self.size):
@@ -516,9 +517,15 @@ class StringPrinter:
 			for k in range(0, self.size):
 				self.string += chr(self.val['data_'][k])
 
+	# def children(self):
+	# 	yield "size", self.size
+	# 	yield "capacity", self.capacity
+	# 	# yield "value", ""\"%s\"" % self.string
+	# 	yield ("value \"%s\"" % self.string), 1
+
 	def to_string(self):
-		# return "[string: \"%s\"] [size: %s] [capacity: %s] [is small: %s]" % (self.string, self.size, self.capacity, self.is_small)
-		return "\"%s\"" % self.string
+		return "[string: \"%s\"] [size: %s] [capacity: %s] [is small: %s]" % (self.string, self.size, self.capacity, self.is_small)
+		# return "\"%s\"" % self.string
 
 class HashMapPrinter:
 	def __init__(self, val):
@@ -545,6 +552,89 @@ class HashMapPrinter:
 
 	def to_string(self):
 		return "HashMap"
+
+class HashMapStringPrinter:
+	def __init__(self, val):
+		type = val.type
+		if type.code == gdb.TYPE_CODE_REF:
+			type = type.target()
+		self.type = type.unqualified().strip_typedefs()
+		self.keyType = self.type.template_argument(0)
+		self.valueType = self.type.template_argument(1)
+		self.val = val
+		self.size = self.val['nb_element_']
+		if self.val['p_'] >= 0:
+			self.capacity = 2 ** self.val['p_']
+		else:
+			self.capacity = 0
+		self.val = val
+		self.slot = self.val['slot_']
+		# self.a = gdb.parse_and_eval("(*("+str(self.val.type)+"*)("+str(self.val.address)+")).first()")
+
+	def children(self):
+		yield "size", self.size
+		yield "capacity", self.capacity
+		i = 0
+		for k in range(0, self.capacity):
+			pointer = self.slot + k
+			string = "*((long long*)("+str(pointer)+")+2)"
+			value = gdb.parse_and_eval(string)
+			if (value < 4611686018427387904):
+				item = pointer.dereference()
+				yield ("[%s] " % k), item
+
+			# yield ("[%s]" % k), item
+			# type = val.type
+			# if type.code == gdb.TYPE_CODE_REF:
+			# 	type = type.target()
+			# self.type = type.unqualified().strip_typedefs()
+			# self.innerType = self.type.template_argument(0)
+			# self.val = val
+			# self.data = self.val['data_'].cast(self.innerType.pointer())
+			# dataPtr = self.data + k
+			# item = dataPtr.dereference()
+		# 	yield ("[key: %s]" % k), gdb.parse_and_eval("(*("+str(self.val.type)+"*)("+str(self.val.address)+")).key("+str(i)+")")
+		# 	yield ("[value: %s]" % k), gdb.parse_and_eval("(*("+str(self.val.type)+"*)("+str(self.val.address)+")).const_value("+str(i)+")")
+		# 	i = gdb.parse_and_eval("(*("+str(self.val.type)+"*)("+str(self.val.address)+")).next("+str(i)+")")
+
+	def to_string(self):
+		return "HashMap"
+
+class DynamicPrinter:
+	def __init__(self, val):
+		self.val = val
+		self.type = self.val['type_']
+
+	def children(self):
+		yield "type", self.type
+		type_id = gdb.parse_and_eval("static_cast<unsigned char>(" + str(self.type) + ")")
+		if type_id == 2:
+			yield "value", self.val['integer_val_']
+		if type_id == 3:
+			yield "value", self.val['float_val_']
+		if type_id == 4:
+			yield "value", self.val['double_val_']
+		if type_id == 5:
+			yield "value", self.val['string_val_'].dereference()
+
+class StatusPrinter:
+	def __init__(self, val):
+		self.val = val
+		self.ok = self.val['ok_']
+		self.to_check = self.val['to_check_']
+		self.error = self.val['error_']
+		self.info = self.val['info_']
+
+	def children(self):
+		yield "ok", self.ok
+		yield "checked", not self.to_check
+		if not self.ok:
+			yield "error", self.error
+			yield "info", self.info
+
+	def to_string(self):
+		return "[ok: %s], [checked: %s]" % (self.ok, not self.to_check)
+
 
 class InfoPrinter:
 	def __init__(self, val):
@@ -637,8 +727,10 @@ def build_insideloop_dictionary ():
 	pretty_printers_dict[re.compile('^il::String$')]  = lambda val: StringPrinter(val)
 	pretty_printers_dict[re.compile('^il::StringView$')]  = lambda val: StringViewPrinter(val)
 	pretty_printers_dict[re.compile('^il::ConstStringView$')]  = lambda val: ConstStringViewPrinter(val)
-	# pretty_printers_dict[re.compile('^il::HashMap<.*>$')]  = lambda val: HashMapPrinter(val)
+	pretty_printers_dict[re.compile('^il::HashMap<il::String.*>$')]  = lambda val: HashMapStringPrinter(val)
 	pretty_printers_dict[re.compile('^il::Info$')]  = lambda val: InfoPrinter(val)
+	pretty_printers_dict[re.compile('^il::Status$')]  = lambda val: StatusPrinter(val)
+	pretty_printers_dict[re.compile('^il::Dynamic$')]  = lambda val: DynamicPrinter(val)
 
 def register_insideloop_printers(obj):
 	"Register insideloop pretty-printers with objfile Obj"

@@ -33,12 +33,12 @@ enum class BinaryType {
 };
 
 enum class Type : unsigned char {
-  null_t,
-  bool_t,
-  integer_t,
-  float_t,
-  double_t,
-  string_t,
+  null_t = 0,
+  bool_t = 1,
+  integer_t = 2,
+  float_t = 3,
+  double_t = 4,
+  string_t = 5,
   array_t,
   array_of_uint8_t,
   array_of_float_t,

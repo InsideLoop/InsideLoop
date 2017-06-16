@@ -29,4 +29,8 @@
   </Expand>
 </Type>
 
+<Type Name="il::String">
+	<DisplayString>{data_,s8}</DisplayString>
+</Type>
+
 </AutoVisualizer>
