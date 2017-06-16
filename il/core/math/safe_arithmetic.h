@@ -197,6 +197,19 @@ inline long safe_difference(long a, long b, il::io_t, bool& error) {
 #endif
 }
 
+inline long safe_product_2_positive(long a, il::io_t, bool& error) {
+  const unsigned long ua = static_cast<unsigned long>(a);
+  constexpr unsigned long max = static_cast<unsigned long>(2) << (sizeof(unsigned long) * 8 - 2);
+  if (ua < max) {
+    error = false;
+    return 2 * a;
+  } else {
+    error = true;
+    return 0;
+  }
+}
+
+
 inline long safe_product(long a, long b, il::io_t, bool& error) {
 #if IL_BUILTIN_SAFE_ARITHMETIC
   long ans;

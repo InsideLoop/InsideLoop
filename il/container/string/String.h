@@ -77,6 +77,8 @@ class String {
   bool has_suffix(const char* data) const;
 
  private:
+  il::int_t small_size() const;
+  il::int_t large_capacity() const;
   void set_small_size(il::int_t n);
   void set_large_capacity(il::int_t r);
   unsigned char* begin();
@@ -504,6 +506,19 @@ inline bool String::has_suffix(const char* data) const {
   }
 }
 
+inline il::int_t String::small_size() const {
+  return max_small_size_ - static_cast<il::int_t>(data_[max_small_size_]);
+}
+
+inline il::int_t String::large_capacity() const {
+  constexpr unsigned char category_extract_mask = 0xC0;
+  constexpr std::size_t capacity_extract_mask =
+      ~(static_cast<std::size_t>(category_extract_mask)
+          << ((sizeof(std::size_t) - 1) * 8));
+  return static_cast<il::int_t>(large_.capacity & capacity_extract_mask);
+}
+
+
 inline void String::set_small_size(il::int_t n) {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(n) <=
                    static_cast<std::size_t>(max_small_size_));
@@ -561,35 +576,31 @@ inline void String::append(const char* data, il::int_t n) {
   IL_EXPECT_FAST(n >= 0);
   IL_EXPECT_AXIOM("data must point to an array of length at least n");
 
-  const il::int_t old_size = size();
-  const il::int_t old_capacity = capacity();
   const bool old_is_small = is_small();
-  bool error0;
-  bool error1;
-  bool error2;
+  const il::int_t old_size = old_is_small ? small_size() : large_.size;
+  const il::int_t old_capacity = old_is_small ? max_small_size_ : large_capacity();
+  unsigned char* old_data = old_is_small ? data_ : large_.data;
+
+  bool error0, error1;
   const il::int_t needed_size = il::safe_sum(old_size, n, il::io, error0);
-  il::int_t confort_capacity =
-      il::safe_product(static_cast<il::int_t>(2), old_size, il::io, error1);
-  confort_capacity = il::safe_sum(confort_capacity, n, il::io, error2);
-  if (error0 || error1 || error2) {
+  il::int_t confort_capacity = il::safe_product_2_positive(old_size, il::io, error1);
+  if (error0 || error1) {
     il::abort();
   }
+
   const il::int_t new_capacity = needed_size <= old_capacity ? old_capacity : il::max(needed_size, confort_capacity);
-  unsigned char* old_data = old_is_small ? data_ : large_.data;
+
   unsigned char* new_data = old_data;
-  if (new_capacity > old_capacity) {
+  const bool needs_new_buffer = new_capacity > old_capacity;
+  if (needs_new_buffer) {
     new_data = il::allocate_array<unsigned char>(new_capacity + 1);
     std::memcpy(new_data, old_data, static_cast<std::size_t>(old_size));
   }
-
+  std::memcpy(new_data + old_size, data, static_cast<std::size_t>(n + 1));
   if (new_capacity <= max_small_size_) {
-    std::memcpy(data_ + old_size, data, static_cast<std::size_t>(n));
-    data_[old_size + n] = static_cast<unsigned char>('\0');
     set_small_size(old_size + n);
   } else {
-    std::memcpy(new_data + old_size, data, static_cast<std::size_t>(n));
-    new_data[old_size + n] = static_cast<unsigned char>('\0');
-    if (new_data != old_data && !old_is_small) {
+    if (needs_new_buffer && !old_is_small) {
       il::deallocate(old_data);
     }
     large_.data = new_data;

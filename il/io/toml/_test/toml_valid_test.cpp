@@ -14,7 +14,7 @@
 #include <iostream>
 
 il::String directory =
-    "/Users/fayard/Documents/Projects/InsideLoop/InsideLoop/il/io/toml/_test/"
+    "/home/fayard/Documents/Projects/InsideLoop/InsideLoop/il/io/toml/_test/"
     "valid/";
 
 TEST(Toml, array_empty) {
