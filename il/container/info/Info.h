@@ -39,12 +39,14 @@ class Info {
   Info& operator=(const Info& other);
   Info& operator=(Info&& other);
 
-  bool is_empty() const;
+  bool empty() const;
   void clear();
 
   void set(const char* key, bool value);
   void set(const char* key, int value);
+#ifdef IL_64_BIT
   void set(const char* key, il::int_t value);
+#endif
   void set(const char* key, double value);
   void set(const char* key, const char* value);
 
@@ -82,7 +84,9 @@ class Info {
   il::int_t large_capacity() const;
 
   void set(int value, unsigned char* data);
+#ifdef IL_64_BIT
   void set(il::int_t value, unsigned char* data);
+#endif
   void set(double value, unsigned char* data);
 
   int get_int(il::int_t i) const;
@@ -179,6 +183,7 @@ inline void Info::set(const char* key, int value) {
   set(value, p + i);
 }
 
+#ifdef IL_64_BIT
 inline void Info::set(const char* key, il::int_t value) {
   const int key_length = static_cast<int>(strlen(key));
   const int n =
@@ -201,6 +206,7 @@ inline void Info::set(const char* key, il::int_t value) {
 
   set(value, p + i);
 }
+#endif
 
 inline void Info::set(const char* key, double value) {
   const int key_length = static_cast<int>(strlen(key));
@@ -372,6 +378,7 @@ inline void Info::set(int value, unsigned char* data) {
   }
 }
 
+#ifdef IL_64_BIT
 inline void Info::set(il::int_t value, unsigned char* data) {
   const il::int_t n = static_cast<il::int_t>(sizeof(il::int_t));
   union {
@@ -383,6 +390,7 @@ inline void Info::set(il::int_t value, unsigned char* data) {
     data[j] = local_raw[j];
   }
 }
+#endif
 
 inline void Info::set(double value, unsigned char* data) {
   const il::int_t n = static_cast<il::int_t>(sizeof(double));
@@ -457,7 +465,7 @@ inline const unsigned char* Info::data() const {
 
 inline unsigned char* Info::data() { return is_small() ? small_ : large_.data; }
 
-inline bool Info::is_empty() const { return size() == 0; }
+inline bool Info::empty() const { return size() == 0; }
 
 inline void Info::resize(il::int_t n) {
   IL_EXPECT_FAST(n >= 0);

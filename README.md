@@ -7,10 +7,10 @@ running on processors (including **Xeon** and **Xeon Phi**) and coprocessors
 - Efficient containers:
   - **Arrays** and **multi-dimensional arrays** with different allocation
     policies
-  - **Strings** implemented with small size optimization
   - **Hash sets** and **hash maps** implemented using open addressing with
     quadratic probing
-  - An efficient **dynamic** type implemented using NaN-boxing
+  - **Unicode Strings** implemented with small size optimization
+  - An efficient **dynamic** type
 - IO using the binary **Numpy** file format for arrays and the textual **TOML**
   file format for structured data
 - A pure **C++11** library with **no dependency** for easy integration in both
@@ -327,7 +327,7 @@ il::Array<double> y(n);
 
 il::Status status;
 il::LU<il::Array2D<double>> lu_decomposition(A, il::io, status);
-if (status.not_ok()) {
+if (!status.ok()) {
   // The matrix is singular to the machine precision. You should deal with the error.
 }
 
@@ -375,7 +375,7 @@ il::Array<double> y(n);
 
 il::Status status;
 il::LU<il::Array2D<double>> lu_decomposition(std::move(A), il::io, status);
-if (status.not_ok()) {
+if (!status.ok()) {
   // The matrix is singular to the machine precision. You should deal with the error.
 }
 
@@ -595,7 +595,7 @@ This conjugate gradient method with a 27 000 000 x 27 000 000 matrix containing
 
 ## Hash Table
 
-We finally provide a hash table implemented using open addressing and quadratic
+We provide a hash table implemented using open addressing and quadratic
 probing. This hash table has better performance than the one provided by the
 standard library `std::unordered_map`. An open addressing hash table is made
 of an array of `(key, value)` pairs of length `nb_slot`. The key type must
@@ -684,6 +684,47 @@ two open addressing hash tables with quadratic probing is an implementation
 difference and differs from compiler to compiler, but the InsideLoop version
 is always faster with gcc, clang and intel compilers.
 
+## Hash Table
+
+We also provide a string that can store unicode string using UTF-8. It can store
+any well-formed UTF-8 string:
+
+
+```cpp
+#include <iostream>
+
+#include <il/String.h>
+#include <il/unicode.h>
+
+int main() {
+  il::String name = u8"François ";
+  name.append(il::CodePoint::grinning_face_with_smiling_eyes);
+  
+  std::cout << name.as_c_string() << std::endl;
+
+  return 0;
+}
+
+```
+
+Such a program prints
+
+```
+François 😁
+```
+
+The string being fully unicode aware, it is easy to loop through code points.
+
+```cpp
+for (il::int_t i = 0; i < s.size(); i = s.next_code_point()) {
+  std::cout << s.to_code_point(i) << std::endl;
+}
+```
+
+This object is implemented using small string optimization: when the string uses
+less than 23 bytes, it will be stored on the stack. Larger strings are stores
+on the heap.
+
 ## Dynamic value 
 
 The type `il::Dynamic` can hold any of the following types:
@@ -755,14 +796,6 @@ void f(il::io_t, il::Dynamic& a) {
   }
 }
 ```
-
-The `il::Dynamic` object as a size of 8 bytes. If `a` contains a floating point,
-those 8 bytes are used to store a `double`. We use the fact that the value `NaN`
-has about 2^53 different bit representations to store other values, a trick
-known as `NaN`-boxing. As a consequence, when `a` is not a floating point
-those 8 bytes are used to store the type of `a` and its value when it represents
-a boolean or an integer (of less than 48 bits), and a pointer to the object when
-it represents an integer of more than 48 bits, a string, an array or a hashmap.
 
 ## TOML support
 

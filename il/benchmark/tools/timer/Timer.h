@@ -76,20 +76,24 @@ class TimerCycles {
 };
 
 inline TimerCycles::TimerCycles() {
+#ifdef IL_UNIX
   unsigned int low;
   unsigned int high;
   asm volatile("rdtsc" : "=a"(low), "=d"(high));
   point_begin_ = static_cast<std::uint64_t>(low) |
                  (static_cast<std::uint64_t>(high) << 32);
+#endif
 }
 
 inline void TimerCycles::stop() {
+#ifdef IL_UNIX
   unsigned int low;
   unsigned int high;
   asm volatile("rdtsc" : "=a"(low), "=d"(high));
   std::uint64_t point_end{static_cast<std::uint64_t>(low) |
                           (static_cast<std::uint64_t>(high) << 32)};
   nb_cycles_ = point_end - point_begin_;
+#endif
 }
 
 inline long int TimerCycles::cycles() const {

@@ -21,13 +21,13 @@ template <typename T>
 T* allocate_array(il::int_t n) {
   IL_EXPECT_FAST(n >= 0);
 
-  bool error = false;
-  const std::size_t n_unsigned = static_cast<std::size_t>(n);
-  const std::size_t n_bytes =
-      il::safe_product(n_unsigned, sizeof(T), il::io, error);
-  if (error) {
+  const std::size_t u_n = static_cast<std::size_t>(n);
+  constexpr std::size_t u_max_integer =
+      static_cast<std::size_t>(1) << (sizeof(std::size_t) * 8 - sizeof(T));
+  if (u_n >= u_max_integer) {
     il::abort();
   }
+  const std::size_t n_bytes = sizeof(T) * u_n;
 
   T* p = static_cast<T*>(std::malloc(n_bytes));
   if (!p && n_bytes > 0) {

@@ -95,7 +95,9 @@ class Status {
   void set_ok();
   void set_error(il::Error error);
   void set_info(const char* key, int value);
+#ifdef IL_64_BIT
   void set_info(const char* key, il::int_t value);
+#endif
   void set_info(const char* key, double value);
   void set_info(const char* key, const char* value);
   void set_source(const char* file, il::int_t line);
@@ -104,7 +106,7 @@ class Status {
   double to_double(const char* key) const;
   const char* as_c_string(const char* key) const;
   void rearm();
-  bool not_ok();
+  bool ok();
   void abort_on_error();
   void ignore_error();
   il::Error error() const;
@@ -157,12 +159,14 @@ inline void Status::set_info(const char* key, int value) {
   info_.set(key, value);
 }
 
+#ifdef IL_64_BIT
 inline void Status::set_info(const char* key, il::int_t value) {
   IL_EXPECT_MEDIUM(to_check_);
   IL_EXPECT_MEDIUM(!ok_);
 
   info_.set(key, value);
 }
+#endif
 
 inline void Status::set_info(const char* key, double value) {
   IL_EXPECT_MEDIUM(to_check_);
@@ -220,11 +224,11 @@ inline void Status::rearm() {
   to_check_ = true;
 }
 
-inline bool Status::not_ok() {
+inline bool Status::ok() {
   IL_EXPECT_MEDIUM(to_check_);
 
   to_check_ = false;
-  return !ok_;
+  return ok_;
 }
 
 inline void Status::abort_on_error() {

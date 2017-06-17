@@ -524,8 +524,8 @@ class StringPrinter:
 	# 	yield ("value \"%s\"" % self.string), 1
 
 	def to_string(self):
-		return "[string: \"%s\"] [size: %s] [capacity: %s] [is small: %s]" % (self.string, self.size, self.capacity, self.is_small)
-		# return "\"%s\"" % self.string
+		# return "[string: \"%s\"] [size: %s] [capacity: %s] [is small: %s]" % (self.string, self.size, self.capacity, self.is_small)
+		return "\"%s\"" % self.string
 
 class HashMapPrinter:
 	def __init__(self, val):

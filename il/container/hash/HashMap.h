@@ -140,7 +140,7 @@ class HashMap {
   const V& value(il::int_t i) const;
   V& value(il::int_t i);
   const V& const_value(il::int_t i) const;
-  bool is_empty() const;
+  bool empty() const;
   il::int_t size() const;
   il::int_t capacity() const;
   il::int_t first() const;
@@ -660,13 +660,13 @@ double HashMap<K, V, F>::displaced_twice() const {
 }
 
 template <typename K, typename V, typename F>
-bool HashMap<K, V, F>::is_empty() const {
+bool HashMap<K, V, F>::empty() const {
   return nb_element_ == 0;
 }
 
 template <typename K, typename V, typename F>
 HashMapIterator<K, V, F> HashMap<K, V, F>::begin() {
-  if (is_empty()) {
+  if (empty()) {
     return end();
   } else {
     il::int_t i = 0;

@@ -80,7 +80,9 @@ class Dynamic {
   Dynamic();
   Dynamic(bool value);
   Dynamic(int value);
+#ifdef IL_64_BIT
   Dynamic(il::int_t value);
+#endif
   Dynamic(float value);
   Dynamic(double value);
   Dynamic(const char* value);
@@ -153,10 +155,12 @@ inline Dynamic::Dynamic(int value) {
   integer_val_ = value;
 }
 
+#ifdef IL_64_BIT
 inline Dynamic::Dynamic(il::int_t value) {
   type_ = il::Type::integer_t;
   integer_val_ = value;
 }
+#endif
 
 inline Dynamic::Dynamic(float value) {
   type_ = il::Type::float_t;

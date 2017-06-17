@@ -33,6 +33,9 @@
 #define IL_UNIX
 #endif
 
+//#define IL_32_BIT
+#define IL_64_BIT
+
 ////////////////////////////////////////////////////////////////////////////////
 // Assertions
 ////////////////////////////////////////////////////////////////////////////////
@@ -43,6 +46,7 @@ struct abort_exception {
 };
 
 inline void abort() { std::abort(); }
+
 }  // namespace il
 
 // Use this when the expectation is fast to compute compared to the function

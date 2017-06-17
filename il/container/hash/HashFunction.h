@@ -43,10 +43,16 @@ class HashFunction<int> {
     *val = std::numeric_limits<int>::min();
   }
   static std::size_t hash(int val, int p) {
+#ifdef IL_64_BIT
     const std::size_t knuth = 11133510565745311;
     const std::size_t y = static_cast<std::size_t>(val);
 
     return (y * knuth) >> (64 - p);
+#else
+    IL_UNUSED(val);
+    IL_UNUSED(p);
+    return 0;
+#endif
   }
   static bool is_equal(int val0, int val1) { return val0 == val1; }
 };
@@ -77,10 +83,16 @@ class HashFunction<long> {
   // const std::size_t mask = (1 << p) - 1;
   // return static_cast<std::size_t>(val) & mask;
   static std::size_t hash(long val, int p) {
+#ifdef IL_64_BIT
     const std::size_t knuth = 11133510565745311;
     const std::size_t y = val;
 
     return (y * knuth) >> (64 - p);
+#else
+    IL_UNUSED(val);
+    IL_UNUSED(p);
+    return 0;
+#endif
   }
   static bool is_equal(long val0, long val1) { return val0 == val1; }
 };

@@ -125,7 +125,7 @@ inline void save_array(const il::Array<il::Dynamic> &array, il::io_t,
       } break;
       case il::Type::array_t: {
         save_array(array[j].as_array(), il::io, file, status);
-        if (status.not_ok()) {
+        if (!status.ok()) {
           status.rearm();
           return;
         }
@@ -236,7 +236,7 @@ inline void save_aux(const M &toml, const il::String &name, il::io_t,
                status);
       IL_UNUSED(error3);
       IL_UNUSED(error4);
-      if (status.not_ok()) {
+      if (!status.ok()) {
         status.rearm();
         return;
       }
@@ -254,7 +254,7 @@ inline void save_aux(const M &toml, const il::String &name, il::io_t,
       save_aux(toml.value(i).as_hash_map(), toml.key(i), il::io, file, status);
       IL_UNUSED(error3);
       IL_UNUSED(error4);
-      if (status.not_ok()) {
+      if (!status.ok()) {
         status.rearm();
         return;
       }
@@ -283,7 +283,7 @@ class SaveHelper<il::HashMap<il::String, il::Dynamic>> {
 
     il::String root_name{};
     save_aux(toml, root_name, il::io, file, status);
-    if (status.not_ok()) {
+    if (!status.ok()) {
       status.rearm();
       return;
     }
@@ -317,7 +317,7 @@ class SaveHelperToml<il::HashMapArray<il::String, il::Dynamic>> {
 
     il::String root_name{};
     save_aux(toml, root_name, il::io, file, status);
-    if (status.not_ok()) {
+    if (!status.ok()) {
       status.rearm();
       return;
     }

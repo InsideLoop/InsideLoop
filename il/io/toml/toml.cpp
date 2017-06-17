@@ -16,7 +16,7 @@ TomlParser::TomlParser() {}
 il::ConstStringView TomlParser::skip_whitespace_and_comments(
     il::ConstStringView string, il::io_t, il::Status& status) {
   string = il::remove_whitespace_left(string);
-  while (string.is_empty() || string.is_ascii(0, '\n') ||
+  while (string.empty() || string.is_ascii(0, '\n') ||
          string.is_ascii(0, '#')) {
     const char* error = std::fgets(buffer_line_, max_line_length_ + 1, file_);
     if (error == nullptr) {
@@ -38,7 +38,7 @@ bool TomlParser::is_digit(char c) { return c >= '0' && c <= '9'; }
 
 void TomlParser::check_end_of_line_or_comment(il::ConstStringView string,
                                               il::io_t, il::Status& status) {
-  if (!string.is_empty() && (!string.is_newline(0)) &&
+  if (!string.empty() && (!string.is_newline(0)) &&
       (!string.is_ascii(0, '#'))) {
     status.set_error(il::Error::parse_unidentified_trailing_character);
     IL_SET_SOURCE(status);
@@ -255,7 +255,7 @@ il::Dynamic TomlParser::parse_string(il::io_t, il::ConstStringView& string,
   il::Status parse_status{};
   il::Dynamic ans =
       parse_string_literal(delimiter, il::io, string, parse_status);
-  if (parse_status.not_ok()) {
+  if (!parse_status.ok()) {
     status = std::move(parse_status);
     return ans;
   }
@@ -270,11 +270,11 @@ il::String TomlParser::parse_string_literal(char delimiter, il::io_t,
   il::String ans{};
 
   string.remove_prefix(1);
-  while (!string.is_empty()) {
+  while (!string.empty()) {
     if (delimiter == '"' && string.is_ascii(0, '\\')) {
       il::Status parse_status{};
       ans.append(parse_escape_code(il::io, string, parse_status));
-      if (parse_status.not_ok()) {
+      if (!parse_status.ok()) {
         status = std::move(parse_status);
         return ans;
       }
@@ -354,19 +354,19 @@ il::String TomlParser::parse_escape_code(il::io_t, il::ConstStringView& string,
 
 il::Dynamic TomlParser::parse_array(il::io_t, il::ConstStringView& string,
                                     il::Status& status) {
-  IL_EXPECT_FAST(!string.is_empty() && string.is_ascii(0, '['));
+  IL_EXPECT_FAST(!string.empty() && string.is_ascii(0, '['));
 
   il::Dynamic ans{il::Array<il::Dynamic>{}};
   il::Status parse_status{};
 
   string.remove_prefix(1);
   string = skip_whitespace_and_comments(string, il::io, parse_status);
-  if (parse_status.not_ok()) {
+  if (!parse_status.ok()) {
     status = std::move(parse_status);
     return ans;
   }
 
-  if (!string.is_empty() && string.is_ascii(0, ']')) {
+  if (!string.empty() && string.is_ascii(0, ']')) {
     string.remove_prefix(1);
     status.set_ok();
     return ans;
@@ -379,7 +379,7 @@ il::Dynamic TomlParser::parse_array(il::io_t, il::ConstStringView& string,
   }
   il::ConstStringView value_string = string.substring(0, i);
   il::Type value_type = parse_type(value_string, il::io, parse_status);
-  if (parse_status.not_ok()) {
+  if (!parse_status.ok()) {
     status = std::move(parse_status);
     return ans;
   }
@@ -391,7 +391,7 @@ il::Dynamic TomlParser::parse_array(il::io_t, il::ConstStringView& string,
     case il::Type::double_t:
     case il::Type::string_t: {
       ans = parse_value_array(value_type, il::io, string, parse_status);
-      if (parse_status.not_ok()) {
+      if (!parse_status.ok()) {
         status = std::move(parse_status);
         return ans;
       }
@@ -401,7 +401,7 @@ il::Dynamic TomlParser::parse_array(il::io_t, il::ConstStringView& string,
     case il::Type::array_t: {
       ans = parse_object_array(il::Type::array_t, '[', il::io, string,
                                parse_status);
-      if (parse_status.not_ok()) {
+      if (!parse_status.ok()) {
         status = std::move(parse_status);
         return ans;
       }
@@ -421,9 +421,9 @@ il::Dynamic TomlParser::parse_value_array(il::Type value_type, il::io_t,
   il::Array<il::Dynamic>& array = ans.as_array();
   il::Status parse_status{};
 
-  while (!string.is_empty() && (!string.is_ascii(0, ']'))) {
+  while (!string.empty() && (!string.is_ascii(0, ']'))) {
     il::Dynamic value = parse_value(il::io, string, parse_status);
-    if (parse_status.not_ok()) {
+    if (!parse_status.ok()) {
       status = std::move(parse_status);
       return ans;
     }
@@ -438,24 +438,24 @@ il::Dynamic TomlParser::parse_value_array(il::Type value_type, il::io_t,
     }
 
     string = skip_whitespace_and_comments(string, il::io, parse_status);
-    if (parse_status.not_ok()) {
+    if (!parse_status.ok()) {
       status = std::move(parse_status);
       return ans;
     }
 
-    if (string.is_empty() || (!string.is_ascii(0, ','))) {
+    if (string.empty() || (!string.is_ascii(0, ','))) {
       break;
     }
 
     string.remove_prefix(1);
     string = skip_whitespace_and_comments(string, il::io, parse_status);
-    if (parse_status.not_ok()) {
+    if (!parse_status.ok()) {
       status = std::move(parse_status);
       return ans;
     }
   }
 
-  if (!string.is_empty()) {
+  if (!string.empty()) {
     string.remove_prefix(1);
   }
 
@@ -471,7 +471,7 @@ il::Dynamic TomlParser::parse_object_array(il::Type object_type, char delimiter,
   il::Array<il::Dynamic>& array = ans.as_array();
   il::Status parse_status{};
 
-  while (!string.is_empty() && (!string.is_ascii(0, ']'))) {
+  while (!string.empty() && (!string.is_ascii(0, ']'))) {
     if (!string.is_ascii(0, delimiter)) {
       status.set_error(il::Error::parse_array);
       IL_SET_SOURCE(status);
@@ -481,7 +481,7 @@ il::Dynamic TomlParser::parse_object_array(il::Type object_type, char delimiter,
 
     if (object_type == il::Type::array_t) {
       array.append(parse_array(il::io, string, parse_status));
-      if (parse_status.not_ok()) {
+      if (!parse_status.ok()) {
         status = std::move(parse_status);
         return ans;
       }
@@ -490,14 +490,14 @@ il::Dynamic TomlParser::parse_object_array(il::Type object_type, char delimiter,
     }
 
     string = il::remove_whitespace_left(string);
-    if (string.is_empty() || (!string.is_ascii(0, ','))) {
+    if (string.empty() || (!string.is_ascii(0, ','))) {
       break;
     }
     string.remove_prefix(1);
     string = il::remove_whitespace_left(string);
   }
 
-  if (string.is_empty() || (!string.is_ascii(0, ']'))) {
+  if (string.empty() || (!string.is_ascii(0, ']'))) {
     status.set_error(il::Error::parse_array);
     IL_SET_SOURCE(status);
     status.set_info("line", line_number_);
@@ -514,7 +514,7 @@ il::Dynamic TomlParser::parse_inline_table(il::io_t,
   il::Dynamic ans = il::Dynamic{il::HashMapArray<il::String, il::Dynamic>{}};
   do {
     string.remove_prefix(1);
-    if (string.is_empty()) {
+    if (string.empty()) {
       status.set_error(il::Error::parse_table);
       IL_SET_SOURCE(status);
       status.set_info("line", line_number_);
@@ -523,14 +523,14 @@ il::Dynamic TomlParser::parse_inline_table(il::io_t,
     string = il::remove_whitespace_left(string);
     il::Status parse_status{};
     parse_key_value(il::io, string, ans.as_hash_map_array(), parse_status);
-    if (parse_status.not_ok()) {
+    if (!parse_status.ok()) {
       status = std::move(parse_status);
       return ans;
     }
     string = il::remove_whitespace_left(string);
   } while (string.is_ascii(0, ','));
 
-  if (string.is_empty() || (!string.is_ascii(0, '}'))) {
+  if (string.empty() || (!string.is_ascii(0, '}'))) {
     status.set_error(il::Error::parse_table);
     IL_SET_SOURCE(status);
     status.set_info("line", line_number_);
@@ -549,7 +549,7 @@ void TomlParser::parse_key_value(
     il::HashMapArray<il::String, il::Dynamic>& toml, il::Status& status) {
   il::Status parse_status{};
   il::String key = parse_key('=', il::io, string, parse_status);
-  if (parse_status.not_ok()) {
+  if (!parse_status.ok()) {
     status = std::move(parse_status);
     return;
   }
@@ -562,7 +562,7 @@ void TomlParser::parse_key_value(
     return;
   }
 
-  if (string.is_empty() || (!string.is_ascii(0, '='))) {
+  if (string.empty() || (!string.is_ascii(0, '='))) {
     status.set_error(il::Error::parse_key);
     IL_SET_SOURCE(status);
     status.set_info("line", line_number_);
@@ -572,7 +572,7 @@ void TomlParser::parse_key_value(
   string = il::remove_whitespace_left(string);
 
   il::Dynamic value = parse_value(il::io, string, parse_status);
-  if (parse_status.not_ok()) {
+  if (!parse_status.ok()) {
     status = std::move(parse_status);
     return;
   }
@@ -600,7 +600,7 @@ il::String TomlParser::parse_key(char end, il::io_t,
       if (string.is_ascii(0, '\\')) {
         il::Status parse_status{};
         key.append(parse_escape_code(il::io, string, parse_status));
-        if (parse_status.not_ok()) {
+        if (!parse_status.ok()) {
           status = std::move(parse_status);
           return key;
         }
@@ -686,7 +686,7 @@ il::Dynamic TomlParser::parse_value(il::io_t, il::ConstStringView& string,
   il::Dynamic ans{};
 
   // Check if there is a value
-  if (string.is_empty() || string.is_ascii(0, '\n') ||
+  if (string.empty() || string.is_ascii(0, '\n') ||
       string.is_ascii(0, '#')) {
     status.set_error(il::Error::parse_value);
     IL_SET_SOURCE(status);
@@ -697,7 +697,7 @@ il::Dynamic TomlParser::parse_value(il::io_t, il::ConstStringView& string,
   // Get the type of the value
   il::Status parse_status{};
   il::Type type = parse_type(string, il::io, parse_status);
-  if (parse_status.not_ok()) {
+  if (!parse_status.ok()) {
     status = std::move(parse_status);
     return ans;
   }
@@ -723,7 +723,7 @@ il::Dynamic TomlParser::parse_value(il::io_t, il::ConstStringView& string,
       IL_UNREACHABLE;
   }
 
-  if (parse_status.not_ok()) {
+  if (!parse_status.ok()) {
     status = std::move(parse_status);
     return ans;
   }
@@ -738,7 +738,7 @@ void TomlParser::parse_table(il::io_t, il::ConstStringView& string,
   // Skip the '[' at the beginning of the table
   string.remove_prefix(1);
 
-  if (string.is_empty()) {
+  if (string.empty()) {
     status.set_error(il::Error::parse_table);
     IL_SET_SOURCE(status);
     status.set_info("line", line_number_);
@@ -755,7 +755,7 @@ void TomlParser::parse_table(il::io_t, il::ConstStringView& string,
 void TomlParser::parse_single_table(
     il::io_t, il::ConstStringView& string,
     il::HashMapArray<il::String, il::Dynamic>*& toml, il::Status& status) {
-  if (string.is_empty() || string.is_ascii(0, ']')) {
+  if (string.empty() || string.is_ascii(0, ']')) {
     status.set_error(il::Error::parse_table);
     IL_SET_SOURCE(status);
     status.set_info("line", line_number_);
@@ -763,20 +763,20 @@ void TomlParser::parse_single_table(
 
   il::String full_table_name{};
   bool inserted = false;
-  while (!string.is_empty() && (!string.is_ascii(0, ']'))) {
+  while (!string.empty() && (!string.is_ascii(0, ']'))) {
     il::Status parse_status{};
     il::String table_name = parse_key('@', il::io, string, parse_status);
-    if (parse_status.not_ok()) {
+    if (!parse_status.ok()) {
       status = std::move(parse_status);
       return;
     }
-    if (table_name.is_empty()) {
+    if (table_name.empty()) {
       status.set_error(il::Error::parse_table);
       IL_SET_SOURCE(status);
       status.set_info("line", line_number_);
       return;
     }
-    if (!full_table_name.is_empty()) {
+    if (!full_table_name.empty()) {
       full_table_name.append('.');
     }
     full_table_name.append(table_name);
@@ -810,7 +810,7 @@ void TomlParser::parse_single_table(
     }
 
     string = il::remove_whitespace_left(string);
-    while (!string.is_empty() && string.is_ascii(0, '.')) {
+    while (!string.empty() && string.is_ascii(0, '.')) {
       string.remove_prefix(1);
     }
     string = il::remove_whitespace_left(string);
@@ -821,7 +821,7 @@ void TomlParser::parse_single_table(
 
   string.remove_prefix(1);
   string = il::remove_whitespace_left(string);
-  if (!string.is_empty() && (!string.is_ascii(0, '\n')) &&
+  if (!string.empty() && (!string.is_ascii(0, '\n')) &&
       (!string.is_ascii(0, '#'))) {
     il::abort();
   }
@@ -832,7 +832,7 @@ void TomlParser::parse_table_array(
     il::io_t, il::ConstStringView& string,
     il::HashMapArray<il::String, il::Dynamic>*& toml, il::Status& status) {
   string.remove_prefix(1);
-  if (string.is_empty() || string.is_ascii(0, ']')) {
+  if (string.empty() || string.is_ascii(0, ']')) {
     status.set_error(il::Error::parse_table);
     IL_SET_SOURCE(status);
     status.set_info("line", line_number_);
@@ -840,20 +840,20 @@ void TomlParser::parse_table_array(
   }
 
   il::String full_table_name{};
-  while (!string.is_empty() && (!string.is_ascii(0, ']'))) {
+  while (!string.empty() && (!string.is_ascii(0, ']'))) {
     il::Status parse_status{};
     il::String table_name = parse_key('@', il::io, string, parse_status);
-    if (parse_status.not_ok()) {
+    if (!parse_status.ok()) {
       status = std::move(parse_status);
       return;
     }
-    if (table_name.is_empty()) {
+    if (table_name.empty()) {
       status.set_error(il::Error::parse_table);
       IL_SET_SOURCE(status);
       status.set_info("line", line_number_);
       return;
     }
-    if (!full_table_name.is_empty()) {
+    if (!full_table_name.empty()) {
       full_table_name.append('.');
     }
     full_table_name.append(table_name);
@@ -862,7 +862,7 @@ void TomlParser::parse_table_array(
     il::int_t i = toml->search(table_name);
     if (toml->found(i)) {
       il::Dynamic& b = toml->value(i);
-      if (!string.is_empty() && string.is_ascii(0, ']')) {
+      if (!string.empty() && string.is_ascii(0, ']')) {
         if (!b.is_array()) {
           status.set_error(il::Error::parse_table);
           IL_SET_SOURCE(status);
@@ -874,7 +874,7 @@ void TomlParser::parse_table_array(
         toml = &(v.back().as_hash_map_array());
       }
     } else {
-      if (!string.is_empty() && string.is_ascii(0, ']')) {
+      if (!string.empty() && string.is_ascii(0, ']')) {
         toml->insert(table_name, il::Dynamic{il::Array<il::Dynamic>{}}, il::io,
                      i);
         toml->value(i).as_array().append(
@@ -889,14 +889,14 @@ void TomlParser::parse_table_array(
     }
   }
 
-  if (string.is_empty()) {
+  if (string.empty()) {
     status.set_error(il::Error::parse_table);
     IL_SET_SOURCE(status);
     status.set_info("line", line_number_);
     return;
   }
   string.remove_prefix(1);
-  if (string.is_empty()) {
+  if (string.empty()) {
     status.set_error(il::Error::parse_table);
     IL_SET_SOURCE(status);
     status.set_info("line", line_number_);
@@ -907,7 +907,7 @@ void TomlParser::parse_table_array(
   string = il::remove_whitespace_left(string);
   il::Status parse_status{};
   check_end_of_line_or_comment(string, il::io, parse_status);
-  if (parse_status.not_ok()) {
+  if (!parse_status.ok()) {
     status = std::move(parse_status);
     return;
   }
@@ -940,13 +940,13 @@ il::HashMapArray<il::String, il::Dynamic> TomlParser::parse(
     il::ConstStringView line{buffer_line_};
     line = il::remove_whitespace_left(line);
 
-    if (line.is_empty() || line.is_newline(0) || line.is_ascii(0, '#')) {
+    if (line.empty() || line.is_newline(0) || line.is_ascii(0, '#')) {
       continue;
     } else if (line.is_ascii(0, '[')) {
       pointer_toml = &root_toml;
       il::Status parse_status{};
       parse_table(il::io, line, pointer_toml, parse_status);
-      if (parse_status.not_ok()) {
+      if (!parse_status.ok()) {
         status = std::move(parse_status);
         std::fclose(file_);
         return root_toml;
@@ -954,7 +954,7 @@ il::HashMapArray<il::String, il::Dynamic> TomlParser::parse(
     } else {
       il::Status parse_status{};
       parse_key_value(il::io, line, *pointer_toml, parse_status);
-      if (parse_status.not_ok()) {
+      if (!parse_status.ok()) {
         status = std::move(parse_status);
         std::fclose(file_);
         return root_toml;
@@ -962,7 +962,7 @@ il::HashMapArray<il::String, il::Dynamic> TomlParser::parse(
 
       line = il::remove_whitespace_left(line);
       check_end_of_line_or_comment(line, il::io, parse_status);
-      if (parse_status.not_ok()) {
+      if (!parse_status.ok()) {
         status = std::move(parse_status);
         return root_toml;
       }

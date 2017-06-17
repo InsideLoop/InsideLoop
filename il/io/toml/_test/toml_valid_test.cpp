@@ -14,7 +14,7 @@
 #include <iostream>
 
 il::String directory =
-    "/home/fayard/Documents/Projects/InsideLoop/InsideLoop/il/io/toml/_test/"
+    "/Users/fayard/Documents/Projects/InsideLoop/InsideLoop/il/io/toml/_test/"
     "valid/";
 
 TEST(Toml, array_empty) {
@@ -26,7 +26,7 @@ TEST(Toml, array_empty) {
   il::Status status{};
   auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
       filename, il::io, status);
-  if (status.not_ok() || config.size() != 1) {
+  if (!status.ok() || config.size() != 1) {
     ans = false;
   } else {
     const il::int_t i0 = config.search("thevoid");
@@ -72,7 +72,7 @@ TEST(Toml, array_nospaces) {
   il::Status status{};
   auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
       filename, il::io, status);
-  if (status.not_ok() || config.size() != 1) {
+  if (!status.ok() || config.size() != 1) {
     ans = false;
   } else {
     const il::int_t i = config.search("ints");
@@ -101,7 +101,7 @@ TEST(Toml, arrays_heterogeneous) {
   il::Status status{};
   auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
       filename, il::io, status);
-  if (status.not_ok() || config.size() != 1) {
+  if (!status.ok() || config.size() != 1) {
     ans = false;
   } else {
     const il::int_t i = config.search("mixed");
@@ -148,7 +148,7 @@ TEST(Toml, arrays_nested) {
   il::Status status{};
   auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
       filename, il::io, status);
-  if (status.not_ok() || config.size() != 1) {
+  if (!status.ok() || config.size() != 1) {
     ans = false;
   } else {
     const il::int_t i = config.search("nest");
@@ -187,7 +187,7 @@ TEST(Toml, boolean) {
   il::Status status{};
   auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
       filename, il::io, status);
-  if (status.not_ok() || config.size() != 2) {
+  if (!status.ok() || config.size() != 2) {
     ans = false;
   } else {
     const il::int_t i = config.search("t");
@@ -215,7 +215,7 @@ TEST(Toml, comments_everywhere) {
   il::Status status{};
   auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
       filename, il::io, status);
-  if (status.not_ok() || config.size() != 1) {
+  if (!status.ok() || config.size() != 1) {
     ans = false;
   } else {
     const il::int_t i = config.search("group");
@@ -254,7 +254,7 @@ TEST(Toml, empty) {
   il::Status status{};
   auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
       filename, il::io, status);
-  if (status.not_ok() || config.size() != 0) {
+  if (!status.ok() || config.size() != 0) {
     ans = false;
   }
 
@@ -270,7 +270,7 @@ TEST(Toml, double) {
   il::Status status{};
   auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
       filename, il::io, status);
-  if (status.not_ok() || config.size() != 2) {
+  if (!status.ok() || config.size() != 2) {
     ans = false;
   } else {
     il::int_t i0 = config.search("pi");
@@ -295,7 +295,7 @@ TEST(Toml, implicit_and_explicit_after) {
   il::Status status{};
   auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
       filename, il::io, status);
-  if (status.not_ok() || config.size() != 1) {
+  if (!status.ok() || config.size() != 1) {
     ans = false;
   } else {
     il::int_t i = config.search("a");
@@ -341,7 +341,7 @@ TEST(Toml, implicit_and_explicit_before) {
   il::Status status{};
   auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
       filename, il::io, status);
-  if (status.not_ok() || config.size() != 1) {
+  if (!status.ok() || config.size() != 1) {
     ans = false;
   } else {
     il::int_t i = config.search("a");
@@ -387,7 +387,7 @@ TEST(Toml, implicit_groups) {
   il::Status status{};
   auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
       filename, il::io, status);
-  if (status.not_ok() || config.size() != 1) {
+  if (!status.ok() || config.size() != 1) {
     ans = false;
   } else {
     il::int_t i = config.search("a");
@@ -430,7 +430,7 @@ TEST(Toml, integer) {
   il::Status status{};
   auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
       filename, il::io, status);
-  if (status.not_ok() || config.size() != 2) {
+  if (!status.ok() || config.size() != 2) {
     ans = false;
   } else {
     il::int_t i0 = config.search("answer");
@@ -455,7 +455,7 @@ TEST(Toml, key_equals_nospace) {
   il::Status status{};
   auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
       filename, il::io, status);
-  if (status.not_ok() || config.size() != 1) {
+  if (!status.ok() || config.size() != 1) {
     ans = false;
   } else {
     il::int_t i = config.search("answer");
@@ -477,7 +477,7 @@ TEST(Toml, key_space) {
   il::Status status{};
   auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
       filename, il::io, status);
-  if (status.not_ok() || config.size() != 1) {
+  if (!status.ok() || config.size() != 1) {
     ans = false;
   } else {
     il::int_t i = config.search("a b");
@@ -499,7 +499,7 @@ TEST(Toml, key_special_chars) {
   il::Status status{};
   auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
       filename, il::io, status);
-  if (status.not_ok() || config.size() != 1) {
+  if (!status.ok() || config.size() != 1) {
     ans = false;
   } else {
     il::int_t i = config.search("~!@$^&*()_+-`1234567890[]|/?><.,;:'");
@@ -521,7 +521,7 @@ TEST(Toml, long_floating_point) {
   il::Status status{};
   auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
       filename, il::io, status);
-  if (status.not_ok() || config.size() != 2) {
+  if (!status.ok() || config.size() != 2) {
     ans = false;
   } else {
     il::int_t i0 = config.search("longpi");
@@ -546,7 +546,7 @@ TEST(Toml, long_integer) {
   il::Status status{};
   auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
       filename, il::io, status);
-  if (status.not_ok() || config.size() != 2) {
+  if (!status.ok() || config.size() != 2) {
     ans = false;
   } else {
     il::int_t i0 = config.search("answer");
@@ -571,7 +571,7 @@ TEST(Toml, windows_lines) {
   il::Status status{};
   auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
       filename, il::io, status);
-  if (status.not_ok() || config.size() != 2) {
+  if (!status.ok() || config.size() != 2) {
     ans = false;
   } else {
     il::int_t i0 = config.search("input_directory");
@@ -596,7 +596,7 @@ TEST(Toml, zero) {
   il::Status status{};
   auto config = il::load<il::HashMapArray<il::String, il::Dynamic>>(
       filename, il::io, status);
-  if (status.not_ok() || config.size() != 2) {
+  if (!status.ok() || config.size() != 2) {
     ans = false;
   } else {
     il::int_t i0 = config.search("a");
