@@ -40,9 +40,10 @@ class ConstStringView {
 
   char toAscii(il::int_t i) const;
   unsigned char toCodeUnit(il::int_t i) const;
-  int toUnicodeScalar(il::int_t i) const;
+  int toCodePoint(il::int_t i) const;
 
-  il::int_t nextUnicodeScalar(il::int_t i) const;
+  il::int_t nextCodeUnit(il::int_t i) const;
+  il::int_t nextCodePoint(il::int_t i) const;
 
   void trimPrefix();  // remove the whitespace
   void trimSuffix();
@@ -140,7 +141,7 @@ inline unsigned char ConstStringView::toCodeUnit(il::int_t i) const {
   return data_[i];
 }
 
-inline int ConstStringView::toUnicodeScalar(il::int_t i) const {
+inline int ConstStringView::toCodePoint(il::int_t i) const {
   unsigned int ans = 0;
   const unsigned char* data = begin();
   if ((data[i] & 0x80u) == 0) {
@@ -186,7 +187,11 @@ inline char ConstStringView::toAscii(il::int_t i) const {
 
 inline il::int_t ConstStringView::size() const { return size_ - data_; }
 
-inline il::int_t ConstStringView::nextUnicodeScalar(il::int_t i) const {
+inline il::int_t ConstStringView::nextCodeUnit(il::int_t i) const {
+  return i + 1;
+}
+
+inline il::int_t ConstStringView::nextCodePoint(il::int_t i) const {
   do {
     ++i;
   } while (i < size() && ((data_[i] & 0xC0u) == 0x80u));

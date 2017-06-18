@@ -80,7 +80,7 @@ class String {
   char* begin();
   char* end();
   const char* data() const;
-  bool validUnicodeScalar(int cp);
+  bool validCodePoint(int cp);
   static il::int_t getSize(const char* data);
   constexpr static il::int_t max_small_size_ =
       static_cast<il::int_t>(sizeof(LargeString) - 1);
@@ -291,7 +291,7 @@ inline void String::append(il::int_t n, char c) {
 }
 
 inline void String::append(int cp) {
-  IL_EXPECT_MEDIUM(validUnicodeScalar(cp));
+  IL_EXPECT_MEDIUM(validCodePoint(cp));
 
   const unsigned int ucp = static_cast<unsigned int>(cp);
   const il::int_t old_size = size();
@@ -347,7 +347,7 @@ inline void String::append(int cp) {
 
 inline void String::append(il::int_t n, int cp) {
   IL_EXPECT_FAST(n >= 0);
-  IL_EXPECT_FAST(validUnicodeScalar(cp));
+  IL_EXPECT_FAST(validCodePoint(cp));
 
   const unsigned int ucp = static_cast<unsigned int>(cp);
   const il::int_t old_size = size();
@@ -594,7 +594,7 @@ inline void String::append(const char* data, il::int_t n) {
   }
 }
 
-inline bool String::validUnicodeScalar(int cp) {
+inline bool String::validCodePoint(int cp) {
   const unsigned int code_point_max = 0x0010FFFFu;
   const unsigned int lead_surrogate_min = 0x0000D800u;
   const unsigned int lead_surrogate_max = 0x0000DBFFu;

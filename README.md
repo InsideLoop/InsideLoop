@@ -607,9 +607,9 @@ any well-formed UTF-8 string:
 
 int main() {
   il::String name = u8"François ";
-  name.append(il::CodePoint::grinning_face_with_smiling_eyes);
+  name.append(il::CodePoint::kGrinningFaceWithSmilingEyes);
   
-  std::cout << name.as_c_string() << std::endl;
+  std::cout << name.asCString() << std::endl;
 
   return 0;
 }
@@ -620,15 +620,6 @@ Such a program prints
 
 ```
 François 😁
-```
-
-The string being fully unicode aware, it is easy to loop through unicode
-scalar values (also known as code points).
-
-```cpp
-for (il::int_t i = 0; i < s.size(); i = s.next_unicode_scalar(i)) {
-  std::cout << s.to_code_point(i) << std::endl;
-}
 ```
 
 This object is implemented using small string optimization: when the string uses
@@ -689,7 +680,7 @@ Then, you can display the associated value. You can use the following code to
 display the population of a country with the previous hash table:
 
 ```cpp
-#include <string>
+#include <il/String.h>
 #include <il/Map.h>
 
 void printPopulationCountry(
@@ -700,7 +691,7 @@ void printPopulationCountry(
     std::printf("The population of %s is %td\n", country.asCString(),
         population.value(i));
   } else {
-    std::printf("I don't know the population of %s\n", country.as_c_string());
+    std::printf("I don't know the population of %s\n", country.asCString());
   }
 }
 ```
@@ -762,7 +753,7 @@ il::Dynamic f{il::Type::kArray};
 
 
 // The dynamic object g contains an empty il::Map<il::String, il::Dynamic>
-il::Dynamic f{il::Type::KMap};
+il::Dynamic f{il::Type::kMap};
 ```
 
 At runtime, one can query the type of an `il::Dynamic` object `a` with the

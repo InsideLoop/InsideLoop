@@ -48,7 +48,7 @@ class ArrayPrinter:
 			item = dataPtr.dereference()
 			yield ("[%s]" % k), item
 
-	def to_string(slef):
+	def to_string(self):
 		return "[size: %s], [capacity: %s]" % (self.size, self.capacity)
 
 class StaticArrayPrinter:
@@ -69,7 +69,7 @@ class StaticArrayPrinter:
 			item = dataPtr.dereference()
 			yield ("[%s]" % k), item
 
-	def to_string(slef):
+	def to_string(self):
 		return "[size: %s]" % (self.size)
 
 class SmallArrayPrinter:
@@ -93,7 +93,7 @@ class SmallArrayPrinter:
 			item = dataPtr.dereference()
 			yield ("[%s]" % k), item
 
-	def to_string(slef):
+	def to_string(self):
 		return "[size: %s], [capacity: %s]" % (self.size, self.capacity)
 
 class ArrayViewPrinter:
@@ -114,7 +114,7 @@ class ArrayViewPrinter:
 			item = dataPtr.dereference()
 			yield ("[%s]" % k), item
 
-	def to_string(slef):
+	def to_string(self):
 		return "[size: %s], [capacity: %s]" % (self.size, self.capacity)
 
 class Array2DPrinter:
@@ -143,7 +143,7 @@ class Array2DPrinter:
 				item = dataPtr.dereference()
 				yield ("[%s, %s]" % (k0, k1)), item
 
-	def to_string(slef):
+	def to_string(self):
 		return "[size0: %s], [size1: %s], [capacity0: %s], [capacity1: %s]" % (self.size0, self.size1, self.capacity0, self.capacity1)
 
 class StaticArray2DPrinter:
@@ -167,7 +167,7 @@ class StaticArray2DPrinter:
 				item = dataPtr.dereference()
 				yield ("[%s, %s]" % (k0, k1)), item
 
-	def to_string(slef):
+	def to_string(self):
 		return "[size0: %s], [size1: %s]" % (self.size0, self.size1)
 
 class Array2CPrinter:
@@ -195,7 +195,7 @@ class Array2CPrinter:
 				item = dataPtr.dereference()
 				yield ("[%s, %s]" % (k0, k1)), item
 
-	def to_string(slef):
+	def to_string(self):
 		return "[size0: %s], [size1: %s], [capacity0: %s], [capacity1: %s]" % (self.size0, self.size1, self.capacity0, self.capacity1)
 
 class StaticArray2CPrinter:
@@ -219,7 +219,7 @@ class StaticArray2CPrinter:
 				item = dataPtr.dereference()
 				yield ("[%s, %s]" % (k0, k1)), item
 
-	def to_string(slef):
+	def to_string(self):
 		return "[size0: %s], [size1: %s]" % (self.size0, self.size1)
 
 class TriDiagonalPrinter:
@@ -248,7 +248,7 @@ class TriDiagonalPrinter:
 			yield ("[%s, %s]" % (i, i)), (dataPtr + self.size + i).dereference()
 			yield ("[%s, %s]" % (i, i + 1)), (dataPtr + 2 * self.size + i).dereference()
 
-	def to_string(slef):
+	def to_string(self):
 		return "[size0: %s], [size1: %s], [capacity0: %s], [capacity1: %s]" % (self.size0, self.size1, self.capacity0, self.capacity1)
 
 class LowerArray2DPrinter:
@@ -272,7 +272,7 @@ class LowerArray2DPrinter:
 				item = dataPtr.dereference()
 				yield ("[%s, %s]" % (k0, k1)), item
 
-	def to_string(slef):
+	def to_string(self):
 		return "[size: %s], [capacity: %s]" % (self.size, self.capacity)
 
 class SparseMatrixCSRPrinter:
@@ -308,7 +308,7 @@ class SparseMatrixCSRPrinter:
 				i += 1
 
 
-	def to_string(slef):
+	def to_string(self):
 		return "[size0: %s], [size1: %s]" % (self.size0, self.size1)
 
 class Array3DPrinter:
@@ -341,7 +341,7 @@ class Array3DPrinter:
 					item = dataPtr.dereference()
 					yield ("[%s, %s, %s]" % (k0, k1, k2)), item
 
-	def to_string(slef):
+	def to_string(self):
 		return "[size0: %s], [size1: %s], [capacity0: %s], [capacity1: %s]" % (self.size0, self.size1, self.capacity0, self.capacity1)
 
 class StaticArray3DPrinter:
@@ -368,7 +368,7 @@ class StaticArray3DPrinter:
 					item = dataPtr.dereference()
 					yield ("[%s, %s, %s]" % (k0, k1, k2)), item
 
-	def to_string(slef):
+	def to_string(self):
 		return "[size0: %s], [size1: %s], [size2: %s]" % (self.size0, self.size1, self.size2)
 
 class Array4DPrinter:
@@ -406,7 +406,7 @@ class Array4DPrinter:
 						item = dataPtr.dereference()
 						yield ("[%s, %s, %s, %s]" % (k0, k1, k2, k3)), item
 
-	def to_string(slef):
+	def to_string(self):
 		return "[size0: %s], [size1: %s], [size2: %s], [size3: %s], [capacity0: %s], [capacity1: %s], [capacity2: %s], [capacity3: %s]" % (self.size0, self.size1, self.size2, self.size3, self.capacity0, self.capacity1, self.capacity2, self.capacity3)
 
 class Array4CPrinter:
@@ -444,7 +444,7 @@ class Array4CPrinter:
 						item = dataPtr.dereference()
 						yield ("[%s, %s, %s, %s]" % (k0, k1, k2, k3)), item
 
-	def to_string(slef):
+	def to_string(self):
 		return "[size0: %s], [size1: %s], [size2: %s], [size3: %s], [capacity0: %s], [capacity1: %s], [capacity2: %s], [capacity3: %s]" % (self.size0, self.size1, self.size2, self.size3, self.capacity0, self.capacity1, self.capacity2, self.capacity3)
 
 class StaticArray4DPrinter:
@@ -474,7 +474,7 @@ class StaticArray4DPrinter:
 						item = dataPtr.dereference()
 						yield ("[%s, %s, %s, %s]" % (k0, k1, k2, k3)), item
 
-	def to_string(slef):
+	def to_string(self):
 		return "[size0: %s], [size1: %s], [size2: %s], [size3: %s]" % (self.size0, self.size1, self.size2, self.size3)
 
 class StringViewPrinter:
@@ -485,7 +485,7 @@ class StringViewPrinter:
 		for k in range(0, self.size):
 			self.string += chr(self.val['data_'][k])
 
-	def to_string(slef):
+	def to_string(self):
 		return "\"%s\"" % self.string
 
 class ConstStringViewPrinter:
@@ -496,7 +496,7 @@ class ConstStringViewPrinter:
 		for k in range(0, self.size):
 			self.string += chr(self.val['data_'][k])
 
-	def to_string(slef):
+	def to_string(self):
 		return "\"%s\"" % self.string
 
 class StringPrinter:
@@ -523,7 +523,7 @@ class StringPrinter:
 	# 	# yield "value", ""\"%s\"" % self.string
 	# 	yield ("value \"%s\"" % self.string), 1
 
-	def to_string(slef):
+	def to_string(self):
 		# return "[string: \"%s\"] [size: %s] [capacity: %s] [is small: %s]" % (self.string, self.size, self.capacity, self.is_small)
 		return "\"%s\"" % self.string
 
@@ -550,7 +550,7 @@ class MapPrinter:
 			yield ("[value: %s]" % k), gdb.parse_and_eval("(*("+str(self.val.type)+"*)("+str(self.val.address)+")).value("+str(i)+")")
 			i = gdb.parse_and_eval("(*("+str(self.val.type)+"*)("+str(self.val.address)+")).next("+str(i)+")")
 
-	def to_string(slef):
+	def to_string(self):
 		return "Map"
 
 class MapStringPrinter:
@@ -597,7 +597,7 @@ class MapStringPrinter:
 		# 	yield ("[value: %s]" % k), gdb.parse_and_eval("(*("+str(self.val.type)+"*)("+str(self.val.address)+")).const_value("+str(i)+")")
 		# 	i = gdb.parse_and_eval("(*("+str(self.val.type)+"*)("+str(self.val.address)+")).next("+str(i)+")")
 
-	def to_string(slef):
+	def to_string(self):
 		return "Map"
 
 class DynamicPrinter:
@@ -632,7 +632,7 @@ class StatusPrinter:
 			yield "error", self.error
 			yield "info", self.info
 
-	def to_string(slef):
+	def to_string(self):
 		return "[ok: %s], [checked: %s]" % (self.ok, not self.to_check)
 
 
@@ -703,7 +703,7 @@ class InfoPrinter:
 					k += 1
 				yield key, value.cast(type)
 
-	def to_string(slef):
+	def to_string(self):
 		return "Info"
 
 def build_insideloop_dictionary ():

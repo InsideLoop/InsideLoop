@@ -284,8 +284,8 @@ il::String TomlParser::parseStringLiteral(char delimiter, il::io_t,
       return ans;
     } else {
       // TODO: I am not sure what will happen with a Unicode string
-      ans.append(string.toUnicodeScalar(0));
-      string.removePrefix(string.nextUnicodeScalar(0));
+      ans.append(string.toCodePoint(0));
+      string.removePrefix(string.nextCodePoint(0));
     }
   }
 

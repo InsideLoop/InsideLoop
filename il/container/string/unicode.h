@@ -20,14 +20,14 @@ inline il::UTF16String toUtf16(const il::String& string) {
   il::UTF16String ans{};
   il::ConstStringView view{string.asCString(), string.size()};
 
-  for (il::int_t i = 0; i < view.size(); i = view.nextUnicodeScalar(i)) {
-    ans.append(view.toUnicodeScalar(i));
+  for (il::int_t i = 0; i < view.size(); i = view.nextCodePoint(i)) {
+    ans.append(view.toCodePoint(i));
   }
   ans.append('\0');
   return ans;
 }
 
-enum UnicodeScalar : int {
+enum CodePoint : int {
   kSnowman = 0x2603,
   kMahjongTileRedDragon = 0x0001F004,
   kGrinningFace = 0x0001F600,

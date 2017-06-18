@@ -14,7 +14,7 @@
 
 int main() {
   il::String name = u8"François ";
-  name.append(il::UnicodeScalar::kGrinningFaceWithSmilingEyes);
+  name.append(il::CodePoint::kGrinningFaceWithSmilingEyes);
 
   std::cout << name.asCString() << std::endl;
 
