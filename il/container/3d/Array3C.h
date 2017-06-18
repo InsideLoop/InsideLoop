@@ -49,7 +49,7 @@ class Array3C {
   // column size and the column capacity of the array are set to n1. The slice
   // size and the slice capacity of the array are set to n2.
   // - If T is a numeric value, the memory is
-  //   - (Debug mode) initialized to il::default_value<T>(). It is usually NaN
+  //   - (Debug mode) initialized to il::defaultValue<T>(). It is usually NaN
   //     if T is a floating point number or 666..666 if T is an integer.
   //   - (Release mode) left uninitialized. This behavior is different from
   //     std::vector from the standard library which initializes all numeric
@@ -259,18 +259,18 @@ Array3C<T>::Array3C(il::int_t n0, il::int_t n1, il::int_t n2) {
   const il::int_t r1 = n1 > 0 ? n1 : ((n0 == 0 && n2 == 0) ? 0 : 1);
   const il::int_t r2 = n2 > 0 ? n2 : ((n0 == 0 && n1 == 0) ? 0 : 1);
   bool error;
-  const il::int_t r = il::safe_product(r0, r1, r2, il::io, error);
+  const il::int_t r = il::safeProduct(r0, r1, r2, il::io, error);
   if (error) {
     il::abort();
   }
   if (r > 0) {
-    data_ = il::allocate_array<T>(r);
-    if (il::is_trivial<T>::value) {
+    data_ = il::allocateArray<T>(r);
+    if (il::isTrivial<T>::value) {
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t i0 = 0; i0 < n0; ++i0) {
         for (il::int_t i1 = 0; i1 < n1; ++i1) {
           for (il::int_t i2 = 0; i2 < n2; ++i2) {
-            data_[(i0 * r1 + i1) * r2 + i2] = il::default_value<T>();
+            data_[(i0 * r1 + i1) * r2 + i2] = il::defaultValue<T>();
           }
         }
       }
@@ -303,7 +303,7 @@ template <typename T>
 Array3C<T>::Array3C(il::int_t n0, il::int_t n1, il::int_t n2, il::align_t,
                     il::int_t alignment, il::int_t align_r,
                     il::int_t align_mod) {
-  IL_EXPECT_FAST(il::is_trivial<T>::value);
+  IL_EXPECT_FAST(il::isTrivial<T>::value);
   IL_EXPECT_FAST(sizeof(T) == alignof(T));
   IL_EXPECT_FAST(n0 >= 0);
   IL_EXPECT_FAST(n1 >= 0);
@@ -327,11 +327,11 @@ Array3C<T>::Array3C(il::int_t n0, il::int_t n1, il::int_t n2, il::align_t,
   if (n0 > 0 && n1 > 0 && n2 > 0) {
     r0 = n0;
     r1 = n1;
-    if (il::is_trivial<T>::value && align_mod != 0) {
+    if (il::isTrivial<T>::value && align_mod != 0) {
       const il::int_t nb_lanes = static_cast<il::int_t>(
           static_cast<std::size_t>(alignment) / alignof(T));
       bool error = false;
-      r2 = il::safe_upper_round(n2, nb_lanes, il::io, error);
+      r2 = il::safeUpperRound(n2, nb_lanes, il::io, error);
       if (error) {
         il::abort();
       }
@@ -348,19 +348,19 @@ Array3C<T>::Array3C(il::int_t n0, il::int_t n1, il::int_t n2, il::align_t,
     r2 = (n2 == 0) ? 1 : n2;
   }
   bool error = false;
-  const il::int_t r = il::safe_product(r0, r1, r2, il::io, error);
+  const il::int_t r = il::safeProduct(r0, r1, r2, il::io, error);
   if (error) {
     il::abort();
   }
   if (r > 0) {
     il::int_t shift;
-    data_ = il::allocate_array<T>(r, align_r, align_mod, il::io, shift);
+    data_ = il::allocateArray<T>(r, align_r, align_mod, il::io, shift);
     shift_ = static_cast<short>(shift);
 #ifdef IL_DEFAULT_VALUE
     for (il::int_t i0 = 0; i0 < n0; ++i0) {
       for (il::int_t i1 = 0; i1 < n1; ++i1) {
         for (il::int_t i2 = 0; i2 < n2; ++i2) {
-          data_[(i0 * r1 + i1) * r2 + i2] = il::default_value<T>();
+          data_[(i0 * r1 + i1) * r2 + i2] = il::defaultValue<T>();
         }
       }
     }
@@ -395,12 +395,12 @@ Array3C<T>::Array3C(il::int_t n0, il::int_t n1, il::int_t n2, const T& x) {
   const il::int_t r1 = n1 > 0 ? n1 : ((n0 == 0 && n2 == 0) ? 0 : 1);
   const il::int_t r2 = n2 > 0 ? n2 : ((n0 == 0 && n1 == 0) ? 0 : 1);
   bool error;
-  const il::int_t r = il::safe_product(r0, r1, r2, il::io, error);
+  const il::int_t r = il::safeProduct(r0, r1, r2, il::io, error);
   if (error) {
     il::abort();
   }
   if (r > 0) {
-    data_ = il::allocate_array<T>(r);
+    data_ = il::allocateArray<T>(r);
     for (il::int_t i0 = 0; i0 < n0; ++i0) {
       for (il::int_t i1 = 0; i1 < n1; ++i1) {
         for (il::int_t i2 = 0; i2 < n2; ++i2) {
@@ -427,7 +427,7 @@ template <typename T>
 Array3C<T>::Array3C(il::int_t n0, il::int_t n1, il::int_t n2, const T& x,
                     il::align_t, il::int_t alignment, il::int_t align_r,
                     il::int_t align_mod) {
-  IL_EXPECT_FAST(il::is_trivial<T>::value);
+  IL_EXPECT_FAST(il::isTrivial<T>::value);
   IL_EXPECT_FAST(sizeof(T) == alignof(T));
   IL_EXPECT_FAST(n0 >= 0);
   IL_EXPECT_FAST(n1 >= 0);
@@ -451,11 +451,11 @@ Array3C<T>::Array3C(il::int_t n0, il::int_t n1, il::int_t n2, const T& x,
   if (n0 > 0 && n1 > 0 && n2 > 0) {
     r0 = n0;
     r1 = n1;
-    if (il::is_trivial<T>::value && align_mod != 0) {
+    if (il::isTrivial<T>::value && align_mod != 0) {
       const il::int_t nb_lanes = static_cast<il::int_t>(
           static_cast<std::size_t>(alignment) / alignof(T));
       bool error = false;
-      r2 = il::safe_upper_round(n2, nb_lanes, il::io, error);
+      r2 = il::safeUpperRound(n2, nb_lanes, il::io, error);
       if (error) {
         il::abort();
       }
@@ -472,13 +472,13 @@ Array3C<T>::Array3C(il::int_t n0, il::int_t n1, il::int_t n2, const T& x,
     r2 = (n2 == 0) ? 1 : n2;
   }
   bool error = false;
-  const il::int_t r = il::safe_product(r0, r1, r2, il::io, error);
+  const il::int_t r = il::safeProduct(r0, r1, r2, il::io, error);
   if (error) {
     il::abort();
   }
   if (r > 0) {
     il::int_t shift;
-    data_ = il::allocate_array<T>(r, align_r, align_mod, il::io, shift);
+    data_ = il::allocateArray<T>(r, align_r, align_mod, il::io, shift);
     shift_ = static_cast<short>(shift);
 #ifdef IL_DEFAULT_VALUE
     for (il::int_t i0 = 0; i0 < n0; ++i0) {
@@ -515,18 +515,18 @@ Array3C<T>::Array3C(
     std::initializer_list<std::initializer_list<std::initializer_list<T>>>
         list) {
   bool error;
-  const il::int_t n0 = il::safe_convert<il::int_t>(list.size(), il::io, error);
+  const il::int_t n0 = il::safeConvert<il::int_t>(list.size(), il::io, error);
   if (error) {
     il::abort();
   }
   const il::int_t n1 =
-      n0 > 0 ? il::safe_convert<il::int_t>(list.begin()->size(), il::io, error)
+      n0 > 0 ? il::safeConvert<il::int_t>(list.begin()->size(), il::io, error)
              : 0;
   if (error) {
     il::abort();
   }
   const il::int_t n2 = n1 > 0
-                           ? il::safe_convert<il::int_t>(
+                           ? il::safeConvert<il::int_t>(
                                  list.begin()->begin()->size(), il::io, error)
                            : 0;
   if (error) {
@@ -541,12 +541,12 @@ Array3C<T>::Array3C(
     r1 = n1;
     r2 = n2;
     bool error = false;
-    const il::int_t r = il::safe_product(r0, r1, r2, il::io, error);
+    const il::int_t r = il::safeProduct(r0, r1, r2, il::io, error);
     if (error) {
       il::abort();
     }
-    data_ = il::allocate_array<T>(r);
-    if (il::is_trivial<T>::value) {
+    data_ = il::allocateArray<T>(r);
+    if (il::isTrivial<T>::value) {
       for (il::int_t i0 = 0; i0 < n0; ++i0) {
         IL_EXPECT_FAST(static_cast<il::int_t>((list.begin() + i0)->size()) ==
                        n1);
@@ -583,11 +583,11 @@ Array3C<T>::Array3C(
     r1 = (n1 == 0) ? 1 : n1;
     r2 = (n2 == 0) ? 1 : n2;
     bool error = false;
-    const il::int_t r = il::safe_product(r0, r1, r2, il::io, error);
+    const il::int_t r = il::safeProduct(r0, r1, r2, il::io, error);
     if (error) {
       il::abort();
     }
-    data_ = il::allocate_array<T>(r);
+    data_ = il::allocateArray<T>(r);
   }
   size_[0] = data_ + n0;
   size_[1] = data_ + n1;
@@ -612,11 +612,11 @@ Array3C<T>::Array3C(const Array3C<T>& A) {
   if (n0 > 0 && n1 > 0 && n2 > 0) {
     r0 = n0;
     r1 = n1;
-    if (il::is_trivial<T>::value && A.alignment_ != 0) {
+    if (il::isTrivial<T>::value && A.alignment_ != 0) {
       const il::int_t nb_lanes = static_cast<il::int_t>(
           static_cast<std::size_t>(A.alignment_) / alignof(T));
       bool error = false;
-      r2 = il::safe_upper_round(n2, nb_lanes, il::io, error);
+      r2 = il::safeUpperRound(n2, nb_lanes, il::io, error);
       if (error) {
         il::abort();
       }
@@ -633,17 +633,17 @@ Array3C<T>::Array3C(const Array3C<T>& A) {
     r2 = (n2 == 0) ? 1 : n2;
   }
   bool error = false;
-  const il::int_t r = il::safe_product(r0, r1, r2, il::io, error);
+  const il::int_t r = il::safeProduct(r0, r1, r2, il::io, error);
   if (error) {
     il::abort();
   }
-  if (il::is_trivial<T>::value) {
+  if (il::isTrivial<T>::value) {
     if (A.alignment_ == 0) {
-      data_ = il::allocate_array<T>(r);
+      data_ = il::allocateArray<T>(r);
       shift_ = 0;
     } else {
       il::int_t shift;
-      data_ = il::allocate_array<T>(r, A.align_r_, A.align_mod_, il::io, shift);
+      data_ = il::allocateArray<T>(r, A.align_r_, A.align_mod_, il::io, shift);
       shift_ = static_cast<short>(shift);
     }
     for (il::int_t i0 = 0; i0 < n0; ++i0) {
@@ -654,7 +654,7 @@ Array3C<T>::Array3C(const Array3C<T>& A) {
       }
     }
   } else {
-    data_ = il::allocate_array<T>(r);
+    data_ = il::allocateArray<T>(r);
     shift_ = 0;
     for (il::int_t i0 = 0; i0 < n0; ++i0) {
       for (il::int_t i1 = 0; i1 < n1; ++i1) {
@@ -720,11 +720,11 @@ Array3C<T>& Array3C<T>::operator=(const Array3C<T>& A) {
       if (n0 > 0 && n1 > 0 && n2 > 0) {
         r0 = n0;
         r1 = n1;
-        if (il::is_trivial<T>::value && alignment != 0) {
+        if (il::isTrivial<T>::value && alignment != 0) {
           const il::int_t nb_lanes = static_cast<il::int_t>(
               static_cast<std::size_t>(alignment) / alignof(T));
           bool error = false;
-          r2 = il::safe_upper_round(n2, nb_lanes, il::io, error);
+          r2 = il::safeUpperRound(n2, nb_lanes, il::io, error);
           if (error) {
             il::abort();
           }
@@ -737,20 +737,20 @@ Array3C<T>& Array3C<T>::operator=(const Array3C<T>& A) {
         r2 = (n2 == 0) ? 1 : n2;
       }
       bool error = false;
-      const il::int_t r = il::safe_product(r0, r1, r2, il::io, error);
+      const il::int_t r = il::safeProduct(r0, r1, r2, il::io, error);
       if (error) {
         il::abort();
       }
-      if (il::is_trivial<T>::value) {
+      if (il::isTrivial<T>::value) {
         if (data_) {
           il::deallocate(data_ - shift_);
         }
         if (alignment == 0) {
-          data_ = il::allocate_array<T>(r);
+          data_ = il::allocateArray<T>(r);
           shift_ = 0;
         } else {
           il::int_t shift;
-          data_ = il::allocate_array<T>(r, align_r, align_mod, il::io, shift);
+          data_ = il::allocateArray<T>(r, align_r, align_mod, il::io, shift);
           shift_ = static_cast<short>(shift);
         }
         for (il::int_t i0 = 0; i0 < n0; ++i0) {
@@ -771,7 +771,7 @@ Array3C<T>& Array3C<T>::operator=(const Array3C<T>& A) {
           }
           il::deallocate(data_);
         }
-        data_ = il::allocate_array<T>(r);
+        data_ = il::allocateArray<T>(r);
         for (il::int_t i0 = 0; i0 < n0; ++i0) {
           for (il::int_t i1 = 0; i1 < n1; ++i1) {
             for (il::int_t i2 = 0; i2 < n2; ++i2) {
@@ -790,7 +790,7 @@ Array3C<T>& Array3C<T>::operator=(const Array3C<T>& A) {
       align_r_ = static_cast<short>(align_r);
       align_mod_ = static_cast<short>(align_mod);
     } else {
-      if (il::is_trivial<T>::value) {
+      if (il::isTrivial<T>::value) {
         for (il::int_t i0 = 0; i0 < n0; ++i0) {
           for (il::int_t i1 = 0; i1 < n1; ++i1) {
             memcpy(data_ + (i0 * capacity(1) + i1) * capacity(2),
@@ -827,7 +827,7 @@ template <typename T>
 Array3C<T>& Array3C<T>::operator=(Array3C<T>&& A) {
   if (this != &A) {
     if (data_) {
-      if (!il::is_trivial<T>::value) {
+      if (!il::isTrivial<T>::value) {
         for (il::int_t i0 = size(0) - 1; i0 >= 0; --i0) {
           for (il::int_t i1 = size(1) - 1; i1 >= 0; --i1) {
             for (il::int_t i2 = size(2) - 1; i2 >= 0; --i2) {
@@ -869,7 +869,7 @@ Array3C<T>::~Array3C() {
   IL_EXPECT_FAST_NOTHROW(invariance());
 
   if (data_) {
-    if (!il::is_trivial<T>::value) {
+    if (!il::isTrivial<T>::value) {
       for (il::int_t i0 = size(0) - 1; i0 >= 0; --i0) {
         for (il::int_t i1 = size(1) - 1; i1 >= 0; --i1) {
           for (il::int_t i2 = size(2) - 1; i2 >= 0; --i2) {
@@ -934,11 +934,11 @@ void Array3C<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2) {
     if (n0 > 0 && n1 > 0 && n2 > 0) {
       r0 = n0;
       r1 = n1;
-      if (il::is_trivial<T>::value && alignment_ != 0) {
+      if (il::isTrivial<T>::value && alignment_ != 0) {
         const il::int_t nb_lanes = static_cast<il::int_t>(
             static_cast<std::size_t>(alignment_) / alignof(T));
         bool error = false;
-        r2 = il::safe_upper_round(n2, nb_lanes, il::io, error);
+        r2 = il::safeUpperRound(n2, nb_lanes, il::io, error);
         if (error) {
           il::abort();
         }
@@ -951,19 +951,19 @@ void Array3C<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2) {
       r2 = (n2 == 0) ? 1 : n2;
     }
     bool error = false;
-    const il::int_t r = il::safe_product(r0, r1, r2, il::io, error);
+    const il::int_t r = il::safeProduct(r0, r1, r2, il::io, error);
     if (error) {
       il::abort();
     }
     T* new_data;
     il::int_t new_shift;
-    if (il::is_trivial<T>::value) {
+    if (il::isTrivial<T>::value) {
       if (alignment_ == 0) {
-        new_data = il::allocate_array<T>(r);
+        new_data = il::allocateArray<T>(r);
         new_shift = 0;
       } else {
         new_data =
-            il::allocate_array<T>(r, align_r_, align_mod_, il::io, new_shift);
+            il::allocateArray<T>(r, align_r_, align_mod_, il::io, new_shift);
       }
       if (data_) {
         for (il::int_t i0 = 0; i0 < (n0 < n0_old ? n0 : n0_old); ++i0) {
@@ -980,13 +980,13 @@ void Array3C<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2) {
         for (il::int_t i1 = 0; i1 < n1; ++i1) {
           for (il::int_t i2 = (i0 < n0_old && i1 < n1_old) ? n2_old : 0;
                i2 < n2; ++i2) {
-            new_data[(i0 * r1 + i1) * r2 + i2] = il::default_value<T>();
+            new_data[(i0 * r1 + i1) * r2 + i2] = il::defaultValue<T>();
           }
         }
       }
 #endif
     } else {
-      new_data = il::allocate_array<T>(r);
+      new_data = il::allocateArray<T>(r);
       new_shift = 0;
       if (data_) {
         for (il::int_t i0 = n0_old - 1; i0 >= 0; --i0) {
@@ -1024,14 +1024,14 @@ void Array3C<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2) {
     capacity_[2] = data_ + r2;
     shift_ = static_cast<short>(new_shift);
   } else {
-    if (il::is_trivial<T>::value) {
+    if (il::isTrivial<T>::value) {
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t i0 = 0; i0 < n2; ++i0) {
         for (il::int_t i1 = 0; i1 < n1; ++i1) {
           for (il::int_t i2 = (i0 < n0_old && i1 < n1_old) ? n2_old : 0;
                i2 < n2; ++i2) {
             data_[(i0 * capacity(1) + i1) * capacity(2) + i2] =
-                il::default_value<T>();
+                il::defaultValue<T>();
           }
         }
       }
@@ -1082,29 +1082,29 @@ void Array3C<T>::reserve(il::int_t r0, il::int_t r1, il::int_t r2) {
     const il::int_t n0_old = size(0);
     const il::int_t n1_old = size(1);
     const il::int_t n2_old = size(2);
-    if (il::is_trivial<T>::value && alignment_ != 0) {
+    if (il::isTrivial<T>::value && alignment_ != 0) {
       const il::int_t nb_lanes = static_cast<il::int_t>(
           static_cast<std::size_t>(alignment_) / alignof(T));
       bool error = false;
-      r2 = il::safe_upper_round(r2, nb_lanes, il::io, error);
+      r2 = il::safeUpperRound(r2, nb_lanes, il::io, error);
       if (error) {
         il::abort();
       }
     }
     bool error = false;
-    const il::int_t r = il::safe_product(r0, r1, r2, il::io, error);
+    const il::int_t r = il::safeProduct(r0, r1, r2, il::io, error);
     if (error) {
       il::abort();
     }
     T* new_data;
     il::int_t new_shift;
-    if (il::is_trivial<T>::value) {
+    if (il::isTrivial<T>::value) {
       if (alignment_ == 0) {
-        new_data = il::allocate_array<T>(r);
+        new_data = il::allocateArray<T>(r);
         new_shift = 0;
       } else {
         new_data =
-            il::allocate_array<T>(r, align_r_, align_mod_, il::io, new_shift);
+            il::allocateArray<T>(r, align_r_, align_mod_, il::io, new_shift);
       }
       if (data_) {
         for (il::int_t i0 = 0; i0 < n0_old; ++i0) {
@@ -1117,7 +1117,7 @@ void Array3C<T>::reserve(il::int_t r0, il::int_t r1, il::int_t r2) {
         il::deallocate(data_ - shift_);
       }
     } else {
-      new_data = il::allocate_array<T>(r);
+      new_data = il::allocateArray<T>(r);
       new_shift = 0;
       for (il::int_t i0 = n0_old - 1; i0 >= 0; --i0) {
         for (il::int_t i1 = n1_old - 1; i1 >= 0; --i1) {
@@ -1190,7 +1190,7 @@ bool Array3C<T>::invariance() const {
     ans = ans && ((size_[0] - data_) <= (capacity_[0] - data_));
     ans = ans && ((size_[1] - data_) <= (capacity_[1] - data_));
     ans = ans && ((size_[2] - data_) <= (capacity_[2] - data_));
-    if (il::is_trivial<T>::value) {
+    if (il::isTrivial<T>::value) {
       ans = ans && (alignment_ >= 0);
       ans = ans && (align_r_ >= 0);
       ans = ans && (align_mod_ >= 0);

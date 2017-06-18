@@ -67,7 +67,7 @@ class LU<il::Array2D<double>> {
   double determinant() const;
 
   // Compute an approximation of the condition number
-  double condition_number(il::Norm norm_type, double norm_a) const;
+  double conditionNumber(il::Norm norm_type, double norm_a) const;
 
   // Get the L part of the matrix
   il::LowerArray2D<double> L() const;
@@ -88,13 +88,13 @@ LU<il::Array2D<double>>::LU(il::Array2D<double> A, il::io_t, il::Status& status)
 
   IL_EXPECT_FAST(lapack_error >= 0);
   if (lapack_error == 0) {
-    status.set_ok();
+    status.setOk();
     ipiv_ = std::move(ipiv);
     lu_ = std::move(A);
   } else {
-    status.set_error(il::Error::matrix_singular);
+    status.setError(il::Error::kMatrixSingular);
     IL_SET_SOURCE(status);
-    status.set_info("rank", il::int_t{lapack_error - 1});
+    status.setInfo("rank", il::int_t{lapack_error - 1});
   }
 }
 
@@ -162,8 +162,8 @@ double LU<il::Array2D<double>>::determinant() const {
   return det;
 }
 
-double LU<il::Array2D<double>>::condition_number(il::Norm norm_type,
-                                                 double norm_a) const {
+double LU<il::Array2D<double>>::conditionNumber(il::Norm norm_type,
+                                                double norm_a) const {
   IL_EXPECT_FAST(lu_.size(0) == lu_.size(1));
   IL_EXPECT_FAST(norm_type == il::Norm::L1 || norm_type == il::Norm::Linf);
 

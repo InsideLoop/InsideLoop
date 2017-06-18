@@ -108,11 +108,11 @@ class Pardiso {
  public:
   Pardiso();
   ~Pardiso();
-  void symbolic_factorization(const il::SparseMatrixCSR<il::int_t, double> &A);
-  void numerical_factorization(const il::SparseMatrixCSR<il::int_t, double> &A);
+  void symbolicFactorization(const il::SparseMatrixCSR<il::int_t, double> &A);
+  void numericalFactorization(const il::SparseMatrixCSR<il::int_t, double> &A);
   il::Array<double> solve(const il::SparseMatrixCSR<il::int_t, double> &A,
                           const il::Array<double> &y);
-  il::Array<double> solve_iterative(
+  il::Array<double> solveIterative(
       const il::SparseMatrixCSR<il::int_t, double> &A,
       const il::Array<double> &y);
 
@@ -284,7 +284,7 @@ inline Pardiso::Pardiso() {
 
 inline Pardiso::~Pardiso() { release(); }
 
-void Pardiso::symbolic_factorization(
+void Pardiso::symbolicFactorization(
     const il::SparseMatrixCSR<il::int_t, double> &A) {
   IL_EXPECT_FAST(A.size(0) == A.size(1));
   n_ = A.size(0);
@@ -298,18 +298,18 @@ void Pardiso::symbolic_factorization(
   }
   PardisoSizeIntSelector<il::int_t>::pardiso_int_t(
       pardiso_pt_, &pardiso_max_fact_, &pardiso_mnum_, &pardiso_mtype_, &phase,
-      &n_, A.element_data(), A.row_data(), A.column_data(), &i_dummy,
+      &n_, A.elementData(), A.rowData(), A.columnData(), &i_dummy,
       &pardiso_nrhs_, pardiso_iparm_, &pardiso_msglvl_, nullptr, nullptr,
       &error);
   IL_EXPECT_FAST(error == 0);
 
   is_symbolic_factorization_ = true;
-  matrix_element_ = A.element_data();
+  matrix_element_ = A.elementData();
 }
 
-void Pardiso::numerical_factorization(
+void Pardiso::numericalFactorization(
     const il::SparseMatrixCSR<il::int_t, double> &A) {
-  IL_EXPECT_FAST(matrix_element_ = A.element_data());
+  IL_EXPECT_FAST(matrix_element_ = A.elementData());
   IL_EXPECT_FAST(is_symbolic_factorization_);
   IL_EXPECT_FAST(A.size(0) == n_);
   IL_EXPECT_FAST(A.size(1) == n_);
@@ -320,7 +320,7 @@ void Pardiso::numerical_factorization(
 
   PardisoSizeIntSelector<il::int_t>::pardiso_int_t(
       pardiso_pt_, &pardiso_max_fact_, &pardiso_mnum_, &pardiso_mtype_, &phase,
-      &n_, A.element_data(), A.row_data(), A.column_data(), &i_dummy,
+      &n_, A.elementData(), A.rowData(), A.columnData(), &i_dummy,
       &pardiso_nrhs_, pardiso_iparm_, &pardiso_msglvl_, nullptr, nullptr,
       &error);
   IL_EXPECT_FAST(error == 0);
@@ -331,7 +331,7 @@ void Pardiso::numerical_factorization(
 inline il::Array<double> Pardiso::solve(
     const il::SparseMatrixCSR<il::int_t, double> &A,
     const il::Array<double> &y) {
-  IL_EXPECT_FAST(matrix_element_ = A.element_data());
+  IL_EXPECT_FAST(matrix_element_ = A.elementData());
   IL_EXPECT_FAST(is_numerical_factorization_);
   IL_EXPECT_FAST(A.size(0) == n_);
   IL_EXPECT_FAST(A.size(1) == n_);
@@ -343,7 +343,7 @@ inline il::Array<double> Pardiso::solve(
   il::int_t i_dummy;
   PardisoSizeIntSelector<il::int_t>::pardiso_int_t(
       pardiso_pt_, &pardiso_max_fact_, &pardiso_mnum_, &pardiso_mtype_, &phase,
-      &n_, A.element_data(), A.row_data(), A.column_data(), &i_dummy,
+      &n_, A.elementData(), A.rowData(), A.columnData(), &i_dummy,
       &pardiso_nrhs_, pardiso_iparm_, &pardiso_msglvl_,
       const_cast<double *>(y.data()), x.data(), &error);
 
@@ -352,10 +352,10 @@ inline il::Array<double> Pardiso::solve(
   return x;
 }
 
-inline il::Array<double> Pardiso::solve_iterative(
+inline il::Array<double> Pardiso::solveIterative(
     const il::SparseMatrixCSR<il::int_t, double> &A,
     const il::Array<double> &y) {
-  IL_EXPECT_FAST(matrix_element_ = A.element_data());
+  IL_EXPECT_FAST(matrix_element_ = A.elementData());
   IL_EXPECT_FAST(is_numerical_factorization_);
   IL_EXPECT_FAST(A.size(0) == n_);
   IL_EXPECT_FAST(A.size(1) == n_);
@@ -371,7 +371,7 @@ inline il::Array<double> Pardiso::solve_iterative(
   il::int_t i_dummy;
   PardisoSizeIntSelector<il::int_t>::pardiso_int_t(
       pardiso_pt_, &pardiso_max_fact_, &pardiso_mnum_, &pardiso_mtype_, &phase,
-      &n_, A.element_data(), A.row_data(), A.column_data(), &i_dummy,
+      &n_, A.elementData(), A.rowData(), A.columnData(), &i_dummy,
       &pardiso_nrhs_, pardiso_iparm_, &pardiso_msglvl_,
       const_cast<double *>(y.data()), x.data(), &error);
   IL_EXPECT_FAST(error == 0);

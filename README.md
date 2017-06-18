@@ -7,7 +7,7 @@ running on processors (including **Xeon** and **Xeon Phi**) and coprocessors
 - Efficient containers:
   - **Arrays** and **multi-dimensional arrays** with different allocation
     policies
-  - **Hash sets** and **hash maps** implemented using open addressing with
+  - **sets** and **maps** implemented using open addressing with
     quadratic probing
   - **Unicode Strings** implemented with small size optimization
   - An efficient **dynamic** type
@@ -327,7 +327,7 @@ il::Array<double> y(n);
 
 il::Status status;
 il::LU<il::Array2D<double>> lu_decomposition(A, il::io, status);
-if (!status.ok()) {
+if (status.notOk()) {
   // The matrix is singular to the machine precision. You should deal with the error.
 }
 
@@ -375,7 +375,7 @@ il::Array<double> y(n);
 
 il::Status status;
 il::LU<il::Array2D<double>> lu_decomposition(std::move(A), il::io, status);
-if (!status.ok()) {
+if (status.notOk()) {
   // The matrix is singular to the machine precision. You should deal with the error.
 }
 
@@ -404,7 +404,7 @@ int main() {
   const double tolerance = 1.0e-8;
 
   const il::int_t side = 70;
-  il::SparseMatrixCSR<int, double> A = il::heat_3d<int, double>(side);
+  il::SparseMatrixCSR<int, double> A = il::head3d<int, double>(side);
   const il::int_t n = A.size(0);
   il::Array<double> y(n, 1.0);
   il::Array<double> x(n, 0.0);
@@ -415,7 +415,7 @@ int main() {
 
   // We use a sparse matrix representation optimized for BLAS operations. 
   il::SparseMatrixBlas<int, double> A_blas(il::io, A);
-  A_blas.set_nb_matrix_vector(nb_iteration);
+  A_blas.setNbMatrixVector(nb_iteration);
 
   // r = y - A.x 
   il::Array<double> r = y;
@@ -454,13 +454,13 @@ decomposition from the Pardiso solver.
 ```cpp
 int main() {
   const il::int_t side = 70;
-  il::SparseMatrixCSR<int, double> A = il::heat_3d<int, double>(side);
+  il::SparseMatrixCSR<int, double> A = il::head3d<int, double>(side);
   const il::int_t n = A.size(0);
   il::Array<double> y{n, 1.0};
   
   il::Pardiso solver{};
-  solver.symbolic_factorization(A_bis);
-  solver.numerical_factorization(A_bis);
+  solver.symbolicFactorization(A_bis);
+  solver.numericalFactorization(A_bis);
   il::Array<double> x = solver.solve(A_bis, y);
 
   return 0;
@@ -535,7 +535,7 @@ int main() {
   const float tolerance = 1.0e-10f;
   const il::int_t side = 300;
 
-  il::SparseMatrixCSR<int, float> A = il::heat_3d<int, float>(side);
+  il::SparseMatrixCSR<int, float> A = il::head3d<int, float>(side);
   const il::int_t n = A.size(0);
   il::Array<float> y{n, 1.0f};
   il::Array<float> x{n, 0.0f};
@@ -593,98 +593,7 @@ This conjugate gradient method with a 27 000 000 x 27 000 000 matrix containing
 |Dual-Xeon E5-2660, 2x14 cores, Broadwell         |    0.827 s  |
 |NVidia Titan X Pascal                            |    0.145 s  |
 
-## Hash Table
-
-We provide a hash table implemented using open addressing and quadratic
-probing. This hash table has better performance than the one provided by the
-standard library `std::unordered_map`. An open addressing hash table is made
-of an array of `(key, value)` pairs of length `nb_slot`. The key type must
-exhibit 2 special values known as `empty_key` and `tombstone_key` which are
-forbidden to use. When no `(key, value)` are inserted in the hash table, all
-the keys are set to `empty_key` to mark the slot as empty. When you want to
-insert a `(key, value)` pair, the table hashes the key and produce an integer
-which is reduced modulo `nb_slot`. If the corresponding slot is empty, the `(key, value)` pair
-is stored here. Otherwise (in this case, we have what is called a collision), it
-steps to the next slot (modulo `nb_slot`) and
-checks if it is empty. If it is, the `(key, value)` pair is stored here.
-Otherwise, it makes 2 steps and check if this slot is empty. In case it is not,
-it makes 3 steps, etc. Until it finds a valid slot that we call `i`.
-
-To insert a `(key, value)` pair into a hash table, we need to make sure that the
-key is not already present in the hash table. So we search for it. The method
-search returns a valid slot `i` if it is found or some information on where to
-construct the `(key, value)` pair if it is not found. In the second case, all
-you need is to call `insert` using this information.
-
-```cpp
-#include <string>
-#include <il/HashMap.h>
-
-void add_european_country(il::HashMap<std::string, il::int_t>& population) {
-  std::string country{"France"};
-  il::int_t n = 64806269;
-  
-  il::int_t i = population.search(country);
-  if (!population.found(i)) {
-    population.insert(country, n, il::io, i);
-  }
-  
-  country = std::string{"Germany"};
-  n = 80219695;
-  i = population.search(country);
-  if (!population.found(i)) {
-    population.insert(country, n, il::io, i);
-  }
-  
-  ...
-}
-```
-
-In order to display the information for the population, for a given country you
-first need to search the hash table for this country to make sure it is present.
-Then, you can display the associated value. You can use the following code to
-display the population of a country with the previous hash table:
-
-```cpp
-#include <string>
-#include <il/HashMap.h>
-
-void print_population_country(
-    const il::HashMap<std::string, il::int_t>& population,
-    const std::string& country) {
-  il::int_t i = population.search(country);
-  if (population.found(i)) {
-    std::printf("The population of %s is %td\n", country.as_c_string(),
-        population.value(i));
-  } else {
-    std::printf("I don't know the population of %s\n", country.as_c_string());
-  }
-}
-```
-
-In terms of performance, this `HashMap` is better than both the
-`std::unordered_map` provided by the standard library. It is even faster than
-Google dense hash map even though it implements exactly the same algorithm.
-In order to test the performance of the hash table, we generated 50 000 000 random numbers in
-between 0 and 2^62 which we used as a key for a `HashMap<il::int_t, il::int_t>`
-that we filled with a corresponding value of 0. Then we searched the values for
-every single keys, in the same order as they were inserted. The same hash function
-(hash(k) = k) was used for all those tables. We obtained the following timings:
-
-| Hash table                                     |Time insertion | Time selection |
-|------------------------------------------------|:-------------:|:--------------:|
-| `il::HashMap<il::int_t, il::int_t>`            |    3.89 s     |    1.63 s      |
-| `google_dense_hash_map<il::int_t, il::int_t>`  |    4.75 s     |    2.24 s      |
-| `std::unordered_map<il::int_t, il::int_t>`     |   30.71 s     |    5.44 s      |
-
-As you can see, the difference in between the first 2 hash tables (open adressing
-with quadratic probing) and the one available in the C++ standard library is
-significant because the algorithms are differents. The difference in between the
-two open addressing hash tables with quadratic probing is an implementation
-difference and differs from compiler to compiler, but the InsideLoop version
-is always faster with gcc, clang and intel compilers.
-
-## Hash Table
+## String
 
 We also provide a string that can store unicode string using UTF-8. It can store
 any well-formed UTF-8 string:
@@ -713,17 +622,110 @@ Such a program prints
 François 😁
 ```
 
-The string being fully unicode aware, it is easy to loop through code points.
+The string being fully unicode aware, it is easy to loop through unicode
+scalar values (also known as code points).
 
 ```cpp
-for (il::int_t i = 0; i < s.size(); i = s.next_code_point()) {
+for (il::int_t i = 0; i < s.size(); i = s.next_unicode_scalar(i)) {
   std::cout << s.to_code_point(i) << std::endl;
 }
 ```
 
 This object is implemented using small string optimization: when the string uses
-less than 23 bytes, it will be stored on the stack. Larger strings are stores
+less than 23 bytes, it will be stored on the stack. Larger strings are stored
 on the heap.
+
+
+## Hash Table
+
+We provide a hash table implemented using open addressing and quadratic
+probing. This hash table has better performance than the one provided by the
+standard library `std::unordered_map`. An open addressing hash table is made
+of an array of `(key, value)` pairs of length `nb_slot`. The key type must
+exhibit 2 special values known as `empty_key` and `tombstone_key` which are
+forbidden to use. When no `(key, value)` are inserted in the hash table, all
+the keys are set to `empty_key` to mark the slot as empty. When you want to
+insert a `(key, value)` pair, the table hashes the key and produce an integer
+which is reduced modulo `nb_slot`. If the corresponding slot is empty, the `(key, value)` pair
+is stored here. Otherwise (in this case, we have what is called a collision), it
+steps to the next slot (modulo `nb_slot`) and
+checks if it is empty. If it is, the `(key, value)` pair is stored here.
+Otherwise, it makes 2 steps and check if this slot is empty. In case it is not,
+it makes 3 steps, etc. Until it finds a valid slot that we call `i`.
+
+To insert a `(key, value)` pair into a hash table, we need to make sure that the
+key is not already present in the hash table. So we search for it. The method
+search returns a valid slot `i` if it is found or some information on where to
+construct the `(key, value)` pair if it is not found. In the second case, all
+you need is to call `insert` using this information.
+
+```cpp
+#include <il/String.h>
+#include <il/Map.h>
+
+void addEuropeanCountry(il::Map<il::String, il::int_t>& population) {
+  il::String country = "France";
+  il::int_t n = 64806269;
+  
+  il::int_t i = population.search(country);
+  if (population.notFound(i)) {
+    population.insert(country, n, il::io, i);
+  }
+  
+  country = "Germany";
+  n = 80219695;
+  i = population.search(country);
+  if (population.notFound(i)) {
+    population.insert(country, n, il::io, i);
+  }
+  
+  ...
+}
+```
+
+In order to display the information for the population, for a given country you
+first need to search the hash table for this country to make sure it is present.
+Then, you can display the associated value. You can use the following code to
+display the population of a country with the previous hash table:
+
+```cpp
+#include <string>
+#include <il/Map.h>
+
+void printPopulationCountry(
+    const il::Map<il::String, il::int_t>& population,
+    const il::String& country) {
+  il::int_t i = population.search(country);
+  if (population.hasFound(i)) {
+    std::printf("The population of %s is %td\n", country.asCString(),
+        population.value(i));
+  } else {
+    std::printf("I don't know the population of %s\n", country.as_c_string());
+  }
+}
+```
+
+In terms of performance, this `Map` is better than both the
+`std::unordered_map` provided by the standard library. It is even faster than
+Google dense hash map even though it implements exactly the same algorithm.
+In order to test the performance of the hash table, we generated 50 000 000 random numbers in
+between 0 and 2^62 which we used as a key for a `Map<il::int_t, il::int_t>`
+that we filled with a corresponding value of 0. Then we searched the values for
+every single keys, in the same order as they were inserted. The same hash function
+(hash(k) = k) was used for all those tables. We obtained the following timings:
+
+| Hash table                                     |Time insertion | Time selection |
+|------------------------------------------------|:-------------:|:--------------:|
+| `il::Map<il::int_t, il::int_t>`            |    3.89 s     |    1.63 s      |
+| `google_dense_hash_map<il::int_t, il::int_t>`  |    4.75 s     |    2.24 s      |
+| `std::unordered_map<il::int_t, il::int_t>`     |   30.71 s     |    5.44 s      |
+
+As you can see, the difference in between the first 2 hash tables (open adressing
+with quadratic probing) and the one available in the C++ standard library is
+significant because the algorithms are differents. The difference in between the
+two open addressing hash tables with quadratic probing is an implementation
+difference and differs from compiler to compiler, but the InsideLoop version
+is always faster with gcc, clang and intel compilers.
 
 ## Dynamic value 
 
@@ -735,7 +737,7 @@ The type `il::Dynamic` can hold any of the following types:
 - `double`
 - `il::String`
 - `il::Array<il::Dynamic>`
-- `il::HashMap<il::String, il::Dynamic>`
+- `il::Map<il::String, il::Dynamic>`
 
 Constructors are available for all these types
 
@@ -756,31 +758,31 @@ il::Dynamic d = 3.14159;
 il::Dynamic e = "Hello world!";
 
 // The dynamic object f contains an empty il::Array<il::Dynamic>
-il::Dynamic f{il::Type::array_t};
+il::Dynamic f{il::Type::kArray};
 
 
-// The dynamic object g contains an empty il::HashMap<il::String, il::Dynamic>
-il::Dynamic f{il::Type::hash_map_t};
+// The dynamic object g contains an empty il::Map<il::String, il::Dynamic>
+il::Dynamic f{il::Type::KMap};
 ```
 
 At runtime, one can query the type of an `il::Dynamic` object `a` with the
 method `type()` which returns an `il::Type`. One can also check if `a` is
-of a given type with the methods `is_null()`, `is_boolean()`, `is_integer()`,
-`is_double()`, `is_string()`, `is_array()` and `is_hash_map()`. Once
+of a given type with the methods `isNull()`, `isBool()`, `isInteger()`,
+`isDouble()`, `isString()`, `isArray()` and `isMap()`. Once
 you know the type, you can extract the value from a dynamic object with the
-methods `to_boolean()`, `to_integer()`, `to_double()`, `as_string()`,
-`as_array`, `as_hash_map()`. The methods starting with `to` returns a value
+methods `toBool()`, `toInteger()`, `toDouble()`, `asString()`,
+`asArray`, `asMap()`. The methods starting with `to` returns a value
 whereas the methods starting with `as` returns a reference. For instance, here
 is a function that takes a dynamic object and and prints its value if it holds
 a numeric type:
 
 ```cpp
 void f(const il::Dynamic& a) {
-  if (a.is_integer()) {
-    il::int_t i = a.to_integer();
+  if (a.isInteger()) {
+    il::int_t i = a.toInteger();
     std::cout << i << std::endl;
-  } else if (a.is_double()) {
-    double x = a.to_double();
+  } else if (a.isDouble()) {
+    double x = a.toDouble();
     std::cout << x << std::endl;
   }
 }
@@ -790,8 +792,8 @@ This function append the integer 3 to `a` if it represents an array
  
 ```cpp
 void f(il::io_t, il::Dynamic& a) {
-  if (a.is_array()) {
-    il::Array<il::Dynamic>& array = a.as_array();
+  if (a.isArray()) {
+    il::Array<il::Dynamic>& array = a.asArray();
     array.append(3);
   }
 }
@@ -828,39 +830,39 @@ int main() {
   
   il::Status status{};
   auto config =
-      il::load<il::HashMapArray<il::String, il::Dynamic>>(filename, il::io, status);
-  status.abort_on_error();
+      il::load<il::MapArray<il::String, il::Dynamic>>(filename, il::io, status);
+  status.abortOnError();
   
   // get the name
   il::String name{};
   il::int_t i = config.search("name");
-  if (config.found(i) && config.value(i).is_string()) {
-    name = config.value(i).as_string();
+  if (config.hasFound(i) && config.value(i).isString()) {
+    name = config.value(i).asString();
   }
   
   // get the number of cells
   il::int_t nb_cells;
   i = config.search("nb_cells");
-  if (config.found(i) && config.value(i).is_integer()) {
-    nb_cells = config.value(i).to_integer();
+  if (config.hasFound(i) && config.value(i).isInteger()) {
+    nb_cells = config.value(i).toInteger();
   }
   
   // get the property of the water
   double density;
   double compressibility;
   i = config.search("water");
-  if (config.found(i) && config.value(i).is_hash_map_array()) {
-    const il::HashMapArray<il::String, il::Dynamic>& water =
-        config.value(i).as_const_hash_map_array();
+  if (config.hasFound(i) && config.value(i).isMapArray()) {
+    const il::MapArray<il::String, il::Dynamic>& water =
+        config.value(i).asMapArray();
     
     il::int_t j = water.search("density");
-    if (water.found(j) && water.value(j).is_double()) {
-      density = water.value(j).to_double();
+    if (water.hasFound(j) && water.value(j).isDouble()) {
+      density = water.value(j).toDouble();
     }
     
     j = water.search("compressibility");
-    if (water.found(j) && water.value(j).is_double()) {
-      compressibility = water.value(j).to_double();
+    if (water.hasFound(j) && water.value(j).isDouble()) {
+      compressibility = water.value(j).toDouble();
     }
   }
 }

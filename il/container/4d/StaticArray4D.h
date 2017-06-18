@@ -46,10 +46,10 @@ class StaticArray4D {
 
 template <typename T, il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3>
 StaticArray4D<T, n0, n1, n2, n3>::StaticArray4D() {
-  if (il::is_trivial<T>::value) {
+  if (il::isTrivial<T>::value) {
 #ifndef NDEBUG
     for (il::int_t l = 0; l < n0 * n1 * n2 * n3; ++l) {
-      data_[l] = il::default_value<T>();
+      data_[l] = il::defaultValue<T>();
     }
 #endif
   }

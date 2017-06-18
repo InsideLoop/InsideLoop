@@ -27,7 +27,8 @@
 // Multiple platforms
 ////////////////////////////////////////////////////////////////////////////////
 
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+#if defined(WIN32) || defined(_WIN32) || \
+    defined(__WIN32) && !defined(__CYGWIN__)
 #define IL_WINDOWS
 #else
 #define IL_UNIX
@@ -41,8 +42,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace il {
-struct abort_exception {
-  abort_exception() { (void)0; }
+struct AbortException {
+  AbortException() { (void)0; }
 };
 
 inline void abort() { std::abort(); }
@@ -52,7 +53,7 @@ inline void abort() { std::abort(); }
 // Use this when the expectation is fast to compute compared to the function
 #ifdef IL_UNIT_TEST
 #define IL_EXPECT_FAST(condition) \
-  (condition) ? ((void)0) : throw il::abort_exception {}
+  (condition) ? ((void)0) : throw il::AbortException {}
 #elif NDEBUG
 #define IL_EXPECT_FAST(condition) ((void)0)
 #else
@@ -68,7 +69,7 @@ inline void abort() { std::abort(); }
 // Use this when the the expectation is as expensive to compute as the function
 #ifdef IL_UNIT_TEST
 #define IL_EXPECT_MEDIUM(condition) \
-  (condition) ? ((void)0) : throw il::abort_exception {}
+  (condition) ? ((void)0) : throw il::AbortException {}
 #elif NDEBUG
 #define IL_EXPECT_MEDIUM(condition) ((void)0)
 #else
@@ -79,7 +80,7 @@ inline void abort() { std::abort(); }
 // function
 #ifdef IL_UNIT_TEST
 #define IL_EXPECT_SLOW(condition) \
-  (condition) ? ((void)0) : throw il::abort_exception {}
+  (condition) ? ((void)0) : throw il::AbortException {}
 #elif NDEBUG
 #define IL_EXPECT_SLOW(condition) ((void)0)
 #else
@@ -91,7 +92,7 @@ inline void abort() { std::abort(); }
 
 #ifdef IL_UNIT_TEST
 #define IL_ENSURE(condition) \
-  (condition) ? ((void)0) : throw il::abort_exception {}
+  (condition) ? ((void)0) : throw il::AbortException {}
 #elif NDEBUG
 #define IL_ENSURE(condition) ((void)0)
 #else
@@ -142,114 +143,114 @@ const align_t align{};
 ////////////////////////////////////////////////////////////////////////////////
 
 template <typename T>
-struct is_trivial {
+struct isTrivial {
   static constexpr bool value = false;
 };
 
 template <typename T>
-T default_value() {
+T defaultValue() {
   return T{};
 }
 
 template <>
-struct is_trivial<bool> {
+struct isTrivial<bool> {
   static constexpr bool value = true;
 };
 
 template <>
-inline bool default_value<bool>() {
+inline bool defaultValue<bool>() {
   return false;
 }
 
 template <>
-struct is_trivial<char> {
+struct isTrivial<char> {
   static constexpr bool value = true;
 };
 
 template <>
-inline char default_value<char>() {
+inline char defaultValue<char>() {
   return '\0';
 }
 
 template <>
-struct is_trivial<signed char> {
+struct isTrivial<signed char> {
   static constexpr bool value = true;
 };
 
 template <>
-inline signed char default_value<signed char>() {
+inline signed char defaultValue<signed char>() {
 #if SCHAR_MAX == 127
   return 123;
 #endif
 }
 
 template <>
-struct is_trivial<unsigned char> {
+struct isTrivial<unsigned char> {
   static constexpr bool value = true;
 };
 
 template <>
-inline unsigned char default_value<unsigned char>() {
+inline unsigned char defaultValue<unsigned char>() {
 #if SCHAR_MAX == 127
   return 123;
 #endif
 }
 
 template <>
-struct is_trivial<short> {
+struct isTrivial<short> {
   static constexpr bool value = true;
 };
 
 template <>
-inline short default_value<short>() {
+inline short defaultValue<short>() {
 #if SHRT_MAX == 32767
   return 12345;
 #endif
 }
 
 template <>
-struct is_trivial<unsigned short> {
+struct isTrivial<unsigned short> {
   static constexpr bool value = true;
 };
 
 template <>
-inline unsigned short default_value<unsigned short>() {
+inline unsigned short defaultValue<unsigned short>() {
 #if SHRT_MAX == 32767
   return 12345;
 #endif
 }
 
 template <>
-struct is_trivial<int> {
+struct isTrivial<int> {
   static constexpr bool value = true;
 };
 
 template <>
-inline int default_value<int>() {
+inline int defaultValue<int>() {
 #if INT_MAX == 2147483647
   return 1234567891;
 #endif
 }
 
 template <>
-struct is_trivial<unsigned int> {
+struct isTrivial<unsigned int> {
   static constexpr bool value = true;
 };
 
 template <>
-inline unsigned int default_value<unsigned int>() {
+inline unsigned int defaultValue<unsigned int>() {
 #if INT_MAX == 2147483647
   return 1234567891;
 #endif
 }
 
 template <>
-struct is_trivial<long> {
+struct isTrivial<long> {
   static constexpr bool value = true;
 };
 
 template <>
-inline long default_value<long>() {
+inline long defaultValue<long>() {
 #if LONG_MAX == 2147483647
   return 1234567891;
 #elif LONG_MAX == 9223372036854775807
@@ -258,12 +259,12 @@ inline long default_value<long>() {
 }
 
 template <>
-struct is_trivial<unsigned long> {
+struct isTrivial<unsigned long> {
   static constexpr bool value = true;
 };
 
 template <>
-inline unsigned long default_value<unsigned long>() {
+inline unsigned long defaultValue<unsigned long>() {
 #if LONG_MAX == 2147483647
   return 1234567891;
 #elif LONG_MAX == 9223372036854775807
@@ -272,12 +273,12 @@ inline unsigned long default_value<unsigned long>() {
 }
 
 template <>
-struct is_trivial<long long> {
+struct isTrivial<long long> {
   static constexpr bool value = true;
 };
 
 template <>
-inline long long default_value<long long>() {
+inline long long defaultValue<long long>() {
 #if LLONG_MAX == 2147483647
   return 1234567891;
 #elif LLONG_MAX == 9223372036854775807
@@ -286,12 +287,12 @@ inline long long default_value<long long>() {
 }
 
 template <>
-struct is_trivial<unsigned long long> {
+struct isTrivial<unsigned long long> {
   static constexpr bool value = true;
 };
 
 template <>
-inline unsigned long long default_value<unsigned long long>() {
+inline unsigned long long defaultValue<unsigned long long>() {
 #if LLONG_MAX == 2147483647
   return 1234567891;
 #elif LLONG_MAX == 9223372036854775807
@@ -300,12 +301,12 @@ inline unsigned long long default_value<unsigned long long>() {
 }
 
 template <>
-struct is_trivial<float> {
+struct isTrivial<float> {
   static constexpr bool value = true;
 };
 
 template <>
-inline float default_value<float>() {
+inline float defaultValue<float>() {
 #ifdef IL_UNIX
   return 0.0f / 0.0f;
 #else
@@ -314,12 +315,12 @@ inline float default_value<float>() {
 }
 
 template <>
-struct is_trivial<double> {
+struct isTrivial<double> {
   static constexpr bool value = true;
 };
 
 template <>
-inline double default_value<double>() {
+inline double defaultValue<double>() {
 #ifdef IL_UNIX
   return 0.0 / 0.0;
 #else
@@ -328,12 +329,12 @@ inline double default_value<double>() {
 }
 
 template <>
-struct is_trivial<long double> {
+struct isTrivial<long double> {
   static constexpr bool value = true;
 };
 
 template <>
-inline long double default_value<long double>() {
+inline long double defaultValue<long double>() {
 #ifdef IL_UNIX
   return 0.0l / 0.0l;
 #else

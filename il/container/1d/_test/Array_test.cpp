@@ -224,7 +224,7 @@ TEST(Array, bounds_checking) {
     try {
       local_test_passed = false;
       (void)v[-1];
-    } catch (il::abort_exception) {
+    } catch (il::AbortException) {
       local_test_passed = true;
     }
     if (!local_test_passed) {
@@ -234,7 +234,7 @@ TEST(Array, bounds_checking) {
     try {
       local_test_passed = false;
       (void)v[n];
-    } catch (il::abort_exception) {
+    } catch (il::AbortException) {
       local_test_passed = true;
     }
     if (!local_test_passed) {
@@ -254,7 +254,7 @@ TEST(Array, bounds_checking_default) {
   try {
     local_test_passed = false;
     (void)v[-1];
-  } catch (il::abort_exception) {
+  } catch (il::AbortException) {
     local_test_passed = true;
   }
   if (!local_test_passed) {
@@ -264,7 +264,7 @@ TEST(Array, bounds_checking_default) {
   try {
     local_test_passed = false;
     (void)v[0];
-  } catch (il::abort_exception) {
+  } catch (il::AbortException) {
     local_test_passed = true;
   }
   if (!local_test_passed) {
@@ -284,7 +284,7 @@ TEST(Array, bounds_checking_const) {
     try {
       local_test_passed = false;
       (void)v[-1];
-    } catch (il::abort_exception) {
+    } catch (il::AbortException) {
       local_test_passed = true;
     }
     if (!local_test_passed) {
@@ -294,7 +294,7 @@ TEST(Array, bounds_checking_const) {
     try {
       local_test_passed = false;
       (void)v[n];
-    } catch (il::abort_exception) {
+    } catch (il::AbortException) {
       local_test_passed = true;
     }
     if (!local_test_passed) {
@@ -314,7 +314,7 @@ TEST(Array, bounds_checking_default_const) {
   try {
     local_test_passed = false;
     (void)v[-1];
-  } catch (il::abort_exception) {
+  } catch (il::AbortException) {
     local_test_passed = true;
   }
   if (!local_test_passed) {
@@ -324,7 +324,7 @@ TEST(Array, bounds_checking_default_const) {
   try {
     local_test_passed = false;
     (void)v[0];
-  } catch (il::abort_exception) {
+  } catch (il::AbortException) {
     local_test_passed = true;
   }
   if (!local_test_passed) {
@@ -340,7 +340,7 @@ TEST(Array, bounds_checking_back) {
 
   try {
     (void)v.back();
-  } catch (il::abort_exception) {
+  } catch (il::AbortException) {
     test_passed = true;
   }
 
@@ -353,7 +353,7 @@ TEST(Array, bounds_checking_back_default) {
 
   try {
     (void)v.back();
-  } catch (il::abort_exception) {
+  } catch (il::AbortException) {
     test_passed = true;
   }
 
@@ -366,7 +366,7 @@ TEST(Array, bounds_checking_back_const) {
 
   try {
     (void)v.back();
-  } catch (il::abort_exception) {
+  } catch (il::AbortException) {
     test_passed = true;
   }
 
@@ -379,7 +379,7 @@ TEST(Array, bounds_checking_back_default_const) {
 
   try {
     (void)v.back();
-  } catch (il::abort_exception) {
+  } catch (il::AbortException) {
     test_passed = true;
   }
 

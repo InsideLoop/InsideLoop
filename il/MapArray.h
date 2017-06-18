@@ -7,4 +7,4 @@
 //
 //==============================================================================
 
-#include <il/container/hash/HashMapArray.h>
+#include <il/container/hash/MapArray.h>

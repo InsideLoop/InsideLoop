@@ -23,7 +23,7 @@ void kmeans_main() {
   il::Status status{};
   il::Array3D<unsigned char> image{
       il::load(directory + std::string{"lotus.png"}, il::png, il::io, status)};
-  status.abort_on_error();
+  status.abortOnError();
   const int width{image.size(0)};
   const int height{image.size(1)};
 
@@ -128,5 +128,5 @@ void kmeans_main() {
 
   il::save(out, directory + std::string{"lotus-saved.png"}, il::png, il::io,
            error);
-  status.abort_on_error();
+  status.abortOnError();
 }

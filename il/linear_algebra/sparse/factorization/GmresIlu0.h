@@ -54,19 +54,17 @@ class GmresIlu0 {
   GmresIlu0();
   GmresIlu0(double relative_precision, int max_nb_iteration,
             int restart_iteration);
-  void set_relative_precision(double relative_precision);
-  void set_max_nb_iteration(il::int_t max_nb_iteration);
-  void set_restart_iteration(il::int_t restart_iteration);
-  void compute_preconditionner(il::io_t, il::SparseMatrixCSR<int, double> &A);
+  void setRelativePrecision(double relative_precision);
+  void setMaxNbIteration(il::int_t max_nb_iteration);
+  void setRestartIteration(il::int_t restart_iteration);
+  void computePreconditionner(il::io_t, il::SparseMatrixCSR<int, double> &A);
   il::Array<double> solve(const il::Array<double> &y, il::io_t,
                           il::SparseMatrixCSR<int, double> &A);
-  il::int_t nb_iteration() const;
+  il::int_t nbIterations() const;
 
  private:
-  static void convert_c_to_fortran(il::io_t,
-                                   il::SparseMatrixCSR<int, double> &A);
-  static void convert_fortran_to_c(il::io_t,
-                                   il::SparseMatrixCSR<int, double> &A);
+  static void convertCToFortran(il::io_t, il::SparseMatrixCSR<int, double> &A);
+  static void convertFortranToC(il::io_t, il::SparseMatrixCSR<int, double> &A);
 };
 
 inline GmresIlu0::GmresIlu0() : GmresIlu0{1.0e-3, 100, 20} {}
@@ -84,25 +82,25 @@ inline GmresIlu0::GmresIlu0(double relative_precision, int max_nb_iteration,
   matrix_element_ = nullptr;
 }
 
-inline void GmresIlu0::set_relative_precision(double relative_precision) {
+inline void GmresIlu0::setRelativePrecision(double relative_precision) {
   relative_precision_ = relative_precision;
 }
 
-inline void GmresIlu0::set_max_nb_iteration(il::int_t max_nb_iteration) {
+inline void GmresIlu0::setMaxNbIteration(il::int_t max_nb_iteration) {
   max_nb_iteration_ = max_nb_iteration;
 }
 
-inline void GmresIlu0::set_restart_iteration(il::int_t restart_iteration) {
+inline void GmresIlu0::setRestartIteration(il::int_t restart_iteration) {
   restart_iteration_ = restart_iteration;
 }
 
-inline void GmresIlu0::compute_preconditionner(
+inline void GmresIlu0::computePreconditionner(
     il::io_t, il::SparseMatrixCSR<int, double> &A) {
   IL_EXPECT_FAST(A.size(0) == A.size(1));
 
   const int n = A.size(0);
-  bilu0_.resize(A.nb_nonzeros());
-  convert_c_to_fortran(il::io, A);
+  bilu0_.resize(A.nbNonZeros());
+  convertCToFortran(il::io, A);
   // In this example, specific for DCSRILU0 entries are set in turn:
   // ipar_[30]: Specifies how the routine operates when a zero diagonal
   //            element occurs during calculation. It his parameter is set to
@@ -117,24 +115,24 @@ inline void GmresIlu0::compute_preconditionner(
   // dpar_[31]: See dpar_[30]
   dpar_[31] = zero_diagonal_replacement_;
   int ierr = 0;
-  dcsrilu0(&n, A.element_data(), A.row_data(), A.column_data(), bilu0_.data(),
+  dcsrilu0(&n, A.elementData(), A.rowData(), A.columnData(), bilu0_.data(),
            ipar_.data(), dpar_.data(), &ierr);
   IL_EXPECT_FAST(ierr == 0);
   preconditionner_computed_ = true;
 
-  convert_fortran_to_c(il::io, A);
-  matrix_element_ = A.element_data();
+  convertFortranToC(il::io, A);
+  matrix_element_ = A.elementData();
 }
 
 inline il::Array<double> il::GmresIlu0::solve(
     const il::Array<double> &y, il::io_t, il::SparseMatrixCSR<int, double> &A) {
-  IL_EXPECT_FAST(matrix_element_ == A.element_data());
+  IL_EXPECT_FAST(matrix_element_ == A.elementData());
   IL_EXPECT_FAST(preconditionner_computed_);
   IL_EXPECT_FAST(A.size(0) == y.size());
 
   const int n = A.size(0);
 
-  convert_c_to_fortran(il::io, A);
+  convertCToFortran(il::io, A);
   il::Array<double> yloc = y;
   il::Array<double> ycopy = y;
   il::Array<double> x{n, 0.0};
@@ -223,8 +221,8 @@ inline il::Array<double> il::GmresIlu0::solve(
         break;
       case 1:
         // This is a Sparse matrix/Vector multiplication
-        mkl_dcsrgemv(&n_char, &n, A.element_data(), A.row_data(),
-                     A.column_data(), &tmp[ipar_[21] - 1], &tmp[ipar_[22] - 1]);
+        mkl_dcsrgemv(&n_char, &n, A.elementData(), A.rowData(), A.columnData(),
+                     &tmp[ipar_[21] - 1], &tmp[ipar_[22] - 1]);
         break;
       case 2:
         ipar_[12] = 1;
@@ -234,8 +232,8 @@ inline il::Array<double> il::GmresIlu0::solve(
         // Compute the current true residual via MKL (Sparse) BLAS
         // routines. It multiplies the matrix A with yCopy and
         // store the result in residual.
-        mkl_dcsrgemv(&n_char, &n, A.element_data(), A.row_data(),
-                     A.column_data(), ycopy.data(), residual.data());
+        mkl_dcsrgemv(&n_char, &n, A.elementData(), A.rowData(), A.columnData(),
+                     ycopy.data(), residual.data());
         // Compute: residual = A.(current x) - y
         // Note that A.(current x) is stored in residual before this operation
         daxpy(&n, &minus_one_double, yloc.data(), &one_int, residual.data(),
@@ -252,10 +250,10 @@ inline il::Array<double> il::GmresIlu0::solve(
         // TMP(IPAR(23)). Here is the recommended usage of the
         // result produced by ILUT routine via standard MKL Sparse
         // Blas solver rout'ine mkl_dcsrtrsv
-        mkl_dcsrtrsv(&l_char, &n_char, &u_char, &n, bilu0_.data(), A.row_data(),
-                     A.column_data(), &tmp[ipar_[21] - 1], trvec.data());
-        mkl_dcsrtrsv(&u_char, &n_char, &n_char, &n, bilu0_.data(), A.row_data(),
-                     A.column_data(), trvec.data(), &tmp[ipar_[22] - 1]);
+        mkl_dcsrtrsv(&l_char, &n_char, &u_char, &n, bilu0_.data(), A.rowData(),
+                     A.columnData(), &tmp[ipar_[21] - 1], trvec.data());
+        mkl_dcsrtrsv(&u_char, &n_char, &n_char, &n, bilu0_.data(), A.rowData(),
+                     A.columnData(), trvec.data(), &tmp[ipar_[22] - 1]);
         break;
       case 4:
         // If RCI_REQUEST=4, then check if the norm of the next
@@ -277,35 +275,35 @@ inline il::Array<double> il::GmresIlu0::solve(
 
   nb_iteration_ = itercount;
 
-  convert_fortran_to_c(il::io, A);
+  convertFortranToC(il::io, A);
 
   return x;
 }
 
-inline il::int_t il::GmresIlu0::nb_iteration() const { return nb_iteration_; }
+inline il::int_t il::GmresIlu0::nbIterations() const { return nb_iteration_; }
 
-inline void GmresIlu0::convert_c_to_fortran(
-    il::io_t, il::SparseMatrixCSR<int, double> &A) {
+inline void GmresIlu0::convertCToFortran(il::io_t,
+                                         il::SparseMatrixCSR<int, double> &A) {
   int n = A.size(0);
-  int *row = A.row_data();
+  int *row = A.rowData();
   for (int i = 0; i < n + 1; ++i) {
     row[i] += 1;
   }
-  int *column = A.column_data();
-  for (int k = 0; k < A.nb_nonzeros(); ++k) {
+  int *column = A.columnData();
+  for (int k = 0; k < A.nbNonZeros(); ++k) {
     column[k] += 1;
   }
 }
 
-inline void GmresIlu0::convert_fortran_to_c(
-    il::io_t, il::SparseMatrixCSR<int, double> &A) {
+inline void GmresIlu0::convertFortranToC(il::io_t,
+                                         il::SparseMatrixCSR<int, double> &A) {
   int n = A.size(0);
-  int *row = A.row_data();
+  int *row = A.rowData();
   for (int i = 0; i < n + 1; ++i) {
     row[i] -= 1;
   }
-  int *column = A.column_data();
-  for (int k = 0; k < A.nb_nonzeros(); ++k) {
+  int *column = A.columnData();
+  for (int k = 0; k < A.nbNonZeros(); ++k) {
     column[k] -= 1;
   }
 }

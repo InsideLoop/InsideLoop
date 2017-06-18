@@ -85,17 +85,17 @@ class Copy<il::CudaSparseMatrixCSR<T>, il::SparseMatrixCSR<int, T>> {
   static il::CudaSparseMatrixCSR<T> copy(
       const il::SparseMatrixCSR<int, T>& src) {
     il::CudaArray<int> row{src.size(0) + 1};
-    il::CudaArray<int> column{src.nb_nonzeros()};
-    il::CudaArray<T> element{src.nb_nonzeros()};
+    il::CudaArray<int> column{src.nbNonZeros()};
+    il::CudaArray<T> element{src.nbNonZeros()};
     cudaError_t error;
-    error = cudaMemcpy(row.data(), src.row_data(),
+    error = cudaMemcpy(row.data(), src.rowData(),
                        (src.size(0) + 1) * sizeof(int), cudaMemcpyHostToDevice);
     IL_EXPECT_FAST(error == 0);
-    error = cudaMemcpy(column.data(), src.column_data(),
-                       src.nb_nonzeros() * sizeof(int), cudaMemcpyHostToDevice);
+    error = cudaMemcpy(column.data(), src.columnData(),
+                       src.nbNonZeros() * sizeof(int), cudaMemcpyHostToDevice);
     IL_EXPECT_FAST(error == 0);
-    error = cudaMemcpy(element.data(), src.element_data(),
-                       src.nb_nonzeros() * sizeof(T), cudaMemcpyHostToDevice);
+    error = cudaMemcpy(element.data(), src.elementData(),
+                       src.nbNonZeros() * sizeof(T), cudaMemcpyHostToDevice);
     IL_EXPECT_FAST(error == 0);
 
     return il::CudaSparseMatrixCSR<T>{src.size(0), src.size(1), std::move(row),

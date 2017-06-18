@@ -18,7 +18,7 @@ namespace il {
 // int
 ////////////////////////////////////////////////////////////////////////////////
 
-inline int safe_sum(int a, int b, il::io_t, bool& error) {
+inline int safeSum(int a, int b, il::io_t, bool& error) {
 #if IL_BUILTIN_SAFE_ARITHMETIC
   int ans;
   error = __builtin_sadd_overflow(a, b, &ans);
@@ -34,7 +34,7 @@ inline int safe_sum(int a, int b, il::io_t, bool& error) {
 #endif
 }
 
-inline int safe_difference(int a, int b, il::io_t, bool& error) {
+inline int safeDifference(int a, int b, il::io_t, bool& error) {
 #if IL_BUILTIN_SAFE_ARITHMETIC
   int ans;
   error = __builtin_ssub_overflow(a, b, &ans);
@@ -50,7 +50,7 @@ inline int safe_difference(int a, int b, il::io_t, bool& error) {
 #endif
 }
 
-inline int safe_product(int a, int b, il::io_t, bool& error) {
+inline int safeProduct(int a, int b, il::io_t, bool& error) {
 #if IL_BUILTIN_SAFE_ARITHMETIC
   int ans;
   error = __builtin_smul_overflow(a, b, &ans);
@@ -79,11 +79,11 @@ inline int safe_product(int a, int b, il::io_t, bool& error) {
 #endif
 }
 
-inline int safe_product(int a, int b, int c, il::io_t, bool& error) {
+inline int safeProduct(int a, int b, int c, il::io_t, bool& error) {
   bool error_first;
-  const int ab = il::safe_product(a, b, il::io, error_first);
+  const int ab = il::safeProduct(a, b, il::io, error_first);
   bool error_second;
-  const int abc = il::safe_product(ab, c, il::io, error_second);
+  const int abc = il::safeProduct(ab, c, il::io, error_second);
   if (error_first || error_second) {
     error = true;
     return 0;
@@ -93,13 +93,13 @@ inline int safe_product(int a, int b, int c, il::io_t, bool& error) {
   }
 }
 
-inline int safe_product(int a, int b, int c, int d, il::io_t, bool& error) {
+inline int safeProduct(int a, int b, int c, int d, il::io_t, bool& error) {
   bool error_first;
-  const int ab = il::safe_product(a, b, il::io, error_first);
+  const int ab = il::safeProduct(a, b, il::io, error_first);
   bool error_second;
-  const int cd = il::safe_product(c, d, il::io, error_second);
+  const int cd = il::safeProduct(c, d, il::io, error_second);
   bool error_third;
-  const int abcd = il::safe_product(ab, cd, il::io, error_third);
+  const int abcd = il::safeProduct(ab, cd, il::io, error_third);
   if (error_first || error_second || error_third) {
     error = true;
     return 0;
@@ -109,7 +109,7 @@ inline int safe_product(int a, int b, int c, int d, il::io_t, bool& error) {
   }
 }
 
-inline int safe_division(int a, int b, il::io_t, bool& error) {
+inline int safeDivision(int a, int b, il::io_t, bool& error) {
   if (b == 0 || (b == -1 && a == INT_MIN)) {
     error = true;
     return 0;
@@ -118,7 +118,7 @@ inline int safe_division(int a, int b, il::io_t, bool& error) {
   }
 }
 
-inline unsigned safe_sum(unsigned a, unsigned b, il::io_t, bool& error) {
+inline unsigned safeSum(unsigned a, unsigned b, il::io_t, bool& error) {
 #if IL_BUILTIN_SAFE_ARITHMETIC
   unsigned ans;
   error = __builtin_uadd_overflow(a, b, &ans);
@@ -134,7 +134,7 @@ inline unsigned safe_sum(unsigned a, unsigned b, il::io_t, bool& error) {
 #endif
 }
 
-inline unsigned safe_product(unsigned a, unsigned b, il::io_t, bool& error) {
+inline unsigned safeProduct(unsigned a, unsigned b, il::io_t, bool& error) {
 #if IL_BUILTIN_SAFE_ARITHMETIC
   unsigned ans;
   error = __builtin_umul_overflow(a, b, &ans);
@@ -165,7 +165,7 @@ inline unsigned safe_product(unsigned a, unsigned b, il::io_t, bool& error) {
 // long
 ////////////////////////////////////////////////////////////////////////////////
 
-inline long safe_sum(long a, long b, il::io_t, bool& error) {
+inline long safeSum(long a, long b, il::io_t, bool& error) {
 #if IL_BUILTIN_SAFE_ARITHMETIC
   long ans;
   error = __builtin_saddl_overflow(a, b, &ans);
@@ -181,7 +181,7 @@ inline long safe_sum(long a, long b, il::io_t, bool& error) {
 #endif
 }
 
-inline long safe_difference(long a, long b, il::io_t, bool& error) {
+inline long safeDifference(long a, long b, il::io_t, bool& error) {
 #if IL_BUILTIN_SAFE_ARITHMETIC
   long ans;
   error = __builtin_ssubl_overflow(a, b, &ans);
@@ -197,9 +197,10 @@ inline long safe_difference(long a, long b, il::io_t, bool& error) {
 #endif
 }
 
-inline long safe_product_2_positive(long a, il::io_t, bool& error) {
+inline long safeProduct2Positive(long a, il::io_t, bool& error) {
   const unsigned long ua = static_cast<unsigned long>(a);
-  constexpr unsigned long max = static_cast<unsigned long>(2) << (sizeof(unsigned long) * 8 - 2);
+  constexpr unsigned long max = static_cast<unsigned long>(2)
+                                << (sizeof(unsigned long) * 8 - 2);
   if (ua < max) {
     error = false;
     return 2 * a;
@@ -209,8 +210,7 @@ inline long safe_product_2_positive(long a, il::io_t, bool& error) {
   }
 }
 
-
-inline long safe_product(long a, long b, il::io_t, bool& error) {
+inline long safeProduct(long a, long b, il::io_t, bool& error) {
 #if IL_BUILTIN_SAFE_ARITHMETIC
   long ans;
   error = __builtin_smull_overflow(a, b, &ans);
@@ -228,11 +228,11 @@ inline long safe_product(long a, long b, il::io_t, bool& error) {
 #endif
 }
 
-inline long safe_product(long a, long b, long c, il::io_t, bool& error) {
+inline long safeProduct(long a, long b, long c, il::io_t, bool& error) {
   bool error_first;
-  const long ab = il::safe_product(a, b, il::io, error_first);
+  const long ab = il::safeProduct(a, b, il::io, error_first);
   bool error_second;
-  const long abc = il::safe_product(ab, c, il::io, error_second);
+  const long abc = il::safeProduct(ab, c, il::io, error_second);
   if (error_first || error_second) {
     error = true;
     return 0;
@@ -242,14 +242,13 @@ inline long safe_product(long a, long b, long c, il::io_t, bool& error) {
   }
 }
 
-inline long safe_product(long a, long b, long c, long d, il::io_t,
-                         bool& error) {
+inline long safeProduct(long a, long b, long c, long d, il::io_t, bool& error) {
   bool error_first;
-  const long ab = il::safe_product(a, b, il::io, error_first);
+  const long ab = il::safeProduct(a, b, il::io, error_first);
   bool error_second;
-  const long cd = il::safe_product(c, d, il::io, error_second);
+  const long cd = il::safeProduct(c, d, il::io, error_second);
   bool error_third;
-  const long abcd = il::safe_product(ab, cd, il::io, error_third);
+  const long abcd = il::safeProduct(ab, cd, il::io, error_third);
   if (error_first || error_second || error_third) {
     error = true;
     return 0;
@@ -259,7 +258,7 @@ inline long safe_product(long a, long b, long c, long d, il::io_t,
   }
 }
 
-inline long safe_division(long a, long b, il::io_t, bool& error) {
+inline long safeDivision(long a, long b, il::io_t, bool& error) {
   if (b == 0 || (b == -1 && a == LONG_MIN)) {
     error = true;
     return 0;
@@ -268,8 +267,8 @@ inline long safe_division(long a, long b, il::io_t, bool& error) {
   }
 }
 
-inline unsigned long safe_sum(unsigned long a, unsigned long b, il::io_t,
-                              bool& error) {
+inline unsigned long safeSum(unsigned long a, unsigned long b, il::io_t,
+                             bool& error) {
 #if IL_BUILTIN_SAFE_ARITHMETIC
   unsigned long ans;
   error = __builtin_uaddl_overflow(a, b, &ans);
@@ -285,8 +284,8 @@ inline unsigned long safe_sum(unsigned long a, unsigned long b, il::io_t,
 #endif
 }
 
-inline unsigned long safe_product(unsigned long a, unsigned long b, il::io_t,
-                                  bool& error) {
+inline unsigned long safeProduct(unsigned long a, unsigned long b, il::io_t,
+                                 bool& error) {
 #if IL_BUILTIN_SAFE_ARITHMETIC
   unsigned long ans;
   error = __builtin_umull_overflow(a, b, &ans);
@@ -306,7 +305,7 @@ inline unsigned long safe_product(unsigned long a, unsigned long b, il::io_t,
 // long long
 ////////////////////////////////////////////////////////////////////////////////
 
-inline long long safe_sum(long long a, long long b, il::io_t, bool& error) {
+inline long long safeSum(long long a, long long b, il::io_t, bool& error) {
 #if IL_BUILTIN_SAFE_ARITHMETIC
   long long ans;
   error = __builtin_saddll_overflow(a, b, &ans);
@@ -322,8 +321,8 @@ inline long long safe_sum(long long a, long long b, il::io_t, bool& error) {
 #endif
 }
 
-inline long long safe_difference(long long a, long long b, il::io_t,
-                                 bool& error) {
+inline long long safeDifference(long long a, long long b, il::io_t,
+                                bool& error) {
 #if IL_BUILTIN_SAFE_ARITHMETIC
   long long ans;
   error = __builtin_ssubll_overflow(a, b, &ans);
@@ -339,7 +338,7 @@ inline long long safe_difference(long long a, long long b, il::io_t,
 #endif
 }
 
-inline long long safe_product(long long a, long long b, il::io_t, bool& error) {
+inline long long safeProduct(long long a, long long b, il::io_t, bool& error) {
 #if IL_BUILTIN_SAFE_ARITHMETIC
   long long ans;
   error = __builtin_smulll_overflow(a, b, &ans);
@@ -357,12 +356,12 @@ inline long long safe_product(long long a, long long b, il::io_t, bool& error) {
 #endif
 }
 
-inline long long safe_product(long long a, long long b, long long c, il::io_t,
-                              bool& error) {
+inline long long safeProduct(long long a, long long b, long long c, il::io_t,
+                             bool& error) {
   bool error_first;
-  const long long ab = il::safe_product(a, b, il::io, error_first);
+  const long long ab = il::safeProduct(a, b, il::io, error_first);
   bool error_second;
-  const long long abc = il::safe_product(ab, c, il::io, error_second);
+  const long long abc = il::safeProduct(ab, c, il::io, error_second);
   if (error_first || error_second) {
     error = true;
     return 0;
@@ -372,14 +371,14 @@ inline long long safe_product(long long a, long long b, long long c, il::io_t,
   }
 }
 
-inline long long safe_product(long long a, long long b, long long c,
-                              long long d, il::io_t, bool& error) {
+inline long long safeProduct(long long a, long long b, long long c, long long d,
+                             il::io_t, bool& error) {
   bool error_first;
-  const long long ab = il::safe_product(a, b, il::io, error_first);
+  const long long ab = il::safeProduct(a, b, il::io, error_first);
   bool error_second;
-  const long long cd = il::safe_product(c, d, il::io, error_second);
+  const long long cd = il::safeProduct(c, d, il::io, error_second);
   bool error_third;
-  const long long abcd = il::safe_product(ab, cd, il::io, error_third);
+  const long long abcd = il::safeProduct(ab, cd, il::io, error_third);
   if (error_first || error_second || error_third) {
     error = true;
     return 0;
@@ -389,8 +388,7 @@ inline long long safe_product(long long a, long long b, long long c,
   }
 }
 
-inline long long safe_division(long long a, long long b, il::io_t,
-                               bool& error) {
+inline long long safeDivision(long long a, long long b, il::io_t, bool& error) {
   if (b == 0 || (b == -1 && a == LLONG_MIN)) {
     error = true;
     return 0;
@@ -399,8 +397,8 @@ inline long long safe_division(long long a, long long b, il::io_t,
   }
 }
 
-inline unsigned long long safe_sum(unsigned long long a, unsigned long long b,
-                                   il::io_t, bool& error) {
+inline unsigned long long safeSum(unsigned long long a, unsigned long long b,
+                                  il::io_t, bool& error) {
 #if IL_BUILTIN_SAFE_ARITHMETIC
   unsigned long long ans;
   error = __builtin_uaddll_overflow(a, b, &ans);
@@ -416,9 +414,9 @@ inline unsigned long long safe_sum(unsigned long long a, unsigned long long b,
 #endif
 }
 
-inline unsigned long long safe_product(unsigned long long a,
-                                       unsigned long long b, il::io_t,
-                                       bool& error) {
+inline unsigned long long safeProduct(unsigned long long a,
+                                      unsigned long long b, il::io_t,
+                                      bool& error) {
 #if IL_BUILTIN_SAFE_ARITHMETIC
   unsigned long long ans;
   error = __builtin_umulll_overflow(a, b, &ans);
@@ -438,7 +436,7 @@ inline unsigned long long safe_product(unsigned long long a,
 // rounding
 ////////////////////////////////////////////////////////////////////////////////
 
-inline int safe_upper_round(int a, int b, il::io_t, bool& error) {
+inline int safeUpperRound(int a, int b, il::io_t, bool& error) {
   IL_EXPECT_FAST(a >= 0);
   IL_EXPECT_FAST(b > 0);
 
@@ -450,9 +448,9 @@ inline int safe_upper_round(int a, int b, il::io_t, bool& error) {
   } else {
     bool error_sum = false;
     bool error_product = false;
-    const int q_plus_one = il::safe_sum(static_cast<int>(q),
-                                        static_cast<int>(1), il::io, error_sum);
-    const int ans = il::safe_product(q_plus_one, b, il::io, error_product);
+    const int q_plus_one = il::safeSum(static_cast<int>(q), static_cast<int>(1),
+                                       il::io, error_sum);
+    const int ans = il::safeProduct(q_plus_one, b, il::io, error_product);
     if (error_sum || error_product) {
       error = true;
       return 0;
@@ -463,7 +461,7 @@ inline int safe_upper_round(int a, int b, il::io_t, bool& error) {
   }
 }
 
-inline long safe_upper_round(long a, long b, il::io_t, bool& error) {
+inline long safeUpperRound(long a, long b, il::io_t, bool& error) {
   IL_EXPECT_FAST(a >= 0);
   IL_EXPECT_FAST(b > 0);
 
@@ -477,9 +475,9 @@ inline long safe_upper_round(long a, long b, il::io_t, bool& error) {
   } else {
     bool error_sum = false;
     bool error_product = false;
-    const long q_plus_one = il::safe_sum(
+    const long q_plus_one = il::safeSum(
         static_cast<long>(q), static_cast<long>(1), il::io, error_sum);
-    const long ans = il::safe_product(q_plus_one, b, il::io, error_product);
+    const long ans = il::safeProduct(q_plus_one, b, il::io, error_product);
     if (error_sum || error_product) {
       error = true;
       return 0;
@@ -490,8 +488,8 @@ inline long safe_upper_round(long a, long b, il::io_t, bool& error) {
   }
 }
 
-inline long long safe_upper_round(long long a, long long b, il::io_t,
-                                  bool& error) {
+inline long long safeUpperRound(long long a, long long b, il::io_t,
+                                bool& error) {
   IL_EXPECT_FAST(a >= 0);
   IL_EXPECT_FAST(b > 0);
 
@@ -506,10 +504,9 @@ inline long long safe_upper_round(long long a, long long b, il::io_t,
     bool error_sum = false;
     bool error_product = false;
     const long long q_plus_one =
-        il::safe_sum(static_cast<long long>(q), static_cast<long long>(1),
-                     il::io, error_sum);
-    const long long ans =
-        il::safe_product(q_plus_one, b, il::io, error_product);
+        il::safeSum(static_cast<long long>(q), static_cast<long long>(1),
+                    il::io, error_sum);
+    const long long ans = il::safeProduct(q_plus_one, b, il::io, error_product);
     if (error_sum || error_product) {
       error = true;
       return 0;
@@ -525,14 +522,14 @@ inline long long safe_upper_round(long long a, long long b, il::io_t,
 ////////////////////////////////////////////////////////////////////////////////
 
 template <typename T1, typename T2>
-T1 safe_convert(T2 n, il::io_t, bool& error) {
+T1 safeConvert(T2 n, il::io_t, bool& error) {
   IL_UNUSED(n);
   IL_UNUSED(error);
   IL_UNREACHABLE;
 }
 
 template <>
-inline int safe_convert(unsigned n, il::io_t, bool& error) {
+inline int safeConvert(unsigned n, il::io_t, bool& error) {
   if (n > INT_MAX) {
     error = true;
     return 0;
@@ -543,7 +540,7 @@ inline int safe_convert(unsigned n, il::io_t, bool& error) {
 }
 
 template <>
-inline unsigned safe_convert(int n, il::io_t, bool& error) {
+inline unsigned safeConvert(int n, il::io_t, bool& error) {
   if (n < 0) {
     error = true;
     return 0;
@@ -554,7 +551,7 @@ inline unsigned safe_convert(int n, il::io_t, bool& error) {
 }
 
 template <>
-inline long safe_convert(unsigned long n, il::io_t, bool& error) {
+inline long safeConvert(unsigned long n, il::io_t, bool& error) {
   if (n > LONG_MAX) {
     error = true;
     return 0;
@@ -565,7 +562,7 @@ inline long safe_convert(unsigned long n, il::io_t, bool& error) {
 }
 
 template <>
-inline unsigned long safe_convert(long n, il::io_t, bool& error) {
+inline unsigned long safeConvert(long n, il::io_t, bool& error) {
   if (n < 0) {
     error = true;
     return 0;
@@ -576,7 +573,7 @@ inline unsigned long safe_convert(long n, il::io_t, bool& error) {
 }
 
 template <>
-inline long long safe_convert(unsigned long long n, il::io_t, bool& error) {
+inline long long safeConvert(unsigned long long n, il::io_t, bool& error) {
   if (n > LLONG_MAX) {
     error = true;
     return 0;
@@ -587,7 +584,7 @@ inline long long safe_convert(unsigned long long n, il::io_t, bool& error) {
 }
 
 template <>
-inline unsigned long long safe_convert(long long n, il::io_t, bool& error) {
+inline unsigned long long safeConvert(long long n, il::io_t, bool& error) {
   if (n < 0) {
     error = true;
     return 0;

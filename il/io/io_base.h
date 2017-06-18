@@ -17,25 +17,25 @@
 
 namespace il {
 
-enum class FileType { npy, toml, data, png };
+enum class FileType { kNpy, kToml, kData, kPng };
 
-inline il::FileType file_type(const il::String& file, il::io_t,
-                              il::Status& status) {
-  if (file.has_suffix(".npy")) {
-    status.set_ok();
-    return il::FileType::npy;
-  } else if (file.has_suffix(".toml")) {
-    status.set_ok();
-    return il::FileType::toml;
-  } else if (file.has_suffix(".data")) {
-    status.set_ok();
-    return il::FileType::data;
-  } else if (file.has_suffix(".png")) {
-    status.set_ok();
-    return il::FileType::png;
+inline il::FileType fileType(const il::String& file, il::io_t,
+                             il::Status& status) {
+  if (file.hasSuffix(".npy")) {
+    status.setOk();
+    return il::FileType::kNpy;
+  } else if (file.hasSuffix(".toml")) {
+    status.setOk();
+    return il::FileType::kToml;
+  } else if (file.hasSuffix(".data")) {
+    status.setOk();
+    return il::FileType::kData;
+  } else if (file.hasSuffix(".png")) {
+    status.setOk();
+    return il::FileType::kPng;
   } else {
-    status.set_error(il::Error::undefined);
-    return il::FileType::npy;
+    status.setError(il::Error::kUndefined);
+    return il::FileType::kNpy;
   }
 }
 
@@ -49,7 +49,7 @@ template <typename T>
 T LoadHelper<T>::load(const il::String& filename, il::io_t,
                       il::Status& status) {
   IL_UNUSED(filename);
-  status.set_error(il::Error::unimplemented);
+  status.setError(il::Error::kUnimplemented);
   IL_SET_SOURCE(status);
   return T{};
 }
@@ -64,7 +64,7 @@ template <typename T>
 T LoadHelperToml<T>::load(const il::String& filename, il::io_t,
                           il::Status& status) {
   IL_UNUSED(filename);
-  status.set_error(il::Error::unimplemented);
+  status.setError(il::Error::kUnimplemented);
   IL_SET_SOURCE(status);
   return T{};
 }
@@ -79,23 +79,23 @@ template <typename T>
 T LoadHelperData<T>::load(const il::String& filename, il::io_t,
                           il::Status& status) {
   IL_UNUSED(filename);
-  status.set_error(il::Error::unimplemented);
+  status.setError(il::Error::kUnimplemented);
   IL_SET_SOURCE(status);
   return T{};
 }
 
 template <typename T>
 T load(const il::String& filename, il::io_t, il::Status& status) {
-  const il::FileType ft = il::file_type(filename, il::io, status);
-  if (!status.ok()) {
+  const il::FileType ft = il::fileType(filename, il::io, status);
+  if (status.notOk()) {
     status.rearm();
     return T{};
   }
   switch (ft) {
-    case il::FileType::toml:
+    case il::FileType::kToml:
       return il::LoadHelperToml<T>::load(filename, il::io, status);
       break;
-    case il::FileType::data:
+    case il::FileType::kData:
       return il::LoadHelperData<T>::load(filename, il::io, status);
       break;
     default:
@@ -121,7 +121,7 @@ void SaveHelper<T>::save(const T& x, const il::String& filename, il::io_t,
                          il::Status& status) {
   IL_UNUSED(x);
   IL_UNUSED(filename);
-  status.set_error(il::Error::unimplemented);
+  status.setError(il::Error::kUnimplemented);
   IL_SET_SOURCE(status);
 }
 
@@ -137,7 +137,7 @@ void SaveHelperToml<T>::save(const T& x, const il::String& filename, il::io_t,
                              il::Status& status) {
   IL_UNUSED(x);
   IL_UNUSED(filename);
-  status.set_error(il::Error::unimplemented);
+  status.setError(il::Error::kUnimplemented);
   IL_SET_SOURCE(status);
 }
 
@@ -153,7 +153,7 @@ void SaveHelperData<T>::save(const T& x, const il::String& filename, il::io_t,
                              il::Status& status) {
   IL_UNUSED(x);
   IL_UNUSED(filename);
-  status.set_error(il::Error::unimplemented);
+  status.setError(il::Error::kUnimplemented);
   IL_SET_SOURCE(status);
 }
 
@@ -166,36 +166,35 @@ class SaveHelperPng {
 
 template <typename T>
 void SaveHelperPng<T>::save(const T& x, const il::String& filename, il::io_t,
-                             il::Status& status) {
+                            il::Status& status) {
   IL_UNUSED(x);
   IL_UNUSED(filename);
-  status.set_error(il::Error::unimplemented);
+  status.setError(il::Error::kUnimplemented);
   IL_SET_SOURCE(status);
 }
 
 template <typename T>
 void save(const T& x, const il::String& filename, il::io_t,
           il::Status& status) {
-  const il::FileType ft = il::file_type(filename, il::io, status);
-  if (!status.ok()) {
+  const il::FileType ft = il::fileType(filename, il::io, status);
+  if (status.notOk()) {
     status.rearm();
     return;
   }
   switch (ft) {
-    case il::FileType::toml:
+    case il::FileType::kToml:
       il::SaveHelperToml<T>::save(x, filename, il::io, status);
       break;
-    case il::FileType::data:
+    case il::FileType::kData:
       il::SaveHelperData<T>::save(x, filename, il::io, status);
       break;
-    case il::FileType::png:
+    case il::FileType::kPng:
       il::SaveHelperPng<T>::save(x, filename, il::io, status);
       break;
     default:
       il::SaveHelper<T>::save(x, filename, il::io, status);
   }
 }
-
 
 }  // namespace il
 

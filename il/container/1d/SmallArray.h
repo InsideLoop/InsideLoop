@@ -44,7 +44,7 @@ class SmallArray {
   /* \brief Construct a small array of n elements
   // \details The size and the capacity of the array are set to n.
   // - If T is a numeric value, the memory is
-  //   - (Debug mode) initialized to il::default_value<T>(). It is usually NaN
+  //   - (Debug mode) initialized to il::defaultValue<T>(). It is usually NaN
   //     if T is a floating point number or 666..666 if T is an integer.
   //   - (Release mode) left uninitialized. This behavior is different from
   //     std::vector from the standard library which initializes all numeric
@@ -201,11 +201,11 @@ class SmallArray {
  private:
   /* \brief Used internally to check if the stack array is used
    */
-  bool small_data_used() const;
+  bool smallDataUsed() const;
 
   /* \brief Used internally to increase the capacity of the array
    */
-  void increase_capacity(il::int_t r);
+  void increaseCapacity(il::int_t r);
 
   /* \brief Used internally in debug mode to check the invariance of the object
    */
@@ -228,14 +228,14 @@ SmallArray<T, small_size>::SmallArray(il::int_t n) {
     size_ = data_ + n;
     capacity_ = data_ + small_size;
   } else {
-    data_ = il::allocate_array<T>(n);
+    data_ = il::allocateArray<T>(n);
     size_ = data_ + n;
     capacity_ = data_ + n;
   }
-  if (il::is_trivial<T>::value) {
+  if (il::isTrivial<T>::value) {
 #ifdef IL_DEFAULT_VALUE
     for (il::int_t i = 0; i < n; ++i) {
-      data_[i] = il::default_value<T>();
+      data_[i] = il::defaultValue<T>();
     }
 #endif
   } else {
@@ -254,7 +254,7 @@ SmallArray<T, small_size>::SmallArray(il::int_t n, const T& x) {
     size_ = data_ + n;
     capacity_ = data_ + small_size;
   } else {
-    data_ = il::allocate_array<T>(n);
+    data_ = il::allocateArray<T>(n);
     size_ = data_ + n;
     capacity_ = data_ + n;
   }
@@ -272,11 +272,11 @@ SmallArray<T, small_size>::SmallArray(il::value_t,
     size_ = data_ + n;
     capacity_ = data_ + small_size;
   } else {
-    data_ = il::allocate_array<T>(n);
+    data_ = il::allocateArray<T>(n);
     size_ = data_ + n;
     capacity_ = data_ + n;
   }
-  if (il::is_trivial<T>::value) {
+  if (il::isTrivial<T>::value) {
     memcpy(data_, list.begin(), n * sizeof(T));
   } else {
     for (il::int_t i = 0; i < n; ++i) {
@@ -293,11 +293,11 @@ SmallArray<T, small_size>::SmallArray(const SmallArray<T, small_size>& A) {
     size_ = data_ + n;
     capacity_ = data_ + small_size;
   } else {
-    data_ = il::allocate_array<T>(n);
+    data_ = il::allocateArray<T>(n);
     size_ = data_ + n;
     capacity_ = data_ + n;
   }
-  if (il::is_trivial<T>::value) {
+  if (il::isTrivial<T>::value) {
     memcpy(data_, A.data_, n * sizeof(T));
   } else {
     for (il::int_t i = 0; i < n; ++i) {
@@ -309,9 +309,9 @@ SmallArray<T, small_size>::SmallArray(const SmallArray<T, small_size>& A) {
 template <typename T, il::int_t small_size>
 SmallArray<T, small_size>::SmallArray(SmallArray<T, small_size>&& A) {
   const il::int_t n = A.size();
-  if (A.small_data_used()) {
+  if (A.smallDataUsed()) {
     data_ = reinterpret_cast<T*>(small_data_);
-    if (il::is_trivial<T>::value) {
+    if (il::isTrivial<T>::value) {
       memcpy(data_, A.data_, n * sizeof(T));
     } else {
       for (il::int_t i = n - 1; i >= 0; --i) {
@@ -338,20 +338,20 @@ SmallArray<T, small_size>& SmallArray<T, small_size>::operator=(
     const il::int_t n = A.size();
     const bool needs_memory = capacity() < n;
     if (needs_memory) {
-      if (il::is_trivial<T>::value) {
-        if (!small_data_used()) {
+      if (il::isTrivial<T>::value) {
+        if (!smallDataUsed()) {
           il::deallocate(data_);
         }
-        data_ = il::allocate_array<T>(n);
+        data_ = il::allocateArray<T>(n);
         memcpy(data_, A.data_, n * sizeof(T));
       } else {
         for (il::int_t i = size() - 1; i >= 0; --i) {
           (data_ + i)->~T();
         }
-        if (!small_data_used()) {
+        if (!smallDataUsed()) {
           il::deallocate(data_);
         }
-        data_ = il::allocate_array<T>(n);
+        data_ = il::allocateArray<T>(n);
         for (il::int_t i = 0; i < n; ++i) {
           new (data_ + i) T(A.data_[i]);
         }
@@ -359,7 +359,7 @@ SmallArray<T, small_size>& SmallArray<T, small_size>::operator=(
       size_ = data_ + n;
       capacity_ = data_ + n;
     } else {
-      if (!il::is_trivial<T>::value) {
+      if (!il::isTrivial<T>::value) {
         for (il::int_t i = size() - 1; i >= n; --i) {
           (data_ + i)->~T();
         }
@@ -377,22 +377,22 @@ template <typename T, il::int_t small_size>
 SmallArray<T, small_size>& SmallArray<T, small_size>::operator=(
     SmallArray<T, small_size>&& A) {
   if (this != &A) {
-    if (il::is_trivial<T>::value) {
-      if (!small_data_used()) {
+    if (il::isTrivial<T>::value) {
+      if (!smallDataUsed()) {
         il::deallocate(data_);
       }
     } else {
       for (il::int_t i = size() - 1; i >= 0; --i) {
         (data_ + i)->~T();
       }
-      if (!small_data_used()) {
+      if (!smallDataUsed()) {
         il::deallocate(data_);
       }
     }
     const il::int_t n = A.size();
-    if (A.small_data_used()) {
+    if (A.smallDataUsed()) {
       data_ = reinterpret_cast<T*>(small_data_);
-      if (il::is_trivial<T>::value) {
+      if (il::isTrivial<T>::value) {
         memcpy(data_, A.data_, n * sizeof(T));
       } else {
         for (il::int_t i = n - 1; i >= 0; --i) {
@@ -418,12 +418,12 @@ template <typename T, il::int_t small_size>
 SmallArray<T, small_size>::~SmallArray() {
   IL_EXPECT_FAST_NOTHROW(invariance());
 
-  if (!il::is_trivial<T>::value) {
+  if (!il::isTrivial<T>::value) {
     for (il::int_t i = size() - 1; i >= 0; --i) {
       (data_ + i)->~T();
     }
   }
-  if (!small_data_used()) {
+  if (!smallDataUsed()) {
     il::deallocate(data_);
   }
 }
@@ -464,10 +464,10 @@ void SmallArray<T, small_size>::resize(il::int_t n) {
   IL_EXPECT_FAST(n >= 0);
 
   if (n <= capacity()) {
-    if (il::is_trivial<T>::value) {
+    if (il::isTrivial<T>::value) {
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t i = size(); i < n; ++i) {
-        data_[i] = il::default_value<T>();
+        data_[i] = il::defaultValue<T>();
       }
 #endif
     } else {
@@ -480,11 +480,11 @@ void SmallArray<T, small_size>::resize(il::int_t n) {
     }
   } else {
     const il::int_t n_old = size();
-    increase_capacity(n);
-    if (il::is_trivial<T>::value) {
+    increaseCapacity(n);
+    if (il::isTrivial<T>::value) {
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t i = n_old; i < n; ++i) {
-        data_[i] = il::default_value<T>();
+        data_[i] = il::defaultValue<T>();
       }
 #endif
     } else {
@@ -506,7 +506,7 @@ void SmallArray<T, small_size>::reserve(il::int_t r) {
   IL_EXPECT_FAST(r >= 0);
 
   if (r > capacity()) {
-    increase_capacity(r);
+    increaseCapacity(r);
   }
 }
 
@@ -516,13 +516,13 @@ void SmallArray<T, small_size>::append(const T& x) {
     const il::int_t n = size();
     bool error = false;
     il::int_t new_capacity =
-        n > 1 ? il::safe_sum(n, n / 2, il::io, error)
-              : il::safe_sum(n, static_cast<il::int_t>(1), il::io, error);
+        n > 1 ? il::safeSum(n, n / 2, il::io, error)
+              : il::safeSum(n, static_cast<il::int_t>(1), il::io, error);
     if (error) {
       il::abort();
     }
     T x_copy = x;
-    increase_capacity(new_capacity);
+    increaseCapacity(new_capacity);
     new (size_) T(std::move(x_copy));
   } else {
     new (size_) T(x);
@@ -537,12 +537,12 @@ void SmallArray<T, small_size>::append(Args&&... args) {
     const il::int_t n = size();
     bool error = false;
     il::int_t new_capacity =
-        n > 1 ? il::safe_sum(n, n / 2, il::io, error)
-              : il::safe_sum(n, static_cast<il::int_t>(1), il::io, error);
+        n > 1 ? il::safeSum(n, n / 2, il::io, error)
+              : il::safeSum(n, static_cast<il::int_t>(1), il::io, error);
     if (error) {
       il::abort();
     }
-    increase_capacity(new_capacity);
+    increaseCapacity(new_capacity);
   };
   new (size_) T(args...);
   ++size_;
@@ -569,20 +569,20 @@ const T* SmallArray<T, small_size>::end() const {
 }
 
 template <typename T, il::int_t small_size>
-bool SmallArray<T, small_size>::small_data_used() const {
+bool SmallArray<T, small_size>::smallDataUsed() const {
   return data_ == reinterpret_cast<const T*>(small_data_);
 }
 
 template <typename T, il::int_t small_size>
-void SmallArray<T, small_size>::increase_capacity(il::int_t r) {
+void SmallArray<T, small_size>::increaseCapacity(il::int_t r) {
   IL_EXPECT_FAST(size() <= r);
 
   const il::int_t n = size();
   T* new_data;
-  new_data = il::allocate_array<T>(r);
-  if (il::is_trivial<T>::value) {
+  new_data = il::allocateArray<T>(r);
+  if (il::isTrivial<T>::value) {
     memcpy(new_data, data_, n * sizeof(T));
-    if (!small_data_used()) {
+    if (!smallDataUsed()) {
       il::deallocate(data_);
     }
   } else {
@@ -590,7 +590,7 @@ void SmallArray<T, small_size>::increase_capacity(il::int_t r) {
       new (new_data + i) T(std::move(data_[i]));
       (data_ + i)->~T();
     }
-    if (!small_data_used()) {
+    if (!smallDataUsed()) {
       il::deallocate(data_);
     }
   }

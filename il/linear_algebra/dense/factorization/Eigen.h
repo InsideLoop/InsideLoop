@@ -41,7 +41,7 @@ class Eigen<il::Array2D<double>> {
 
   // Get the Eigen values
   // - The precision looks bad if the matrix can't be diagonalized in C
-  il::Array<std::complex<double>> eigen_value() const;
+  il::Array<std::complex<double>> eigenValue() const;
 };
 
 Eigen<il::Array2D<double>>::Eigen(il::Array2D<double> A, il::io_t,
@@ -73,18 +73,17 @@ Eigen<il::Array2D<double>>::Eigen(il::Array2D<double> A, il::io_t,
 
   IL_EXPECT_FAST(lapack_error >= 0);
   if (lapack_error == 0) {
-    status.set_ok();
+    status.setOk();
     eigen_value_ = std::move(w);
     eigen_value_r_ = std::move(wr);
     eigen_value_i_ = std::move(wi);
   } else {
-    status.set_error(il::Error::matrix_eigenvalue_no_convergence);
+    status.setError(il::Error::kMatrixEigenValueNoConvergence);
     IL_SET_SOURCE(status);
   }
 }
 
-il::Array<std::complex<double>> Eigen<il::Array2D<double>>::eigen_value()
-    const {
+il::Array<std::complex<double>> Eigen<il::Array2D<double>>::eigenValue() const {
   il::Array<std::complex<double>> ans{eigen_value_r_.size()};
 
   for (il::int_t i = 0; i < ans.size(); ++i) {

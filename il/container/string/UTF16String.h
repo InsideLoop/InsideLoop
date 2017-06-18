@@ -70,26 +70,26 @@ class UTF16String {
   void append(il::int_t n, int cp);
   il::int_t next_code_point(il::int_t i) const;
   int cp(il::int_t i) const;
-  bool empty() const;
+  bool isEmpty() const;
   const unsigned short* begin() const;
   const unsigned short* end() const;
-  const IL_UTF16CHAR* as_w_string() const;
+  const IL_UTF16CHAR* asWString() const;
   bool operator==(const il::UTF16String& other) const;
 
  private:
-  void set_small_size(il::int_t n);
-  void set_large_capacity(il::int_t r);
+  void setSmallSize(il::int_t n);
+  void setLargeCapacity(il::int_t r);
   unsigned short* begin();
   unsigned short* end();
   void append(const IL_UTF16CHAR*, il::int_t n);
-  bool valid_code_point(int cp);
+  bool validUnicodeScalar(int cp);
   constexpr static il::int_t max_small_size_ =
       static_cast<il::int_t>(sizeof(LargeUTF16String) / 2 - 1);
 };
 
 inline UTF16String::UTF16String() {
   data_[0] = static_cast<unsigned short>('\0');
-  set_small_size(0);
+  setSmallSize(0);
 }
 
 inline UTF16String::UTF16String(const IL_UTF16CHAR* data) {
@@ -101,12 +101,12 @@ inline UTF16String::UTF16String(const IL_UTF16CHAR* data) {
   }
   if (size <= max_small_size_) {
     std::memcpy(data_, data, 2 * (static_cast<std::size_t>(size) + 1));
-    set_small_size(size);
+    setSmallSize(size);
   } else {
-    large_.data = il::allocate_array<unsigned short>(size + 1);
+    large_.data = il::allocateArray<unsigned short>(size + 1);
     std::memcpy(large_.data, data, 2 * (static_cast<std::size_t>(size) + 1));
     large_.size = static_cast<std::size_t>(size);
-    set_large_capacity(size);
+    setLargeCapacity(size);
   }
 }
 
@@ -114,13 +114,13 @@ inline UTF16String::UTF16String(const UTF16String& s) {
   const il::int_t size = s.size();
   if (size <= max_small_size_) {
     std::memcpy(data_, s.begin(), 2 * (static_cast<std::size_t>(size) + 1));
-    set_small_size(size);
+    setSmallSize(size);
   } else {
-    large_.data = il::allocate_array<unsigned short>(size + 1);
+    large_.data = il::allocateArray<unsigned short>(size + 1);
     std::memcpy(large_.data, s.begin(),
                 2 * (static_cast<std::size_t>(size) + 1));
     large_.size = static_cast<std::size_t>(size);
-    set_large_capacity(size);
+    setLargeCapacity(size);
   }
 }
 
@@ -128,13 +128,13 @@ inline UTF16String::UTF16String(UTF16String&& s) {
   const il::int_t size = s.size();
   if (size <= max_small_size_) {
     std::memcpy(data_, s.begin(), 2 * (static_cast<std::size_t>(size) + 1));
-    set_small_size(size);
+    setSmallSize(size);
   } else {
     large_.data = s.large_.data;
     large_.size = s.large_.size;
     large_.capacity = s.large_.capacity;
     s.data_[0] = static_cast<unsigned short>('\0');
-    s.set_small_size(0);
+    s.setSmallSize(0);
   }
 }
 
@@ -145,7 +145,7 @@ inline UTF16String& UTF16String::operator=(const UTF16String& s) {
       il::deallocate(large_.data);
     }
     std::memcpy(data_, s.begin(), 2 * (static_cast<std::size_t>(size) + 1));
-    set_small_size(size);
+    setSmallSize(size);
   } else {
     if (size <= capacity()) {
       std::memcpy(large_.data, s.begin(),
@@ -155,11 +155,11 @@ inline UTF16String& UTF16String::operator=(const UTF16String& s) {
       if (!small()) {
         il::deallocate(large_.data);
       }
-      large_.data = il::allocate_array<unsigned short>(size + 1);
+      large_.data = il::allocateArray<unsigned short>(size + 1);
       std::memcpy(large_.data, s.begin(),
                   2 * (static_cast<std::size_t>(size) + 1));
       large_.size = static_cast<std::size_t>(size);
-      set_large_capacity(size);
+      setLargeCapacity(size);
     }
   }
   return *this;
@@ -173,13 +173,13 @@ inline UTF16String& UTF16String::operator=(UTF16String&& s) {
         il::deallocate(large_.data);
       }
       std::memcpy(data_, s.begin(), 2 * (static_cast<std::size_t>(size) + 1));
-      set_small_size(size);
+      setSmallSize(size);
     } else {
       large_.data = s.large_.data;
       large_.size = s.large_.size;
       large_.capacity = s.large_.capacity;
       s.data_[0] = static_cast<unsigned short>('\0');
-      s.set_small_size(0);
+      s.setSmallSize(0);
     }
   }
   return *this;
@@ -221,14 +221,14 @@ inline void UTF16String::reserve(il::int_t r) {
   }
 
   const il::int_t old_size = size();
-  unsigned short* new_data = il::allocate_array<unsigned short>(r + 1);
+  unsigned short* new_data = il::allocateArray<unsigned short>(r + 1);
   std::memcpy(new_data, begin(), 2 * (static_cast<std::size_t>(old_size) + 1));
   if (!old_is_small) {
     il::deallocate(large_.data);
   }
   large_.data = new_data;
   large_.size = old_size;
-  set_large_capacity(r);
+  setLargeCapacity(r);
 }
 
 inline void UTF16String::append(const UTF16String& s) {
@@ -254,7 +254,7 @@ inline void UTF16String::append(char c) {
   data[0] = static_cast<unsigned short>(c);
   data[1] = static_cast<unsigned short>('\0');
   if (small()) {
-    set_small_size(new_size);
+    setSmallSize(new_size);
   } else {
     large_.size = new_size;
   }
@@ -274,14 +274,14 @@ inline void UTF16String::append(il::int_t n, char c) {
   }
   data[n] = static_cast<unsigned short>('\0');
   if (small()) {
-    set_small_size(new_size);
+    setSmallSize(new_size);
   } else {
     large_.size = new_size;
   }
 }
 
 inline void UTF16String::append(int cp) {
-  IL_EXPECT_MEDIUM(valid_code_point(cp));
+  IL_EXPECT_MEDIUM(validUnicodeScalar(cp));
 
   const unsigned int ucp = static_cast<unsigned int>(cp);
   const il::int_t old_size = size();
@@ -304,7 +304,7 @@ inline void UTF16String::append(int cp) {
     data[2] = static_cast<unsigned short>('\0');
   }
   if (small()) {
-    set_small_size(new_size);
+    setSmallSize(new_size);
   } else {
     large_.size = new_size;
   }
@@ -312,7 +312,7 @@ inline void UTF16String::append(int cp) {
 
 inline void UTF16String::append(il::int_t n, int cp) {
   IL_EXPECT_FAST(n >= 0);
-  IL_EXPECT_FAST(valid_code_point(cp));
+  IL_EXPECT_FAST(validUnicodeScalar(cp));
 
   IL_UNUSED(n);
   IL_UNUSED(cp);
@@ -326,7 +326,7 @@ inline const unsigned short* UTF16String::begin() const {
   }
 }
 
-inline const IL_UTF16CHAR* UTF16String::as_w_string() const {
+inline const IL_UTF16CHAR* UTF16String::asWString() const {
   if (small()) {
     return reinterpret_cast<const IL_UTF16CHAR*>(data_);
   } else {
@@ -334,7 +334,7 @@ inline const IL_UTF16CHAR* UTF16String::as_w_string() const {
   }
 }
 
-inline bool UTF16String::empty() const { return size() == 0; }
+inline bool UTF16String::isEmpty() const { return size() == 0; }
 
 inline il::int_t UTF16String::next_code_point(il::int_t i) const {
   const unsigned short* data = begin();
@@ -377,14 +377,14 @@ inline bool UTF16String::small() const {
   return (data_[max_small_size_] & category_extract_mask) == 0;
 }
 
-inline void UTF16String::set_small_size(il::int_t n) {
+inline void UTF16String::setSmallSize(il::int_t n) {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(n) <=
                    static_cast<std::size_t>(max_small_size_));
 
   data_[max_small_size_] = static_cast<unsigned short>(max_small_size_ - n);
 }
 
-inline void UTF16String::set_large_capacity(il::int_t r) {
+inline void UTF16String::setLargeCapacity(il::int_t r) {
   large_.capacity =
       static_cast<std::size_t>(r) |
       (static_cast<std::size_t>(0x80) << ((sizeof(std::size_t) - 1) * 8));
@@ -425,7 +425,7 @@ inline void UTF16String::append(const IL_UTF16CHAR* data, il::int_t n) {
   if (small()) {
     std::memcpy(data_ + old_size, data, 2 * static_cast<std::size_t>(n));
     data_[old_size + n] = static_cast<unsigned short>('\0');
-    set_small_size(old_size + n);
+    setSmallSize(old_size + n);
   } else {
     std::memcpy(large_.data + old_size, data, 2 * static_cast<std::size_t>(n));
     large_.data[old_size + n] = static_cast<unsigned short>('\0');
@@ -433,7 +433,7 @@ inline void UTF16String::append(const IL_UTF16CHAR* data, il::int_t n) {
   }
 }
 
-inline bool UTF16String::valid_code_point(int cp) {
+inline bool UTF16String::validUnicodeScalar(int cp) {
   const unsigned int code_point_max = 0x0010FFFFu;
   const unsigned int lead_surrogate_min = 0x0000D800u;
   const unsigned int lead_surrogate_max = 0x0000DBFFu;

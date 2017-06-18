@@ -22,8 +22,8 @@
 #include <il/container/string/algorithm_string.h>
 
 #ifdef IL_WINDOWS
-#include <il/unicode.h>
 #include <il/UTF16String.h>
+#include <il/unicode.h>
 #endif
 
 namespace il {
@@ -37,55 +37,52 @@ class TomlParser {
 
  public:
   TomlParser();
-  il::HashMapArray<il::String, il::Dynamic> parse(const il::String &filename,
-                                                  il::io_t, il::Status &status);
-  il::ConstStringView skip_whitespace_and_comments(il::ConstStringView string,
-                                                   il::io_t,
-                                                   il::Status &status);
-  il::Dynamic parse_value(il::io_t, il::ConstStringView &string,
+  il::MapArray<il::String, il::Dynamic> parse(const il::String &filename,
+                                              il::io_t, il::Status &status);
+  il::ConstStringView skipWhitespaceAndComments(il::ConstStringView string,
+                                                il::io_t, il::Status &status);
+  il::Dynamic parseValue(il::io_t, il::ConstStringView &string,
+                         il::Status &status);
+  il::Dynamic parseArray(il::io_t, il::ConstStringView &string,
+                         il::Status &status);
+  il::Dynamic parseValueArray(il::Type value_type, il::io_t,
+                              il::ConstStringView &string, il::Status &status);
+  il::Dynamic parseObjectArray(il::Type object_type, char delimiter, il::io_t,
+                               il::ConstStringView &string, il::Status &status);
+  il::Dynamic parseInlineTable(il::io_t, il::ConstStringView &string,
+                               il::Status &status);
+  void parseKeyValue(il::io_t, il::ConstStringView &string,
+                     il::MapArray<il::String, il::Dynamic> &toml,
+                     il::Status &status);
+  void checkEndOfLineOrComment(il::ConstStringView string, il::io_t,
+                               il::Status &status);
+  il::String currentLine() const;
+  il::Dynamic parseNumber(il::io_t, il::ConstStringView &string,
                           il::Status &status);
-  il::Dynamic parse_array(il::io_t, il::ConstStringView &string,
-                          il::Status &status);
-  il::Dynamic parse_value_array(il::Type value_type, il::io_t,
+  il::Type parseType(il::ConstStringView string, il::io_t, il::Status &status);
+  il::Dynamic parseBoolean(il::io_t, il::ConstStringView &string,
+                           Status &status);
+  il::String parseStringLiteral(char delimiter, il::io_t,
                                 il::ConstStringView &string,
                                 il::Status &status);
-  il::Dynamic parse_object_array(il::Type object_type, char delimiter, il::io_t,
-                                 il::ConstStringView &string,
-                                 il::Status &status);
-  il::Dynamic parse_inline_table(il::io_t, il::ConstStringView &string,
-                                 il::Status &status);
-  void parse_key_value(il::io_t, il::ConstStringView &string,
-                       il::HashMapArray<il::String, il::Dynamic> &toml,
+  il::String parseEscapeCode(il::io_t, il::ConstStringView &string,
+                             il::Status &status);
+  il::String parseKey(char end, il::io_t, il::ConstStringView &string,
+                      il::Status &status);
+  void parseTable(il::io_t, il::ConstStringView &string,
+                  il::MapArray<il::String, il::Dynamic> *&toml,
+                  il::Status &status);
+  void parseSingleTable(il::io_t, il::ConstStringView &string,
+                        il::MapArray<il::String, il::Dynamic> *&toml,
+                        il::Status &status);
+  void parseTableArray(il::io_t, il::ConstStringView &string,
+                       il::MapArray<il::String, il::Dynamic> *&toml,
                        il::Status &status);
-  void check_end_of_line_or_comment(il::ConstStringView string, il::io_t,
-                                    il::Status &status);
-  il::String current_line() const;
-  il::Dynamic parse_number(il::io_t, il::ConstStringView &string,
-                           il::Status &status);
-  il::Type parse_type(il::ConstStringView string, il::io_t, il::Status &status);
-  il::Dynamic parse_boolean(il::io_t, il::ConstStringView &string,
-                            Status &status);
-  il::String parse_string_literal(char delimiter, il::io_t,
-                                  il::ConstStringView &string,
-                                  il::Status &status);
-  il::String parse_escape_code(il::io_t, il::ConstStringView &string,
-                               il::Status &status);
-  il::String parse_key(char end, il::io_t, il::ConstStringView &string,
-                       il::Status &status);
-  void parse_table(il::io_t, il::ConstStringView &string,
-                   il::HashMapArray<il::String, il::Dynamic> *&toml,
-                   il::Status &status);
-  void parse_single_table(il::io_t, il::ConstStringView &string,
-                          il::HashMapArray<il::String, il::Dynamic> *&toml,
+  il::Dynamic parseString(il::io_t, il::ConstStringView &string,
                           il::Status &status);
-  void parse_table_array(il::io_t, il::ConstStringView &string,
-                         il::HashMapArray<il::String, il::Dynamic> *&toml,
-                         il::Status &status);
-  il::Dynamic parse_string(il::io_t, il::ConstStringView &string,
-                           il::Status &status);
 
  private:
-  static bool is_digit(char c);
+  static bool isDigit(char c);
 };
 
 inline void save_array(const il::Array<il::Dynamic> &array, il::io_t,
@@ -98,8 +95,8 @@ inline void save_array(const il::Array<il::Dynamic> &array, il::io_t,
       IL_UNUSED(error1);
     }
     switch (array[j].type()) {
-      case il::Type::bool_t: {
-        if (array[j].to_bool()) {
+      case il::Type::kBool: {
+        if (array[j].toBool()) {
           const int error2 = std::fputs("true", file);
           IL_UNUSED(error2);
         } else {
@@ -107,25 +104,25 @@ inline void save_array(const il::Array<il::Dynamic> &array, il::io_t,
           IL_UNUSED(error2);
         }
       } break;
-      case il::Type::integer_t: {
-        const int error2 = std::fprintf(file, "%td", array[j].to_integer());
+      case il::Type::kInteger: {
+        const int error2 = std::fprintf(file, "%td", array[j].toInteger());
         IL_UNUSED(error2);
       } break;
-      case il::Type::double_t: {
-        const int error2 = std::fprintf(file, "%e", array[j].to_double());
+      case il::Type::kDouble: {
+        const int error2 = std::fprintf(file, "%e", array[j].toDouble());
         IL_UNUSED(error2);
       } break;
-      case il::Type::string_t: {
+      case il::Type::kString: {
         const int error2 = std::fputs("\"", file);
-        const int error3 = std::fputs(array[j].as_string().as_c_string(), file);
+        const int error3 = std::fputs(array[j].asString().asCString(), file);
         const int error4 = std::fputs("\"", file);
         IL_UNUSED(error2);
         IL_UNUSED(error3);
         IL_UNUSED(error4);
       } break;
-      case il::Type::array_t: {
-        save_array(array[j].as_array(), il::io, file, status);
-        if (!status.ok()) {
+      case il::Type::kArray: {
+        save_array(array[j].asArray(), il::io, file, status);
+        if (status.notOk()) {
           status.rearm();
           return;
         }
@@ -136,211 +133,215 @@ inline void save_array(const il::Array<il::Dynamic> &array, il::io_t,
   }
   const int error5 = std::fputs(" ]", file);
   IL_UNUSED(error5);
-  status.set_ok();
+  status.setOk();
 }
 
 template <typename M>
 inline void save_aux(const M &toml, const il::String &name, il::io_t,
                      std::FILE *file, il::Status &status) {
-  for (il::int_t i = toml.first(); i < toml.broom(); i = toml.next(i)) {
-    il::Type type = toml.value(i).type();
-    if (type != il::Type::hash_map_array_t && type != il::Type::hash_map_t) {
-      int error0 = std::fputs(toml.key(i).as_c_string(), file);
-      int error1 = std::fputs(" = ", file);
-      int error2;
-      int error3;
-      int error4;
+  int error = 0;
+  // Add an object that sets the error on destruction
+
+  for (il::int_t i = toml.first(); i != toml.sentinel(); i = toml.next(i)) {
+    const il::Dynamic &value = toml.value(i);
+    const il::Type type = value.type();
+    if (type != il::Type::kMapArray && type != il::Type::kMap) {
+      error = std::fputs(toml.key(i).asCString(), file);
+      if (error == EOF) return;
+      error = std::fputs(" = ", file);
+      if (error == EOF) return;
       switch (type) {
-        case il::Type::bool_t:
-          if (toml.value(i).to_bool()) {
-            error2 = std::fputs("true", file);
+        case il::Type::kBool:
+          if (value.toBool()) {
+            error = std::fputs("true", file);
           } else {
-            error2 = std::fputs("false", file);
+            error = std::fputs("false", file);
           }
+          if (error == EOF) return;
           break;
-        case il::Type::integer_t:
-          error3 = std::fprintf(file, "%td", toml.value(i).to_integer());
+        case il::Type::kInteger:
+          error = std::fprintf(file, "%td", value.toInteger());
+          if (error == EOF) return;
           break;
-        case il::Type::double_t:
-          error3 = std::fprintf(file, "%e", toml.value(i).to_double());
+        case il::Type::kDouble:
+          error = std::fprintf(file, "%e", value.toDouble());
+          if (error == EOF) return;
           break;
-        case il::Type::string_t:
-          error2 = std::fputs("\"", file);
-          error3 = std::fputs(toml.value(i).as_string().as_c_string(), file);
-          error4 = std::fputs("\"", file);
+        case il::Type::kString:
+          error = std::fputs("\"", file);
+          if (error == EOF) return;
+          error = std::fputs(value.asString().asCString(), file);
+          if (error == EOF) return;
+          error = std::fputs("\"", file);
+          if (error == EOF) return;
           break;
-        case il::Type::array_of_double_t: {
-          const il::Array<double> &v = toml.value(i).as_array_of_double();
-          const int error0 = std::fputs("[ ", file);
+        case il::Type::kArrayOfDouble: {
+          const il::Array<double> &v = value.asArrayOfDouble();
+          error = std::fputs("[ ", file);
+          if (error == EOF) return;
           for (il::int_t i = 0; i < v.size(); ++i) {
             std::fprintf(file, "%e", v[i]);
             if (i + 1 < v.size()) {
-              const int error2 = std::fputs(", ", file);
-              IL_UNUSED(error2);
+              error = std::fputs(", ", file);
+              if (error == EOF) return;
             }
           }
-          const int error1 = std::fputs(" ]", file);
-          IL_UNUSED(error0);
-          IL_UNUSED(error1);
+          error = std::fputs(" ]", file);
+          if (error == EOF) return;
         } break;
-        case il::Type::array2d_of_double_t: {
-          const il::Array2D<double> &v = toml.value(i).as_array2d_of_double();
-          const int error0 = std::fputs("[ ", file);
+        case il::Type::kArray2dOfDouble: {
+          const il::Array2D<double> &v = value.asArray2dOfDouble();
+          error = std::fputs("[ ", file);
+          if (error == EOF) return;
           for (il::int_t i = 0; i < v.size(0); ++i) {
-            const int error0 = std::fputs("[ ", file);
+            error = std::fputs("[ ", file);
+            if (error == EOF) return;
             for (il::int_t j = 0; j < v.size(1); ++j) {
               std::fprintf(file, "%e", v(i, j));
               if (j + 1 < v.size(1)) {
-                const int error3 = std::fputs(", ", file);
-                IL_UNUSED(error3);
+                error = std::fputs(", ", file);
+                if (error == EOF) return;
               }
             }
-            const int error1 = std::fputs(" ]", file);
+            error = std::fputs(" ]", file);
+            if (error == EOF) return;
             if (i + 1 < v.size(0)) {
-              const int error2 = std::fputs(", ", file);
-              IL_UNUSED(error2);
+              error = std::fputs(", ", file);
+              if (error == EOF) return;
             }
-            IL_UNUSED(error0);
-            IL_UNUSED(error1);
           }
-          const int error1 = std::fputs(" ]", file);
-          IL_UNUSED(error0);
-          IL_UNUSED(error1);
+          error = std::fputs(" ]", file);
+          if (error == EOF) return;
         } break;
-        case il::Type::array_t: {
-          save_array(toml.value(i).as_array(), il::io, file, status);
-          status.abort_on_error();
+        case il::Type::kArray: {
+          save_array(value.asArray(), il::io, file, status);
+          status.abortOnError();
         } break;
         default:
           IL_UNREACHABLE;
       }
-      int error5 = std::fputs("\n", file);
-      IL_UNUSED(error0);
-      IL_UNUSED(error1);
-      IL_UNUSED(error2);
-      IL_UNUSED(error3);
-      IL_UNUSED(error4);
-      IL_UNUSED(error5);
-    } else if (type == il::Type::hash_map_array_t) {
-      const int error0 = std::fputs("\n[", file);
-      IL_UNUSED(error0);
+      error = std::fputs("\n", file);
+      if (error == EOF) return;
+    } else if (type == il::Type::kMapArray) {
+      error = std::fputs("\n[", file);
+      if (error == EOF) return;
       if (name.size() != 0) {
-        const int error1 = std::fputs(name.as_c_string(), file);
-        const int error2 = std::fputs(".", file);
-        IL_UNUSED(error1);
-        IL_UNUSED(error2);
+        error = std::fputs(name.asCString(), file);
+        if (error == EOF) return;
+        error = std::fputs(".", file);
+        if (error == EOF) return;
       }
-      const int error3 = std::fputs(toml.key(i).as_c_string(), file);
-      const int error4 = std::fputs("]\n", file);
-      save_aux(toml.value(i).as_hash_map_array(), toml.key(i), il::io, file,
-               status);
-      IL_UNUSED(error3);
-      IL_UNUSED(error4);
-      if (!status.ok()) {
+      error = std::fputs(toml.key(i).asCString(), file);
+      if (error == EOF) return;
+      error = std::fputs("]\n", file);
+      if (error == EOF) return;
+      save_aux(value.asMapArray(), toml.key(i), il::io, file, status);
+      if (status.notOk()) {
         status.rearm();
         return;
       }
-    } else if (type == il::Type::hash_map_t) {
-      const int error0 = std::fputs("\n[", file);
-      IL_UNUSED(error0);
+    } else if (type == il::Type::kMap) {
+      error = std::fputs("\n[", file);
+      if (error == EOF) return;
       if (name.size() != 0) {
-        const int error1 = std::fputs(name.as_c_string(), file);
-        const int error2 = std::fputs(".", file);
-        IL_UNUSED(error1);
-        IL_UNUSED(error2);
+        error = std::fputs(name.asCString(), file);
+        if (error == EOF) return;
+        error = std::fputs(".", file);
+        if (error == EOF) return;
       }
-      const int error3 = std::fputs(toml.key(i).as_c_string(), file);
-      const int error4 = std::fputs("]\n", file);
-      save_aux(toml.value(i).as_hash_map(), toml.key(i), il::io, file, status);
-      IL_UNUSED(error3);
-      IL_UNUSED(error4);
-      if (!status.ok()) {
+      error = std::fputs(toml.key(i).asCString(), file);
+      if (error == EOF) return;
+      error = std::fputs("]\n", file);
+      if (error == EOF) return;
+      save_aux(value.asMap(), toml.key(i), il::io, file, status);
+      if (status.notOk()) {
         status.rearm();
         return;
       }
     }
   }
 
-  status.set_ok();
+  status.setOk();
   return;
 }
 
 template <>
-class SaveHelper<il::HashMap<il::String, il::Dynamic>> {
+class SaveHelper<il::Map<il::String, il::Dynamic>> {
  public:
-  static void save(const il::HashMap<il::String, il::Dynamic> &toml,
+  static void save(const il::Map<il::String, il::Dynamic> &toml,
                    const il::String &filename, il::io_t, il::Status &status) {
 #ifdef IL_UNIX
-    std::FILE *file = std::fopen(filename.as_c_string(), "wb");
+    std::FILE *file = std::fopen(filename.asCString(), "wb");
 #else
-    il::UTF16String filename_utf16 = il::to_utf16(filename);
-    std::FILE* file = _wfopen(filename_utf16.as_w_string(), L"wb");
+    il::UTF16String filename_utf16 = il::toUtf16(filename);
+    std::FILE *file = _wfopen(filename_utf16.asWString(), L"wb");
 #endif
     if (!file) {
-      status.set_error(il::Error::filesystem_file_not_found);
+      status.setError(il::Error::kFilesystemFileNotFound);
       return;
     }
 
     il::String root_name{};
     save_aux(toml, root_name, il::io, file, status);
-    if (!status.ok()) {
+    if (status.notOk()) {
       status.rearm();
       return;
     }
 
     const int error = std::fclose(file);
     if (error != 0) {
-      status.set_error(il::Error::filesystem_cannot_close_file);
+      status.setError(il::Error::kFilesystemCanNotCloseFile);
       return;
     }
 
-    status.set_ok();
+    status.setOk();
     return;
   }
 };
 
 template <>
-class SaveHelperToml<il::HashMapArray<il::String, il::Dynamic>> {
+class SaveHelperToml<il::MapArray<il::String, il::Dynamic>> {
  public:
-  static void save(const il::HashMapArray<il::String, il::Dynamic> &toml,
+  static void save(const il::MapArray<il::String, il::Dynamic> &toml,
                    const il::String &filename, il::io_t, il::Status &status) {
 #ifdef IL_UNIX
-    std::FILE *file = std::fopen(filename.as_c_string(), "wb");
+    std::FILE *file = std::fopen(filename.asCString(), "wb");
 #else
-    il::UTF16String filename_utf16 = il::to_utf16(filename);
-    std::FILE* file = _wfopen(filename_utf16.as_w_string(), L"wb");
+    il::UTF16String filename_utf16 = il::toUtf16(filename);
+    std::FILE *file = _wfopen(filename_utf16.asWString(), L"wb");
 #endif
     if (!file) {
-      status.set_error(il::Error::filesystem_file_not_found);
+      status.setError(il::Error::kFilesystemFileNotFound);
       return;
     }
 
     il::String root_name{};
     save_aux(toml, root_name, il::io, file, status);
-    if (!status.ok()) {
+    if (status.notOk()) {
       status.rearm();
       return;
     }
 
     const int error = std::fclose(file);
     if (error != 0) {
-      status.set_error(il::Error::filesystem_cannot_close_file);
+      status.setError(il::Error::kFilesystemCanNotCloseFile);
       return;
     }
 
-    status.set_ok();
+    status.setOk();
     return;
   }
 };
 
-il::HashMapArray<il::String, il::Dynamic> parse(const il::String &filename,
-                                                il::io_t, il::Status &status);
+il::MapArray<il::String, il::Dynamic> parse(const il::String &filename,
+                                            il::io_t, il::Status &status);
 
 template <>
-class LoadHelperToml<il::HashMapArray<il::String, il::Dynamic>> {
+class LoadHelperToml<il::MapArray<il::String, il::Dynamic>> {
  public:
-  static il::HashMapArray<il::String, il::Dynamic> load(
-      const il::String &filename, il::io_t, il::Status &status) {
+  static il::MapArray<il::String, il::Dynamic> load(const il::String &filename,
+                                                    il::io_t,
+                                                    il::Status &status) {
     il::TomlParser parser{};
     return parser.parse(filename, il::io, status);
   }

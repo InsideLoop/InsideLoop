@@ -13,11 +13,10 @@
 #include <il/unicode.h>
 
 int main() {
-  il::String name = u8"François";
-  name.append(il::CodePoint::grinning_face_with_smiling_eyes);
+  il::String name = u8"François ";
+  name.append(il::UnicodeScalar::kGrinningFaceWithSmilingEyes);
 
-  std::cout << name.as_c_string() << std::endl;
+  std::cout << name.asCString() << std::endl;
 
   return 0;
 }
-

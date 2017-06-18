@@ -47,7 +47,7 @@ class Array4D {
   // column size and the column capacity of the array are set to p. The slice
   // size and the slice capacity of the array are set to q.
   // - If T is a numeric value, the memory is
-  //   - (Debug mode) initialized to il::default_value<T>(). It is usually NaN
+  //   - (Debug mode) initialized to il::defaultValue<T>(). It is usually NaN
   //     if T is a floating point number or 666..666 if T is an integer.
   //   - (Release mode) left uninitialized. This behavior is different from
   //     std::vector from the standard library which initializes all numeric
@@ -210,20 +210,20 @@ Array4D<T>::Array4D(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3) {
   const il::int_t r2 = n2 > 0 ? n2 : ((n0 == 0 && n1 == 0 && n3 == 0) ? 0 : 1);
   const il::int_t r3 = n3 > 0 ? n3 : ((n0 == 0 && n1 == 0 && n2 == 0) ? 0 : 1);
   bool error;
-  const il::int_t r = il::safe_product(r0, r1, r2, r3, il::io, error);
+  const il::int_t r = il::safeProduct(r0, r1, r2, r3, il::io, error);
   if (error) {
     il::abort();
   }
   if (r > 0) {
-    data_ = il::allocate_array<T>(r);
-    if (il::is_trivial<T>::value) {
+    data_ = il::allocateArray<T>(r);
+    if (il::isTrivial<T>::value) {
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t i3 = 0; i3 < n3; ++i3) {
         for (il::int_t i2 = 0; i2 < n2; ++i2) {
           for (il::int_t i1 = 0; i1 < n1; ++i1) {
             for (il::int_t i0 = 0; i0 < n0; ++i0) {
               data_[((i3 * r2 + i2) * r1 + i1) * r0 + i0] =
-                  il::default_value<T>();
+                  il::defaultValue<T>();
             }
           }
         }
@@ -270,12 +270,12 @@ Array4D<T>::Array4D(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3,
   const il::int_t r2 = n2 > 0 ? n2 : ((n0 == 0 && n1 == 0 && n3 == 0) ? 0 : 1);
   const il::int_t r3 = n3 > 0 ? n3 : ((n0 == 0 && n1 == 0 && n2 == 0) ? 0 : 1);
   bool error;
-  const il::int_t r = il::safe_product(r0, r1, r2, r3, il::io, error);
+  const il::int_t r = il::safeProduct(r0, r1, r2, r3, il::io, error);
   if (error) {
     il::abort();
   }
   if (r > 0) {
-    data_ = il::allocate_array<T>(r);
+    data_ = il::allocateArray<T>(r);
     for (il::int_t i3 = 0; i3 < n3; ++i3) {
       for (il::int_t i2 = 0; i2 < n2; ++i2) {
         for (il::int_t i1 = 0; i1 < n1; ++i1) {
@@ -313,11 +313,11 @@ Array4D<T>::Array4D(const Array4D<T>& A) {
   il::int_t r2;
   il::int_t r3;
   if (n0 > 0 && n1 > 0 && n2 > 0 && n3 > 0) {
-    if (il::is_trivial<T>::value && A.alignment_ != 0) {
+    if (il::isTrivial<T>::value && A.alignment_ != 0) {
       const il::int_t nb_lanes = static_cast<il::int_t>(
           static_cast<std::size_t>(A.alignment_) / alignof(T));
       bool error = false;
-      r0 = il::safe_upper_round(n0, nb_lanes, il::io, error);
+      r0 = il::safeUpperRound(n0, nb_lanes, il::io, error);
       if (error) {
         il::abort();
       }
@@ -339,17 +339,17 @@ Array4D<T>::Array4D(const Array4D<T>& A) {
     r3 = (n3 == 0) ? 1 : n3;
   }
   bool error = false;
-  const il::int_t r = il::safe_product(r0, r1, r2, r3, il::io, error);
+  const il::int_t r = il::safeProduct(r0, r1, r2, r3, il::io, error);
   if (error) {
     il::abort();
   }
-  if (il::is_trivial<T>::value) {
+  if (il::isTrivial<T>::value) {
     if (A.alignment_ == 0) {
-      data_ = il::allocate_array<T>(r);
+      data_ = il::allocateArray<T>(r);
       shift_ = 0;
     } else {
       il::int_t shift;
-      data_ = il::allocate_array<T>(r, A.align_r_, A.align_mod_, il::io, shift);
+      data_ = il::allocateArray<T>(r, A.align_r_, A.align_mod_, il::io, shift);
       shift_ = static_cast<short>(shift);
     }
     for (il::int_t i3 = 0; i3 < n3; ++i3) {
@@ -363,7 +363,7 @@ Array4D<T>::Array4D(const Array4D<T>& A) {
       }
     }
   } else {
-    data_ = il::allocate_array<T>(r);
+    data_ = il::allocateArray<T>(r);
     shift_ = 0;
     for (il::int_t i3 = 0; i3 < n3; ++i3) {
       for (il::int_t i2 = 0; i2 < n2; ++i2) {
@@ -439,11 +439,11 @@ Array4D<T>& Array4D<T>::operator=(const Array4D<T>& A) {
       il::int_t r2;
       il::int_t r3;
       if (n0 > 0 && n1 > 0 && n2 > 0) {
-        if (il::is_trivial<T>::value && alignment != 0) {
+        if (il::isTrivial<T>::value && alignment != 0) {
           const il::int_t nb_lanes = static_cast<il::int_t>(
               static_cast<std::size_t>(alignment) / alignof(T));
           bool error = false;
-          r0 = il::safe_upper_round(n0, nb_lanes, il::io, error);
+          r0 = il::safeUpperRound(n0, nb_lanes, il::io, error);
           if (error) {
             il::abort();
           }
@@ -460,20 +460,20 @@ Array4D<T>& Array4D<T>::operator=(const Array4D<T>& A) {
         r3 = (n3 == 0) ? 1 : n3;
       }
       bool error = false;
-      const il::int_t r = il::safe_product(r0, r1, r2, r3, il::io, error);
+      const il::int_t r = il::safeProduct(r0, r1, r2, r3, il::io, error);
       if (error) {
         il::abort();
       }
-      if (il::is_trivial<T>::value) {
+      if (il::isTrivial<T>::value) {
         if (data_) {
           il::deallocate(data_ - shift_);
         }
         if (alignment == 0) {
-          data_ = il::allocate_array<T>(r);
+          data_ = il::allocateArray<T>(r);
           shift_ = 0;
         } else {
           il::int_t shift;
-          data_ = il::allocate_array<T>(r, align_r, align_mod, il::io, shift);
+          data_ = il::allocateArray<T>(r, align_r, align_mod, il::io, shift);
           shift_ = static_cast<short>(shift);
         }
         for (il::int_t i3 = 0; i3 < n3; ++i3) {
@@ -503,7 +503,7 @@ Array4D<T>& Array4D<T>::operator=(const Array4D<T>& A) {
           }
           il::deallocate(data_);
         }
-        data_ = il::allocate_array<T>(r);
+        data_ = il::allocateArray<T>(r);
         for (il::int_t i3 = 0; i3 < n3; ++i3) {
           for (il::int_t i2 = 0; i2 < n2; ++i2) {
             for (il::int_t i1 = 0; i1 < n1; ++i1) {
@@ -527,7 +527,7 @@ Array4D<T>& Array4D<T>::operator=(const Array4D<T>& A) {
       align_r_ = static_cast<short>(align_r);
       align_mod_ = static_cast<short>(align_mod);
     } else {
-      if (il::is_trivial<T>::value) {
+      if (il::isTrivial<T>::value) {
         for (il::int_t i3 = 0; i3 < n3; ++i3) {
           for (il::int_t i2 = 0; i2 < n2; ++i2) {
             for (il::int_t i1 = 0; i1 < n1; ++i1) {
@@ -580,7 +580,7 @@ template <typename T>
 Array4D<T>& Array4D<T>::operator=(Array4D<T>&& A) {
   if (this != &A) {
     if (data_) {
-      if (!il::is_trivial<T>::value) {
+      if (!il::isTrivial<T>::value) {
         for (il::int_t i3 = size(3) - 1; i3 >= 0; --i3) {
           for (il::int_t i2 = size(2) - 1; i2 >= 0; --i2) {
             for (il::int_t i1 = size(1) - 1; i1 >= 0; --i1) {
@@ -631,7 +631,7 @@ Array4D<T>::~Array4D() {
   IL_EXPECT_FAST_NOTHROW(invariance());
 
   if (data_) {
-    if (!il::is_trivial<T>::value) {
+    if (!il::isTrivial<T>::value) {
       for (il::int_t i3 = size(3) - 1; i3 >= 0; --i3) {
         for (il::int_t i2 = size(2) - 1; i2 >= 0; --i2) {
           for (il::int_t i1 = size(1) - 1; i1 >= 0; --i1) {
@@ -711,11 +711,11 @@ void Array4D<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2,
     il::int_t r2;
     il::int_t r3;
     if (n0 > 0 && n1 > 0 && n2 > 0 && n3 > 0) {
-      if (il::is_trivial<T>::value && alignment_ != 0) {
+      if (il::isTrivial<T>::value && alignment_ != 0) {
         const il::int_t nb_lanes = static_cast<il::int_t>(
             static_cast<std::size_t>(alignment_) / alignof(T));
         bool error = false;
-        r0 = il::safe_upper_round(n0, nb_lanes, il::io, error);
+        r0 = il::safeUpperRound(n0, nb_lanes, il::io, error);
         if (error) {
           il::abort();
         }
@@ -732,19 +732,19 @@ void Array4D<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2,
       r3 = (n3 == 0) ? 1 : n3;
     }
     bool error = false;
-    const il::int_t r = il::safe_product(r0, r1, r2, r3, il::io, error);
+    const il::int_t r = il::safeProduct(r0, r1, r2, r3, il::io, error);
     if (error) {
       il::abort();
     }
     T* new_data;
     il::int_t new_shift;
-    if (il::is_trivial<T>::value) {
+    if (il::isTrivial<T>::value) {
       if (alignment_ == 0) {
-        new_data = il::allocate_array<T>(r);
+        new_data = il::allocateArray<T>(r);
         new_shift = 0;
       } else {
         new_data =
-            il::allocate_array<T>(r, align_r_, align_mod_, il::io, new_shift);
+            il::allocateArray<T>(r, align_r_, align_mod_, il::io, new_shift);
       }
       if (data_) {
         for (il::int_t i3 = 0; i3 < (n3 < n3_old ? n3 : n3_old); ++i3) {
@@ -767,14 +767,14 @@ void Array4D<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2,
                      (i3 < n3_old && i2 < n2_old && i1 < n1_old) ? n0_old : 0;
                  i0 < n0; ++i0) {
               new_data[((i3 * r2 + i2) * r1 + i1) * r0 + i0] =
-                  il::default_value<T>();
+                  il::defaultValue<T>();
             }
           }
         }
       }
 #endif
     } else {
-      new_data = il::allocate_array<T>(r);
+      new_data = il::allocateArray<T>(r);
       new_shift = 0;
       if (data_) {
         for (il::int_t i3 = n3_old - 1; i3 >= 0; --i3) {
@@ -830,7 +830,7 @@ void Array4D<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2,
     capacity_[3] = data_ + r3;
     shift_ = static_cast<short>(new_shift);
   } else {
-    if (il::is_trivial<T>::value) {
+    if (il::isTrivial<T>::value) {
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t i3 = 0; i3 < n3; ++i3) {
         for (il::int_t i2 = 0; i2 < n2; ++i2) {
@@ -839,7 +839,7 @@ void Array4D<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2,
                      (i3 < n3_old && i2 < n2_old && i1 < n1_old) ? n0_old : 0;
                  i0 < n0; ++i0) {
               data_[((i3 * capacity(2) + i2) * capacity(1) + i1) * capacity(0) +
-                    i0] = il::default_value<T>();
+                    i0] = il::defaultValue<T>();
             }
           }
         }
@@ -905,29 +905,29 @@ void Array4D<T>::reserve(il::int_t r0, il::int_t r1, il::int_t r2,
     const il::int_t n1_old = size(1);
     const il::int_t n2_old = size(2);
     const il::int_t n3_old = size(3);
-    if (il::is_trivial<T>::value && alignment_ != 0) {
+    if (il::isTrivial<T>::value && alignment_ != 0) {
       const il::int_t nb_lanes = static_cast<il::int_t>(
           static_cast<std::size_t>(alignment_) / alignof(T));
       bool error = false;
-      r0 = il::safe_upper_round(r0, nb_lanes, il::io, error);
+      r0 = il::safeUpperRound(r0, nb_lanes, il::io, error);
       if (error) {
         il::abort();
       }
     }
     bool error = false;
-    const il::int_t r = il::safe_product(r0, r1, r2, r3, il::io, error);
+    const il::int_t r = il::safeProduct(r0, r1, r2, r3, il::io, error);
     if (error) {
       il::abort();
     }
     T* new_data;
     il::int_t new_shift;
-    if (il::is_trivial<T>::value) {
+    if (il::isTrivial<T>::value) {
       if (alignment_ == 0) {
-        new_data = il::allocate_array<T>(r);
+        new_data = il::allocateArray<T>(r);
         new_shift = 0;
       } else {
         new_data =
-            il::allocate_array<T>(r, align_r_, align_mod_, il::io, new_shift);
+            il::allocateArray<T>(r, align_r_, align_mod_, il::io, new_shift);
       }
       if (data_) {
         for (il::int_t i3 = 0; i3 < n3_old; ++i3) {
@@ -943,7 +943,7 @@ void Array4D<T>::reserve(il::int_t r0, il::int_t r1, il::int_t r2,
         il::deallocate(data_ - shift_);
       }
     } else {
-      new_data = il::allocate_array<T>(r);
+      new_data = il::allocateArray<T>(r);
       new_shift = 0;
       for (il::int_t i3 = n3_old - 1; i3 >= 0; --i3) {
         for (il::int_t i2 = n2_old - 1; i2 >= 0; --i2) {
@@ -1015,7 +1015,7 @@ bool Array4D<T>::invariance() const {
     ans = ans && ((size_[1] - data_) <= (capacity_[1] - data_));
     ans = ans && ((size_[2] - data_) <= (capacity_[2] - data_));
     ans = ans && ((size_[3] - data_) <= (capacity_[3] - data_));
-    if (il::is_trivial<T>::value) {
+    if (il::isTrivial<T>::value) {
       ans = ans && (alignment_ >= 0);
       ans = ans && (align_r_ >= 0);
       ans = ans && (align_mod_ >= 0);

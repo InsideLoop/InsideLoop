@@ -31,9 +31,9 @@ class BandArray2C {
   const T& operator()(il::int_t i0, il::int_t k) const;
   T& operator()(il::int_t i0, il::int_t k);
   il::int_t size(il::int_t d) const;
-  il::int_t width_left() const;
-  il::int_t width_right() const;
-  il::int_t capacity_right() const;
+  il::int_t widthLeft() const;
+  il::int_t widthRight() const;
+  il::int_t capacityRight() const;
   T* data();
 };
 
@@ -86,17 +86,17 @@ il::int_t BandArray2C<T>::size(il::int_t d) const {
 }
 
 template <typename T>
-il::int_t BandArray2C<T>::width_left() const {
+il::int_t BandArray2C<T>::widthLeft() const {
   return width_left_;
 }
 
 template <typename T>
-il::int_t BandArray2C<T>::width_right() const {
+il::int_t BandArray2C<T>::widthRight() const {
   return width_right_;
 }
 
 template <typename T>
-il::int_t BandArray2C<T>::capacity_right() const {
+il::int_t BandArray2C<T>::capacityRight() const {
   return capacity_right_;
 }
 

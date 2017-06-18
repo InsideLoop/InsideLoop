@@ -102,7 +102,7 @@ il::SparseMatrixCSR<Index, double> heat_2d(Index n) {
 }
 
 template <typename Index, typename T>
-il::SparseMatrixCSR<Index, T> heat_3d(Index n) {
+il::SparseMatrixCSR<Index, T> heat3d(Index n) {
   il::Array<il::StaticArray<Index, 2>> position{};
   position.resize(7 * n * n * n);
   Index ii = 0;

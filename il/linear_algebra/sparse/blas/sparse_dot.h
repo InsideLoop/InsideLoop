@@ -41,51 +41,51 @@ inline il::SparseMatrixCSR<int, double> dot(
   il::Array<int> row{m + 1};
   MKL_INT request = 1;
 
-  int *A_row_data = A.row_data();
-  int *A_column_data = A.column_data();
+  int *A_row_data = A.rowData();
+  int *A_column_data = A.columnData();
   for (int i = 0; i <= A.size(0); ++i) {
     ++A_row_data[i];
   }
-  for (int i = 0; i <= A.nb_nonzeros(); ++i) {
+  for (int i = 0; i <= A.nbNonZeros(); ++i) {
     ++A_column_data[i];
   }
-  int *B_row_data = B.row_data();
-  int *B_column_data = B.column_data();
+  int *B_row_data = B.rowData();
+  int *B_column_data = B.columnData();
   if (&A != &B) {
     for (int i = 0; i <= B.size(0); ++i) {
       ++B_row_data[i];
     }
-    for (int i = 0; i <= B.nb_nonzeros(); ++i) {
+    for (int i = 0; i <= B.nbNonZeros(); ++i) {
       ++B_column_data[i];
     }
   }
 
-  mkl_dcsrmultcsr(&trans, &request, &sort, &m, &n, &k, A.element_data(),
-                  A.column_data(), A.row_data(), B.element_data(),
-                  B.column_data(), B.row_data(), element.data(), column.data(),
-                  row.data(), &nzmax, &info);
+  mkl_dcsrmultcsr(&trans, &request, &sort, &m, &n, &k, A.elementData(),
+                  A.columnData(), A.rowData(), B.elementData(), B.columnData(),
+                  B.rowData(), element.data(), column.data(), row.data(),
+                  &nzmax, &info);
   IL_EXPECT_FAST(info == 0);
 
   element.resize(row[m] - 1);
   column.resize(row[m] - 1);
   request = 2;
-  mkl_dcsrmultcsr(&trans, &request, &sort, &m, &n, &k, A.element_data(),
-                  A.column_data(), A.row_data(), B.element_data(),
-                  B.column_data(), B.row_data(), element.data(), column.data(),
-                  row.data(), &nzmax, &info);
+  mkl_dcsrmultcsr(&trans, &request, &sort, &m, &n, &k, A.elementData(),
+                  A.columnData(), A.rowData(), B.elementData(), B.columnData(),
+                  B.rowData(), element.data(), column.data(), row.data(),
+                  &nzmax, &info);
   IL_EXPECT_FAST(info == 0);
 
   for (int i = 0; i <= A.size(0); ++i) {
     --A_row_data[i];
   }
-  for (int i = 0; i <= A.nb_nonzeros(); ++i) {
+  for (int i = 0; i <= A.nbNonZeros(); ++i) {
     --A_column_data[i];
   }
   if (&A != &B) {
     for (int i = 0; i <= B.size(0); ++i) {
       --B_row_data[i];
     }
-    for (int i = 0; i <= B.nb_nonzeros(); ++i) {
+    for (int i = 0; i <= B.nbNonZeros(); ++i) {
       --B_column_data[i];
     }
   }

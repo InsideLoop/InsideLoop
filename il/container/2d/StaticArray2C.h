@@ -33,7 +33,7 @@ class StaticArray2C {
  public:
   /* \brief The default constructor
   // \details If T is a numeric value, the memory is
-  // - (Debug mode) initialized to il::default_value<T>(). It is usually NaN
+  // - (Debug mode) initialized to il::defaultValue<T>(). It is usually NaN
   //   if T is a floating point number or 666..666 if T is an integer.
   // - (Release mode) left uninitialized. This behavior is different from
   //   std::vector from the standard library which initializes all numeric
@@ -106,10 +106,10 @@ class StaticArray2C {
 
 template <typename T, il::int_t n0, il::int_t n1>
 StaticArray2C<T, n0, n1>::StaticArray2C() {
-  if (il::is_trivial<T>::value) {
+  if (il::isTrivial<T>::value) {
 #ifdef IL_DEFAULT_VALUE
     for (il::int_t k = 0; k < n0 * n1; ++k) {
-      data_[k] = il::default_value<T>();
+      data_[k] = il::defaultValue<T>();
     }
 #endif
   }

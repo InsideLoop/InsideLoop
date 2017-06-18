@@ -32,7 +32,7 @@ class StaticArray2D {
  public:
   /* \brief The default constructor
   // \details If T is a numeric value, the memory is
-  // - (Debug mode) initialized to il::default_value<T>(). It is usually NaN
+  // - (Debug mode) initialized to il::defaultValue<T>(). It is usually NaN
   //   if T is a floating point number or 666..666 if T is an integer.
   // - (Release mode) left uninitialized. This behavior is different from
   //   std::vector from the standard library which initializes all numeric
@@ -76,35 +76,7 @@ class StaticArray2D {
   // \details Access (read and write) the (i, j)-th element of the array. Bound
   // checking is done in debug mode but not in release mode.
   //
-  // il::StaticArray2D<double, 2, 5> A{0.0};class StaticArray3DPrinter:
-        def __init__(self, val):
-                type = val.type
-                if type.code == gdb.TYPE_CODE_REF:
-                        type = type.target()
-                self.type = type.unqualified().strip_typedefs()
-                self.innerType = self.type.template_argument(0)
-                self.val = val
-                self.data = self.val['data_'].cast(self.innerType.pointer())
-                self.size0 = self.val['size_0_']
-                self.size1 = self.val['size_1_']
-                self.size2 = self.val['size_2_']
-
-        def children(self):
-                yield "size_0", self.size0
-                yield "size_1", self.size1
-                yield "size_2", self.size2
-                for k2 in range(0, self.size2):
-                        for k1 in range(0, self.size1):
-                                for k0 in range(0, self.size0):
-                                        dataPtr = self.data + self.size0 *
-  self.size1 * k2 + self.size0 * k1 + k0
-                                        item = dataPtr.dereference()
-                                        yield ("[%s, %s, %s]" % (k0, k1, k2)),
-  item
-
-        def to_string(self):
-                return "[size0: %s], [size1: %s], [size2: %s]" % (self.size0,
-  self.size1, self.size2)
+  // il::StaticArray2D<double, 2, 5> A{0.0}
   // std::cout << A(0, 0) << std::endl;
   */
   T& operator()(il::int_t i0, il::int_t i1);
@@ -133,10 +105,10 @@ class StaticArray2D {
 
 template <typename T, il::int_t n0, il::int_t n1>
 StaticArray2D<T, n0, n1>::StaticArray2D() {
-  if (il::is_trivial<T>::value) {
+  if (il::isTrivial<T>::value) {
 #ifdef IL_DEFAULT_VALUE
     for (il::int_t k = 0; k < n0 * n1; ++k) {
-      data_[k] = il::default_value<T>();
+      data_[k] = il::defaultValue<T>();
     }
 #endif
   }

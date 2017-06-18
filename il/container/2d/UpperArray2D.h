@@ -67,11 +67,11 @@ UpperArray2D<T>::UpperArray2D(il::int_t n) {
   IL_EXPECT_FAST(n >= 0);
   if (n > 0) {
     const il::int_t nb_elements{(n * (n + 1)) / 2};
-    if (il::is_trivial<T>::value) {
+    if (il::isTrivial<T>::value) {
       data_ = new T[nb_elements];
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t k = 0; k < nb_elements; ++k) {
-        data_[k] = il::default_value<T>();
+        data_[k] = il::defaultValue<T>();
       }
 #endif
     } else {
@@ -96,7 +96,7 @@ UpperArray2D<T>::UpperArray2D(const UpperArray2D<T>& A) {
   const il::int_t n{A.size()};
   if (n > 0) {
     const il::int_t nb_elements{(n * (n + 1)) / 2};
-    if (il::is_trivial<T>::value) {
+    if (il::isTrivial<T>::value) {
       data_ = new T[nb_elements];
       memcpy(data_, A.data_, nb_elements * sizeof(T));
     } else {
@@ -141,7 +141,7 @@ UpperArray2D<T>& UpperArray2D<T>::operator=(const UpperArray2D<T>& A) {
     const il::int_t nb_elements{(n * (n + 1)) / 2};
     const bool needs_memory{n > capacity()};
     if (needs_memory) {
-      if (il::is_trivial<T>::value) {
+      if (il::isTrivial<T>::value) {
         if (data_) {
           delete[] data_;
         }
@@ -166,7 +166,7 @@ UpperArray2D<T>& UpperArray2D<T>::operator=(const UpperArray2D<T>& A) {
       size_ = data_ + n;
       capacity_ = data_ + n;
     } else {
-      if (il::is_trivial<T>::value) {
+      if (il::isTrivial<T>::value) {
         memcpy(data_, A.data_, n * sizeof(T));
       } else {
         for (il::int_t k = 0; k < nb_elements; ++k) {
@@ -190,7 +190,7 @@ template <typename T>
 UpperArray2D<T>& UpperArray2D<T>::operator=(UpperArray2D<T>&& A) {
   if (this != &A) {
     if (data_) {
-      if (il::is_trivial<T>::value) {
+      if (il::isTrivial<T>::value) {
         delete[] data_;
       } else {
         const il::int_t nb_elements{(size() * (size() + 1)) / 2};
@@ -221,7 +221,7 @@ UpperArray2D<T>& UpperArray2D<T>::operator=(UpperArray2D<T>&& A) {
 template <typename T>
 UpperArray2D<T>::~UpperArray2D() {
   if (data_) {
-    if (il::is_trivial<T>::value) {
+    if (il::isTrivial<T>::value) {
       delete[] data_;
     } else {
       const il::int_t nb_elements{(size() * (size() + 1)) / 2};

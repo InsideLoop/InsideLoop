@@ -15,7 +15,7 @@
 
 namespace il {
 
-NumpyInfo get_numpy_info(il::io_t, std::FILE* fp, il::Status& status) {
+NumpyInfo getNumpyInfo(il::io_t, std::FILE* fp, il::Status& status) {
   NumpyInfo numpy_info;
 
   char first_buffer[10];
@@ -30,21 +30,21 @@ NumpyInfo get_numpy_info(il::io_t, std::FILE* fp, il::Status& status) {
   std::size_t count = 10;
   const std::size_t read = fread(buffer.begin(), sizeof(char), count, fp);
   if (read != count) {
-    status.set_error(il::Error::binary_file_wrong_format);
+    status.setError(il::Error::kBinaryFileWrongFormat);
     IL_SET_SOURCE(status);
     return numpy_info;
   }
   if (!(buffer.substring(0, 6) == "\x93NUMPY")) {
-    status.set_error(il::Error::binary_file_wrong_format);
+    status.setError(il::Error::kBinaryFileWrongFormat);
     IL_SET_SOURCE(status);
     return numpy_info;
   }
-  unsigned char major_version = buffer.to_code_unit(6);
-  unsigned char minor_version = buffer.to_code_unit(7);
+  unsigned char major_version = buffer.toCodeUnit(6);
+  unsigned char minor_version = buffer.toCodeUnit(7);
   unsigned short header_length =
       *reinterpret_cast<unsigned short*>(buffer.begin() + 8);
   if (major_version != 1 || minor_version != 0) {
-    status.set_error(il::Error::binary_file_wrong_format);
+    status.setError(il::Error::kBinaryFileWrongFormat);
     IL_SET_SOURCE(status);
     return numpy_info;
   }
@@ -53,9 +53,9 @@ NumpyInfo get_numpy_info(il::io_t, std::FILE* fp, il::Status& status) {
   //
   il::Array<char> second_buffer{header_length + 1};
   StringView header = StringView{second_buffer.begin(), header_length + 1};
-  char* success = fgets(header.as_c_string(), header_length + 1, fp);
-  if (success == nullptr || !(header.is_ascii(header.size() - 2, '\n'))) {
-    status.set_error(il::Error::binary_file_wrong_format);
+  char* success = fgets(header.asCString(), header_length + 1, fp);
+  if (success == nullptr || !(header.hasAscii(header.size() - 2, '\n'))) {
+    status.setError(il::Error::kBinaryFileWrongFormat);
     IL_SET_SOURCE(status);
     return numpy_info;
   }
@@ -64,27 +64,27 @@ NumpyInfo get_numpy_info(il::io_t, std::FILE* fp, il::Status& status) {
   //
   const il::int_t i4 = il::search("descr", header);
   if (i4 == -1 || i4 + 12 >= header.size()) {
-    status.set_error(il::Error::binary_file_wrong_format);
+    status.setError(il::Error::kBinaryFileWrongFormat);
     IL_SET_SOURCE(status);
     return numpy_info;
   }
   const bool little_endian =
-      header.is_ascii(i4 + 9, '<') || header.is_ascii(i4 + 9, '|');
+      header.hasAscii(i4 + 9, '<') || header.hasAscii(i4 + 9, '|');
   if (!little_endian) {
-    status.set_error(il::Error::binary_file_wrong_format);
+    status.setError(il::Error::kBinaryFileWrongFormat);
     IL_SET_SOURCE(status);
     return numpy_info;
   }
 
   ConstStringView type_string = header.substring(i4 + 10);
   const il::int_t i5 = il::search("'", type_string);
-  numpy_info.type = il::String{type_string.as_c_string(), i5};
+  numpy_info.type = il::String{type_string.asCString(), i5};
 
   // Read the ordering for multidimensional arrays
   //
   const il::int_t i0 = il::search("fortran_order", header);
   if (i0 == -1 || i0 + 20 > header.size()) {
-    status.set_error(il::Error::binary_file_wrong_format);
+    status.setError(il::Error::kBinaryFileWrongFormat);
     IL_SET_SOURCE(status);
     return numpy_info;
   }
@@ -97,12 +97,12 @@ NumpyInfo get_numpy_info(il::io_t, std::FILE* fp, il::Status& status) {
   const il::int_t i1 = il::search("(", header);
   const il::int_t i2 = il::search(")", header);
   if (i1 == -1 || i2 == -1 || i2 - i1 <= 1) {
-    status.set_error(il::Error::binary_file_wrong_format);
+    status.setError(il::Error::kBinaryFileWrongFormat);
     IL_SET_SOURCE(status);
     return numpy_info;
   }
   ConstStringView shape_string = header.substring(i1 + 1, i2);
-  if (shape_string.last_is_ascii(',')) {
+  if (shape_string.lastHasAscii(',')) {
     numpy_info.shape.resize(1);
   } else {
     const il::int_t n_dim = il::count(',', shape_string) + 1;
@@ -110,7 +110,7 @@ NumpyInfo get_numpy_info(il::io_t, std::FILE* fp, il::Status& status) {
   }
   il::int_t i = 0;
   while (true) {
-    numpy_info.shape[i] = std::atoll(shape_string.as_c_string());
+    numpy_info.shape[i] = std::atoll(shape_string.asCString());
     if (i == numpy_info.shape.size() - 1) {
       break;
     }
@@ -119,12 +119,12 @@ NumpyInfo get_numpy_info(il::io_t, std::FILE* fp, il::Status& status) {
     ++i;
   }
 
-  status.set_ok();
+  status.setOk();
   return numpy_info;
 }
 
-void save_numpy_info(const NumpyInfo& numpy_info, il::io_t, std::FILE* fp,
-                     il::Status& status) {
+void saveNumpyInfo(const NumpyInfo& numpy_info, il::io_t, std::FILE* fp,
+                   il::Status& status) {
   il::String header{};
   header.append("{'descr': '");
   // Little endian
@@ -164,14 +164,14 @@ void save_numpy_info(const NumpyInfo& numpy_info, il::io_t, std::FILE* fp,
   magic.append(reinterpret_cast<char*>(&short_int), 2);
   magic.append(header);
 
-  std::size_t written = std::fwrite(magic.as_c_string(), sizeof(char),
+  std::size_t written = std::fwrite(magic.asCString(), sizeof(char),
                                     static_cast<std::size_t>(magic.size()), fp);
   if (static_cast<il::int_t>(written) != magic.size()) {
-    status.set_error(il::Error::filesystem_no_write_access);
+    status.setError(il::Error::kFilesystemCanNotWriteToFile);
     IL_SET_SOURCE(status);
     return;
   }
 
-  status.set_ok();
+  status.setOk();
 }
 }  // namespace il

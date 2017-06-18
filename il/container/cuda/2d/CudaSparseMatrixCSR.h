@@ -27,10 +27,10 @@ class CudaSparseMatrixCSR {
   CudaSparseMatrixCSR(il::int_t n0, il::int_t n1, il::CudaArray<int> row,
                       il::CudaArray<int> column, il::CudaArray<T> element);
   il::int_t size(il::int_t d) const;
-  il::int_t nb_nonzero() const;
-  const int* row_data() const;
-  const int* column_data() const;
-  const T* element_data() const;
+  il::int_t nbNonZeros() const;
+  const int* rowData() const;
+  const int* columnData() const;
+  const T* elementData() const;
 };
 
 template <typename T>
@@ -51,22 +51,22 @@ il::int_t CudaSparseMatrixCSR<T>::size(il::int_t d) const {
 }
 
 template <typename T>
-il::int_t CudaSparseMatrixCSR<T>::nb_nonzero() const {
+il::int_t CudaSparseMatrixCSR<T>::nbNonZeros() const {
   return element_.size();
 }
 
 template <typename T>
-const int* CudaSparseMatrixCSR<T>::row_data() const {
+const int* CudaSparseMatrixCSR<T>::rowData() const {
   return row_.data();
 }
 
 template <typename T>
-const int* CudaSparseMatrixCSR<T>::column_data() const {
+const int* CudaSparseMatrixCSR<T>::columnData() const {
   return column_.data();
 }
 
 template <typename T>
-const T* CudaSparseMatrixCSR<T>::element_data() const {
+const T* CudaSparseMatrixCSR<T>::elementData() const {
   return element_.data();
 }
 

@@ -23,15 +23,15 @@ inline void blas(float alpha, const il::CudaSparseMatrixCSR<float> &A,
   const cusparseOperation_t transA = CUSPARSE_OPERATION_NON_TRANSPOSE;
   const int m = static_cast<int>(A.size(0));
   const int n = static_cast<int>(A.size(1));
-  const int nnz = static_cast<int>(A.nb_nonzero());
+  const int nnz = static_cast<int>(A.nbNonZeros());
   cusparseMatDescr_t descrA;
   cusparseCreateMatDescr(&descrA);
   cusparseSetMatType(descrA, CUSPARSE_MATRIX_TYPE_GENERAL);
   cusparseSetMatIndexBase(descrA, CUSPARSE_INDEX_BASE_ZERO);
 
   const cusparseStatus_t status = cusparseScsrmv(
-      handle.handle(), transA, m, n, nnz, &alpha, descrA, A.element_data(),
-      A.row_data(), A.column_data(), x.data(), &beta, y.data());
+      handle.handle(), transA, m, n, nnz, &alpha, descrA, A.elementData(),
+      A.rowData(), A.columnData(), x.data(), &beta, y.data());
   IL_EXPECT_FAST(status == CUSPARSE_STATUS_SUCCESS);
 }
 

@@ -48,13 +48,13 @@ class SparseMatrixCSR {
   Index row(il::int_t i) const;
   Index column(il::int_t k) const;
   il::int_t size(il::int_t d) const;
-  il::int_t nb_nonzeros() const;
-  const T *element_data() const;
-  T *element_data();
-  const Index *row_data() const;
-  Index *row_data();
-  const Index *column_data() const;
-  Index *column_data();
+  il::int_t nbNonZeros() const;
+  const T *elementData() const;
+  T *elementData();
+  const Index *rowData() const;
+  Index *rowData();
+  const Index *columnData() const;
+  Index *columnData();
 };
 
 template <typename Index, typename T>
@@ -262,37 +262,37 @@ il::int_t SparseMatrixCSR<Index, T>::size(il::int_t d) const {
 }
 
 template <typename Index, typename T>
-il::int_t SparseMatrixCSR<Index, T>::nb_nonzeros() const {
+il::int_t SparseMatrixCSR<Index, T>::nbNonZeros() const {
   return element_.size();
 }
 
 template <typename Index, typename T>
-const T *SparseMatrixCSR<Index, T>::element_data() const {
+const T *SparseMatrixCSR<Index, T>::elementData() const {
   return element_.data();
 }
 
 template <typename Index, typename T>
-T *SparseMatrixCSR<Index, T>::element_data() {
+T *SparseMatrixCSR<Index, T>::elementData() {
   return element_.data();
 }
 
 template <typename Index, typename T>
-const Index *SparseMatrixCSR<Index, T>::row_data() const {
+const Index *SparseMatrixCSR<Index, T>::rowData() const {
   return row_.data();
 }
 
 template <typename Index, typename T>
-Index *SparseMatrixCSR<Index, T>::row_data() {
+Index *SparseMatrixCSR<Index, T>::rowData() {
   return row_.data();
 }
 
 template <typename Index, typename T>
-const Index *SparseMatrixCSR<Index, T>::column_data() const {
+const Index *SparseMatrixCSR<Index, T>::columnData() const {
   return column_.data();
 }
 
 template <typename Index, typename T>
-Index *SparseMatrixCSR<Index, T>::column_data() {
+Index *SparseMatrixCSR<Index, T>::columnData() {
   return column_.data();
 }
 

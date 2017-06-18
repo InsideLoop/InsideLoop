@@ -13,14 +13,14 @@
 
 namespace il {
 
-il::Array3C<unsigned char> load_png(const std::string &filename,
-                                il::io_t, il::Status &status) {
+il::Array3C<unsigned char> loadPng(const std::string &filename, il::io_t,
+                                   il::Status &status) {
   il::Array3C<unsigned char> image{};
 
   unsigned char header[8];
   FILE *fp{fopen(filename.c_str(), "rb")};
   if (fp == nullptr) {
-    status.set_error(il::Error::filesystem_file_not_found);
+    status.setError(il::Error::kFilesystemFileNotFound);
     IL_SET_SOURCE(status);
     fclose(fp);
     return image;
@@ -28,7 +28,7 @@ il::Array3C<unsigned char> load_png(const std::string &filename,
 
   fread(header, 1, 8, fp);
   if (png_sig_cmp(header, 0, 8)) {
-    status.set_error(il::Error::binary_file_wrong_format);
+    status.setError(il::Error::kBinaryFileWrongFormat);
     IL_SET_SOURCE(status);
     fclose(fp);
     return image;
@@ -37,20 +37,20 @@ il::Array3C<unsigned char> load_png(const std::string &filename,
   png_structp png_ptr{
       png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr)};
   if (png_ptr == nullptr) {
-    status.set_error(il::Error::undefined);
+    status.setError(il::Error::kUndefined);
     IL_SET_SOURCE(status);
     fclose(fp);
     return image;
   }
   png_infop info_ptr{png_create_info_struct(png_ptr)};
   if (info_ptr == nullptr) {
-    status.set_error(il::Error::undefined);
+    status.setError(il::Error::kUndefined);
     IL_SET_SOURCE(status);
     fclose(fp);
     return image;
   }
   if (setjmp(png_jmpbuf(png_ptr))) {
-    status.set_error(il::Error::undefined);
+    status.setError(il::Error::kUndefined);
     IL_SET_SOURCE(status);
     fclose(fp);
     return image;
@@ -71,7 +71,7 @@ il::Array3C<unsigned char> load_png(const std::string &filename,
   png_read_update_info(png_ptr, info_ptr);
 
   if (setjmp(png_jmpbuf(png_ptr))) {
-    status.set_error(il::Error::undefined);
+    status.setError(il::Error::kUndefined);
     IL_SET_SOURCE(status);
     fclose(fp);
     return image;
@@ -104,15 +104,16 @@ il::Array3C<unsigned char> load_png(const std::string &filename,
 
   fclose(fp);
 
-  status.set_ok();
+  status.setOk();
 
   return image;
 }
 
-void save_png(const il::Array3C<unsigned char> &image, const il::String &filename,il::io_t, il::Status &status) {
-  FILE *fp{fopen(filename.as_c_string(), "wb")};
+void savePng(const il::Array3C<unsigned char> &image,
+             const il::String &filename, il::io_t, il::Status &status) {
+  FILE *fp{fopen(filename.asCString(), "wb")};
   if (fp == nullptr) {
-    status.set_error(il::Error::filesystem_file_not_found);
+    status.setError(il::Error::kFilesystemFileNotFound);
     IL_SET_SOURCE(status);
     return;
   }
@@ -120,26 +121,26 @@ void save_png(const il::Array3C<unsigned char> &image, const il::String &filenam
   png_structp png_ptr{png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr,
                                               nullptr, nullptr)};
   if (png_ptr == nullptr) {
-    status.set_error(il::Error::undefined);
+    status.setError(il::Error::kUndefined);
     IL_SET_SOURCE(status);
     return;
   }
 
   png_infop info_ptr{png_create_info_struct(png_ptr)};
   if (info_ptr == nullptr) {
-    status.set_error(il::Error::undefined);
+    status.setError(il::Error::kUndefined);
     IL_SET_SOURCE(status);
     return;
   }
   if (setjmp(png_jmpbuf(png_ptr))) {
-    status.set_error(il::Error::undefined);
+    status.setError(il::Error::kUndefined);
     IL_SET_SOURCE(status);
     return;
   }
 
   png_init_io(png_ptr, fp);
   if (setjmp(png_jmpbuf(png_ptr))) {
-    status.set_error(il::Error::undefined);
+    status.setError(il::Error::kUndefined);
     IL_SET_SOURCE(status);
     return;
   }
@@ -163,7 +164,7 @@ void save_png(const il::Array3C<unsigned char> &image, const il::String &filenam
 
   /* write bytes */
   if (setjmp(png_jmpbuf(png_ptr))) {
-    status.set_error(il::Error::undefined);
+    status.setError(il::Error::kUndefined);
     IL_SET_SOURCE(status);
     return;
   }
@@ -186,7 +187,7 @@ void save_png(const il::Array3C<unsigned char> &image, const il::String &filenam
 
   /* end write */
   if (setjmp(png_jmpbuf(png_ptr))) {
-    status.set_error(il::Error::undefined);
+    status.setError(il::Error::kUndefined);
     IL_SET_SOURCE(status);
     return;
   }
@@ -199,6 +200,6 @@ void save_png(const il::Array3C<unsigned char> &image, const il::String &filenam
   free(row_pointers);
 
   fclose(fp);
-  status.set_ok();
+  status.setOk();
 }
 }  // namespace il

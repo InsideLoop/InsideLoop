@@ -16,7 +16,7 @@
 namespace il {
 
 inline ConstStringView view(const il::String& string) {
-  return ConstStringView{string.as_c_string(), string.size()};
+  return ConstStringView{string.asCString(), string.size()};
 }
 
 inline ConstStringView view(const char* string) {

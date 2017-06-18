@@ -28,9 +28,9 @@ TEST(Eigen, test0) {
 
   il::Status status{};
   il::Eigen<il::Array2D<double>> eigen_decomposition{A, il::io, status};
-  status.abort_on_error();
+  status.abortOnError();
 
-  il::Array<std::complex<double>> ev = eigen_decomposition.eigen_value();
+  il::Array<std::complex<double>> ev = eigen_decomposition.eigenValue();
   std::sort(ev.begin(), ev.end(), complex_sort);
   il::Array<std::complex<double>> result{il::value,
                                          {{-4, 0.0}, {1.0, 0.0}, {2.0, 0.0}}};
@@ -47,9 +47,9 @@ TEST(Eigen, test1) {
 
   il::Status status{};
   il::Eigen<il::Array2D<double>> eigen_decomposition{A, il::io, status};
-  status.abort_on_error();
+  status.abortOnError();
 
-  il::Array<std::complex<double>> ev = eigen_decomposition.eigen_value();
+  il::Array<std::complex<double>> ev = eigen_decomposition.eigenValue();
   std::sort(ev.begin(), ev.end(), complex_sort);
   il::Array<std::complex<double>> result{il::value,
                                          {{2.0, 0.0}, {2.0, 0.0}, {3.0, 0.0}}};
@@ -66,9 +66,9 @@ TEST(Eigen, test2) {
 
   il::Status status{};
   il::Eigen<il::Array2D<double>> eigen_decomposition{A, il::io, status};
-  status.abort_on_error();
+  status.abortOnError();
 
-  il::Array<std::complex<double>> ev = eigen_decomposition.eigen_value();
+  il::Array<std::complex<double>> ev = eigen_decomposition.eigenValue();
   std::sort(ev.begin(), ev.end(), complex_sort);
   il::Array<std::complex<double>> result{il::value,
                                          {{1.0, 0.0}, {1.0, 0.0}, {1.0, 0.0}}};
@@ -87,9 +87,9 @@ TEST(Eigen, test3) {
 
   il::Status status{};
   il::Eigen<il::Array2D<double>> eigen_decomposition{A, il::io, status};
-  status.abort_on_error();
+  status.abortOnError();
 
-  il::Array<std::complex<double>> ev = eigen_decomposition.eigen_value();
+  il::Array<std::complex<double>> ev = eigen_decomposition.eigenValue();
   std::sort(ev.begin(), ev.end(), complex_sort);
   il::Array<std::complex<double>> result{
       il::value, {{0.0, -1.0}, {0.0, -1.0}, {0.0, 1.0}, {0.0, 1.0}}};

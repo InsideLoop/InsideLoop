@@ -18,19 +18,19 @@
 
 namespace il {
 
-inline il::String to_string(il::int_t n) {
+inline il::String toString(il::int_t n) {
   char tmp[11];
   std::sprintf(tmp, "%td", n);
   return il::String{tmp};
 }
 
-inline il::ConstStringView remove_whitespace_left(ConstStringView string) {
+inline il::ConstStringView removeWhitespaceLeft(ConstStringView string) {
   il::int_t i = 0;
   while (i < string.size() &&
-         (string.is_ascii(i, ' ') || string.is_ascii(i, '\t'))) {
+         (string.hasAscii(i, ' ') || string.hasAscii(i, '\t'))) {
     ++i;
   }
-  string.remove_prefix(i);
+  string.removePrefix(i);
 
   return string;
 }
@@ -44,7 +44,7 @@ inline il::int_t search(ConstStringView a, ConstStringView b) {
     il::int_t i = 0;
     found = true;
     while (found && i < na) {
-      if (a.to_code_unit(i) != b.to_code_unit(k + i)) {
+      if (a.toCodeUnit(i) != b.toCodeUnit(k + i)) {
         found = false;
       }
       ++i;
@@ -72,7 +72,7 @@ inline il::int_t search(const char* a, const String& b) {
 inline il::int_t count(char c, ConstStringView a) {
   il::int_t ans = 0;
   for (il::int_t i = 0; i < a.size(); ++i) {
-    if (a.is_ascii(i, c)) {
+    if (a.hasAscii(i, c)) {
       ++ans;
     }
   }

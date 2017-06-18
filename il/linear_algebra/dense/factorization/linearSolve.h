@@ -27,9 +27,8 @@
 namespace il {
 
 #ifdef IL_BLAS
-inline il::Array<double> linear_solve(il::Array2D<double> A,
-                                      il::Array<double> y, il::io_t,
-                                      il::Status &status) {
+inline il::Array<double> linearSolve(il::Array2D<double> A, il::Array<double> y,
+                                     il::io_t, il::Status &status) {
   IL_EXPECT_FAST(A.size(0) == A.size(1));
   IL_EXPECT_FAST(y.size() == A.size(0));
 
@@ -45,18 +44,17 @@ inline il::Array<double> linear_solve(il::Array2D<double> A,
 
   IL_EXPECT_FAST(lapack_error >= 0);
   if (lapack_error == 0) {
-    status.set_ok();
+    status.setOk();
   } else {
-    status.set_error(il::Error::matrix_singular);
+    status.setError(il::Error::kMatrixSingular);
     IL_SET_SOURCE(status);
   }
 
   return y;
 }
 
-inline il::Array<double> linear_solve(il::Array2C<double> A,
-                                      il::Array<double> y, il::io_t,
-                                      il::Status &status) {
+inline il::Array<double> linearSolve(il::Array2C<double> A, il::Array<double> y,
+                                     il::io_t, il::Status &status) {
   IL_EXPECT_FAST(A.size(0) == A.size(1));
   IL_EXPECT_FAST(y.size() == A.size(1));
 
@@ -72,65 +70,65 @@ inline il::Array<double> linear_solve(il::Array2C<double> A,
 
   IL_EXPECT_FAST(lapack_error >= 0);
   if (lapack_error == 0) {
-    status.set_ok();
+    status.setOk();
   } else {
-    status.set_error(il::Error::matrix_singular);
+    status.setError(il::Error::kMatrixSingular);
     IL_SET_SOURCE(status);
   }
 
   return y;
 }
 
-inline il::Array<double> linear_solve(il::BandArray2C<double> A,
-                                      il::Array<double> y, il::io_t,
-                                      il::Status &status) {
+inline il::Array<double> linearSolve(il::BandArray2C<double> A,
+                                     il::Array<double> y, il::io_t,
+                                     il::Status &status) {
   IL_EXPECT_FAST(A.size(0) == A.size(1));
   IL_EXPECT_FAST(y.size() == A.size(1));
-  IL_EXPECT_FAST(A.capacity_right() >= A.width_left() + A.width_right());
+  IL_EXPECT_FAST(A.capacityRight() >= A.widthLeft() + A.widthRight());
 
   il::Array<lapack_int> ipiv{A.size(1)};
 
   const int layout{LAPACK_ROW_MAJOR};
   const lapack_int n{static_cast<lapack_int>(A.size(1))};
-  const lapack_int kl{static_cast<lapack_int>(A.width_left())};
-  const lapack_int ku{static_cast<lapack_int>(A.width_right())};
+  const lapack_int kl{static_cast<lapack_int>(A.widthLeft())};
+  const lapack_int ku{static_cast<lapack_int>(A.widthRight())};
   const lapack_int nrhs = 1;
   const lapack_int ldab{
-      static_cast<lapack_int>(A.width_left() + 1 + A.capacity_right())};
+      static_cast<lapack_int>(A.widthLeft() + 1 + A.capacityRight())};
   const lapack_int ldb = 1;
   const lapack_int lapack_error{LAPACKE_dgbsv(
       layout, n, kl, ku, nrhs, A.data(), ldab, ipiv.data(), y.data(), ldb)};
 
   IL_EXPECT_FAST(lapack_error >= 0);
   if (lapack_error == 0) {
-    status.set_ok();
+    status.setOk();
   } else {
-    status.set_error(il::Error::matrix_singular);
+    status.setError(il::Error::kMatrixSingular);
     IL_SET_SOURCE(status);
-    status.set_info("rank", il::int_t{lapack_error - 1});
+    status.setInfo("rank", il::int_t{lapack_error - 1});
   }
 
   return y;
 }
 
-inline il::Array<double> linear_solve(il::TriDiagonal<double> A,
-                                      il::Array<double> y, il::io_t,
-                                      il::Status &status) {
+inline il::Array<double> linearSolve(il::TriDiagonal<double> A,
+                                     il::Array<double> y, il::io_t,
+                                     il::Status &status) {
   IL_EXPECT_FAST(A.size() == y.size());
 
   const int layout{LAPACK_ROW_MAJOR};
   const lapack_int n{static_cast<lapack_int>(A.size())};
   const lapack_int nrhs = 1;
   const lapack_int ldb = 1;
-  const lapack_int lapack_error{LAPACKE_dgtsv(layout, n, nrhs, A.data_lower(),
-                                              A.data_diagonal(), A.data_upper(),
+  const lapack_int lapack_error{LAPACKE_dgtsv(layout, n, nrhs, A.lowerData(),
+                                              A.diagonalData(), A.upperData(),
                                               y.data(), ldb)};
 
   IL_EXPECT_FAST(lapack_error >= 0);
   if (lapack_error == 0) {
-    status.set_ok();
+    status.setOk();
   } else {
-    status.set_error(il::Error::matrix_singular);
+    status.setError(il::Error::kMatrixSingular);
     IL_SET_SOURCE(status);
   }
 

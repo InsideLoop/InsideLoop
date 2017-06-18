@@ -39,7 +39,7 @@ class StaticArray3D {
  public:
   /* \brief The default constructor
   // \details If T is a numeric value, the memory is
-  // - (Debug mode) initialized to il::default_value<T>(). It is usually NaN
+  // - (Debug mode) initialized to il::defaultValue<T>(). It is usually NaN
   //   if T is a floating point number or 666..666 if T is an integer.
   // - (Release mode) left uninitialized. This behavior is different from
   //   std::vector from the standard library which initializes all numeric
@@ -138,10 +138,10 @@ class StaticArray3D {
 
 template <typename T, il::int_t n0, il::int_t n1, il::int_t n2>
 StaticArray3D<T, n0, n1, n2>::StaticArray3D() {
-  if (il::is_trivial<T>::value) {
+  if (il::isTrivial<T>::value) {
 #ifndef NDEBUG
     for (il::int_t l = 0; l < n0 * n1 * n2; ++l) {
-      data_[l] = il::default_value<T>();
+      data_[l] = il::defaultValue<T>();
     }
 #endif
   }

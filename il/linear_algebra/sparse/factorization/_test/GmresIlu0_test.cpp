@@ -39,7 +39,7 @@ TEST(GmresIlu0, base) {
   const il::int_t max_nb_iteration = 10;
   const il::int_t nb_restart = 5;
   il::GmresIlu0 solver{relative_precision, max_nb_iteration, nb_restart};
-  solver.compute_preconditionner(il::io, A);
+  solver.computePreconditionner(il::io, A);
   il::Array<double> x = solver.solve(y, il::io, A);
 
   ASSERT_TRUE(il::abs(x[0] - 1.0) <= epsilon && il::abs(x[1] - 1.0) <= epsilon);
@@ -57,7 +57,7 @@ TEST(GmresIlu0, heat) {
   const il::int_t max_nb_iteration = 10;
   const il::int_t nb_restart = 5;
   il::GmresIlu0 solver{relative_precision, max_nb_iteration, nb_restart};
-  solver.compute_preconditionner(il::io, A);
+  solver.computePreconditionner(il::io, A);
   il::Array<double> x = solver.solve(y, il::io, A);
 
   double max_err = 0.0;
@@ -80,9 +80,9 @@ TEST(GmresIlu0, heat2D) {
   const il::int_t max_nb_iteration = 100;
   const il::int_t nb_restart = 10;
   il::GmresIlu0 solver{relative_precision, max_nb_iteration, nb_restart};
-  solver.compute_preconditionner(il::io, A);
+  solver.computePreconditionner(il::io, A);
   il::Array<double> x = solver.solve(y, il::io, A);
-  il::int_t nb_iteration = solver.nb_iteration();
+  il::int_t nb_iteration = solver.nbIterations();
   (void)nb_iteration;
 
   double max_err = 0.0;
@@ -96,7 +96,7 @@ TEST(GmresIlu0, heat2D) {
 TEST(GmresIlu0, heat3D) {
   const il::int_t n = 10;
 
-  il::SparseMatrixCSR<int, double> A = il::heat_3d<int, double>(n);
+  il::SparseMatrixCSR<int, double> A = il::heat3d<int, double>(n);
   il::Array<double> x_theory{A.size(0), 1.0};
   il::Array<double> y{A.size(0), 0.0};
   il::blas(1.0, A, x_theory, 0.0, il::io, y);
@@ -105,7 +105,7 @@ TEST(GmresIlu0, heat3D) {
   const il::int_t max_nb_iteration = 100;
   const il::int_t nb_restart = 10;
   il::GmresIlu0 solver{relative_precision, max_nb_iteration, nb_restart};
-  solver.compute_preconditionner(il::io, A);
+  solver.computePreconditionner(il::io, A);
   il::Array<double> x = solver.solve(y, il::io, A);
 
   double max_err = 0.0;

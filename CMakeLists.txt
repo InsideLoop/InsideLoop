@@ -160,7 +160,7 @@ set(SOURCE_FILES
     il/CudaArray2D.h
     il/Dynamic.h
     il/format.h
-    il/HashMap.h
+        il/Map.h
     il/Info.h
     il/linear_algebra.h
     il/LowerArray2D.h
@@ -208,8 +208,8 @@ set(SOURCE_FILES
     il/container/cuda/2d/CudaSparseMatrixCSR.h
     il/container/cuda/cuda_copy.h
     il/container/hash/HashFunction.h
-    il/container/hash/HashMap.h
-    il/container/hash/HashMapArray.h
+        il/container/hash/Map.h
+        il/container/hash/MapArray.h
     il/container/string/String.h
     il/container/string/StringView.h
     il/container/string/UTF16String.h
@@ -235,7 +235,7 @@ set(SOURCE_FILES
     il/linear_algebra/dense/blas/blas.h
     il/linear_algebra/dense/blas/dot.h
     il/linear_algebra/dense/norm.h
-    il/linear_algebra/dense/factorization/linear_solve.h
+        il/linear_algebra/dense/factorization/linearSolve.h
     il/linear_algebra/dense/factorization/LU.h
     il/linear_algebra/dense/factorization/Cholesky.h
     il/linear_algebra/dense/factorization/Householder.h
@@ -293,7 +293,7 @@ set(UNIT_TEST_FILES
     il/linear_algebra/sparse/factorization/_test/GmresIlu0_test.cpp
     il/io/_test/numpy_test.cpp
     il/io/toml/_test/toml_valid_test.cpp
-    gtest/src/gtest-all.cc il/core/_test/Status_test.cpp il/HashMapArray.h)
+    gtest/src/gtest-all.cc il/core/_test/Status_test.cpp il/MapArray.h)
 
 add_executable(InsideLoopUnitTest ${SOURCE_FILES} ${UNIT_TEST_FILES} test.cpp)
 

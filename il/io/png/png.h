@@ -19,18 +19,18 @@
 
 namespace il {
 
-il::Array3C<unsigned char> load_png(const il::String& filename, il::io_t,
-                                    il::Status& status);
+il::Array3C<unsigned char> loadPng(const il::String& filename, il::io_t,
+                                   il::Status& status);
 
-void save_png(const il::Array3C<unsigned char>& v, const il::String& filename,
-              il::io_t, il::Status& status);
+void savePng(const il::Array3C<unsigned char>& v, const il::String& filename,
+             il::io_t, il::Status& status);
 
 template <>
 class SaveHelperPng<il::Array3C<unsigned char>> {
  public:
   static void save(const il::Array3C<unsigned char>& image,
                    const il::String& filename, il::io_t, il::Status& status) {
-    save_png(image, filename, il::io, status);
+    savePng(image, filename, il::io, status);
   }
 };
 
@@ -47,7 +47,7 @@ class SaveHelperPng<il::Array2C<unsigned char>> {
         color_image(ky, kx, 2) = image(ky, kx);
       }
     }
-    save_png(color_image, filename, il::io, status);
+    savePng(color_image, filename, il::io, status);
   }
 };
 

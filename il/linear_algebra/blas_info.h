@@ -13,13 +13,13 @@
 namespace il {
 
 enum class Blas {
-  regular,
-  transpose,
-  conjugate_transpose,
-  symmetric_upper,
-  symmetric_lower,
-  hermitian_upper,
-  hermitian_lower
+  kRegular,
+  kTranspose,
+  kConjugateTranspose,
+  kSymmetricUpper,
+  kSymmetricLower,
+  kHermitianUpper,
+  kHermitianLower
 };
 }
 

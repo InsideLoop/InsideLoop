@@ -50,13 +50,14 @@ class String {
   String(const char* data, il::int_t n);
   String(const il::String& s);
   String(il::String&& s);
+  String& operator=(const char* data);
   String& operator=(const il::String& s);
   String& operator=(il::String&& s);
   ~String();
   il::int_t size() const;
   il::int_t capacity() const;
-  bool empty() const;
-  bool small() const;
+  bool isEmpty() const;
+  bool isSmall() const;
   void reserve(il::int_t r);
   void append(const String& s);
   void append(const char* data);
@@ -65,49 +66,29 @@ class String {
   void append(int cp);
   void append(il::int_t n, char c);
   void append(il::int_t n, int cp);
-  il::int_t next_code_point(il::int_t i) const;
-  // il::int_t next_line(il::int_t i) const;
-  int to_code_point(il::int_t i) const;
-  const unsigned char* begin() const;
-  const unsigned char* end() const;
-  const char* as_c_string() const;
-  const unsigned char* data() const;
+  bool hasSuffix(const char* data) const;
+  const char* asCString() const;
   bool operator==(const il::String& other) const;
-  bool has_suffix(const char* data) const;
 
  private:
   il::int_t small_size() const;
-  il::int_t large_capacity() const;
-  void set_small_size(il::int_t n);
-  void set_large_capacity(il::int_t r);
-  unsigned char* begin();
-  unsigned char* end();
-  bool valid_code_point(int cp);
+  il::int_t largeCapacity() const;
+  void setSmallSize(il::int_t n);
+  void setLargeCapacity(il::int_t r);
+  const char* begin() const;
+  const char* end() const;
+  char* begin();
+  char* end();
+  const char* data() const;
+  bool validUnicodeScalar(int cp);
+  static il::int_t getSize(const char* data);
   constexpr static il::int_t max_small_size_ =
       static_cast<il::int_t>(sizeof(LargeString) - 1);
 };
 
 inline String::String() {
   data_[0] = static_cast<unsigned char>('\0');
-  set_small_size(0);
-}
-
-inline String::String(const char* data) {
-  IL_EXPECT_AXIOM("data is a UTF-8 null terminated string");
-
-  il::int_t size = 0;
-  while (data[size] != '\0') {
-    ++size;
-  }
-  if (size <= max_small_size_) {
-    std::memcpy(data_, data, static_cast<std::size_t>(size) + 1);
-    set_small_size(size);
-  } else {
-    large_.data = il::allocate_array<unsigned char>(size + 1);
-    std::memcpy(large_.data, data, static_cast<std::size_t>(size) + 1);
-    large_.size = static_cast<std::size_t>(size);
-    set_large_capacity(size);
-  }
+  setSmallSize(0);
 }
 
 inline String::String(const char* data, il::int_t n) {
@@ -115,67 +96,82 @@ inline String::String(const char* data, il::int_t n) {
 
   if (n <= max_small_size_) {
     std::memcpy(data_, data, static_cast<std::size_t>(n));
-    data_[n] = '\0';
-    set_small_size(n);
+    data_[n] = static_cast<unsigned char>('\0');
+    setSmallSize(n);
   } else {
-    large_.data = il::allocate_array<unsigned char>(n + 1);
+    large_.data = il::allocateArray<unsigned char>(n + 1);
     std::memcpy(large_.data, data, static_cast<std::size_t>(n));
-    large_.data[n] = '\0';
+    large_.data[n] = static_cast<unsigned char>('\0');
     large_.size = static_cast<std::size_t>(n);
-    set_large_capacity(n);
+    setLargeCapacity(n);
   }
 }
 
-inline String::String(const String& s) {
-  const il::int_t size = s.size();
-  if (size <= max_small_size_) {
-    std::memcpy(data_, s.as_c_string(), static_cast<std::size_t>(size) + 1);
-    set_small_size(size);
-  } else {
-    large_.data = il::allocate_array<unsigned char>(size + 1);
-    std::memcpy(large_.data, s.as_c_string(),
-                static_cast<std::size_t>(size) + 1);
-    large_.size = static_cast<std::size_t>(size);
-    set_large_capacity(size);
-  }
-}
+inline String::String(const char* data) : String{data, String::getSize(data)} {}
+
+inline String::String(const String& s) : String{s.data(), s.size()} {}
 
 inline String::String(String&& s) {
   const il::int_t size = s.size();
   if (size <= max_small_size_) {
-    std::memcpy(data_, s.as_c_string(), static_cast<std::size_t>(size) + 1);
-    set_small_size(size);
+    std::memcpy(data_, s.asCString(), static_cast<std::size_t>(size) + 1);
+    setSmallSize(size);
   } else {
     large_.data = s.large_.data;
     large_.size = s.large_.size;
     large_.capacity = s.large_.capacity;
     s.data_[0] = static_cast<unsigned char>('\0');
-    s.set_small_size(0);
+    s.setSmallSize(0);
   }
+}
+
+inline String& String::operator=(const char* data) {
+  const il::int_t size = getSize(data);
+  if (size <= max_small_size_) {
+    if (!isSmall()) {
+      il::deallocate(large_.data);
+    }
+    std::memcpy(data_, data, static_cast<std::size_t>(size) + 1);
+    setSmallSize(size);
+  } else {
+    if (size <= capacity()) {
+      std::memcpy(large_.data, data, static_cast<std::size_t>(size) + 1);
+      large_.size = static_cast<std::size_t>(size);
+    } else {
+      if (!isSmall()) {
+        il::deallocate(large_.data);
+      }
+      large_.data = il::allocateArray<unsigned char>(size + 1);
+      std::memcpy(large_.data, data, static_cast<std::size_t>(size) + 1);
+      large_.size = static_cast<std::size_t>(size);
+      setLargeCapacity(size);
+    }
+  }
+  return *this;
 }
 
 inline String& String::operator=(const String& s) {
   const il::int_t size = s.size();
   if (size <= max_small_size_) {
-    if (!small()) {
+    if (!isSmall()) {
       il::deallocate(large_.data);
     }
-    std::memcpy(data_, s.as_c_string(), static_cast<std::size_t>(size) + 1);
-    set_small_size(size);
+    std::memcpy(data_, s.asCString(), static_cast<std::size_t>(size) + 1);
+    setSmallSize(size);
   } else {
     if (size <= capacity()) {
-      std::memcpy(large_.data, s.as_c_string(),
+      std::memcpy(large_.data, s.asCString(),
                   static_cast<std::size_t>(size) + 1);
       large_.size = static_cast<std::size_t>(size);
     } else {
-      if (!small()) {
+      if (!isSmall()) {
         il::deallocate(large_.data);
       }
-      large_.data = il::allocate_array<unsigned char>(size + 1);
-      std::memcpy(large_.data, s.as_c_string(),
+      large_.data = il::allocateArray<unsigned char>(size + 1);
+      std::memcpy(large_.data, s.asCString(),
                   static_cast<std::size_t>(size) + 1);
       large_.size = static_cast<std::size_t>(size);
-      set_large_capacity(size);
+      setLargeCapacity(size);
     }
   }
   return *this;
@@ -185,30 +181,30 @@ inline String& String::operator=(String&& s) {
   if (this != &s) {
     const il::int_t size = s.size();
     if (size <= max_small_size_) {
-      if (!small()) {
+      if (!isSmall()) {
         il::deallocate(large_.data);
       }
-      std::memcpy(data_, s.as_c_string(), static_cast<std::size_t>(size) + 1);
-      set_small_size(size);
+      std::memcpy(data_, s.asCString(), static_cast<std::size_t>(size) + 1);
+      setSmallSize(size);
     } else {
       large_.data = s.large_.data;
       large_.size = s.large_.size;
       large_.capacity = s.large_.capacity;
       s.data_[0] = static_cast<unsigned char>('\0');
-      s.set_small_size(0);
+      s.setSmallSize(0);
     }
   }
   return *this;
 }
 
 inline String::~String() {
-  if (!small()) {
+  if (!isSmall()) {
     il::deallocate(large_.data);
   }
 }
 
 inline il::int_t String::size() const {
-  if (small()) {
+  if (isSmall()) {
     return max_small_size_ - static_cast<il::int_t>(data_[max_small_size_]);
   } else {
     return static_cast<il::int_t>(large_.size);
@@ -216,7 +212,7 @@ inline il::int_t String::size() const {
 }
 
 inline il::int_t String::capacity() const {
-  if (small()) {
+  if (isSmall()) {
     return max_small_size_;
   } else {
     const unsigned char category_extract_mask = 0xC0;
@@ -230,26 +226,24 @@ inline il::int_t String::capacity() const {
 inline void String::reserve(il::int_t r) {
   IL_EXPECT_FAST(r >= 0);
 
-  const bool old_small = small();
+  const bool old_small = isSmall();
   const il::int_t old_capacity = capacity();
   if (r <= old_capacity) {
     return;
   }
 
   const il::int_t old_size = size();
-  unsigned char* new_data = il::allocate_array<unsigned char>(r + 1);
-  std::memcpy(new_data, as_c_string(), static_cast<std::size_t>(old_size) + 1);
+  unsigned char* new_data = il::allocateArray<unsigned char>(r + 1);
+  std::memcpy(new_data, asCString(), static_cast<std::size_t>(old_size) + 1);
   if (!old_small) {
     il::deallocate(large_.data);
   }
   large_.data = new_data;
   large_.size = old_size;
-  set_large_capacity(r);
+  setLargeCapacity(r);
 }
 
-inline void String::append(const String& s) {
-  append(s.as_c_string(), s.size());
-}
+inline void String::append(const String& s) { append(s.asCString(), s.size()); }
 
 inline void String::append(const char* data) {
   il::int_t size = 0;
@@ -266,11 +260,11 @@ inline void String::append(char c) {
   const il::int_t new_size = old_size + 1;
   const il::int_t new_capacity = il::max(new_size, 2 * old_size);
   reserve(new_capacity);
-  unsigned char* data = begin() + old_size;
-  data[0] = static_cast<unsigned char>(c);
-  data[1] = static_cast<unsigned char>('\0');
-  if (small()) {
-    set_small_size(new_size);
+  char* data = begin() + old_size;
+  data[0] = c;
+  data[1] = '\0';
+  if (isSmall()) {
+    setSmallSize(new_size);
   } else {
     large_.size = new_size;
   }
@@ -284,20 +278,20 @@ inline void String::append(il::int_t n, char c) {
   const il::int_t new_size = old_size + 1;
   const il::int_t new_capacity = il::max(new_size, 2 * old_size);
   reserve(new_capacity);
-  unsigned char* data = begin() + old_size;
+  char* data = begin() + old_size;
   for (il::int_t i = 0; i < n; ++i) {
-    data[i] = static_cast<unsigned char>(c);
+    data[i] = c;
   }
-  data[n] = static_cast<unsigned char>('\0');
-  if (small()) {
-    set_small_size(new_size);
+  data[n] = '\0';
+  if (isSmall()) {
+    setSmallSize(new_size);
   } else {
     large_.size = new_size;
   }
 }
 
 inline void String::append(int cp) {
-  IL_EXPECT_MEDIUM(valid_code_point(cp));
+  IL_EXPECT_MEDIUM(validUnicodeScalar(cp));
 
   const unsigned int ucp = static_cast<unsigned int>(cp);
   const il::int_t old_size = size();
@@ -307,7 +301,7 @@ inline void String::append(int cp) {
     const il::int_t new_capacity =
         il::max(new_size, il::min(max_small_size_, 2 * old_size));
     reserve(new_capacity);
-    unsigned char* data = end();
+    unsigned char* data = reinterpret_cast<unsigned char*>(end());
     data[0] = static_cast<unsigned char>(ucp);
     data[1] = static_cast<unsigned char>('\0');
   } else if (ucp < 0x00000800u) {
@@ -315,7 +309,7 @@ inline void String::append(int cp) {
     const il::int_t new_capacity =
         il::max(new_size, il::min(max_small_size_, 2 * old_size));
     reserve(new_capacity);
-    unsigned char* data = end();
+    unsigned char* data = reinterpret_cast<unsigned char*>(end());
     data[0] = static_cast<unsigned char>((ucp >> 6) | 0x000000C0u);
     data[1] = static_cast<unsigned char>((ucp & 0x0000003Fu) | 0x00000080u);
     data[2] = static_cast<unsigned char>('\0');
@@ -324,7 +318,7 @@ inline void String::append(int cp) {
     const il::int_t new_capacity =
         il::max(new_size, il::min(max_small_size_, 2 * old_size));
     reserve(new_capacity);
-    unsigned char* data = end();
+    unsigned char* data = reinterpret_cast<unsigned char*>(end());
     data[0] = static_cast<unsigned char>((ucp >> 12) | 0x000000E0u);
     data[1] =
         static_cast<unsigned char>(((ucp >> 6) & 0x0000003Fu) | 0x00000080u);
@@ -335,7 +329,7 @@ inline void String::append(int cp) {
     const il::int_t new_capacity =
         il::max(new_size, il::min(max_small_size_, 2 * old_size));
     reserve(new_capacity);
-    unsigned char* data = end();
+    unsigned char* data = reinterpret_cast<unsigned char*>(end());
     data[0] = static_cast<unsigned char>((ucp >> 18) | 0x000000F0u);
     data[1] =
         static_cast<unsigned char>(((ucp >> 12) & 0x0000003Fu) | 0x00000080u);
@@ -344,8 +338,8 @@ inline void String::append(int cp) {
     data[3] = static_cast<unsigned char>((ucp & 0x0000003Fu) | 0x00000080u);
     data[4] = static_cast<unsigned char>('\0');
   }
-  if (small()) {
-    set_small_size(new_size);
+  if (isSmall()) {
+    setSmallSize(new_size);
   } else {
     large_.size = new_size;
   }
@@ -353,7 +347,7 @@ inline void String::append(int cp) {
 
 inline void String::append(il::int_t n, int cp) {
   IL_EXPECT_FAST(n >= 0);
-  IL_EXPECT_FAST(valid_code_point(cp));
+  IL_EXPECT_FAST(validUnicodeScalar(cp));
 
   const unsigned int ucp = static_cast<unsigned int>(cp);
   const il::int_t old_size = size();
@@ -362,7 +356,7 @@ inline void String::append(il::int_t n, int cp) {
     new_size = old_size + n;
     const il::int_t new_capacity = il::max(new_size, 2 * old_size);
     reserve(new_capacity);
-    unsigned char* data = end();
+    unsigned char* data = reinterpret_cast<unsigned char*>(end());
     const unsigned char cu0 = static_cast<unsigned char>(ucp);
     for (il::int_t i = 0; i < n; ++i) {
       data[i] = cu0;
@@ -372,7 +366,7 @@ inline void String::append(il::int_t n, int cp) {
     new_size = old_size + 2 * n;
     const il::int_t new_capacity = il::max(new_size, 2 * old_size);
     reserve(new_capacity);
-    unsigned char* data = end();
+    unsigned char* data = reinterpret_cast<unsigned char*>(end());
     const unsigned char cu0 =
         static_cast<unsigned char>((ucp >> 6) | 0x000000C0u);
     const unsigned char cu1 =
@@ -386,7 +380,7 @@ inline void String::append(il::int_t n, int cp) {
     new_size = old_size + 3 * n;
     const il::int_t new_capacity = il::max(new_size, 2 * old_size);
     reserve(new_capacity);
-    unsigned char* data = end();
+    unsigned char* data = reinterpret_cast<unsigned char*>(end());
     const unsigned char cu0 =
         static_cast<unsigned char>((ucp >> 12) | 0x000000E0u);
     const unsigned char cu1 =
@@ -403,7 +397,7 @@ inline void String::append(il::int_t n, int cp) {
     new_size = old_size + 4 * n;
     const il::int_t new_capacity = il::max(new_size, 2 * old_size);
     reserve(new_capacity);
-    unsigned char* data = end();
+    unsigned char* data = reinterpret_cast<unsigned char*>(end());
     const unsigned char cu0 =
         static_cast<unsigned char>((ucp >> 18) | 0x000000F0u);
     const unsigned char cu1 =
@@ -420,53 +414,24 @@ inline void String::append(il::int_t n, int cp) {
     }
     data[4 * n] = static_cast<unsigned char>('\0');
   }
-  if (small()) {
-    set_small_size(new_size);
+  if (isSmall()) {
+    setSmallSize(new_size);
   } else {
     large_.size = new_size;
   }
 }
 
-inline const char* String::as_c_string() const {
-  if (small()) {
+inline const char* String::asCString() const {
+  if (isSmall()) {
     return reinterpret_cast<const char*>(data_);
   } else {
     return reinterpret_cast<const char*>(large_.data);
   }
 }
 
-inline bool String::empty() const { return size() == 0; }
+inline bool String::isEmpty() const { return size() == 0; }
 
-inline il::int_t String::next_code_point(il::int_t i) const {
-  const unsigned char* data = begin();
-  do {
-    ++i;
-  } while (i < size() && ((data[i] & 0xC0u) == 0x80u));
-  return i;
-}
-
-inline int String::to_code_point(il::int_t i) const {
-  unsigned int ans = 0;
-  const unsigned char* data = begin();
-  if ((data[i] & 0x80u) == 0) {
-    ans = static_cast<unsigned int>(data[i]);
-  } else if ((data[i] & 0xE0u) == 0xC0u) {
-    ans = (static_cast<unsigned int>(data[i] & 0x1Fu) << 6) +
-          static_cast<unsigned int>(data[i + 1] & 0x3Fu);
-  } else if ((data[i] & 0xF0u) == 0xE0u) {
-    ans = (static_cast<unsigned int>(data[i] & 0x0Fu) << 12) +
-          (static_cast<unsigned int>(data[i + 1] & 0x3Fu) << 6) +
-          static_cast<unsigned int>(data[i + 2] & 0x3Fu);
-  } else {
-    ans = (static_cast<unsigned int>(data[i] & 0x07u) << 18) +
-          (static_cast<unsigned int>(data[i + 1] & 0x3Fu) << 12) +
-          (static_cast<unsigned int>(data[i + 2] & 0x3Fu) << 6) +
-          static_cast<unsigned int>(data[i + 3] & 0x3Fu);
-  }
-  return static_cast<int>(ans);
-}
-
-inline bool String::small() const {
+inline bool String::isSmall() const {
   const unsigned char category_extract_mask = 0xC0;
   return (data_[max_small_size_] & category_extract_mask) == 0;
 }
@@ -475,8 +440,9 @@ inline bool String::operator==(const il::String& other) const {
   if (size() != other.size()) {
     return false;
   } else {
-    const unsigned char* p0 = begin();
-    const unsigned char* p1 = other.begin();
+    const unsigned char* p0 = reinterpret_cast<const unsigned char*>(begin());
+    const unsigned char* p1 =
+        reinterpret_cast<const unsigned char*>(other.begin());
     for (il::int_t i = 0; i < size(); ++i) {
       if (p0[i] != p1[i]) {
         return false;
@@ -486,7 +452,7 @@ inline bool String::operator==(const il::String& other) const {
   }
 }
 
-inline bool String::has_suffix(const char* data) const {
+inline bool String::hasSuffix(const char* data) const {
   il::int_t n = 0;
   while (data[n] != '\0') {
     ++n;
@@ -494,7 +460,7 @@ inline bool String::has_suffix(const char* data) const {
   if (size() < n) {
     return false;
   } else {
-    const unsigned char* p0 = end() - n;
+    const unsigned char* p0 = reinterpret_cast<const unsigned char*>(end()) - n;
     const unsigned char* p1 = reinterpret_cast<const unsigned char*>(data);
     for (il::int_t i = 0; i < n; ++i) {
       if (p0[i] != p1[i]) {
@@ -505,11 +471,19 @@ inline bool String::has_suffix(const char* data) const {
   }
 }
 
+inline il::int_t String::getSize(const char* data) {
+  il::int_t i = 0;
+  while (data[i] != '\0') {
+    ++i;
+  }
+  return i;
+}
+
 inline il::int_t String::small_size() const {
   return max_small_size_ - static_cast<il::int_t>(data_[max_small_size_]);
 }
 
-inline il::int_t String::large_capacity() const {
+inline il::int_t String::largeCapacity() const {
   constexpr unsigned char category_extract_mask = 0xC0;
   constexpr std::size_t capacity_extract_mask =
       ~(static_cast<std::size_t>(category_extract_mask)
@@ -517,56 +491,56 @@ inline il::int_t String::large_capacity() const {
   return static_cast<il::int_t>(large_.capacity & capacity_extract_mask);
 }
 
-inline void String::set_small_size(il::int_t n) {
+inline void String::setSmallSize(il::int_t n) {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(n) <=
                    static_cast<std::size_t>(max_small_size_));
 
   data_[max_small_size_] = static_cast<unsigned char>(max_small_size_ - n);
 }
 
-inline void String::set_large_capacity(il::int_t r) {
+inline void String::setLargeCapacity(il::int_t r) {
   large_.capacity =
       static_cast<std::size_t>(r) |
       (static_cast<std::size_t>(0x80) << ((sizeof(std::size_t) - 1) * 8));
 }
 
-inline const unsigned char* String::data() const {
-  if (small()) {
-    return data_;
+inline const char* String::data() const {
+  if (isSmall()) {
+    return reinterpret_cast<const char*>(data_);
   } else {
-    return large_.data;
+    return reinterpret_cast<const char*>(large_.data);
   }
 }
 
-inline const unsigned char* String::begin() const {
-  if (small()) {
-    return data_;
+inline const char* String::begin() const {
+  if (isSmall()) {
+    return reinterpret_cast<const char*>(data_);
   } else {
-    return large_.data;
+    return reinterpret_cast<const char*>(large_.data);
   }
 }
 
-inline unsigned char* String::begin() {
-  if (small()) {
-    return data_;
+inline char* String::begin() {
+  if (isSmall()) {
+    return reinterpret_cast<char*>(data_);
   } else {
-    return large_.data;
+    return reinterpret_cast<char*>(large_.data);
   }
 }
 
-inline const unsigned char* String::end() const {
-  if (small()) {
-    return data_ + size();
+inline const char* String::end() const {
+  if (isSmall()) {
+    return reinterpret_cast<const char*>(data_) + size();
   } else {
-    return large_.data + size();
+    return reinterpret_cast<const char*>(large_.data) + size();
   }
 }
 
-inline unsigned char* String::end() {
-  if (small()) {
-    return data_ + size();
+inline char* String::end() {
+  if (isSmall()) {
+    return reinterpret_cast<char*>(data_) + size();
   } else {
-    return large_.data + size();
+    return reinterpret_cast<char*>(large_.data) + size();
   }
 }
 
@@ -574,10 +548,9 @@ inline void String::append(const char* data, il::int_t n) {
   IL_EXPECT_FAST(n >= 0);
   IL_EXPECT_AXIOM("data must point to an array of length at least n");
 
-  const bool old_small = small();
+  const bool old_small = isSmall();
   const il::int_t old_size = old_small ? small_size() : large_.size;
-  const il::int_t old_capacity =
-      old_small ? max_small_size_ : large_capacity();
+  const il::int_t old_capacity = old_small ? max_small_size_ : largeCapacity();
   unsigned char* old_data = old_small ? data_ : large_.data;
 
   const std::size_t u_needed_size =
@@ -592,9 +565,9 @@ inline void String::append(const char* data, il::int_t n) {
         2 * static_cast<std::size_t>(old_size);
     const std::size_t u_new_capacity =
         il::max(u_needed_size, u_confort_capacity);
-    constexpr std::size_t broom_integer = static_cast<std::size_t>(1)
-                                          << (sizeof(std::size_t) * 8 - 1);
-    if (u_new_capacity + 1 >= broom_integer) {
+    constexpr std::size_t sentinel_integer = static_cast<std::size_t>(1)
+                                             << (sizeof(std::size_t) * 8 - 1);
+    if (u_new_capacity + 1 >= sentinel_integer) {
       il::abort();
     }
     new_capacity = static_cast<il::int_t>(u_new_capacity);
@@ -603,25 +576,25 @@ inline void String::append(const char* data, il::int_t n) {
 
   unsigned char* new_data;
   if (needs_new_buffer) {
-    new_data = il::allocate_array<unsigned char>(new_capacity + 1);
+    new_data = il::allocateArray<unsigned char>(new_capacity + 1);
     std::memcpy(new_data, old_data, static_cast<std::size_t>(old_size));
   } else {
     new_data = old_data;
   }
   std::memcpy(new_data + old_size, data, static_cast<std::size_t>(n) + 1);
   if (new_capacity <= max_small_size_) {
-    set_small_size(old_size + n);
+    setSmallSize(old_size + n);
   } else {
     if (needs_new_buffer && !old_small) {
       il::deallocate(old_data);
     }
     large_.data = new_data;
     large_.size = old_size + n;
-    set_large_capacity(new_capacity);
+    setLargeCapacity(new_capacity);
   }
 }
 
-inline bool String::valid_code_point(int cp) {
+inline bool String::validUnicodeScalar(int cp) {
   const unsigned int code_point_max = 0x0010FFFFu;
   const unsigned int lead_surrogate_min = 0x0000D800u;
   const unsigned int lead_surrogate_max = 0x0000DBFFu;

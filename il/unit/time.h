@@ -25,7 +25,7 @@ const double hour{60.0 * minute};
 const double day{24.0 * hour};
 const double year{365.0 * day};
 
-inline std::string time_to_string(double time) {
+inline std::string time_toString(double time) {
   IL_EXPECT_FAST(time >= 0);
 
   if (time == 0.0) {

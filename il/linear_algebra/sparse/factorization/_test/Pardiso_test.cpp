@@ -36,8 +36,8 @@ TEST(Pardiso, base) {
   A[index[3]] = 4.0;
 
   il::Pardiso solver{};
-  solver.symbolic_factorization(A);
-  solver.numerical_factorization(A);
+  solver.symbolicFactorization(A);
+  solver.numericalFactorization(A);
 
   il::Array<double> x = solver.solve(A, y);
 
@@ -53,8 +53,8 @@ TEST(Pardiso, heat) {
   il::blas(1.0, A, x_theory, 0.0, il::io, y);
 
   il::Pardiso solver{};
-  solver.symbolic_factorization(A);
-  solver.numerical_factorization(A);
+  solver.symbolicFactorization(A);
+  solver.numericalFactorization(A);
   il::Array<double> x = solver.solve(A, y);
 
   double max_err = 0.0;
@@ -75,8 +75,8 @@ TEST(Pardiso, heat2D) {
   il::blas(1.0, A, x_theory, 0.0, il::io, y);
 
   il::Pardiso solver{};
-  solver.symbolic_factorization(A);
-  solver.numerical_factorization(A);
+  solver.symbolicFactorization(A);
+  solver.numericalFactorization(A);
   il::Array<double> x = solver.solve(A, y);
 
   double max_err = 0.0;
@@ -91,14 +91,14 @@ TEST(Pardiso, heat2D) {
 TEST(Pardiso, heat3D) {
   const il::int_t n = 10;
 
-  il::SparseMatrixCSR<il::int_t, double> A = il::heat_3d<il::int_t, double>(n);
+  il::SparseMatrixCSR<il::int_t, double> A = il::heat3d<il::int_t, double>(n);
   il::Array<double> x_theory{n * n * n, 1.0};
   il::Array<double> y{n * n * n, 0.0};
   il::blas(1.0, A, x_theory, 0.0, il::io, y);
 
   il::Pardiso solver{};
-  solver.symbolic_factorization(A);
-  solver.numerical_factorization(A);
+  solver.symbolicFactorization(A);
+  solver.numericalFactorization(A);
   il::Array<double> x = solver.solve(A, y);
 
   double max_err = 0.0;

@@ -34,8 +34,8 @@ static void BM_LU_ARRAY2D_MISALIGNED(benchmark::State& state) {
     }
     il::Status status{};
     il::Array<double> x{
-        il::linear_solve(std::move(A), std::move(y), il::io, status)};
-    status.ignore_error();
+        il::linearSolve(std::move(A), std::move(y), il::io, status)};
+    status.ignoreError();
   }
 }
 
@@ -52,8 +52,8 @@ static void BM_LU_ARRAY2D(benchmark::State& state) {
     }
     il::Status status{};
     il::Array<double> x{
-        il::linear_solve(std::move(A), std::move(y), il::io, status)};
-    status.ignore_error();
+        il::linearSolve(std::move(A), std::move(y), il::io, status)};
+    status.ignoreError();
   }
 }
 
@@ -69,8 +69,8 @@ static void BM_LU_ARRAY2D_COPY(benchmark::State& state) {
       }
     }
     il::Status status{};
-    il::Array<double> x{il::linear_solve(A, y, il::io, status)};
-    status.ignore_error();
+    il::Array<double> x{il::linearSolve(A, y, il::io, status)};
+    status.ignoreError();
   }
 }
 
@@ -87,8 +87,8 @@ static void BM_LU_ARRAY2D_SIMD_ALIGNED(benchmark::State& state) {
     }
     il::Status status{};
     il::Array<double> x{
-        il::linear_solve(std::move(A), std::move(y), il::io, status)};
-    status.ignore_error();
+        il::linearSolve(std::move(A), std::move(y), il::io, status)};
+    status.ignoreError();
   }
 }
 
@@ -105,8 +105,8 @@ static void BM_LU_ARRAY2D_CACHE_ALIGNED(benchmark::State& state) {
     }
     il::Status status{};
     il::Array<double> x{
-        il::linear_solve(std::move(A), std::move(y), il::io, status)};
-    status.ignore_error();
+        il::linearSolve(std::move(A), std::move(y), il::io, status)};
+    status.ignoreError();
   }
 }
 
@@ -123,8 +123,8 @@ static void BM_LU_ARRAY2C_MISALIGNED(benchmark::State& state) {
     }
     il::Status status{};
     il::Array<double> x{
-        il::linear_solve(std::move(A), std::move(y), il::io, status)};
-    status.ignore_error();
+        il::linearSolve(std::move(A), std::move(y), il::io, status)};
+    status.ignoreError();
   }
 }
 
@@ -141,8 +141,8 @@ static void BM_LU_ARRAY2C(benchmark::State& state) {
     }
     il::Status status{};
     il::Array<double> x{
-        il::linear_solve(std::move(A), std::move(y), il::io, status)};
-    status.ignore_error();
+        il::linearSolve(std::move(A), std::move(y), il::io, status)};
+    status.ignoreError();
   }
 }
 
@@ -159,8 +159,8 @@ static void BM_LU_ARRAY2C_SIMD_ALIGNED(benchmark::State& state) {
     }
     il::Status status{};
     il::Array<double> x{
-        il::linear_solve(std::move(A), std::move(y), il::io, status)};
-    status.ignore_error();
+        il::linearSolve(std::move(A), std::move(y), il::io, status)};
+    status.ignoreError();
   }
 }
 
@@ -177,8 +177,8 @@ static void BM_LU_ARRAY2C_CACHE_ALIGNED(benchmark::State& state) {
     }
     il::Status status{};
     il::Array<double> x{
-        il::linear_solve(std::move(A), std::move(y), il::io, status)};
-    status.ignore_error();
+        il::linearSolve(std::move(A), std::move(y), il::io, status)};
+    status.ignoreError();
   }
 }
 

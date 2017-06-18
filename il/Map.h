@@ -7,4 +7,4 @@
 //
 //==============================================================================
 
-#include <il/container/hash/HashMap.h>
+#include <il/container/hash/Map.h>
