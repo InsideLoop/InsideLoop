@@ -327,7 +327,7 @@ il::Array<double> y(n);
 
 il::Status status;
 il::LU<il::Array2D<double>> lu_decomposition(A, il::io, status);
-if (status.notOk()) {
+if (!status.ok()) {
   // The matrix is singular to the machine precision. You should deal with the error.
 }
 
@@ -375,7 +375,7 @@ il::Array<double> y(n);
 
 il::Status status;
 il::LU<il::Array2D<double>> lu_decomposition(std::move(A), il::io, status);
-if (status.notOk()) {
+if (!status.ok()) {
   // The matrix is singular to the machine precision. You should deal with the error.
 }
 
@@ -659,14 +659,14 @@ void addEuropeanCountry(il::Map<il::String, il::int_t>& population) {
   il::int_t n = 64806269;
   
   il::int_t i = population.search(country);
-  if (population.notFound(i)) {
+  if (!population.found(i)) {
     population.insert(country, n, il::io, i);
   }
   
   country = "Germany";
   n = 80219695;
   i = population.search(country);
-  if (population.notFound(i)) {
+  if (!population.found(i)) {
     population.insert(country, n, il::io, i);
   }
   
@@ -687,7 +687,7 @@ void printPopulationCountry(
     const il::Map<il::String, il::int_t>& population,
     const il::String& country) {
   il::int_t i = population.search(country);
-  if (population.hasFound(i)) {
+  if (population.found(i)) {
     std::printf("The population of %s is %td\n", country.asCString(),
         population.value(i));
   } else {
@@ -827,14 +827,14 @@ int main() {
   // get the name
   il::String name{};
   il::int_t i = config.search("name");
-  if (config.hasFound(i) && config.value(i).isString()) {
+  if (config.found(i) && config.value(i).isString()) {
     name = config.value(i).asString();
   }
   
   // get the number of cells
   il::int_t nb_cells;
   i = config.search("nb_cells");
-  if (config.hasFound(i) && config.value(i).isInteger()) {
+  if (config.found(i) && config.value(i).isInteger()) {
     nb_cells = config.value(i).toInteger();
   }
   
@@ -842,17 +842,17 @@ int main() {
   double density;
   double compressibility;
   i = config.search("water");
-  if (config.hasFound(i) && config.value(i).isMapArray()) {
+  if (config.found(i) && config.value(i).isMapArray()) {
     const il::MapArray<il::String, il::Dynamic>& water =
         config.value(i).asMapArray();
     
     il::int_t j = water.search("density");
-    if (water.hasFound(j) && water.value(j).isDouble()) {
+    if (water.found(j) && water.value(j).isDouble()) {
       density = water.value(j).toDouble();
     }
     
     j = water.search("compressibility");
-    if (water.hasFound(j) && water.value(j).isDouble()) {
+    if (water.found(j) && water.value(j).isDouble()) {
       compressibility = water.value(j).toDouble();
     }
   }
