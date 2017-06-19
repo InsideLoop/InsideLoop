@@ -53,7 +53,7 @@ class ConstStringView {
   ConstStringView prefix(il::int_t i1) const;
   ConstStringView substring(il::int_t i0, il::int_t i1) const;
 
-  bool empty() const;
+  bool isEmpty() const;
   bool operator==(const char* string) const;
   const char* asCString() const;
   const unsigned char* begin() const;
@@ -198,7 +198,7 @@ inline il::int_t ConstStringView::nextCodePoint(il::int_t i) const {
   return i;
 }
 
-inline bool ConstStringView::empty() const { return size_ == data_; }
+inline bool ConstStringView::isEmpty() const { return size_ == data_; }
 
 inline void ConstStringView::removePrefix(il::int_t i1) {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(i1) <=

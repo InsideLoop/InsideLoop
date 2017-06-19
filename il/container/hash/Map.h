@@ -134,7 +134,7 @@ class Map {
   const K& key(il::int_t i) const;
   const V& value(il::int_t i) const;
   V& value(il::int_t i);
-  bool empty() const;
+  bool isEmpty() const;
   il::int_t size() const;
   il::int_t capacity() const;
   void reserve(il::int_t r);
@@ -574,13 +574,13 @@ double Map<K, V, F>::displacedTwice() const {
 }
 
 template <typename K, typename V, typename F>
-bool Map<K, V, F>::empty() const {
+bool Map<K, V, F>::isEmpty() const {
   return nb_element_ == 0;
 }
 
 template <typename K, typename V, typename F>
 MapIterator<K, V, F> Map<K, V, F>::begin() {
-  if (empty()) {
+  if (isEmpty()) {
     return end();
   } else {
     il::int_t i = 0;

@@ -60,7 +60,7 @@ class UTF16String {
   ~UTF16String();
   il::int_t size() const;
   il::int_t capacity() const;
-  bool small() const;
+  bool isSmall() const;
   void reserve(il::int_t r);
   void append(const UTF16String& s);
   void append(const IL_UTF16CHAR* data);
@@ -70,7 +70,7 @@ class UTF16String {
   void append(il::int_t n, int cp);
   il::int_t next_code_point(il::int_t i) const;
   int cp(il::int_t i) const;
-  bool empty() const;
+  bool isEmpty() const;
   const unsigned short* begin() const;
   const unsigned short* end() const;
   const IL_UTF16CHAR* asWString() const;
@@ -141,7 +141,7 @@ inline UTF16String::UTF16String(UTF16String&& s) {
 inline UTF16String& UTF16String::operator=(const UTF16String& s) {
   const il::int_t size = s.size();
   if (size <= max_small_size_) {
-    if (!small()) {
+    if (!isSmall()) {
       il::deallocate(large_.data);
     }
     std::memcpy(data_, s.begin(), 2 * (static_cast<std::size_t>(size) + 1));
@@ -152,7 +152,7 @@ inline UTF16String& UTF16String::operator=(const UTF16String& s) {
                   2 * (static_cast<std::size_t>(size) + 1));
       large_.size = static_cast<std::size_t>(size);
     } else {
-      if (!small()) {
+      if (!isSmall()) {
         il::deallocate(large_.data);
       }
       large_.data = il::allocateArray<unsigned short>(size + 1);
@@ -169,7 +169,7 @@ inline UTF16String& UTF16String::operator=(UTF16String&& s) {
   if (this != &s) {
     const il::int_t size = s.size();
     if (size <= max_small_size_) {
-      if (!small()) {
+      if (!isSmall()) {
         il::deallocate(large_.data);
       }
       std::memcpy(data_, s.begin(), 2 * (static_cast<std::size_t>(size) + 1));
@@ -186,13 +186,13 @@ inline UTF16String& UTF16String::operator=(UTF16String&& s) {
 }
 
 inline UTF16String::~UTF16String() {
-  if (!small()) {
+  if (!isSmall()) {
     il::deallocate(large_.data);
   }
 }
 
 inline il::int_t UTF16String::size() const {
-  if (small()) {
+  if (isSmall()) {
     return max_small_size_ - static_cast<il::int_t>(data_[max_small_size_]);
   } else {
     return static_cast<il::int_t>(large_.size);
@@ -200,7 +200,7 @@ inline il::int_t UTF16String::size() const {
 }
 
 inline il::int_t UTF16String::capacity() const {
-  if (small()) {
+  if (isSmall()) {
     return max_small_size_;
   } else {
     const unsigned char category_extract_mask = 0xC0;
@@ -214,7 +214,7 @@ inline il::int_t UTF16String::capacity() const {
 inline void UTF16String::reserve(il::int_t r) {
   IL_EXPECT_FAST(r >= 0);
 
-  const bool old_is_small = small();
+  const bool old_is_small = isSmall();
   const il::int_t old_capacity = capacity();
   if (r <= old_capacity) {
     return;
@@ -253,7 +253,7 @@ inline void UTF16String::append(char c) {
   unsigned short* data = begin() + old_size;
   data[0] = static_cast<unsigned short>(c);
   data[1] = static_cast<unsigned short>('\0');
-  if (small()) {
+  if (isSmall()) {
     setSmallSize(new_size);
   } else {
     large_.size = new_size;
@@ -273,7 +273,7 @@ inline void UTF16String::append(il::int_t n, char c) {
     data[i] = static_cast<unsigned short>(c);
   }
   data[n] = static_cast<unsigned short>('\0');
-  if (small()) {
+  if (isSmall()) {
     setSmallSize(new_size);
   } else {
     large_.size = new_size;
@@ -303,7 +303,7 @@ inline void UTF16String::append(int cp) {
     data[1] = static_cast<unsigned short>(a & 0x3FF) + 0xDC00u;
     data[2] = static_cast<unsigned short>('\0');
   }
-  if (small()) {
+  if (isSmall()) {
     setSmallSize(new_size);
   } else {
     large_.size = new_size;
@@ -319,7 +319,7 @@ inline void UTF16String::append(il::int_t n, int cp) {
 }
 
 inline const unsigned short* UTF16String::begin() const {
-  if (small()) {
+  if (isSmall()) {
     return reinterpret_cast<const unsigned short*>(data_);
   } else {
     return reinterpret_cast<const unsigned short*>(large_.data);
@@ -327,14 +327,14 @@ inline const unsigned short* UTF16String::begin() const {
 }
 
 inline const IL_UTF16CHAR* UTF16String::asWString() const {
-  if (small()) {
+  if (isSmall()) {
     return reinterpret_cast<const IL_UTF16CHAR*>(data_);
   } else {
     return reinterpret_cast<const IL_UTF16CHAR*>(large_.data);
   }
 }
 
-inline bool UTF16String::empty() const { return size() == 0; }
+inline bool UTF16String::isEmpty() const { return size() == 0; }
 
 inline il::int_t UTF16String::next_code_point(il::int_t i) const {
   const unsigned short* data = begin();
@@ -372,7 +372,7 @@ inline bool UTF16String::operator==(const il::UTF16String& other) const {
   }
 }
 
-inline bool UTF16String::small() const {
+inline bool UTF16String::isSmall() const {
   const unsigned short category_extract_mask = 0xC000;
   return (data_[max_small_size_] & category_extract_mask) == 0;
 }
@@ -391,7 +391,7 @@ inline void UTF16String::setLargeCapacity(il::int_t r) {
 }
 
 inline unsigned short* UTF16String::begin() {
-  if (small()) {
+  if (isSmall()) {
     return data_;
   } else {
     return large_.data;
@@ -399,7 +399,7 @@ inline unsigned short* UTF16String::begin() {
 }
 
 inline const unsigned short* UTF16String::end() const {
-  if (small()) {
+  if (isSmall()) {
     return data_ + size();
   } else {
     return large_.data + size();
@@ -407,7 +407,7 @@ inline const unsigned short* UTF16String::end() const {
 }
 
 inline unsigned short* UTF16String::end() {
-  if (small()) {
+  if (isSmall()) {
     return data_ + size();
   } else {
     return large_.data + size();
@@ -422,7 +422,7 @@ inline void UTF16String::append(const IL_UTF16CHAR* data, il::int_t n) {
   const il::int_t new_capacity = il::max(old_size + n, 2 * old_size);
   reserve(new_capacity);
 
-  if (small()) {
+  if (isSmall()) {
     std::memcpy(data_ + old_size, data, 2 * static_cast<std::size_t>(n));
     data_[old_size + n] = static_cast<unsigned short>('\0');
     setSmallSize(old_size + n);
