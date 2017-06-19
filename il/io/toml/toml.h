@@ -60,8 +60,7 @@ class TomlParser {
   il::Dynamic parseNumber(il::io_t, il::ConstStringView &string,
                           il::Status &status);
   il::Type parseType(il::ConstStringView string, il::io_t, il::Status &status);
-  il::Dynamic parseBoolean(il::io_t, il::ConstStringView &string,
-                           Status &status);
+  il::Dynamic parseBool(il::io_t, il::ConstStringView &string, Status &status);
   il::String parseStringLiteral(char delimiter, il::io_t,
                                 il::ConstStringView &string,
                                 il::Status &status);
@@ -122,7 +121,7 @@ inline void save_array(const il::Array<il::Dynamic> &array, il::io_t,
       } break;
       case il::Type::kArray: {
         save_array(array[j].asArray(), il::io, file, status);
-        if (status.notOk()) {
+        if (!status.ok()) {
           status.rearm();
           return;
         }
@@ -236,7 +235,7 @@ inline void save_aux(const M &toml, const il::String &name, il::io_t,
       error = std::fputs("]\n", file);
       if (error == EOF) return;
       save_aux(value.asMapArray(), toml.key(i), il::io, file, status);
-      if (status.notOk()) {
+      if (!status.ok()) {
         status.rearm();
         return;
       }
@@ -254,7 +253,7 @@ inline void save_aux(const M &toml, const il::String &name, il::io_t,
       error = std::fputs("]\n", file);
       if (error == EOF) return;
       save_aux(value.asMap(), toml.key(i), il::io, file, status);
-      if (status.notOk()) {
+      if (!status.ok()) {
         status.rearm();
         return;
       }
@@ -283,7 +282,7 @@ class SaveHelper<il::Map<il::String, il::Dynamic>> {
 
     il::String root_name{};
     save_aux(toml, root_name, il::io, file, status);
-    if (status.notOk()) {
+    if (!status.ok()) {
       status.rearm();
       return;
     }
@@ -317,7 +316,7 @@ class SaveHelperToml<il::MapArray<il::String, il::Dynamic>> {
 
     il::String root_name{};
     save_aux(toml, root_name, il::io, file, status);
-    if (status.notOk()) {
+    if (!status.ok()) {
       status.rearm();
       return;
     }

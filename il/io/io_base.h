@@ -87,7 +87,7 @@ T LoadHelperData<T>::load(const il::String& filename, il::io_t,
 template <typename T>
 T load(const il::String& filename, il::io_t, il::Status& status) {
   const il::FileType ft = il::fileType(filename, il::io, status);
-  if (status.notOk()) {
+  if (!status.ok()) {
     status.rearm();
     return T{};
   }
@@ -177,7 +177,7 @@ template <typename T>
 void save(const T& x, const il::String& filename, il::io_t,
           il::Status& status) {
   const il::FileType ft = il::fileType(filename, il::io, status);
-  if (status.notOk()) {
+  if (!status.ok()) {
     status.rearm();
     return;
   }

@@ -39,7 +39,7 @@ class Info {
   Info& operator=(const Info& other);
   Info& operator=(Info&& other);
 
-  bool isEmpty() const;
+  bool empty() const;
   void clear();
 
   void set(const char* key, bool value);
@@ -56,7 +56,7 @@ class Info {
   const char* asCString(const char* key) const;
 
   il::int_t search(const char* key) const;
-  bool hasFound(il::int_t i) const;
+  bool found(il::int_t i) const;
 
   bool isBool(il::int_t i) const;
   bool isInteger(il::int_t i) const;
@@ -75,7 +75,7 @@ class Info {
   unsigned char* data();
   void resize(il::int_t n);
 
-  bool isSmall() const;
+  bool small() const;
   void setSmallSize(il::int_t n);
   void setLargeCapacity(il::int_t r);
   il::int_t largeCapacity() const;
@@ -119,7 +119,7 @@ inline Info::Info(Info&& other) {
 inline Info& Info::operator=(const Info& other) {
   const il::int_t size = other.size();
   if (size <= max_small_size_) {
-    if (!isSmall()) {
+    if (!small()) {
       delete[] large_.data;
     }
     std::memcpy(small_, other.data(), size);
@@ -129,7 +129,7 @@ inline Info& Info::operator=(const Info& other) {
       std::memcpy(large_.data, other.data(), size);
       large_.size = size;
     } else {
-      if (!isSmall()) {
+      if (!small()) {
         delete[] large_.data;
       }
       large_.data = new unsigned char[size];
@@ -145,7 +145,7 @@ inline Info& Info::operator=(Info&& other) {
   if (this != &other) {
     const il::int_t size = other.size();
     if (size <= max_small_size_) {
-      if (!isSmall()) {
+      if (!small()) {
         delete[] large_.data;
       }
       std::memcpy(small_, other.data(), size);
@@ -274,7 +274,7 @@ inline il::int_t Info::search(const char* key) const {
   return found ? i + static_cast<il::int_t>(sizeof(int)) + j + 1 : -1;
 }
 
-inline bool Info::hasFound(il::int_t i) const { return i >= 0; }
+inline bool Info::found(il::int_t i) const { return i >= 0; }
 
 inline bool Info::isInteger(il::int_t i) const { return data()[i] == 0; }
 
@@ -320,21 +320,21 @@ inline const char* Info::asCString(il::int_t i) const {
 
 inline il::int_t Info::toInteger(const char* key) const {
   const il::int_t i = search(key);
-  IL_ENSURE(hasFound(i));
+  IL_ENSURE(found(i));
 
   return toInteger(i);
 }
 
 inline double Info::toDouble(const char* key) const {
   const il::int_t i = search(key);
-  IL_ENSURE(hasFound(i));
+  IL_ENSURE(found(i));
 
   return toDouble(i);
 }
 
 inline const char* Info::asCString(const char* key) const {
   const il::int_t i = search(key);
-  IL_ENSURE(hasFound(i));
+  IL_ENSURE(found(i));
 
   return asCString(i);
 }
@@ -404,14 +404,14 @@ inline il::int_t Info::getInteger(il::int_t i) const {
 }
 
 inline il::int_t Info::size() const {
-  return isSmall() ? small_[max_small_size_] : large_.size;
+  return small() ? small_[max_small_size_] : large_.size;
 }
 
 inline il::int_t Info::capacity() const {
-  return isSmall() ? max_small_size_ : largeCapacity();
+  return small() ? max_small_size_ : largeCapacity();
 }
 
-inline bool Info::isSmall() const {
+inline bool Info::small() const {
   return (small_[max_small_size_] & category_extract_mask_) == 0;
 }
 
@@ -433,18 +433,18 @@ inline il::int_t Info::largeCapacity() const {
 }
 
 inline const unsigned char* Info::data() const {
-  return isSmall() ? small_ : large_.data;
+  return small() ? small_ : large_.data;
 }
 
-inline unsigned char* Info::data() { return isSmall() ? small_ : large_.data; }
+inline unsigned char* Info::data() { return small() ? small_ : large_.data; }
 
-inline bool Info::isEmpty() const { return size() == 0; }
+inline bool Info::empty() const { return size() == 0; }
 
 inline void Info::resize(il::int_t n) {
   IL_EXPECT_FAST(n >= 0);
 
   const il::int_t old_size = size();
-  if (isSmall()) {
+  if (small()) {
     if (n <= max_small_size_) {
       setSmallSize(n);
     } else {
@@ -469,7 +469,7 @@ inline void Info::resize(il::int_t n) {
 }
 
 inline void Info::clear() {
-  if (!isSmall()) {
+  if (!small()) {
     delete[] large_.data;
   }
   setSmallSize(0);

@@ -106,8 +106,7 @@ class Status {
   double toDouble(const char* key) const;
   const char* asCString(const char* key) const;
   void rearm();
-  bool isOk();
-  bool notOk();
+  bool ok();
   void abortOnError();
   void ignoreError();
   il::Error error() const;
@@ -219,18 +218,11 @@ inline void Status::rearm() {
   to_check_ = true;
 }
 
-inline bool Status::isOk() {
+inline bool Status::ok() {
   IL_EXPECT_MEDIUM(to_check_);
 
   to_check_ = false;
   return ok_;
-}
-
-inline bool Status::notOk() {
-  IL_EXPECT_MEDIUM(to_check_);
-
-  to_check_ = false;
-  return !ok_;
 }
 
 inline void Status::abortOnError() {

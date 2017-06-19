@@ -17,7 +17,7 @@
 //
 //  bool success = false;
 //  try {
-//    status.isOk();
+//    status.ok();
 //  } catch (...) {
 //    success = true;
 //  }
@@ -29,7 +29,7 @@
 //  il::Status status{};
 //  status.setOk();
 //
-//  ASSERT_TRUE(status.isOk());
+//  ASSERT_TRUE(status.ok());
 //}
 //
 //// You don't have to check is the status has not been set

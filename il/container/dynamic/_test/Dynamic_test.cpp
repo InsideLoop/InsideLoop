@@ -28,7 +28,7 @@ TEST(Dynamic, default_constructor) {
               a.type() == il::Type::kNull);
 }
 
-TEST(Dynamic, boolean_constructor_0) {
+TEST(Dynamic, bool_constructor_0) {
   il::Dynamic a = true;
 
   ASSERT_TRUE(a.isBool() && a.toBool() && !a.isNull() && !a.isInteger() &&
@@ -36,7 +36,7 @@ TEST(Dynamic, boolean_constructor_0) {
               !a.isMapArray() && a.type() == il::Type::kBool);
 }
 
-TEST(Dynamic, boolean_constructor_1) {
+TEST(Dynamic, bool_constructor_1) {
   il::Dynamic a = false;
 
   ASSERT_TRUE(a.isBool() && a.toBool() == false && !a.isNull() &&
@@ -182,7 +182,7 @@ TEST(Dynamic, copy_constructor_null) {
               a.type() == il::Type::kNull);
 }
 
-TEST(Dynamic, copy_constructor_boolean_0) {
+TEST(Dynamic, copy_constructor_bool_0) {
   il::Dynamic b = true;
   il::Dynamic a{b};
 
@@ -191,7 +191,7 @@ TEST(Dynamic, copy_constructor_boolean_0) {
               !a.isMapArray() && a.type() == il::Type::kBool);
 }
 
-TEST(Dynamic, copy_constructor_boolean_1) {
+TEST(Dynamic, copy_constructor_bool_1) {
   il::Dynamic b = false;
   il::Dynamic a{b};
 
@@ -267,7 +267,7 @@ TEST(Dynamic, move_constructor_null) {
               a.type() == il::Type::kNull && b.isNull());
 }
 
-TEST(Dynamic, move_constructor_boolean_0) {
+TEST(Dynamic, move_constructor_bool_0) {
   il::Dynamic b = true;
   il::Dynamic a = std::move(b);
 
@@ -276,7 +276,7 @@ TEST(Dynamic, move_constructor_boolean_0) {
               !a.isMapArray() && a.type() == il::Type::kBool && b.isNull());
 }
 
-TEST(Dynamic, move_constructor_boolean_1) {
+TEST(Dynamic, move_constructor_bool_1) {
   il::Dynamic b = false;
   il::Dynamic a = std::move(b);
 
@@ -355,7 +355,7 @@ TEST(Dynamic, copy_assignement_null) {
               a.type() == il::Type::kNull);
 }
 
-TEST(Dynamic, copy_assignement_boolean_0) {
+TEST(Dynamic, copy_assignement_bool_0) {
   il::Dynamic b = true;
   il::Dynamic a{};
   a = b;
@@ -365,7 +365,7 @@ TEST(Dynamic, copy_assignement_boolean_0) {
               !a.isMapArray() && a.type() == il::Type::kBool);
 }
 
-TEST(Dynamic, copy_assignement_boolean_1) {
+TEST(Dynamic, copy_assignement_bool_1) {
   il::Dynamic b = false;
   il::Dynamic a{};
   a = b;
@@ -448,7 +448,7 @@ TEST(Dynamic, move_assignement_null) {
               a.type() == il::Type::kNull && b.isNull());
 }
 
-TEST(Dynamic, move_assignement_boolean_0) {
+TEST(Dynamic, move_assignement_bool_0) {
   il::Dynamic b = true;
   il::Dynamic a{};
   a = std::move(b);
@@ -458,7 +458,7 @@ TEST(Dynamic, move_assignement_boolean_0) {
               !a.isMapArray() && a.type() == il::Type::kBool && b.isNull());
 }
 
-TEST(Dynamic, move_assignement_boolean_1) {
+TEST(Dynamic, move_assignement_bool_1) {
   il::Dynamic b = false;
   il::Dynamic a{};
   a = std::move(b);

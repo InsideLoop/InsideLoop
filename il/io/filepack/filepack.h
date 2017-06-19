@@ -155,7 +155,7 @@ void auxLoad(il::int_t n, il::io_t, il::Map<il::String, il::Dynamic>& config,
         config.insert(std::move(string),
                       il::Dynamic{il::Map<il::String, il::Dynamic>{n}}, il::io,
                       i);
-        if (config.notFound(i)) {
+        if (!config.found(i)) {
         }
         il::Map<il::String, il::Dynamic>& config_inner =
             config.value(i).asMap();
@@ -260,7 +260,7 @@ void auxLoad(il::int_t n, il::io_t,
         config.insert(std::move(string),
                       il::Dynamic{il::MapArray<il::String, il::Dynamic>{n}},
                       il::io, i);
-        if (config.notFound(i)) {
+        if (!config.found(i)) {
         }
         il::MapArray<il::String, il::Dynamic>& config_inner =
             config.value(i).asMapArray();

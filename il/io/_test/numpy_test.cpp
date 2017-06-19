@@ -22,7 +22,7 @@ TEST(numpy, array_0) {
   il::Status load_status{};
   il::Array<int> w = il::load<il::Array<int>>(filename, il::io, load_status);
 
-  ASSERT_TRUE(save_status.isOk() && load_status.isOk() && w.size() == 3 &&
+  ASSERT_TRUE(save_status.ok() && load_status.ok() && w.size() == 3 &&
               w[0] == v[0] && w[1] == v[1] && w[2] == v[2]);
 }
 
@@ -36,7 +36,7 @@ TEST(numpy, array_1) {
   il::Array<double> w =
       il::load<il::Array<double>>(filename, il::io, load_status);
 
-  ASSERT_TRUE(save_status.isOk() && load_status.isOk() && w.size() == 3 &&
+  ASSERT_TRUE(save_status.ok() && load_status.ok() && w.size() == 3 &&
               w[0] == v[0] && w[1] == v[1] && w[2] == v[2]);
 }
 
@@ -50,10 +50,10 @@ TEST(numpy, array2d_0) {
   il::Array2D<int> B =
       il::load<il::Array2D<int>>(filename, il::io, load_status);
 
-  ASSERT_TRUE(save_status.isOk() && load_status.isOk() &&
-              B.size(0) == A.size(0) && B.size(1) == A.size(1) &&
-              B(0, 0) == A(0, 0) && B(1, 0) == A(1, 0) && B(0, 1) == A(0, 1) &&
-              B(1, 1) == A(1, 1) && B(0, 2) == A(0, 2) && B(1, 2) == A(1, 2));
+  ASSERT_TRUE(save_status.ok() && load_status.ok() && B.size(0) == A.size(0) &&
+              B.size(1) == A.size(1) && B(0, 0) == A(0, 0) &&
+              B(1, 0) == A(1, 0) && B(0, 1) == A(0, 1) && B(1, 1) == A(1, 1) &&
+              B(0, 2) == A(0, 2) && B(1, 2) == A(1, 2));
 }
 
 TEST(numpy, array2d_1) {
@@ -66,8 +66,8 @@ TEST(numpy, array2d_1) {
   il::Array2D<double> B =
       il::load<il::Array2D<double>>(filename, il::io, load_status);
 
-  ASSERT_TRUE(save_status.isOk() && load_status.isOk() &&
-              B.size(0) == A.size(0) && B.size(1) == A.size(1) &&
-              B(0, 0) == A(0, 0) && B(1, 0) == A(1, 0) && B(0, 1) == A(0, 1) &&
-              B(1, 1) == A(1, 1) && B(0, 2) == A(0, 2) && B(1, 2) == A(1, 2));
+  ASSERT_TRUE(save_status.ok() && load_status.ok() && B.size(0) == A.size(0) &&
+              B.size(1) == A.size(1) && B(0, 0) == A(0, 0) &&
+              B(1, 0) == A(1, 0) && B(0, 1) == A(0, 1) && B(1, 1) == A(1, 1) &&
+              B(0, 2) == A(0, 2) && B(1, 2) == A(1, 2));
 }

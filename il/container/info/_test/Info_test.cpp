@@ -19,7 +19,7 @@ TEST(Info, integer) {
 
   il::int_t line = value + 1;
   const il::int_t i = info.search("line");
-  if (info.hasFound(i) && info.isInteger(i)) {
+  if (info.found(i) && info.isInteger(i)) {
     line = info.toInteger(i);
   }
 
@@ -34,7 +34,7 @@ TEST(Info, double) {
 
   double pi = value + 1.0;
   const il::int_t i = info.search("pi");
-  if (info.hasFound(i) && info.isDouble(i)) {
+  if (info.found(i) && info.isDouble(i)) {
     pi = info.toDouble(i);
   }
 

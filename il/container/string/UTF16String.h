@@ -70,7 +70,7 @@ class UTF16String {
   void append(il::int_t n, int cp);
   il::int_t next_code_point(il::int_t i) const;
   int cp(il::int_t i) const;
-  bool isEmpty() const;
+  bool empty() const;
   const unsigned short* begin() const;
   const unsigned short* end() const;
   const IL_UTF16CHAR* asWString() const;
@@ -334,7 +334,7 @@ inline const IL_UTF16CHAR* UTF16String::asWString() const {
   }
 }
 
-inline bool UTF16String::isEmpty() const { return size() == 0; }
+inline bool UTF16String::empty() const { return size() == 0; }
 
 inline il::int_t UTF16String::next_code_point(il::int_t i) const {
   const unsigned short* data = begin();

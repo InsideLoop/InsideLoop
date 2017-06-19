@@ -26,17 +26,16 @@ class MapArray {
   MapArray(il::int_t n);
   void set(const K& key, const V& value);
   void set(const K& key, V&& value);
+  void set(K&& key, const V& value);
   void set(K&& key, V&& value);
-  void insert(const K& key, const V& value);
-  void insert(const K& key, V&& value);
   void insert(const K& key, const V& value, il::io_t, il::int_t& i);
   void insert(const K& key, V&& value, il::io_t, il::int_t& i);
+  void insert(K&& key, const V& value, il::io_t, il::int_t& i);
   void insert(K&& key, V&& value, il::io_t, il::int_t& i);
   il::int_t size() const;
   il::int_t capacity() const;
   il::int_t search(const K& key) const;
-  bool hasFound(il::int_t i) const;
-  bool notFound(il::int_t i) const;
+  bool found(il::int_t i) const;
   const K& key(il::int_t i) const;
   const V& value(il::int_t i) const;
   V& value(il::int_t i);
@@ -73,20 +72,6 @@ void MapArray<K, V, F>::set(K&& key, V&& value) {
   const il::int_t i = array_.size();
   array_.append(il::emplace, key, std::move(value));
   map_.set(std::move(key), i);
-}
-
-template <typename K, typename V, typename F>
-void MapArray<K, V, F>::insert(const K& key, const V& value) {
-  const il::int_t i = array_.size();
-  array_.append(il::emplace, key, value);
-  map_.insert(key, i);
-}
-
-template <typename K, typename V, typename F>
-void MapArray<K, V, F>::insert(const K& key, V&& value) {
-  const il::int_t i = array_.size();
-  array_.append(il::emplace, key, value);
-  map_.insert(key, i);
 }
 
 template <typename K, typename V, typename F>
@@ -128,16 +113,11 @@ il::int_t MapArray<K, V, F>::capacity() const {
 template <typename K, typename V, typename F>
 il::int_t MapArray<K, V, F>::search(const K& key) const {
   const il::int_t i = map_.search(key);
-  return map_.hasFound(i) ? map_.value(i) : i;
+  return map_.found(i) ? map_.value(i) : i;
 }
 
 template <typename K, typename V, typename F>
-bool MapArray<K, V, F>::hasFound(il::int_t i) const {
-  return i >= 0;
-}
-
-template <typename K, typename V, typename F>
-bool MapArray<K, V, F>::notFound(il::int_t i) const {
+bool MapArray<K, V, F>::found(il::int_t i) const {
   return i >= 0;
 }
 

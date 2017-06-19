@@ -106,10 +106,10 @@ template <typename K, typename V, typename F = HashFunction<K>>
 class Map {
  private:
   KeyValue<K, V>* slot_;
-  // The number of slot is equal to 2^p_ if p_ >= 0 and 0 if p_ = -1;
-  int p_;
   il::int_t nb_element_;
   il::int_t nb_tombstone_;
+  // The number of slot is equal to 2^p_ if p_ >= 0 and 0 if p_ = -1;
+  int p_;
 
  public:
   Map();
@@ -120,40 +120,35 @@ class Map {
   Map& operator=(const Map<K, V, F>& map);
   Map& operator=(Map<K, V, F>&& map);
   ~Map();
-  void set(const K& key, const V& value, il::io_t, il::int_t& i);
-  void set(const K& key, V&& value, il::io_t, il::int_t& i);
-  void set(K&& key, V&& value, il::io_t, il::int_t& i);
   void set(const K& key, const V& value);
-  void set(K&& key, const V& value);
   void set(const K& key, V&& value);
+  void set(K&& key, const V& value);
   void set(K&& key, V&& value);
   il::int_t search(const K& key) const;
-  bool hasFound(il::int_t i) const;
-  bool notFound(il::int_t i) const;
+  bool found(il::int_t i) const;
   void insert(const K& key, const V& value, il::io_t, il::int_t& i);
   void insert(const K& key, V&& value, il::io_t, il::int_t& i);
   void insert(K&& key, const V& value, il::io_t, il::int_t& i);
   void insert(K&& key, V&& value, il::io_t, il::int_t& i);
-  void insert(const K& key, const V& value);
-  void insert(const K& key, V&& value);
   void erase(il::int_t i);
   const K& key(il::int_t i) const;
   const V& value(il::int_t i) const;
   V& value(il::int_t i);
-  bool isEmpty() const;
+  bool empty() const;
   il::int_t size() const;
   il::int_t capacity() const;
+  void reserve(il::int_t r);
   il::int_t first() const;
   il::int_t sentinel() const;
   il::int_t next(il::int_t i) const;
-  void reserve(il::int_t r);
+
+ private:
   MapIterator<K, V, F> begin();
   MapIterator<K, V, F> end();
   double load() const;
   double displaced() const;
   double displacedTwice() const;
-
- private:
+  il::int_t nbBuckets() const;
   void grow(il::int_t r);
 };
 
@@ -210,7 +205,7 @@ Map<K, V, F>::Map(il::value_t, std::initializer_list<il::KeyValue<K, V>> list) {
   nb_tombstone_ = 0;
   for (il::int_t k = 0; k < n; ++k) {
     il::int_t i = search((list.begin() + k)->key);
-    IL_EXPECT_FAST(notFound(i));
+    IL_EXPECT_FAST(!found(i));
     insert((list.begin() + k)->key, (list.begin() + k)->value, il::io, i);
   }
 }
@@ -330,42 +325,9 @@ Map<K, V, F>::~Map() {
 }
 
 template <typename K, typename V, typename F>
-void Map<K, V, F>::set(const K& key, const V& value, il::io_t, il::int_t& i) {
-  i = search(key);
-  if (notFound(i)) {
-    insert(key, value, il::io, i);
-  } else {
-    (slot_ + i)->value.~V();
-    new (&((slot_ + i)->value)) V(value);
-  }
-}
-
-template <typename K, typename V, typename F>
-void Map<K, V, F>::set(const K& key, V&& value, il::io_t, il::int_t& i) {
-  i = search(key);
-  if (notFound(i)) {
-    insert(key, value, il::io, i);
-  } else {
-    (slot_ + i)->value.~V();
-    new (&((slot_ + i)->value)) V(value);
-  }
-}
-
-template <typename K, typename V, typename F>
-void Map<K, V, F>::set(K&& key, V&& value, il::io_t, il::int_t& i) {
-  i = search(key);
-  if (notFound(i)) {
-    insert(std::move(key), std::move(value), il::io, i);
-  } else {
-    (slot_ + i)->value.~V();
-    new (&((slot_ + i)->value)) V(std::move(value));
-  }
-}
-
-template <typename K, typename V, typename F>
 void Map<K, V, F>::set(const K& key, const V& value) {
   il::int_t i = search(key);
-  if (notFound(i)) {
+  if (!found(i)) {
     insert(key, value, il::io, i);
   } else {
     (slot_ + i)->value.~V();
@@ -376,7 +338,7 @@ void Map<K, V, F>::set(const K& key, const V& value) {
 template <typename K, typename V, typename F>
 void Map<K, V, F>::set(const K& key, V&& value) {
   il::int_t i = search(key);
-  if (notFound(i)) {
+  if (!found(i)) {
     insert(key, std::move(value), il::io, i);
   } else {
     (slot_ + i)->value.~V();
@@ -387,7 +349,7 @@ void Map<K, V, F>::set(const K& key, V&& value) {
 template <typename K, typename V, typename F>
 void Map<K, V, F>::set(K&& key, const V& value) {
   il::int_t i = search(key);
-  if (notFound(i)) {
+  if (!found(i)) {
     insert(std::move(key), value, il::io, i);
   } else {
     (slot_ + i)->value.~V();
@@ -398,7 +360,7 @@ void Map<K, V, F>::set(K&& key, const V& value) {
 template <typename K, typename V, typename F>
 void Map<K, V, F>::set(K&& key, V&& value) {
   il::int_t i = search(key);
-  if (notFound(i)) {
+  if (!found(i)) {
     insert(std::move(key), std::move(value), il::io, i);
   } else {
     (slot_ + i)->value.~V();
@@ -435,19 +397,14 @@ il::int_t Map<K, V, F>::search(const K& key) const {
 }
 
 template <typename K, typename V, typename F>
-bool Map<K, V, F>::hasFound(il::int_t i) const {
+bool Map<K, V, F>::found(il::int_t i) const {
   return i >= 0;
-}
-
-template <typename K, typename V, typename F>
-bool Map<K, V, F>::notFound(il::int_t i) const {
-  return i < 0;
 }
 
 template <typename K, typename V, typename F>
 void Map<K, V, F>::insert(const K& key, const V& value, il::io_t,
                           il::int_t& i) {
-  IL_EXPECT_FAST(notFound(i));
+  IL_EXPECT_FAST(!found(i));
 
   // FIXME: What it the place is a tombstone. We should update the number of
   // tombstones in the hash table.
@@ -466,7 +423,7 @@ void Map<K, V, F>::insert(const K& key, const V& value, il::io_t,
 
 template <typename K, typename V, typename F>
 void Map<K, V, F>::insert(const K& key, V&& value, il::io_t, il::int_t& i) {
-  IL_EXPECT_FAST(notFound(i));
+  IL_EXPECT_FAST(!found(i));
 
   // FIXME: What it the place is a tombstone. We should update the number of
   // tombstones in the hash table.
@@ -485,7 +442,7 @@ void Map<K, V, F>::insert(const K& key, V&& value, il::io_t, il::int_t& i) {
 
 template <typename K, typename V, typename F>
 void Map<K, V, F>::insert(K&& key, const V& value, il::io_t, il::int_t& i) {
-  IL_EXPECT_FAST(notFound(i));
+  IL_EXPECT_FAST(!found(i));
 
   // FIXME: What it the place is a tombstone. We should update the number of
   // tombstones in the hash table.
@@ -504,7 +461,7 @@ void Map<K, V, F>::insert(K&& key, const V& value, il::io_t, il::int_t& i) {
 
 template <typename K, typename V, typename F>
 void Map<K, V, F>::insert(K&& key, V&& value, il::io_t, il::int_t& i) {
-  IL_EXPECT_FAST(notFound(i));
+  IL_EXPECT_FAST(!found(i));
 
   // FIXME: What it the place is a tombstone. We should update the number of
   // tombstones in the hash table.
@@ -522,46 +479,8 @@ void Map<K, V, F>::insert(K&& key, V&& value, il::io_t, il::int_t& i) {
 }
 
 template <typename K, typename V, typename F>
-void Map<K, V, F>::insert(const K& key, const V& value) {
-  const il::int_t i = search(key);
-  IL_EXPECT_FAST(notFound(i));
-
-  // FIXME: What it the place is a tombstone. We should update the number of
-  // tombstones in the hash table.
-
-  il::int_t i_local = -(1 + i);
-  if (2 * (nb_element_ + 1) > (1 << p_)) {
-    grow(il::next_power_of_2_32(2 * (nb_element_ + 1)));
-    il::int_t j = search(key);
-    i_local = -(1 + j);
-  }
-  new (const_cast<K*>(&((slot_ + i_local)->key))) K(key);
-  new (&((slot_ + i_local)->value)) V(value);
-  ++nb_element_;
-}
-
-template <typename K, typename V, typename F>
-void Map<K, V, F>::insert(const K& key, V&& value) {
-  const il::int_t i = search(key);
-  IL_EXPECT_FAST(notFound(i));
-
-  // FIXME: What it the place is a tombstone. We should update the number of
-  // tombstones in the hash table.
-
-  il::int_t i_local = -(1 + i);
-  if (2 * (nb_element_ + 1) > (1 << p_)) {
-    grow(il::next_power_of_2_32(2 * (nb_element_ + 1)));
-    il::int_t j = search(key);
-    i_local = -(1 + j);
-  }
-  new (const_cast<K*>(&((slot_ + i_local)->key))) K(key);
-  new (&((slot_ + i_local)->value)) V(value);
-  ++nb_element_;
-}
-
-template <typename K, typename V, typename F>
 void Map<K, V, F>::erase(il::int_t i) {
-  IL_EXPECT_FAST(hasFound(i));
+  IL_EXPECT_FAST(found(i));
 
   (&((slot_ + i)->key))->~K();
   F::constructTombstone(il::io, reinterpret_cast<K*>(slot_ + i));
@@ -601,7 +520,7 @@ il::int_t Map<K, V, F>::size() const {
 }
 
 template <typename K, typename V, typename F>
-il::int_t Map<K, V, F>::capacity() const {
+il::int_t Map<K, V, F>::nbBuckets() const {
   return (p_ >= 0) ? (1 << p_) : 0;
 }
 
@@ -616,12 +535,12 @@ template <typename K, typename V, typename F>
 double Map<K, V, F>::load() const {
   IL_EXPECT_MEDIUM(p_ >= 0);
 
-  return static_cast<double>(nb_element_) / capacity();
+  return static_cast<double>(nb_element_) / nbBuckets();
 }
 
 template <typename K, typename V, typename F>
 double Map<K, V, F>::displaced() const {
-  const il::int_t m = capacity();
+  const il::int_t m = nbBuckets();
   il::int_t nb_displaced = 0;
   for (il::int_t i = 0; i < m; ++i) {
     if (!F::isEmpty(slot_[i].key) && !F::isTombstone(slot_[i].key)) {
@@ -638,7 +557,7 @@ double Map<K, V, F>::displaced() const {
 
 template <typename K, typename V, typename F>
 double Map<K, V, F>::displacedTwice() const {
-  const il::int_t m = capacity();
+  const il::int_t m = nbBuckets();
   const il::int_t mask = (1 << p_) - 1;
   il::int_t nb_displaced_twice = 0;
   for (il::int_t i = 0; i < m; ++i) {
@@ -655,13 +574,13 @@ double Map<K, V, F>::displacedTwice() const {
 }
 
 template <typename K, typename V, typename F>
-bool Map<K, V, F>::isEmpty() const {
+bool Map<K, V, F>::empty() const {
   return nb_element_ == 0;
 }
 
 template <typename K, typename V, typename F>
 MapIterator<K, V, F> Map<K, V, F>::begin() {
-  if (isEmpty()) {
+  if (empty()) {
     return end();
   } else {
     il::int_t i = 0;
@@ -708,7 +627,7 @@ il::int_t Map<K, V, F>::next(il::int_t i) const {
 
 template <typename K, typename V, typename F>
 void Map<K, V, F>::grow(il::int_t r) {
-  IL_EXPECT_FAST(r >= capacity());
+  IL_EXPECT_FAST(r >= nbBuckets());
 
   KeyValue<K, V>* old_slot_ = slot_;
   const il::int_t old_m = (p_ == -1) ? 0 : (1 << p_);
