@@ -19,45 +19,54 @@ namespace il {
 
 class ConstStringView {
  protected:
-  unsigned char* data_;
-  unsigned char* size_;
+  char* data_;
+  char* size_;
 
  public:
   ConstStringView();
   ConstStringView(const char* data);
-  ConstStringView(const unsigned char* data);
   explicit ConstStringView(const char* data, il::int_t n);
-  explicit ConstStringView(const unsigned char* data, il::int_t n);
+
   il::int_t size() const;
-  bool hasAscii(il::int_t i) const;
-  bool hasAscii(il::int_t i, char c) const;
-  bool hasDigit(il::int_t i) const;
-  // A new line is a "\n" (Unix convention) or a "\r\n" // (Windows convention)
-  bool hasNewline(il::int_t i) const;
+  bool isEmpty() const;
+  bool operator==(const char* string) const;
 
-  bool lastHasAscii() const;
-  bool lastHasAscii(char c) const;
+  bool startsWith(const char* data) const;
+  bool startsWith(char c) const;
+  bool startsWithNewLine() const;
+  bool startsWithDigit() const;
 
-  char toAscii(il::int_t i) const;
-  unsigned char toCodeUnit(il::int_t i) const;
-  int toCodePoint(il::int_t i) const;
+  bool endsWith(const char* data) const;
+  bool endsWith(char c) const;
+  bool endsWithNewLine() const;
+  bool endsWithDigit() const;
 
-  il::int_t nextCodeUnit(il::int_t i) const;
-  il::int_t nextCodePoint(il::int_t i) const;
+  bool contains(il::int_t i, const char* data) const;
+  bool contains(il::int_t i, char c) const;
+  bool containsDigit(il::int_t i) const;
+  bool containsNewLine(il::int_t i) const;
 
-  void trimPrefix();  // remove the whitespace
-  void trimSuffix();
+  il::int_t nextChar(il::int_t, char c) const;
+  il::int_t nextDigit(il::int_t) const;
+  il::int_t nextNewLine(il::int_t) const;
+
   void removePrefix(il::int_t i1);
   void removeSuffix(il::int_t i0);
+  void trimPrefix();
+  void trimSuffix();
+
   ConstStringView suffix(il::int_t i0) const;
   ConstStringView prefix(il::int_t i1) const;
   ConstStringView substring(il::int_t i0, il::int_t i1) const;
 
-  bool isEmpty() const;
-  bool operator==(const char* string) const;
+  int toRune(il::int_t i) const;
+  il::int_t nextRune(il::int_t i) const;
+
+  const char& operator[](il::int_t i) const;
+  const char& back(il::int_t i) const;
   const char* asCString() const;
-  const unsigned char* begin() const;
-  const unsigned char* end() const;
+  const char* begin() const;
+  const char* end() const;
 };
 
 inline ConstStringView::ConstStringView() {
@@ -65,55 +74,49 @@ inline ConstStringView::ConstStringView() {
   size_ = nullptr;
 }
 
-inline ConstStringView::ConstStringView(const unsigned char* data) {
+inline ConstStringView::ConstStringView(const char* data) {
   IL_EXPECT_AXIOM("data must be a null terminated string");
 
   il::int_t size = 0;
   while (data[size] != 0) {
     ++size;
   }
-  data_ = const_cast<unsigned char*>(data);
-  size_ = const_cast<unsigned char*>(data) + size;
+  data_ = const_cast<char*>(data);
+  size_ = const_cast<char*>(data) + size;
 }
 
-inline ConstStringView::ConstStringView(const char* data)
-    : ConstStringView{reinterpret_cast<const unsigned char*>(data)} {}
-
-inline ConstStringView::ConstStringView(const unsigned char* data,
-                                        il::int_t n) {
+inline ConstStringView::ConstStringView(const char* data, il::int_t n) {
   IL_EXPECT_MEDIUM(n >= 0);
 
-  data_ = const_cast<unsigned char*>(data);
-  size_ = const_cast<unsigned char*>(data) + n;
+  data_ = const_cast<char*>(data);
+  size_ = const_cast<char*>(data) + n;
 }
 
-inline ConstStringView::ConstStringView(const char* data, il::int_t n)
-    : ConstStringView{reinterpret_cast<const unsigned char*>(data), n} {}
+inline il::int_t ConstStringView::size() const { return size_ - data_; }
 
-inline bool ConstStringView::hasAscii(il::int_t i) const {
+inline bool ConstStringView::isEmpty() const { return size_ == data_; }
+
+inline const char& ConstStringView::operator[](il::int_t i) const {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
                    static_cast<std::size_t>(size()));
 
-  return data_[i] < 128;
+  return data_[i];
 }
 
-inline bool ConstStringView::hasAscii(il::int_t i, char c) const {
-  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
-                   static_cast<std::size_t>(size()));
-  IL_EXPECT_MEDIUM(static_cast<unsigned char>(c) < 128);
-
-  return data_[i] == c;
-}
-
-inline bool ConstStringView::hasDigit(il::int_t i) const {
+inline bool ConstStringView::containsDigit(il::int_t i) const {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
                    static_cast<std::size_t>(size()));
 
-  return data_[i] >= static_cast<unsigned char>('0') &&
-         data_[i] <= static_cast<unsigned char>('9');
+  return data_[i] >= '0' && data_[i] <= '9';
 }
 
-inline bool ConstStringView::hasNewline(il::int_t i) const {
+inline bool ConstStringView::startsWithDigit() const {
+  IL_EXPECT_MEDIUM(size() > 0);
+
+  return data_[0] >= '0' && data_[0] <= '9';
+}
+
+inline bool ConstStringView::containsNewLine(il::int_t i) const {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
                    static_cast<std::size_t>(size()));
 
@@ -121,29 +124,9 @@ inline bool ConstStringView::hasNewline(il::int_t i) const {
          (i + 1 < size() && data_[i] == '\r' && data_[i + 1] == '\n');
 }
 
-inline bool ConstStringView::lastHasAscii() const {
-  IL_EXPECT_MEDIUM(size() > 0);
-
-  return size_[-1] < 128;
-}
-
-inline bool ConstStringView::lastHasAscii(char c) const {
-  IL_EXPECT_MEDIUM(size() > 0);
-  IL_EXPECT_MEDIUM(static_cast<unsigned char>(c) < 128);
-
-  return size_[-1] == c;
-}
-
-inline unsigned char ConstStringView::toCodeUnit(il::int_t i) const {
-  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
-                   static_cast<std::size_t>(size()));
-
-  return data_[i];
-}
-
-inline int ConstStringView::toCodePoint(il::int_t i) const {
+inline int ConstStringView::toRune(il::int_t i) const {
   unsigned int ans = 0;
-  const unsigned char* data = begin();
+  const unsigned char* data = reinterpret_cast<const unsigned char*>(begin());
   if ((data[i] & 0x80u) == 0) {
     ans = static_cast<unsigned int>(data[i]);
   } else if ((data[i] & 0xE0u) == 0xC0u) {
@@ -162,43 +145,24 @@ inline int ConstStringView::toCodePoint(il::int_t i) const {
   return static_cast<int>(ans);
 }
 
-inline char ConstStringView::toAscii(il::int_t i) const {
-  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
-                   static_cast<std::size_t>(size()));
-  IL_EXPECT_MEDIUM(data_[i] < 128);
-
-  return static_cast<char>(data_[i]);
-}
-
-// inline char ConstStringView::to_char_back() const {
-//  return static_cast<char>(size_[-1]);
-//}
-
-// inline const unsigned char& ConstStringView::operator[](il::int_t i) const {
-//
-//  return data_[i];
-//}
-//
-// inline const unsigned char& ConstStringView::back() const {
-//  IL_EXPECT_MEDIUM(size() >= 1);
-//
-//  return size_[-1];
-//}
-
-inline il::int_t ConstStringView::size() const { return size_ - data_; }
-
-inline il::int_t ConstStringView::nextCodeUnit(il::int_t i) const {
-  return i + 1;
-}
-
-inline il::int_t ConstStringView::nextCodePoint(il::int_t i) const {
+inline il::int_t ConstStringView::nextRune(il::int_t i) const {
   do {
     ++i;
   } while (i < size() && ((data_[i] & 0xC0u) == 0x80u));
   return i;
 }
 
-inline bool ConstStringView::isEmpty() const { return size_ == data_; }
+inline const char& ConstStringView::back(il::int_t i) const {
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
+                   static_cast<std::size_t>(size()));
+
+  return size_[-(1 + i)];
+}
+
+inline bool ConstStringView::startsWithNewLine() const {
+  return (size() > 0 && data_[0] == '\n') ||
+         (size() > 1 && data_[0] == '\r' && data_[1] == '\n');
+}
 
 inline void ConstStringView::removePrefix(il::int_t i1) {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(i1) <=
@@ -212,6 +176,14 @@ inline void ConstStringView::removeSuffix(il::int_t i) {
                    static_cast<std::size_t>(size()));
 
   size_ = data_ + i;
+}
+
+inline void ConstStringView::trimPrefix() {
+  il::int_t i = 0;
+  while (i < size() && (data_[i] == ' ' || data_[i] == '\t')) {
+    ++i;
+  }
+  data_ += i;
 }
 
 inline ConstStringView ConstStringView::substring(il::int_t i0,
@@ -243,7 +215,7 @@ inline bool ConstStringView::operator==(const char* string) const {
   bool match = true;
   il::int_t k = 0;
   while (match && k < size() && string[k] != '\0') {
-    if (data_[k] != static_cast<unsigned char>(string[k])) {
+    if (data_[k] != string[k]) {
       match = false;
     }
     ++k;
@@ -255,41 +227,37 @@ inline const char* ConstStringView::asCString() const {
   return reinterpret_cast<const char*>(data_);
 }
 
-inline const unsigned char* ConstStringView::begin() const { return data_; }
+inline const char* ConstStringView::begin() const { return data_; }
 
-inline const unsigned char* ConstStringView::end() const { return size_; }
+inline const char* ConstStringView::end() const { return size_; }
 
 class StringView : public ConstStringView {
  public:
-  explicit StringView(unsigned char* data, il::int_t n);
   explicit StringView(char* data, il::int_t n);
-  //  unsigned char& operator[](il::int_t i);
+  char& operator[](il::int_t i);
   StringView substring(il::int_t i0, il::int_t i1);
   StringView substring(il::int_t i0);
-  unsigned char* begin();
+  char* begin();
   char* asCString();
 };
 
-inline StringView::StringView(unsigned char* data, il::int_t n) {
+inline StringView::StringView(char* data, il::int_t n) {
   IL_EXPECT_MEDIUM(n >= 0);
 
   data_ = data;
   size_ = data + n;
 }
 
-inline StringView::StringView(char* data, il::int_t n)
-    : StringView{reinterpret_cast<unsigned char*>(data), n} {}
-
-inline unsigned char* StringView::begin() { return data_; }
+inline char* StringView::begin() { return data_; }
 
 inline char* StringView::asCString() { return reinterpret_cast<char*>(data_); }
 
-// inline unsigned char& StringView::operator[](il::int_t i) {
-//  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
-//      static_cast<std::size_t>(this->size()));
-//
-//  return this->data_[i];
-//}
+inline char& StringView::operator[](il::int_t i) {
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
+                   static_cast<std::size_t>(this->size()));
+
+  return (reinterpret_cast<char*>(this->data_))[i];
+}
 
 inline StringView StringView::substring(il::int_t i0, il::int_t i1) {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(i0) <=

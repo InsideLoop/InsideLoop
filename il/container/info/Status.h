@@ -15,62 +15,62 @@
 namespace il {
 
 enum class ErrorDomain : unsigned short {
-  kFilesystem = 0,
-  kBinary = 4,
-  kParse = 1,
-  kOverflow = 2,
-  kFloatingPoint = 3,
-  kMatrix = 5,
-  kUnimplemented = 126,
-  kUndefined = 127
+  Filesystem = 0,
+  Binary = 4,
+  Parse = 1,
+  Overflow = 2,
+  FloatingPoint = 3,
+  Matrix = 5,
+  Unimplemented = 126,
+  Undefined = 127
 };
 
 enum class Error : unsigned short {
-  kFilesystemFileNotFound = 0 * 256 + 0,
-  kFilesystemDirectoryNotFound = 0 * 256 + 1,
-  kFilesystemNoReadAccess = 0 * 256 + 2,
-  kFilesystemNoWriteAccess = 0 * 256 + 3,
-  kFilesystemCanNotCloseFile = 0 * 256 + 4,
-  kFilesystemCanNotWriteToFile = 0 * 256 + 5,
+  FilesystemFileNotFound = 0 * 256 + 0,
+  FilesystemDirectoryNotFound = 0 * 256 + 1,
+  FilesystemNoReadAccess = 0 * 256 + 2,
+  FilesystemNoWriteAccess = 0 * 256 + 3,
+  FilesystemCanNotCloseFile = 0 * 256 + 4,
+  FilesystemCanNotWriteToFile = 0 * 256 + 5,
   //
-  kBinaryFileWrongFormat = 4 * 256 + 0,
-  kBinaryFileWrongType = 4 * 256 + 1,
-  kBinaryFileWrongRank = 4 * 256 + 2,
-  kBinaryFileWrongEndianness = 4 * 256 + 3,
+  BinaryFileWrongFormat = 4 * 256 + 0,
+  BinaryFileWrongType = 4 * 256 + 1,
+  BinaryFileWrongRank = 4 * 256 + 2,
+  BinaryFileWrongEndianness = 4 * 256 + 3,
   //
-  kParseBool = 1 * 256 + 0,
-  kParseNumber = 1 * 256 + 11,
-  kParseInt = 1 * 256 + 1,
-  kParseIntOverflow = 1 * 256 + 2,
-  kParseInteger = 1 * 256 + 3,
-  kParseIntegerOverflow = 1 * 256 + 4,
-  kParseFloat = 1 * 256 + 5,
-  kParseDouble = 1 * 256 + 6,
-  kParseString = 1 * 256 + 7,
-  kParseUnclosedArray = 1 * 256 + 8,
-  kParseUnidentifiedTrailingCharacter = 1 * 256 + 9,
-  kParseCanNotDetermineType = 1 * 256 + 10,
-  kParseHeterogeneousArray = 1 * 256 + 12,
-  kParseArray = 1 * 256 + 13,
-  kParseTable = 1 * 256 + 14,
-  kParseDuplicateKey = 1 * 256 + 14,
-  kParseKey = 1 * 256 + 15,
-  kParseValue = 1 * 256 + 16,
+  ParseBool = 1 * 256 + 0,
+  ParseNumber = 1 * 256 + 11,
+  ParseInt = 1 * 256 + 1,
+  ParseIntOverflow = 1 * 256 + 2,
+  ParseInteger = 1 * 256 + 3,
+  ParseIntegerOverflow = 1 * 256 + 4,
+  ParseFloat = 1 * 256 + 5,
+  ParseDouble = 1 * 256 + 6,
+  ParseString = 1 * 256 + 7,
+  ParseUnclosedArray = 1 * 256 + 8,
+  ParseUnidentifiedTrailingCharacter = 1 * 256 + 9,
+  ParseCanNotDetermineType = 1 * 256 + 10,
+  ParseHeterogeneousArray = 1 * 256 + 12,
+  ParseArray = 1 * 256 + 13,
+  ParseTable = 1 * 256 + 14,
+  ParseDuplicateKey = 1 * 256 + 14,
+  ParseKey = 1 * 256 + 15,
+  ParseValue = 1 * 256 + 16,
   //
-  kOverflowInt = 2 * 256 + 0,
-  kOverflowInteger = 2 * 256 + 1,
+  OverflowInt = 2 * 256 + 0,
+  OverflowInteger = 2 * 256 + 1,
   //
-  kFloatingPointNonNegative = 3 * 256 + 0,
-  kFloatingPointPositive = 3 * 256 + 1,
-  kFloatingPointNonPositive = 3 * 256 + 2,
-  kFloatingPointNegative = 3 * 256 + 3,
+  FloatingPointNonNegative = 3 * 256 + 0,
+  FloatingPointPositive = 3 * 256 + 1,
+  FloatingPointNonPositive = 3 * 256 + 2,
+  FloatingPointNegative = 3 * 256 + 3,
   //
-  kMatrixSingular = 5 * 256 + 0,
-  kMatrixEigenValueNoConvergence = 5 * 256 + 1,
+  MatrixSingular = 5 * 256 + 0,
+  MatrixEigenValueNoConvergence = 5 * 256 + 1,
   //
-  kUnimplemented = 126 * 256 + 0,
+  Unimplemented = 126 * 256 + 0,
   //
-  kUndefined = 127 * 256 + 0
+  Undefined = 127 * 256 + 0
 };
 
 inline il::ErrorDomain domain(il::Error error) {
@@ -116,7 +116,7 @@ class Status {
 inline Status::Status() : info_{} {
   ok_ = true;
   to_check_ = false;
-  error_ = il::Error::kUndefined;
+  error_ = il::Error::Undefined;
 }
 
 inline Status::Status(Status&& other) {

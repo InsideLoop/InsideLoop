@@ -11,7 +11,6 @@
 #define IL_Pardiso_H
 
 #include <chrono>
-#include <iostream>
 
 #include <il/SparseMatrixCSR.h>
 #include <il/container/1d/Array.h>

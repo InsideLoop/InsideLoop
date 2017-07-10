@@ -108,7 +108,7 @@ endif()
 # For Intel MKL
 if (IL_MKL)
     if (UNIX)
-        if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+        if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64 -DIL_MKL -DIL_BLAS")
             set(CMAKE_MKL_LIBRARIES mkl_intel_lp64 mkl_core mkl_intel_thread iomp5 dl pthread m)
         elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -158,14 +158,17 @@ set(SOURCE_FILES
     il/BandArray2C.h
     il/base.h
     il/CudaArray2D.h
+    il/data.h
     il/Dynamic.h
     il/format.h
-        il/Map.h
+    il/Map.h
     il/Info.h
     il/linear_algebra.h
     il/LowerArray2D.h
     il/math.h
     il/norm.h
+    il/numpy.h
+    il/png.h
     il/SmallArray.h
     il/SparseMatrixCSR.h
     il/StaticArray.h
@@ -175,11 +178,12 @@ set(SOURCE_FILES
     il/StaticArray4D.h
     il/Status.h
     il/String.h
+    il/string_util.h
     il/StringView.h
     il/Timer.h
-        il/toml.h
+    il/toml.h
     il/TriDiagonal.h
-        il/UTF16String.h
+    il/UTF16String.h
     il/unicode.h
     il/UpperArray2D.h
     il/container/1d/Array.h
@@ -208,8 +212,8 @@ set(SOURCE_FILES
     il/container/cuda/2d/CudaSparseMatrixCSR.h
     il/container/cuda/cuda_copy.h
     il/container/hash/HashFunction.h
-        il/container/hash/Map.h
-        il/container/hash/MapArray.h
+    il/container/hash/Map.h
+    il/container/hash/MapArray.h
     il/container/string/String.h
     il/container/string/StringView.h
     il/container/string/UTF16String.h
@@ -223,7 +227,7 @@ set(SOURCE_FILES
     il/core/math/safe_arithmetic.h
     il/core/memory/allocate.h
     il/io/io_base.h
-        il/io/ppm/ppm.h
+    il/io/ppm/ppm.h
     il/io/numpy/numpy.h
     il/io/numpy/numpy.cpp
     il/io/toml/toml.h
@@ -235,7 +239,7 @@ set(SOURCE_FILES
     il/linear_algebra/dense/blas/blas.h
     il/linear_algebra/dense/blas/dot.h
     il/linear_algebra/dense/norm.h
-        il/linear_algebra/dense/factorization/linearSolve.h
+    il/linear_algebra/dense/factorization/linearSolve.h
     il/linear_algebra/dense/factorization/LU.h
     il/linear_algebra/dense/factorization/Cholesky.h
     il/linear_algebra/dense/factorization/Householder.h
@@ -272,6 +276,10 @@ endif()
 # For Unit Tests
 ################################################################################
 
+set(IL_FOLDER "${CMAKE_SOURCE_DIR}/il")
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DIL_FOLDER='\"${IL_FOLDER}\"'")
+
 set(UNIT_TEST_FILES
     il/container/1d/_test/Array_test.cpp
     il/container/1d/_test/Dummy_test.h
@@ -293,7 +301,7 @@ set(UNIT_TEST_FILES
     il/linear_algebra/sparse/factorization/_test/GmresIlu0_test.cpp
     il/io/_test/numpy_test.cpp
     il/io/toml/_test/toml_valid_test.cpp
-    gtest/src/gtest-all.cc il/core/_test/Status_test.cpp il/MapArray.h)
+    gtest/src/gtest-all.cc il/core/_test/Status_test.cpp il/MapArray.h il/container/string/_test/StringView_test.cpp)
 
 add_executable(InsideLoopUnitTest ${SOURCE_FILES} ${UNIT_TEST_FILES} test.cpp)
 

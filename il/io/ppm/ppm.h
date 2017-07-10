@@ -37,11 +37,11 @@ il::Array2D<il::Pixel> readPpm(const std::string& filename, il::io_t,
 
   char buffer[16];
   if (!std::fgets(buffer, sizeof(buffer), fp)) {
-    status.set(ErrorCode::kBinaryFileWrongFormat);
+    status.set(ErrorCode::BinaryFileWrongFormat);
     return image;
   }
   if (buffer[0] != 'P' || buffer[1] != '6') {
-    status.set(ErrorCode::kBinaryFileWrongFormat);
+    status.set(ErrorCode::BinaryFileWrongFormat);
     return image;
   }
 
@@ -58,18 +58,18 @@ il::Array2D<il::Pixel> readPpm(const std::string& filename, il::io_t,
   int width;
   int height;
   if (std::fscanf(fp, "%d %d", &width, &height) != 2) {
-    status.set(ErrorCode::kBinaryFileWrongFormat);
+    status.set(ErrorCode::BinaryFileWrongFormat);
     return image;
   }
   // read rgb component
   int rgb_comp_color;
   if (std::fscanf(fp, "%d", &rgb_comp_color) != 1) {
-    status.set(ErrorCode::kBinaryFileWrongFormat);
+    status.set(ErrorCode::BinaryFileWrongFormat);
     return image;
   }
   // check rgb component depth
   if (rgb_comp_color != 255) {
-    status.set(ErrorCode::kBinaryFileWrongFormat);
+    status.set(ErrorCode::BinaryFileWrongFormat);
     return image;
   }
   while (std::fgetc(fp) != '\n') {
@@ -78,7 +78,7 @@ il::Array2D<il::Pixel> readPpm(const std::string& filename, il::io_t,
   // read pixel data from file
   image.resize(width, height);
   if (std::fread(image.data(), 3 * width, height, fp) != height) {
-    status.set(ErrorCode::kBinaryFileWrongFormat);
+    status.set(ErrorCode::BinaryFileWrongFormat);
     image.resize(0, 0);
     return image;
   }

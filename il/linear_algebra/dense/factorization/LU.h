@@ -92,7 +92,7 @@ LU<il::Array2D<double>>::LU(il::Array2D<double> A, il::io_t, il::Status& status)
     ipiv_ = std::move(ipiv);
     lu_ = std::move(A);
   } else {
-    status.setError(il::Error::kMatrixSingular);
+    status.setError(il::Error::MatrixSingular);
     IL_SET_SOURCE(status);
     status.setInfo("rank", il::int_t{lapack_error - 1});
   }

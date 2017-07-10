@@ -11,16 +11,14 @@
 
 #include <il/toml.h>
 
-#include <iostream>
-
-il::String directory =
-    "/Users/fayard/Documents/Projects/InsideLoop/InsideLoop/il/io/toml/_test/"
-    "valid/";
+il::String directory = IL_FOLDER "/io/toml/_test/valid/";
 
 TEST(Toml, array_empty) {
   bool ans = true;
 
   il::String filename = directory;
+  std::cout << directory.asCString() << std::endl;
+
   filename.append("array-empty.toml");
 
   il::Status status{};

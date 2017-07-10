@@ -562,40 +562,31 @@ class MapStringPrinter:
 		self.keyType = self.type.template_argument(0)
 		self.valueType = self.type.template_argument(1)
 		self.val = val
-		self.size = self.val['nb_element_']
+		self.nb_elements = self.val['nb_elements_']
+		self.nb_tombstones = self.val['nb_tombstones_']
 		if self.val['p_'] >= 0:
-			self.capacity = 2 ** self.val['p_']
+			self.nb_buckets = 2 ** self.val['p_']
 		else:
-			self.capacity = 0
+			self.nb_buckets = 0
 		self.val = val
-		self.slot = self.val['slot_']
-		# self.a = gdb.parse_and_eval("(*("+str(self.val.type)+"*)("+str(self.val.address)+")).first()")
+		self.slot = self.val['bucket_']
+		self.capacity_elements = (3 * self.nb_buckets) / 4
+		self.capacity_tombstones = self.nb_buckets / 8
 
 	def children(self):
-		yield "size", self.size
-		yield "capacity", self.capacity
+		yield "nb_elements", self.nb_elements
+		yield "nb_tombstones", self.nb_tombstones
+		yield "nb_buckets", self.nb_buckets
+		yield "capacity_elements", self.capacity_elements
+		yield "capacity_tombstones", self.capacity_tombstones
 		i = 0
-		for k in range(0, self.capacity):
+		for k in range(0, self.nb_buckets):
 			pointer = self.slot + k
 			string = "*((long long*)("+str(pointer)+")+2)"
 			value = gdb.parse_and_eval(string)
 			if (value < 4611686018427387904):
 				item = pointer.dereference()
 				yield ("[%s] " % k), item
-
-			# yield ("[%s]" % k), item
-			# type = val.type
-			# if type.code == gdb.TYPE_CODE_REF:
-			# 	type = type.target()
-			# self.type = type.unqualified().strip_typedefs()
-			# self.innerType = self.type.template_argument(0)
-			# self.val = val
-			# self.data = self.val['data_'].cast(self.innerType.pointer())
-			# dataPtr = self.data + k
-			# item = dataPtr.dereference()
-		# 	yield ("[key: %s]" % k), gdb.parse_and_eval("(*("+str(self.val.type)+"*)("+str(self.val.address)+")).key("+str(i)+")")
-		# 	yield ("[value: %s]" % k), gdb.parse_and_eval("(*("+str(self.val.type)+"*)("+str(self.val.address)+")).const_value("+str(i)+")")
-		# 	i = gdb.parse_and_eval("(*("+str(self.val.type)+"*)("+str(self.val.address)+")).next("+str(i)+")")
 
 	def to_string(self):
 		return "Map"

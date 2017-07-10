@@ -115,6 +115,12 @@ namespace il {
 
 typedef std::ptrdiff_t int_t;
 
+#ifdef IL_64_BIT
+#define IL_INTEGER_MAX 9223372036854775807
+#else
+#define IL_INTEGER_MAX 2147483647
+#endif
+
 template <typename T>
 T max(T a, T b) {
   return a >= b ? a : b;

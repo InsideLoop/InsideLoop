@@ -18,7 +18,8 @@ namespace il {
 NumpyInfo getNumpyInfo(il::io_t, std::FILE* fp, il::Status& status) {
   NumpyInfo numpy_info;
 
-  char first_buffer[10];
+  char first_buffer[11];
+  first_buffer[10] = '\0';
   il::StringView buffer{first_buffer, 10};
 
   // Read the first 10 bytes of the files. It should contain:
@@ -30,21 +31,21 @@ NumpyInfo getNumpyInfo(il::io_t, std::FILE* fp, il::Status& status) {
   std::size_t count = 10;
   const std::size_t read = fread(buffer.begin(), sizeof(char), count, fp);
   if (read != count) {
-    status.setError(il::Error::kBinaryFileWrongFormat);
+    status.setError(il::Error::BinaryFileWrongFormat);
     IL_SET_SOURCE(status);
     return numpy_info;
   }
   if (!(buffer.substring(0, 6) == "\x93NUMPY")) {
-    status.setError(il::Error::kBinaryFileWrongFormat);
+    status.setError(il::Error::BinaryFileWrongFormat);
     IL_SET_SOURCE(status);
     return numpy_info;
   }
-  unsigned char major_version = buffer.toCodeUnit(6);
-  unsigned char minor_version = buffer.toCodeUnit(7);
+  char major_version = buffer[6];
+  char minor_version = buffer[7];
   unsigned short header_length =
       *reinterpret_cast<unsigned short*>(buffer.begin() + 8);
   if (major_version != 1 || minor_version != 0) {
-    status.setError(il::Error::kBinaryFileWrongFormat);
+    status.setError(il::Error::BinaryFileWrongFormat);
     IL_SET_SOURCE(status);
     return numpy_info;
   }
@@ -54,8 +55,8 @@ NumpyInfo getNumpyInfo(il::io_t, std::FILE* fp, il::Status& status) {
   il::Array<char> second_buffer{header_length + 1};
   StringView header = StringView{second_buffer.begin(), header_length + 1};
   char* success = fgets(header.asCString(), header_length + 1, fp);
-  if (success == nullptr || !(header.hasAscii(header.size() - 2, '\n'))) {
-    status.setError(il::Error::kBinaryFileWrongFormat);
+  if (success == nullptr || !(header[header.size() - 2] == '\n')) {
+    status.setError(il::Error::BinaryFileWrongFormat);
     IL_SET_SOURCE(status);
     return numpy_info;
   }
@@ -64,14 +65,13 @@ NumpyInfo getNumpyInfo(il::io_t, std::FILE* fp, il::Status& status) {
   //
   const il::int_t i4 = il::search("descr", header);
   if (i4 == -1 || i4 + 12 >= header.size()) {
-    status.setError(il::Error::kBinaryFileWrongFormat);
+    status.setError(il::Error::BinaryFileWrongFormat);
     IL_SET_SOURCE(status);
     return numpy_info;
   }
-  const bool little_endian =
-      header.hasAscii(i4 + 9, '<') || header.hasAscii(i4 + 9, '|');
+  const bool little_endian = header[i4 + 9] == '<' || header[i4 + 9] == '|';
   if (!little_endian) {
-    status.setError(il::Error::kBinaryFileWrongFormat);
+    status.setError(il::Error::BinaryFileWrongFormat);
     IL_SET_SOURCE(status);
     return numpy_info;
   }
@@ -84,7 +84,7 @@ NumpyInfo getNumpyInfo(il::io_t, std::FILE* fp, il::Status& status) {
   //
   const il::int_t i0 = il::search("fortran_order", header);
   if (i0 == -1 || i0 + 20 > header.size()) {
-    status.setError(il::Error::kBinaryFileWrongFormat);
+    status.setError(il::Error::BinaryFileWrongFormat);
     IL_SET_SOURCE(status);
     return numpy_info;
   }
@@ -97,12 +97,12 @@ NumpyInfo getNumpyInfo(il::io_t, std::FILE* fp, il::Status& status) {
   const il::int_t i1 = il::search("(", header);
   const il::int_t i2 = il::search(")", header);
   if (i1 == -1 || i2 == -1 || i2 - i1 <= 1) {
-    status.setError(il::Error::kBinaryFileWrongFormat);
+    status.setError(il::Error::BinaryFileWrongFormat);
     IL_SET_SOURCE(status);
     return numpy_info;
   }
   ConstStringView shape_string = header.substring(i1 + 1, i2);
-  if (shape_string.lastHasAscii(',')) {
+  if (shape_string.back(0) == ',') {
     numpy_info.shape.resize(1);
   } else {
     const il::int_t n_dim = il::count(',', shape_string) + 1;
@@ -167,7 +167,7 @@ void saveNumpyInfo(const NumpyInfo& numpy_info, il::io_t, std::FILE* fp,
   std::size_t written = std::fwrite(magic.asCString(), sizeof(char),
                                     static_cast<std::size_t>(magic.size()), fp);
   if (static_cast<il::int_t>(written) != magic.size()) {
-    status.setError(il::Error::kFilesystemCanNotWriteToFile);
+    status.setError(il::Error::FilesystemCanNotWriteToFile);
     IL_SET_SOURCE(status);
     return;
   }

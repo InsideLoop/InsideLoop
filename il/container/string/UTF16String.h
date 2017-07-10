@@ -68,7 +68,7 @@ class UTF16String {
   void append(int cp);
   void append(il::int_t n, char c);
   void append(il::int_t n, int cp);
-  il::int_t next_code_point(il::int_t i) const;
+  il::int_t nextRune(il::int_t i) const;
   int cp(il::int_t i) const;
   bool isEmpty() const;
   const unsigned short* begin() const;
@@ -82,7 +82,7 @@ class UTF16String {
   unsigned short* begin();
   unsigned short* end();
   void append(const IL_UTF16CHAR*, il::int_t n);
-  bool validCodePoint(int cp);
+  bool validRune(int cp);
   constexpr static il::int_t max_small_size_ =
       static_cast<il::int_t>(sizeof(LargeUTF16String) / 2 - 1);
 };
@@ -281,7 +281,7 @@ inline void UTF16String::append(il::int_t n, char c) {
 }
 
 inline void UTF16String::append(int cp) {
-  IL_EXPECT_MEDIUM(validCodePoint(cp));
+  IL_EXPECT_MEDIUM(validRune(cp));
 
   const unsigned int ucp = static_cast<unsigned int>(cp);
   const il::int_t old_size = size();
@@ -312,7 +312,7 @@ inline void UTF16String::append(int cp) {
 
 inline void UTF16String::append(il::int_t n, int cp) {
   IL_EXPECT_FAST(n >= 0);
-  IL_EXPECT_FAST(validCodePoint(cp));
+  IL_EXPECT_FAST(validRune(cp));
 
   IL_UNUSED(n);
   IL_UNUSED(cp);
@@ -336,7 +336,7 @@ inline const IL_UTF16CHAR* UTF16String::asWString() const {
 
 inline bool UTF16String::isEmpty() const { return size() == 0; }
 
-inline il::int_t UTF16String::next_code_point(il::int_t i) const {
+inline il::int_t UTF16String::nextRune(il::int_t i) const {
   const unsigned short* data = begin();
   if (data[i] < 0xD800u || data[i] >= 0xDC00u) {
     return i + 1;
@@ -433,7 +433,7 @@ inline void UTF16String::append(const IL_UTF16CHAR* data, il::int_t n) {
   }
 }
 
-inline bool UTF16String::validCodePoint(int cp) {
+inline bool UTF16String::validRune(int cp) {
   const unsigned int code_point_max = 0x0010FFFFu;
   const unsigned int lead_surrogate_min = 0x0000D800u;
   const unsigned int lead_surrogate_max = 0x0000DBFFu;

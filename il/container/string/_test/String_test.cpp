@@ -15,7 +15,8 @@ TEST(String, default_constructor) {
   il::String s{};
   const char* p = s.asCString();
 
-  ASSERT_TRUE(s.size() == 0 && s.isSmall() && s.capacity() == 23 && p[0] == '\0');
+  ASSERT_TRUE(s.size() == 0 && s.isSmall() && s.capacity() == 23 &&
+              p[0] == '\0');
 }
 
 TEST(String, c_string_constructor_0) {

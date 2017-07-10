@@ -31,85 +31,23 @@ struct KeyValue {
       : key{std::move(the_key)}, value{std::move(the_value)} {};
 };
 
-template <typename K, typename V, typename F>
-class MapIterator {
- private:
-  KeyValue<K, V>* pointer_;
-  KeyValue<K, V>* end_;
-
- public:
-  MapIterator(KeyValue<K, V>* pointer, KeyValue<K, V>* end);
-  KeyValue<K, V>& operator*() const;
-  KeyValue<K, V>* operator->() const;
-  bool operator==(const MapIterator& it) const;
-  bool operator!=(const MapIterator& it) const;
-  MapIterator& operator++();
-  MapIterator& operator++(int);
-
- private:
-  void advancePastEmptyBuckets();
-};
-
-template <typename K, typename V, typename F>
-MapIterator<K, V, F>::MapIterator(KeyValue<K, V>* pointer,
-                                  KeyValue<K, V>* end) {
-  pointer_ = pointer;
-  end_ = end;
-}
-
-template <typename K, typename V, typename F>
-KeyValue<K, V>& MapIterator<K, V, F>::operator*() const {
-  return *pointer_;
-}
-
-template <typename K, typename V, typename F>
-KeyValue<K, V>* MapIterator<K, V, F>::operator->() const {
-  return pointer_;
-}
-
-template <typename K, typename V, typename F>
-bool MapIterator<K, V, F>::operator==(const MapIterator& it) const {
-  return pointer_ == it.pointer_;
-}
-
-template <typename K, typename V, typename F>
-bool MapIterator<K, V, F>::operator!=(const MapIterator& it) const {
-  return pointer_ != it.pointer_;
-}
-
-template <typename K, typename V, typename F>
-MapIterator<K, V, F>& MapIterator<K, V, F>::operator++() {
-  ++pointer_;
-  advancePastEmptyBuckets();
-  return *this;
-}
-
-template <typename K, typename V, typename F>
-MapIterator<K, V, F>& MapIterator<K, V, F>::operator++(int) {
-  MapIterator tmp = *this;
-  ++pointer_;
-  advancePastEmptyBuckets();
-  return tmp;
-}
-
-template <typename K, typename V, typename F>
-void MapIterator<K, V, F>::advancePastEmptyBuckets() {
-  const K empty_key = F::empty_key();
-  const K tombstone_key = F::tombstone_key();
-  while (pointer_ != end_ && (F::isEqual(pointer_->key, empty_key) ||
-                              F::isEqual(pointer_->key, tombstone_key))) {
-    ++pointer_;
-  }
-}
+// The number of buckets is: m = 2^p
+// We want the number of elements: a <= (3 / 4) m which is 4 a <= 3 m
+// We want the number of tombstones: b <= (1 / 8) m which is 8 b <= m
+// All those numbers must fit in std::size_t
+// As a consequence, if n is the number of bits of std::size_t, p <= n - 2
+// Therefore, a should be <= (kMaxSize_ == 3 * 2^(n - 4))
 
 template <typename K, typename V, typename F = HashFunction<K>>
 class Map {
  private:
-  KeyValue<K, V>* slot_;
-  il::int_t nb_element_;
-  il::int_t nb_tombstone_;
-  // The number of slot is equal to 2^p_ if p_ >= 0 and 0 if p_ = -1;
+  KeyValue<K, V>* bucket_;
+  il::int_t nb_elements_;
+  il::int_t nb_tombstones_;
   int p_;
+  static constexpr il::int_t kMaxSize_ =
+      3 * static_cast<il::int_t>(static_cast<std::size_t>(1)
+                                 << (8 * sizeof(std::size_t) - 4));
 
  public:
   Map();
@@ -135,192 +73,208 @@ class Map {
   const V& value(il::int_t i) const;
   V& value(il::int_t i);
   bool isEmpty() const;
-  il::int_t size() const;
-  il::int_t capacity() const;
+  il::int_t nbElements() const;
+  il::int_t nbTombstones() const;
+  il::int_t nbBuckets() const;
   void reserve(il::int_t r);
   il::int_t first() const;
   il::int_t sentinel() const;
   il::int_t next(il::int_t i) const;
+  void rehash();
 
  private:
-  MapIterator<K, V, F> begin();
-  MapIterator<K, V, F> end();
+  static int pForSlots(il::int_t n);
+  static il::int_t nbBuckets(int p);
   double load() const;
   double displaced() const;
   double displacedTwice() const;
-  il::int_t nbBuckets() const;
-  void grow(il::int_t r);
+  void reserveWithP(int p);
+};
+
+template <typename K, typename V, typename F>
+int Map<K, V, F>::pForSlots(il::int_t n) {
+  IL_EXPECT_FAST(n >= 0);
+  IL_EXPECT_FAST(n <= kMaxSize_);
+
+  switch (n) {
+    case 0:
+      return -1;
+    case 1:
+      return 1;
+    default: {
+      int ans = 2;
+      il::int_t val = 3;
+      while (n > val) {
+        ans += 1;
+        val *= 2;
+      }
+      return ans;
+    }
+  }
 };
 
 template <typename K, typename V, typename F>
 Map<K, V, F>::Map() {
-  slot_ = nullptr;
+  bucket_ = nullptr;
+  nb_elements_ = 0;
+  nb_tombstones_ = 0;
   p_ = -1;
-  nb_element_ = 0;
-  nb_tombstone_ = 0;
 }
 
 template <typename K, typename V, typename F>
 Map<K, V, F>::Map(il::int_t n) {
   IL_EXPECT_FAST(n >= 0);
+  IL_EXPECT_FAST(n <= kMaxSize_);
 
-  // To be large
-  n = 2 * n;
-
-  if (n > 0) {
-    const int p = 1 + il::next_log2_32(n);
-    const il::int_t m = 1 << p;
-    slot_ = static_cast<KeyValue<K, V>*>(
-        ::operator new(m * sizeof(KeyValue<K, V>)));
+  if (n > kMaxSize_) {
+    il::abort();
+  } else if (n == 0) {
+    bucket_ = nullptr;
+    p_ = -1;
+  } else {
+    const int p = pForSlots(n);
+    const il::int_t m = nbBuckets(p);
+    bucket_ = il::allocateArray<KeyValue<K, V>>(m);
     for (il::int_t i = 0; i < m; ++i) {
-      F::constructEmpty(il::io, reinterpret_cast<K*>(slot_ + i));
+      F::constructEmpty(il::io, reinterpret_cast<K*>(bucket_ + i));
     }
     p_ = p;
-  } else {
-    slot_ = nullptr;
-    p_ = -1;
   }
-  nb_element_ = 0;
-  nb_tombstone_ = 0;
+  nb_elements_ = 0;
+  nb_tombstones_ = 0;
 }
 
 template <typename K, typename V, typename F>
 Map<K, V, F>::Map(il::value_t, std::initializer_list<il::KeyValue<K, V>> list) {
+  if (list.size() > static_cast<std::size_t>(kMaxSize_)) {
+    il::abort();
+  }
   const il::int_t n = static_cast<il::int_t>(list.size());
 
-  if (n > 0) {
-    const int p = 1 + il::next_log2_32(n);
-    const il::int_t m = 1 << p;
-    slot_ = static_cast<KeyValue<K, V>*>(
-        ::operator new(m * sizeof(KeyValue<K, V>)));
+  if (n == 0) {
+    bucket_ = nullptr;
+    p_ = -1;
+  } else {
+    const int p = pForSlots(n);
+    const il::int_t m = nbBuckets(p);
+    bucket_ = il::allocateArray<KeyValue<K, V>>(m);
     for (il::int_t i = 0; i < m; ++i) {
-      F::constructEmpty(il::io, reinterpret_cast<K*>(slot_ + i));
+      F::constructEmpty(il::io, reinterpret_cast<K*>(bucket_ + i));
     }
     p_ = p;
-  } else {
-    slot_ = nullptr;
-    p_ = -1;
-  }
-  nb_element_ = 0;
-  nb_tombstone_ = 0;
-  for (il::int_t k = 0; k < n; ++k) {
-    il::int_t i = search((list.begin() + k)->key);
-    IL_EXPECT_FAST(!found(i));
-    insert((list.begin() + k)->key, (list.begin() + k)->value, il::io, i);
+    nb_elements_ = 0;
+    nb_tombstones_ = 0;
+    for (il::int_t k = 0; k < n; ++k) {
+      il::int_t i = search((list.begin() + k)->key);
+      IL_EXPECT_FAST(!found(i));
+      insert((list.begin() + k)->key, (list.begin() + k)->value, il::io, i);
+    }
   }
 }
 
 template <typename K, typename V, typename F>
 Map<K, V, F>::Map(const Map<K, V, F>& map) {
-  const il::int_t p = map.p_;
-  if (p >= 0) {
-    const il::int_t m = 1 << p;
-    slot_ = static_cast<KeyValue<K, V>*>(
-        ::operator new(m * sizeof(KeyValue<K, V>)));
+  p_ = map.p_;
+  nb_elements_ = 0;
+  nb_tombstones_ = 0;
+  if (p_ >= 0) {
+    const il::int_t m = nbBuckets(p_);
+    bucket_ = il::allocateArray<KeyValue<K, V>>(m);
     for (il::int_t i = 0; i < m; ++i) {
-      if (F::isEmpty(map.slot_[i].key)) {
-        F::constructEmpty(il::io, reinterpret_cast<K*>(slot_ + i));
-      } else if (F::isTombstone(map.slot_[i].key)) {
-        F::constructTombstone(il::io, reinterpret_cast<K*>(slot_ + i));
-      } else {
-        new (const_cast<K*>(&((slot_ + i)->key))) K(map.slot_[i].key);
-        new (&((slot_ + i)->value)) V(map.slot_[i].value);
-      }
+      F::constructEmpty(il::io, reinterpret_cast<K*>(bucket_ + i));
     }
-    p_ = p;
-  } else {
-    slot_ = nullptr;
-    p_ = -1;
+    for (il::int_t i = map.first(); i < map.sentinel(); i = map.next(i)) {
+      set(map.key(i), map.value(i));
+    }
   }
-  nb_element_ = map.nb_element_;
-  nb_tombstone_ = map.nb_tombstone_;
 }
 
 template <typename K, typename V, typename F>
 Map<K, V, F>::Map(Map<K, V, F>&& map) {
-  slot_ = map.slot_;
+  bucket_ = map.bucket_;
   p_ = map.p_;
-  nb_element_ = map.nb_element_;
-  nb_tombstone_ = map.nb_tombstone_;
-  map.slot_ = nullptr;
+  nb_elements_ = map.nb_elements_;
+  nb_tombstones_ = map.nb_tombstones_;
+  map.bucket_ = nullptr;
   map.p_ = -1;
-  map.nb_element_ = 0;
-  map.nb_tombstone_ = 0;
+  map.nb_elements_ = 0;
+  map.nb_tombstones_ = 0;
 }
 
 template <typename K, typename V, typename F>
 Map<K, V, F>& Map<K, V, F>::operator=(const Map<K, V, F>& map) {
-  const il::int_t p = map.p_;
-  const il::int_t old_p = p_;
+  const int p = map.p_;
+  const int old_p = p_;
   if (p >= 0) {
     if (old_p >= 0) {
-      const il::int_t old_m = 1 << old_p;
+      const il::int_t old_m = nbBuckets(old_p);
       for (il::int_t i = 0; i < old_m; ++i) {
-        if (!F::is_empy(slot_ + i) && !F::isTombstone(slot_ + i)) {
-          (&((slot_ + i)->value))->~V();
-          (&((slot_ + i)->key))->~K();
+        if (!F::is_empy(bucket_ + i) && !F::isTombstone(bucket_ + i)) {
+          (&((bucket_ + i)->value))->~V();
+          (&((bucket_ + i)->key))->~K();
         }
       }
     }
-    ::operator delete(slot_);
-    const il::int_t m = 1 << p;
-    slot_ = static_cast<KeyValue<K, V>*>(
-        ::operator new(m * sizeof(KeyValue<K, V>)));
+    il::deallocate(bucket_);
+    const il::int_t m = nbBuckets(p);
+    bucket_ = il::allocateArray<KeyValue<K, V>>(m);
     for (il::int_t i = 0; i < m; ++i) {
-      if (F::isEmpty(map.slot_[i].key)) {
-        F::constructEmpty(il::io, reinterpret_cast<K*>(slot_ + i));
-      } else if (F::isTombstone(map.slot_[i].key)) {
-        F::constructTombstone(il::io, reinterpret_cast<K*>(slot_ + i));
+      if (F::isEmpty(map.bucket_[i].key)) {
+        F::constructEmpty(il::io, reinterpret_cast<K*>(bucket_ + i));
+      } else if (F::isTombstone(map.bucket_[i].key)) {
+        F::constructTombstone(il::io, reinterpret_cast<K*>(bucket_ + i));
       } else {
-        new (const_cast<K*>(&((slot_ + i)->key))) K(map.slot_[i].key);
-        new (&((slot_ + i)->value)) V(map.slot_[i].value);
+        new (const_cast<K*>(&((bucket_ + i)->key))) K(map.bucket_[i].key);
+        new (&((bucket_ + i)->value)) V(map.bucket_[i].value);
       }
     }
     p_ = p;
   } else {
-    slot_ = nullptr;
+    bucket_ = nullptr;
     p_ = -1;
   }
-  nb_element_ = map.nb_element_;
-  nb_tombstone_ = map.nb_tombstone_;
+  nb_elements_ = map.nb_elements_;
+  nb_tombstones_ = map.nb_tombstones_;
+  return *this;
 }
 
 template <typename K, typename V, typename F>
 Map<K, V, F>& Map<K, V, F>::operator=(Map<K, V, F>&& map) {
   if (this != &map) {
-    const il::int_t old_p = p_;
+    const int old_p = p_;
     if (old_p >= 0) {
-      const il::int_t old_m = 1 << old_p;
+      const il::int_t old_m = nbBuckets(old_p);
       for (il::int_t i = 0; i < old_m; ++i) {
-        if (!F::is_empy(slot_ + i) && !F::isTombstone(slot_ + i)) {
-          (&((slot_ + i)->value))->~V();
-          (&((slot_ + i)->key))->~K();
+        if (!F::is_empy(bucket_ + i) && !F::isTombstone(bucket_ + i)) {
+          (&((bucket_ + i)->value))->~V();
+          (&((bucket_ + i)->key))->~K();
         }
       }
-      ::operator delete(slot_);
+      il::deallocate(bucket_);
     }
-    slot_ = map.slot_;
+    bucket_ = map.bucket_;
     p_ = map.p_;
-    nb_element_ = map.nb_element_;
-    nb_tombstone_ = map.nb_tombstone_;
-    map.slot_ = nullptr;
+    nb_elements_ = map.nb_elements_;
+    nb_tombstones_ = map.nb_tombstones_;
+    map.bucket_ = nullptr;
     map.p_ = -1;
-    map.nb_element_ = 0;
-    map.nb_tombstone_ = 0;
+    map.nb_elements_ = 0;
+    map.nb_tombstones_ = 0;
   }
+  return *this;
 }
 
 template <typename K, typename V, typename F>
 Map<K, V, F>::~Map() {
   if (p_ >= 0) {
-    const il::int_t m = 1 << p_;
+    const il::int_t m = nbBuckets();
     for (il::int_t i = 0; i < m; ++i) {
-      if (!F::isEmpty(slot_[i].key) && !F::isTombstone(slot_[i].key)) {
-        (&((slot_ + i)->value))->~V();
-        (&((slot_ + i)->key))->~K();
+      if (!F::isEmpty(bucket_[i].key) && !F::isTombstone(bucket_[i].key)) {
+        (&((bucket_ + i)->value))->~V();
+        (&((bucket_ + i)->key))->~K();
       }
     }
-    ::operator delete(slot_);
+    il::deallocate(bucket_);
   }
 }
 
@@ -330,8 +284,8 @@ void Map<K, V, F>::set(const K& key, const V& value) {
   if (!found(i)) {
     insert(key, value, il::io, i);
   } else {
-    (slot_ + i)->value.~V();
-    new (&((slot_ + i)->value)) V(value);
+    (bucket_ + i)->value.~V();
+    new (&((bucket_ + i)->value)) V(value);
   }
 }
 
@@ -341,8 +295,8 @@ void Map<K, V, F>::set(const K& key, V&& value) {
   if (!found(i)) {
     insert(key, std::move(value), il::io, i);
   } else {
-    (slot_ + i)->value.~V();
-    new (&((slot_ + i)->value)) V(std::move(value));
+    (bucket_ + i)->value.~V();
+    new (&((bucket_ + i)->value)) V(std::move(value));
   }
 }
 
@@ -352,8 +306,8 @@ void Map<K, V, F>::set(K&& key, const V& value) {
   if (!found(i)) {
     insert(std::move(key), value, il::io, i);
   } else {
-    (slot_ + i)->value.~V();
-    new (&((slot_ + i)->value)) V(std::move(value));
+    (bucket_ + i)->value.~V();
+    new (&((bucket_ + i)->value)) V(std::move(value));
   }
 }
 
@@ -363,8 +317,8 @@ void Map<K, V, F>::set(K&& key, V&& value) {
   if (!found(i)) {
     insert(std::move(key), std::move(value), il::io, i);
   } else {
-    (slot_ + i)->value.~V();
-    new (&((slot_ + i)->value)) V(std::move(value));
+    (bucket_ + i)->value.~V();
+    new (&((bucket_ + i)->value)) V(std::move(value));
   }
 }
 
@@ -377,19 +331,20 @@ il::int_t Map<K, V, F>::search(const K& key) const {
     return -1;
   }
 
-  const il::int_t mask = (1 << p_) - 1;
-  il::int_t i = static_cast<il::int_t>(F::hash(key, p_));
-  il::int_t i_tombstone = -1;
-  il::int_t delta_i = 1;
+  const std::size_t mask = (static_cast<std::size_t>(1) << p_) - 1;
+  std::size_t i = F::hash(key, p_);
+  std::size_t i_tombstone = -1;
+  std::size_t delta_i = 1;
   while (true) {
-    if (F::isEmpty(slot_[i].key)) {
-      return (i_tombstone == -1) ? -(1 + i) : -(1 + i_tombstone);
-    } else if (F::isTombstone(slot_[i].key)) {
+    if (F::isEmpty(bucket_[i].key)) {
+      return (i_tombstone == static_cast<std::size_t>(-1))
+                 ? -(1 + static_cast<il::int_t>(i))
+                 : -(1 + static_cast<il::int_t>(i_tombstone));
+    } else if (F::isTombstone(bucket_[i].key)) {
       i_tombstone = i;
-    } else if (F::isEqual(slot_[i].key, key)) {
-      return i;
+    } else if (F::isEqual(bucket_[i].key, key)) {
+      return static_cast<il::int_t>(i);
     }
-
     i += delta_i;
     i &= mask;
     ++delta_i;
@@ -406,18 +361,21 @@ void Map<K, V, F>::insert(const K& key, const V& value, il::io_t,
                           il::int_t& i) {
   IL_EXPECT_FAST(!found(i));
 
-  // FIXME: What it the place is a tombstone. We should update the number of
-  // tombstones in the hash table.
-
   il::int_t i_local = -(1 + i);
-  if (2 * (nb_element_ + 1) > (1 << p_)) {
-    grow(il::next_power_of_2_32(2 * (nb_element_ + 1)));
+  const il::int_t m = nbBuckets();
+  if (4 * (static_cast<std::size_t>(nb_elements_) + 1) >
+      3 * static_cast<std::size_t>(m)) {
+    if (p_ + 1 <= static_cast<int>(sizeof(std::size_t) * 8 - 2)) {
+      reserveWithP(p_ == -1 ? 1 : p_ + 1);
+    } else {
+      il::abort();
+    }
     il::int_t j = search(key);
     i_local = -(1 + j);
   }
-  new (const_cast<K*>(&((slot_ + i_local)->key))) K(key);
-  new (&((slot_ + i_local)->value)) V(value);
-  ++nb_element_;
+  new (const_cast<K*>(&((bucket_ + i_local)->key))) K(key);
+  new (&((bucket_ + i_local)->value)) V(value);
+  ++nb_elements_;
   i = i_local;
 }
 
@@ -425,18 +383,21 @@ template <typename K, typename V, typename F>
 void Map<K, V, F>::insert(const K& key, V&& value, il::io_t, il::int_t& i) {
   IL_EXPECT_FAST(!found(i));
 
-  // FIXME: What it the place is a tombstone. We should update the number of
-  // tombstones in the hash table.
-
   il::int_t i_local = -(1 + i);
-  if (2 * (nb_element_ + 1) > (1 << p_)) {
-    grow(il::next_power_of_2_32(2 * (nb_element_ + 1)));
+  const il::int_t m = nbBuckets();
+  if (4 * (static_cast<std::size_t>(nb_elements_) + 1) >
+      3 * static_cast<std::size_t>(m)) {
+    if (p_ + 1 <= static_cast<int>(sizeof(std::size_t) * 8 - 2)) {
+      reserveWithP(p_ == -1 ? 1 : p_ + 1);
+    } else {
+      il::abort();
+    }
     il::int_t j = search(key);
     i_local = -(1 + j);
   }
-  new (const_cast<K*>(&((slot_ + i_local)->key))) K(key);
-  new (&((slot_ + i_local)->value)) V(value);
-  ++nb_element_;
+  new (const_cast<K*>(&((bucket_ + i_local)->key))) K(key);
+  new (&((bucket_ + i_local)->value)) V(value);
+  ++nb_elements_;
   i = i_local;
 }
 
@@ -444,18 +405,21 @@ template <typename K, typename V, typename F>
 void Map<K, V, F>::insert(K&& key, const V& value, il::io_t, il::int_t& i) {
   IL_EXPECT_FAST(!found(i));
 
-  // FIXME: What it the place is a tombstone. We should update the number of
-  // tombstones in the hash table.
-
   il::int_t i_local = -(1 + i);
-  if (2 * (nb_element_ + 1) > (1 << p_)) {
-    grow(il::next_power_of_2_32(2 * (nb_element_ + 1)));
+  const il::int_t m = nbBuckets();
+  if (4 * (static_cast<std::size_t>(nb_elements_) + 1) >
+      3 * static_cast<std::size_t>(m)) {
+    if (p_ + 1 <= static_cast<int>(sizeof(std::size_t) * 8 - 2)) {
+      reserveWithP(p_ == -1 ? 1 : p_ + 1);
+    } else {
+      il::abort();
+    }
     il::int_t j = search(key);
     i_local = -(1 + j);
   }
-  new (const_cast<K*>(&((slot_ + i_local)->key))) K(std::move(key));
-  new (&((slot_ + i_local)->value)) V(value);
-  ++nb_element_;
+  new (const_cast<K*>(&((bucket_ + i_local)->key))) K(std::move(key));
+  new (&((bucket_ + i_local)->value)) V(value);
+  ++nb_elements_;
   i = i_local;
 }
 
@@ -463,18 +427,21 @@ template <typename K, typename V, typename F>
 void Map<K, V, F>::insert(K&& key, V&& value, il::io_t, il::int_t& i) {
   IL_EXPECT_FAST(!found(i));
 
-  // FIXME: What it the place is a tombstone. We should update the number of
-  // tombstones in the hash table.
-
   il::int_t i_local = -(1 + i);
-  if (2 * (nb_element_ + 1) > (1 << p_)) {
-    grow(il::next_power_of_2_32(2 * (nb_element_ + 1)));
+  const il::int_t m = nbBuckets();
+  if (4 * (static_cast<std::size_t>(nb_elements_) + 1) >
+      3 * static_cast<std::size_t>(m)) {
+    if (p_ + 1 <= static_cast<int>(sizeof(std::size_t) * 8 - 2)) {
+      reserveWithP(p_ == -1 ? 1 : p_ + 1);
+    } else {
+      il::abort();
+    }
     il::int_t j = search(key);
     i_local = -(1 + j);
   }
-  new (const_cast<K*>(&((slot_ + i_local)->key))) K(std::move(key));
-  new (&((slot_ + i_local)->value)) V(std::move(value));
-  ++nb_element_;
+  new (const_cast<K*>(&((bucket_ + i_local)->key))) K(std::move(key));
+  new (&((bucket_ + i_local)->value)) V(std::move(value));
+  ++nb_elements_;
   i = i_local;
 }
 
@@ -482,11 +449,16 @@ template <typename K, typename V, typename F>
 void Map<K, V, F>::erase(il::int_t i) {
   IL_EXPECT_FAST(found(i));
 
-  (&((slot_ + i)->key))->~K();
-  F::constructTombstone(il::io, reinterpret_cast<K*>(slot_ + i));
-  (&((slot_ + i)->value))->~V();
-  --nb_element_;
-  ++nb_tombstone_;
+  (&((bucket_ + i)->key))->~K();
+  F::constructTombstone(il::io, reinterpret_cast<K*>(bucket_ + i));
+  (&((bucket_ + i)->value))->~V();
+  --nb_elements_;
+  ++nb_tombstones_;
+  const il::int_t m = nbBuckets();
+  if (8 * (static_cast<std::size_t>(nb_tombstones_) + 1) >
+      static_cast<std::size_t>(m)) {
+    rehash();
+  }
   return;
 }
 
@@ -495,7 +467,7 @@ const K& Map<K, V, F>::key(il::int_t i) const {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
                    static_cast<std::size_t>((p_ >= 0) ? (1 << p_) : 0));
 
-  return slot_[i].key;
+  return bucket_[i].key;
 }
 
 template <typename K, typename V, typename F>
@@ -503,7 +475,7 @@ const V& Map<K, V, F>::value(il::int_t i) const {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
                    static_cast<std::size_t>((p_ >= 0) ? (1 << p_) : 0));
 
-  return slot_[i].value;
+  return bucket_[i].value;
 }
 
 template <typename K, typename V, typename F>
@@ -511,31 +483,43 @@ V& Map<K, V, F>::value(il::int_t i) {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
                    static_cast<std::size_t>((p_ >= 0) ? (1 << p_) : 0));
 
-  return slot_[i].value;
+  return bucket_[i].value;
 }
 
 template <typename K, typename V, typename F>
-il::int_t Map<K, V, F>::size() const {
-  return nb_element_;
+il::int_t Map<K, V, F>::nbElements() const {
+  return nb_elements_;
+}
+
+template <typename K, typename V, typename F>
+il::int_t Map<K, V, F>::nbTombstones() const {
+  return nb_tombstones_;
 }
 
 template <typename K, typename V, typename F>
 il::int_t Map<K, V, F>::nbBuckets() const {
-  return (p_ >= 0) ? (1 << p_) : 0;
+  return (p_ >= 0) ? static_cast<il::int_t>(static_cast<std::size_t>(1) << p_)
+                   : 0;
 }
 
 template <typename K, typename V, typename F>
-void Map<K, V, F>::reserve(il::int_t r) {
-  IL_EXPECT_FAST(r >= 0);
+il::int_t Map<K, V, F>::nbBuckets(int p) {
+  return (p >= 0) ? static_cast<il::int_t>(static_cast<std::size_t>(1) << p)
+                  : 0;
+}
 
-  grow(il::next_power_of_2_32(r));
+template <typename K, typename V, typename F>
+void Map<K, V, F>::reserve(il::int_t n) {
+  IL_EXPECT_FAST(n >= 0);
+
+  reserveWithP(pForSlots(n));
 }
 
 template <typename K, typename V, typename F>
 double Map<K, V, F>::load() const {
   IL_EXPECT_MEDIUM(p_ >= 0);
 
-  return static_cast<double>(nb_element_) / nbBuckets();
+  return static_cast<double>(nb_elements_) / nbBuckets();
 }
 
 template <typename K, typename V, typename F>
@@ -543,16 +527,16 @@ double Map<K, V, F>::displaced() const {
   const il::int_t m = nbBuckets();
   il::int_t nb_displaced = 0;
   for (il::int_t i = 0; i < m; ++i) {
-    if (!F::isEmpty(slot_[i].key) && !F::isTombstone(slot_[i].key)) {
+    if (!F::isEmpty(bucket_[i].key) && !F::isTombstone(bucket_[i].key)) {
       const il::int_t hashed =
-          static_cast<il::int_t>(F::hash(slot_[i].key, p_));
+          static_cast<il::int_t>(F::hash(bucket_[i].key, p_));
       if (i != hashed) {
         ++nb_displaced;
       }
     }
   }
 
-  return static_cast<double>(nb_displaced) / nb_element_;
+  return static_cast<double>(nb_displaced) / nb_elements_;
 }
 
 template <typename K, typename V, typename F>
@@ -561,41 +545,21 @@ double Map<K, V, F>::displacedTwice() const {
   const il::int_t mask = (1 << p_) - 1;
   il::int_t nb_displaced_twice = 0;
   for (il::int_t i = 0; i < m; ++i) {
-    if (!F::isEmpty(slot_[i].key) && !F::isTombstone(slot_[i].key)) {
+    if (!F::isEmpty(bucket_[i].key) && !F::isTombstone(bucket_[i].key)) {
       const il::int_t hashed =
-          static_cast<il::int_t>(F::hash(slot_[i].key, p_));
+          static_cast<il::int_t>(F::hash(bucket_[i].key, p_));
       if (i != hashed && (((i - 1) - hashed) & mask) != 0) {
         ++nb_displaced_twice;
       }
     }
   }
 
-  return static_cast<double>(nb_displaced_twice) / nb_element_;
+  return static_cast<double>(nb_displaced_twice) / nb_elements_;
 }
 
 template <typename K, typename V, typename F>
 bool Map<K, V, F>::isEmpty() const {
-  return nb_element_ == 0;
-}
-
-template <typename K, typename V, typename F>
-MapIterator<K, V, F> Map<K, V, F>::begin() {
-  if (isEmpty()) {
-    return end();
-  } else {
-    il::int_t i = 0;
-    while (true) {
-      if (!F::isEmpty(slot_[i].key) && !F::isTombstone(slot_[i].key)) {
-        return MapIterator<K, V, F>{slot_ + i, slot_ + nb_element_};
-      }
-      ++i;
-    }
-  }
-}
-
-template <typename K, typename V, typename F>
-MapIterator<K, V, F> Map<K, V, F>::end() {
-  return MapIterator<K, V, F>{slot_ + nb_element_, slot_ + nb_element_};
+  return nb_elements_ == 0;
 }
 
 template <typename K, typename V, typename F>
@@ -603,7 +567,8 @@ il::int_t Map<K, V, F>::first() const {
   const il::int_t m = il::int_t{1} << p_;
 
   il::int_t i = 0;
-  while (i < m && (F::isEmpty(slot_[i].key) || F::isTombstone(slot_[i].key))) {
+  while (i < m &&
+         (F::isEmpty(bucket_[i].key) || F::isTombstone(bucket_[i].key))) {
     ++i;
   }
   return i;
@@ -619,43 +584,64 @@ il::int_t Map<K, V, F>::next(il::int_t i) const {
   const il::int_t m = il::int_t{1} << p_;
 
   ++i;
-  while (i < m && (F::isEmpty(slot_[i].key) || F::isTombstone(slot_[i].key))) {
+  while (i < m &&
+         (F::isEmpty(bucket_[i].key) || F::isTombstone(bucket_[i].key))) {
     ++i;
   }
   return i;
 }
 
 template <typename K, typename V, typename F>
-void Map<K, V, F>::grow(il::int_t r) {
-  IL_EXPECT_FAST(r >= nbBuckets());
+void Map<K, V, F>::reserveWithP(int p) {
+  KeyValue<K, V>* old_bucket_ = bucket_;
+  const il::int_t old_m = nbBuckets(p_);
+  const il::int_t m = nbBuckets(p);
 
-  KeyValue<K, V>* old_slot_ = slot_;
-  const il::int_t old_m = (p_ == -1) ? 0 : (1 << p_);
-  const int p = il::next_log2_32(r);
-  const il::int_t m = 1 << p;
-
-  slot_ =
-      static_cast<KeyValue<K, V>*>(::operator new(m * sizeof(KeyValue<K, V>)));
+  bucket_ = il::allocateArray<KeyValue<K, V>>(m);
   for (il::int_t i = 0; i < m; ++i) {
-    F::constructEmpty(il::io, reinterpret_cast<K*>(slot_ + i));
+    F::constructEmpty(il::io, reinterpret_cast<K*>(bucket_ + i));
   }
   p_ = p;
-  nb_element_ = 0;
-  nb_tombstone_ = 0;
+  nb_elements_ = 0;
+  nb_tombstones_ = 0;
 
   if (p_ >= 0) {
     for (il::int_t i = 0; i < old_m; ++i) {
-      if (!F::isEmpty(old_slot_[i].key) && !F::isTombstone(old_slot_[i].key)) {
-        il::int_t new_i = search(old_slot_[i].key);
-        insert(std::move(old_slot_[i].key), std::move(old_slot_[i].value),
+      if (!F::isEmpty(old_bucket_[i].key) &&
+          !F::isTombstone(old_bucket_[i].key)) {
+        il::int_t new_i = search(old_bucket_[i].key);
+        insert(std::move(old_bucket_[i].key), std::move(old_bucket_[i].value),
                il::io, new_i);
-        (&((old_slot_ + i)->key))->~K();
-        (&((old_slot_ + i)->value))->~V();
+        (&((old_bucket_ + i)->key))->~K();
+        (&((old_bucket_ + i)->value))->~V();
       }
     }
-    ::operator delete(old_slot_);
+    il::deallocate(old_bucket_);
   }
 }
+
+template <typename K, typename V, typename F>
+void Map<K, V, F>::rehash() {
+  if (nb_tombstones_ > 0) {
+    const il::int_t m = nbBuckets();
+    KeyValue<K, V>* bucket = il::allocateArray<KeyValue<K, V>>(m);
+    for (il::int_t i = 0; i < m; ++i) {
+      F::constructEmpty(il::io, reinterpret_cast<K*>(bucket + i));
+    }
+    for (il::int_t i = 0; i < m; ++i) {
+      if (!(F::isEmpty(bucket_[i].key) || F::isTombstone(bucket_[i].key))) {
+        new (&((bucket + i)->key)) K(std::move(bucket_[i].key));
+        new (&((bucket + i)->value)) V(std::move(bucket_[i].value));
+        ((bucket_ + i)->value).~V();
+        ((bucket_ + i)->key).~K();
+      }
+    }
+    il::deallocate(bucket_);
+    bucket_ = bucket;
+    nb_tombstones_ = 0;
+  }
+}
+
 }  // namespace il
 
 #endif  // IL_MAP_H
