@@ -10,13 +10,12 @@
 #include <iostream>
 
 #include <il/String.h>
-#include <il/unicode.h>
 
 int main() {
-  il::String s = u8"François";
-  s.append(il::Rune::SmilingFaceWithHorns);
+  il::String nom = "François Fayard";
 
-  std::cout << s.asCString() << std::endl;
-
+  for (il::int_t i = 0; i < nom.size(); ++i) {
+    std::cout << i << " " << nom.isRuneBoundary(i) << std::endl;
+  }
   return 0;
 }

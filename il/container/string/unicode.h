@@ -10,22 +10,82 @@
 #ifndef IL_UNICODE_H
 #define IL_UNICODE_H
 
-#include <il/container/string/String.h>
-#include <il/container/string/StringView.h>
-#include <il/container/string/UTF16String.h>
+#include <il/base.h>
+#include <iostream>
+//#include <il/container/string/String.h>
+//#include <il/container/string/StringView.h>
+//#include <il/container/string/UTF16String.h>
 
 namespace il {
 
-inline il::UTF16String toUtf16(const il::String& string) {
-  il::UTF16String ans{};
-  il::ConstStringView view{string.data(), string.size()};
+// inline constexpr bool auxIsUtf8(const char* s, int nbBytes, int pos,
+//                                bool surrogate) {
+//  return (pos == 0)
+//             // If it starts with the null character, the string is valid
+//             ? ((*s == 0x00)
+//                    ? true
+//                    // Otherwise, let's check if is starts with an ASCII
+//                    // character
+//                    : ((*s & 0x80) == 0
+//                           // In this case, check the rest of the string
+//                           ? auxIsUtf8(s + 1, 0, 0, false)
+//                           // Otherwise, it might start with a 2-byte sequence
+//                           : ((*s & 0xD0) == 0xB0
+//                                  // In this case, check the rest of the
+//                                  string ? auxIsUtf8(s + 1, 2, 1, false)
+//                                  // Otherwise, it might start with a 3-byte
+//                                  // sequence
+//                                  : ((*s & 0xF0) == 0xD0
+//                                         // In this case, check the rest of
+//                                         the
+//                                         // string
+//                                         ? auxIsUtf8(
+//                                               s + 1, 3, 1,
+//                                               (static_cast<unsigned char>(
+//                                                    *s) == 0xED))
+//                                         // Otherwise, it might start with a
+//                                         // 4-byte sequence
+//                                         : ((*s & 0xF8) == 0xF0
+//                                                ? auxIsUtf8(s + 1, 4, 1,
+//                                                false) : false)))))
+//             // In the case where we are scanning the second byte of a
+//             multibyte
+//             // sequence
+//             : ((pos == 1)
+//                    ? ((*s & 0xC0) == 0x80
+//                           ? (nbBytes == 2 ? ((*s & 0xA0) != 0xA0)
+//                                           : auxIsUtf8(s + 1, nbBytes, pos +
+//                                           1,
+//                                                       surrogate))
+//                           : false)
+//                    // In the case where we are scanning the third byte of a
+//                    // multibyte sequence
+//                    : ((pos == 2)
+//                           ? ((*s & 0xC0) == 0x80
+//                                  ? (nbBytes == 3
+//                                         ? true
+//                                         : auxIsUtf8(s + 1, nbBytes, pos + 1,
+//                                                     surrogate))
+//                                  : false)
+//                           // In the case where we are scanning the
+//                           // fourth byte of a multibyte sequence
+//                           : ((pos == 3) ? ((*s & 0xC0) == 0x80) : false)));
+//}
 
-  for (il::int_t i = 0; i < view.size(); i = view.nextRune(i)) {
-    ans.append(view.toRune(i));
-  }
-  ans.append('\0');
-  return ans;
-}
+// inline constexpr bool isUtf8(const char* s) {
+//  return auxIsUtf8(s, 0, 0, false);
+//}
+
+// inline il::UTF16String toUtf16(const il::String& string) {
+//  il::UTF16String ans{};
+//  il::ConstStringView view{string.data(), string.size()};
+//
+//  for (il::int_t i = 0; i < view.size(); i = view.nextRune(i)) {
+//    ans.append(view.rune(i));
+//  }
+//  ans.append('\0');
+//  return ans;
+//}
 
 enum Rune : int {
   Snowman = 0x2603,

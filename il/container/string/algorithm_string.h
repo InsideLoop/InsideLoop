@@ -19,9 +19,12 @@
 namespace il {
 
 inline il::String toString(il::int_t n) {
-  char tmp[11];
-  std::sprintf(tmp, "%td", n);
-  return il::String{tmp};
+  il::String ans{il::unsafe, 11};
+  const il::int_t m = std::snprintf(ans.data(), 11 + 1, "%td", n);
+  ans.setSafe(il::StringType::Ascii, m);
+
+  IL_ENSURE(m > 0);
+  return ans;
 }
 
 inline il::ConstStringView removeWhitespaceLeft(ConstStringView string) {

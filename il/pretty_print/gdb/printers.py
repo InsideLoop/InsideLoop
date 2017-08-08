@@ -502,30 +502,36 @@ class ConstStringViewPrinter:
 class StringPrinter:
 	def __init__(self, val):
 		self.val = val
+		n = self.val['large_']['capacity']
+		if n >= 2**63:
+			n = n - 2**63
+		if n >= 2**62:
+			n = n - 2**62
+			if (n - 2**62 >= 2**61):
+				self.type = "byte"
+				n = n - 2**61
+			else:
+				self.type = "wtf8"
+		else:
+			if n >= 2**61:
+				n = n - 2**61
+				self.type = "utf8"
+			else:
+				self.type = "ascii"
 		if self.val['large_']['capacity'] >= 2**63:
 			self.is_small = False
 			self.size = self.val['large_']['size']
-			self.capacity = self.val['large_']['capacity'] - 2**63
-			self.string = ""
-			for k in range(0, self.size):
-				self.string += chr(self.val['large_']['data'][k])
+			self.capacity = n
+			self.string = self.val['large_']['data'].string()
 		else:
 			self.is_small = True
-			self.size = 23 - self.val['data_'][23]
-			self.capacity = 23
-			self.string = ""
-			for k in range(0, self.size):
-				self.string += chr(self.val['data_'][k])
-
-	# def children(self):
-	# 	yield "size", self.size
-	# 	yield "capacity", self.capacity
-	# 	# yield "value", ""\"%s\"" % self.string
-	# 	yield ("value \"%s\"" % self.string), 1
+			self.size = int(self.val['data_'][23]) % 32
+			self.capacity = 22
+			self.string = self.val['data_'].string()
 
 	def to_string(self):
-		# return "[string: \"%s\"] [size: %s] [capacity: %s] [is small: %s]" % (self.string, self.size, self.capacity, self.is_small)
-		return "\"%s\"" % self.string
+		return "[string: \"%s\"] [type: %s] [size: %s] [capacity: %s] [is small: %s]" % (self.string, self.type, self.size, self.capacity, self.is_small)
+		# return self.string
 
 class MapPrinter:
 	def __init__(self, val):

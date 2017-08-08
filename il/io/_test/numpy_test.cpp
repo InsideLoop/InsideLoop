@@ -22,11 +22,6 @@ TEST(numpy, array_0) {
   il::Status load_status{};
   il::Array<int> w = il::load<il::Array<int>>(filename, il::io, load_status);
 
-  std::cout << w.size() << std::endl;
-  std::cout << w[0] << std::endl;
-  std::cout << w[1] << std::endl;
-  std::cout << w[2] << std::endl;
-
   ASSERT_TRUE(save_status.ok() && load_status.ok() && w.size() == 3 &&
               w[0] == v[0] && w[1] == v[1] && w[2] == v[2]);
 }

@@ -34,8 +34,11 @@
 #define IL_UNIX
 #endif
 
-//#define IL_32_BIT
+#if INTPTR_MAX == INT32_MAX
+#define IL_32_BIT
+#elif INTPTR_MAX == INT64_MAX
 #define IL_64_BIT
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 // Assertions
@@ -108,6 +111,14 @@ inline void abort() { std::abort(); }
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
+// Helper functions
+////////////////////////////////////////////////////////////////////////////////
+
+inline constexpr unsigned char operator"" _uchar(unsigned long long n) {
+  return static_cast<unsigned char>(n);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Namespace il
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -139,6 +150,10 @@ struct io_t {};
 const io_t io{};
 struct value_t {};
 const value_t value{};
+struct unsafe_t {};
+const unsafe_t unsafe{};
+struct safe_t {};
+const safe_t safe{};
 struct emplace_t {};
 const emplace_t emplace{};
 struct align_t {};

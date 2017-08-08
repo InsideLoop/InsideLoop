@@ -21,8 +21,8 @@ TEST(StringView, Rune_0) {
   const il::int_t i2 = sv.nextRune(i1);
   const il::int_t i3 = sv.nextRune(i2);
 
-  ASSERT_TRUE(s.size() == 3 && sv.toRune(i0) == 97 && sv.toRune(i1) == 98 &&
-              sv.toRune(i2) == 99 && i3 == 3);
+  ASSERT_TRUE(s.size() == 3 && sv.rune(i0) == 97 && sv.rune(i1) == 98 &&
+              sv.rune(i2) == 99 && i3 == 3);
 }
 
 TEST(StringView, Rune_1) {
@@ -34,6 +34,6 @@ TEST(StringView, Rune_1) {
   const il::int_t i2 = sv.nextRune(i1);
   const il::int_t i3 = sv.nextRune(i2);
 
-  ASSERT_TRUE(s.size() == 4 && sv.toRune(i0) == 110 && sv.toRune(i1) == 231 &&
-              sv.toRune(i2) == 111 && i3 == 4);
+  ASSERT_TRUE(s.size() == 4 && sv.rune(i0) == 110 && sv.rune(i1) == 231 &&
+              sv.rune(i2) == 111 && i3 == 4);
 }

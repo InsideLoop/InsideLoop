@@ -101,24 +101,24 @@ template <>
 class HashFunction<il::String> {
  public:
   static constexpr il::int_t max_small_size_ =
-      static_cast<il::int_t>(3 * sizeof(std::size_t) - 1);
+      static_cast<il::int_t>(3 * sizeof(std::size_t) - 2);
   static inline bool isEmpty(const il::String& s) {
     const unsigned char* p = reinterpret_cast<const unsigned char*>(&s);
-    const unsigned char value = p[max_small_size_] & 0xC0;
-    return value == 0x40;
+    const unsigned char value = p[max_small_size_ + 1];
+    return value == 0x1F_uchar;
   }
   static inline bool isTombstone(const il::String& s) {
     const unsigned char* p = reinterpret_cast<const unsigned char*>(&s);
-    const unsigned char value = p[max_small_size_] & 0xC0;
-    return value == 0xC0;
+    const unsigned char value = p[max_small_size_ + 1];
+    return value == 0x1E_uchar;
   }
   static inline void constructEmpty(il::io_t, il::String* s) {
     unsigned char* p = reinterpret_cast<unsigned char*>(s);
-    p[max_small_size_] = 0x40;
+    p[max_small_size_ + 1] = 0x1F_uchar;
   }
   static inline void constructTombstone(il::io_t, il::String* s) {
     unsigned char* p = reinterpret_cast<unsigned char*>(s);
-    p[max_small_size_] = 0xC0;
+    p[max_small_size_ + 1] = 0x1E_uchar;
   }
   static std::size_t hash(const il::String& s, int p) {
     const std::size_t mask = (1 << p) - 1;

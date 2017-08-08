@@ -22,25 +22,112 @@ namespace il {
 // and Windows)
 //
 // - For small string optimization: 24 chars which makes 24 bytes
-//   The first 23 chars can be used to store the string. The last char
-//   is used to store the length of the string, the bit to know if we have
-//   small string optimization and the '\0' in case the length of the string is
-//   23.
+//   The first 22 chars can be used to store the string. Another char is used
+//   to store the termination character '\0'. The last char is used to store
+//   the length of the string and its type: ascii, utf8, wtf8 or byte
 // - For large strings: 1 pointer and 2 std::size_t which make 24 bytes
 //
-// The last 2 bits (the most significant ones as we are on a little endian
-// system), are used to know if:
-// 00: small size optimization
-// 01: large size (the string is on the heap)
-// 10: not a String object, used as empty key for hash tables
-// 11: not a String object, used as tombstone key for hash tables
+// The last bit (the most significant ones as we are on a little endian
+// system), is used to know if the string is a small string or no (0 for small
+// string and 1 for large string).
+// The 2 bits before are used to know the kind of the string. We use (little
+// endian):
+// 00: ascii
+// 10: utf8
+// 01: wtf8
+// 11: byte
+
+template <il::int_t m>
+inline bool isAscii(const char (&data)[m]) {
+  bool ans = true;
+  for (il::int_t i = 0; i < m - 1; ++i) {
+    if ((static_cast<unsigned char>(data[i]) & 0x80_uchar) != 0x00_uchar) {
+      ans = false;
+    }
+  }
+  return ans;
+}
+
+inline il::int_t cstringSize(const char* s, il::io_t, bool& is_ascii) {
+  is_ascii = true;
+  il::int_t n = 0;
+  while (s[n] != '\0') {
+    if ((static_cast<unsigned char>(s[n]) & 0x80_uchar) != 0x00_uchar) {
+      is_ascii = false;
+    }
+    ++n;
+  }
+  return n;
+}
+
+inline constexpr bool auxIsUtf8(const char* s, int nbBytes, int pos,
+                                bool surrogate) {
+  return (pos == 0)
+             // If it starts with the null character, the string is valid
+             ? ((*s == 0x00)
+                    ? true
+                    // Otherwise, let's check if is starts with an ASCII
+                    // character
+                    : ((*s & 0x80) == 0
+                           // In this case, check the rest of the string
+                           ? auxIsUtf8(s + 1, 0, 0, false)
+                           // Otherwise, it might start with a 2-byte sequence
+                           : ((*s & 0xD0) == 0xB0
+                                  // In this case, check the rest of the string
+                                  ? auxIsUtf8(s + 1, 2, 1, false)
+                                  // Otherwise, it might start with a 3-byte
+                                  // sequence
+                                  : ((*s & 0xF0) == 0xD0
+                                         // In this case, check the rest of the
+                                         // string
+                                         ? auxIsUtf8(
+                                               s + 1, 3, 1,
+                                               (static_cast<unsigned char>(
+                                                    *s) == 0xED))
+                                         // Otherwise, it might start with a
+                                         // 4-byte sequence
+                                         : ((*s & 0xF8) == 0xF0
+                                                ? auxIsUtf8(s + 1, 4, 1, false)
+                                                : false)))))
+             // In the case where we are scanning the second byte of a multibyte
+             // sequence
+             : ((pos == 1)
+                    ? ((*s & 0xC0) == 0x80
+                           ? (nbBytes == 2 ? ((*s & 0xA0) != 0xA0)
+                                           : auxIsUtf8(s + 1, nbBytes, pos + 1,
+                                                       surrogate))
+                           : false)
+                    // In the case where we are scanning the third byte of a
+                    // multibyte sequence
+                    : ((pos == 2)
+                           ? ((*s & 0xC0) == 0x80
+                                  ? (nbBytes == 3
+                                         ? true
+                                         : auxIsUtf8(s + 1, nbBytes, pos + 1,
+                                                     surrogate))
+                                  : false)
+                           // In the case where we are scanning the
+                           // fourth byte of a multibyte sequence
+                           : ((pos == 3) ? ((*s & 0xC0) == 0x80) : false)));
+}
+
+inline constexpr bool isUtf8(const char* s) {
+  return auxIsUtf8(s, 0, 0, false);
+}
+
+enum class StringType : unsigned char {
+  Ascii = 0x00_uchar,
+  Utf8 = 0x20_uchar,
+  Wtf8 = 0x40_uchar,
+  Bytes = 0x60_uchar
+};
 
 class String {
  private:
   struct LargeString {
     char* data;
     il::int_t size;
-    il::int_t capacity;
+    std::size_t capacity;
   };
   union {
     char data_[sizeof(LargeString)];
@@ -51,6 +138,8 @@ class String {
   String();
   String(const char* data);
   explicit String(const char* data, il::int_t n);
+  explicit String(il::StringType type, const char* data, il::int_t n);
+  explicit String(il::unsafe_t, il::int_t n);
   String(const il::String& s);
   String(il::String&& s);
   String& operator=(const char* data);
@@ -61,7 +150,11 @@ class String {
   il::int_t capacity() const;
   bool isEmpty() const;
   bool isSmall() const;
+  il::StringType type() const;
+  bool isRuneBoundary(il::int_t i) const;
   void reserve(il::int_t r);
+  void setSafe(il::StringType type, il::int_t n);
+  void append(il::StringType type, const char* data, il::int_t n);
   void append(const String& s);
   void append(const char* data);
   void append(const char* data, il::int_t n);
@@ -78,77 +171,115 @@ class String {
   char* data();
   char* begin();
   char* end();
+  //  void truncate(il::int_t n);
+  //  void setRaw();
+  //  il::String split(il::int_t n);
+  //  void resize(il::unsafe_t, il::int_t n);
 
  private:
-  il::int_t small_size() const;
+  il::int_t smallSize() const;
   il::int_t largeCapacity() const;
-  void setSmallSize(il::int_t n);
-  void setLargeCapacity(il::int_t r);
+  void setSmall(il::StringType type, il::int_t n);
+  void setLarge(il::StringType type, il::int_t n, il::int_t r);
   bool validRune(int rune);
-  static il::int_t getSize(const char* data);
+  il::int_t static constexpr sizeCString(const char* data);
+  il::int_t static nextCapacity(il::int_t n);
   constexpr static il::int_t max_small_size_ =
-      static_cast<il::int_t>(sizeof(LargeString) - 1);
+      static_cast<il::int_t>(sizeof(LargeString) - 2);
 };
 
 inline String::String() {
   data_[0] = '\0';
-  setSmallSize(0);
+  setSmall(il::StringType::Ascii, 0);
 }
 
-inline String::String(const char* data, il::int_t n) {
+inline String::String(const char* data) {
+  bool is_ascii;
+  const il::int_t n = il::cstringSize(data, il::io, is_ascii);
+  if (n <= max_small_size_) {
+    std::memcpy(data_, data, static_cast<std::size_t>(n + 1));
+    setSmall(is_ascii ? il::StringType::Ascii : il::StringType::Utf8, n);
+  } else {
+    const il::int_t r = nextCapacity(n);
+    large_.data = il::allocateArray<char>(r + 1);
+    std::memcpy(large_.data, data, static_cast<std::size_t>(n + 1));
+    setLarge(is_ascii ? il::StringType::Ascii : il::StringType::Utf8, n, r);
+  }
+}
+
+inline String::String(const char* data, il::int_t n)
+    : String{il::StringType::Bytes, data, n} {}
+
+inline String::String(il::StringType type, const char* data, il::int_t n) {
   IL_EXPECT_FAST(n >= 0);
 
   if (n <= max_small_size_) {
     std::memcpy(data_, data, static_cast<std::size_t>(n));
     data_[n] = '\0';
-    setSmallSize(n);
+    setSmall(type, n);
   } else {
-    large_.data = il::allocateArray<char>(n + 1);
+    const il::int_t r = nextCapacity(n);
+    large_.data = il::allocateArray<char>(r + 1);
     std::memcpy(large_.data, data, static_cast<std::size_t>(n));
     large_.data[n] = '\0';
-    large_.size = n;
-    setLargeCapacity(n);
+    setLarge(type, n, r);
   }
 }
 
-inline String::String(const char* data) : String{data, String::getSize(data)} {}
+inline String::String(il::unsafe_t, il::int_t n) {
+  IL_EXPECT_FAST(n >= 0);
 
-inline String::String(const String& s) : String{s.data(), s.size()} {}
+  if (n <= max_small_size_) {
+    setSmall(il::StringType::Ascii, n);
+  } else {
+    const il::int_t r = nextCapacity(n);
+    large_.data = il::allocateArray<char>(r + 1);
+    setLarge(il::StringType::Ascii, n, r);
+  }
+}
+
+inline String::String(const String& s) : String{s.type(), s.data(), s.size()} {}
 
 inline String::String(String&& s) {
   const il::int_t size = s.size();
+  const il::StringType type = s.type();
   if (size <= max_small_size_) {
     std::memcpy(data_, s.asCString(), static_cast<std::size_t>(size) + 1);
-    setSmallSize(size);
+    setSmall(type, size);
   } else {
     large_.data = s.large_.data;
     large_.size = s.large_.size;
     large_.capacity = s.large_.capacity;
     s.data_[0] = '\0';
-    s.setSmallSize(0);
+    s.setSmall(il::StringType::Ascii, 0);
   }
 }
 
 inline String& String::operator=(const char* data) {
-  const il::int_t size = getSize(data);
+  bool is_ascii;
+  const il::int_t size = il::cstringSize(data, il::io, is_ascii);
+  const il::StringType type =
+      is_ascii ? il::StringType::Ascii : il::StringType::Utf8;
   if (size <= max_small_size_) {
     if (!isSmall()) {
       il::deallocate(large_.data);
     }
     std::memcpy(data_, data, static_cast<std::size_t>(size) + 1);
-    setSmallSize(size);
+    setSmall(type, size);
   } else {
-    if (size <= capacity()) {
+    const il::int_t old_r = capacity();
+    if (size <= old_r) {
       std::memcpy(large_.data, data, static_cast<std::size_t>(size) + 1);
+      setLarge(type, size, old_r);
       large_.size = size;
     } else {
       if (!isSmall()) {
         il::deallocate(large_.data);
       }
-      large_.data = il::allocateArray<char>(size + 1);
+      const il::int_t new_r = nextCapacity(size);
+      large_.data = il::allocateArray<char>(new_r + 1);
       std::memcpy(large_.data, data, static_cast<std::size_t>(size) + 1);
-      large_.size = size;
-      setLargeCapacity(size);
+      setLarge(type, size, new_r);
     }
   }
   return *this;
@@ -156,26 +287,28 @@ inline String& String::operator=(const char* data) {
 
 inline String& String::operator=(const String& s) {
   const il::int_t size = s.size();
+  const il::StringType type = s.type();
   if (size <= max_small_size_) {
     if (!isSmall()) {
       il::deallocate(large_.data);
     }
     std::memcpy(data_, s.asCString(), static_cast<std::size_t>(size) + 1);
-    setSmallSize(size);
+    setSmall(type, size);
   } else {
-    if (size <= capacity()) {
+    const il::int_t old_r = capacity();
+    if (size <= old_r) {
       std::memcpy(large_.data, s.asCString(),
                   static_cast<std::size_t>(size) + 1);
-      large_.size = size;
+      setLarge(type, size, old_r);
     } else {
       if (!isSmall()) {
         il::deallocate(large_.data);
       }
-      large_.data = il::allocateArray<char>(size + 1);
+      const il::int_t new_r = nextCapacity(size);
+      large_.data = il::allocateArray<char>(new_r + 1);
       std::memcpy(large_.data, s.asCString(),
                   static_cast<std::size_t>(size) + 1);
-      large_.size = size;
-      setLargeCapacity(size);
+      setLarge(type, size, new_r);
     }
   }
   return *this;
@@ -184,18 +317,19 @@ inline String& String::operator=(const String& s) {
 inline String& String::operator=(String&& s) {
   if (this != &s) {
     const il::int_t size = s.size();
+    const il::StringType type = s.type();
     if (size <= max_small_size_) {
       if (!isSmall()) {
         il::deallocate(large_.data);
       }
       std::memcpy(data_, s.asCString(), static_cast<std::size_t>(size) + 1);
-      setSmallSize(size);
+      setSmall(type, size);
     } else {
       large_.data = s.large_.data;
       large_.size = s.large_.size;
       large_.capacity = s.large_.capacity;
       s.data_[0] = '\0';
-      s.setSmallSize(0);
+      s.setSmall(il::StringType::Ascii, 0);
     }
   }
   return *this;
@@ -209,7 +343,8 @@ inline String::~String() {
 
 inline il::int_t String::size() const {
   if (isSmall()) {
-    return max_small_size_ - static_cast<il::int_t>(data_[max_small_size_]);
+    return static_cast<il::int_t>(
+        static_cast<unsigned char>(data_[max_small_size_ + 1]) & 0x1F_uchar);
   } else {
     return large_.size;
   }
@@ -219,44 +354,114 @@ inline il::int_t String::capacity() const {
   if (isSmall()) {
     return max_small_size_;
   } else {
-    const unsigned char category_extract_mask = 0xC0;
-    const std::size_t capacity_extract_mask =
-        ~(static_cast<std::size_t>(category_extract_mask)
-          << ((sizeof(std::size_t) - 1) * 8));
-    return static_cast<il::int_t>(static_cast<std::size_t>(large_.capacity) &
-                                  capacity_extract_mask);
+    return static_cast<il::int_t>(
+        (static_cast<std::size_t>(large_.capacity) &
+         ~(static_cast<std::size_t>(0xD0) << ((sizeof(std::size_t) - 1) * 8)))
+        << 3);
   }
+}
+
+inline bool String::isRuneBoundary(il::int_t i) const {
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
+                   static_cast<std::size_t>(size()));
+
+  const char* data = this->data();
+  const unsigned char c = static_cast<unsigned char>(data[i]);
+  return c < 0x80_uchar || ((c & 0xC0_uchar) != 0x80_uchar);
 }
 
 inline void String::reserve(il::int_t r) {
   IL_EXPECT_FAST(r >= 0);
 
-  const bool old_small = isSmall();
   const il::int_t old_capacity = capacity();
   if (r <= old_capacity) {
     return;
   }
 
-  const il::int_t old_size = size();
-  char* new_data = il::allocateArray<char>(r + 1);
-  std::memcpy(new_data, asCString(), static_cast<std::size_t>(old_size) + 1);
+  const bool old_small = isSmall();
+  const il::StringType type = this->type();
+  const il::int_t size = this->size();
+  const il::int_t new_r = nextCapacity(r);
+  char* new_data = il::allocateArray<char>(new_r + 1);
+  std::memcpy(new_data, asCString(), static_cast<std::size_t>(size) + 1);
   if (!old_small) {
     il::deallocate(large_.data);
   }
   large_.data = new_data;
-  large_.size = old_size;
-  setLargeCapacity(r);
+  setLarge(type, size, new_r);
 }
 
-inline void String::append(const String& s) { append(s.asCString(), s.size()); }
+inline void String::setSafe(il::StringType type, il::int_t n) {
+  if (isSmall()) {
+    data_[n] = '\0';
+    setSmall(type, n);
+  } else {
+    large_.data[n] = '\0';
+    large_.size = n;
+  }
+}
+
+inline void String::append(il::StringType type, const char* data, il::int_t n) {
+  IL_EXPECT_FAST(n >= 0);
+  IL_EXPECT_AXIOM("data must point to an array of length at least n");
+
+  const il::StringType old_type = this->type();
+  const il::StringType new_type =
+      type == il::StringType::Ascii
+          ? old_type
+          : (old_type == il::StringType::Ascii ? il::StringType::Utf8
+                                               : old_type);
+
+  const bool old_small = isSmall();
+  const il::int_t old_size = old_small ? smallSize() : large_.size;
+  const il::int_t old_capacity = old_small ? max_small_size_ : largeCapacity();
+  char* old_data = old_small ? data_ : large_.data;
+
+  const il::int_t needed_size = old_size + n;
+  il::int_t new_capacity;
+  bool needs_new_buffer;
+  if (needed_size <= old_capacity) {
+    new_capacity = old_capacity;
+    needs_new_buffer = false;
+  } else {
+    new_capacity = nextCapacity(2 * needed_size);
+    needs_new_buffer = true;
+  }
+
+  char* new_data;
+  if (needs_new_buffer) {
+    new_data = il::allocateArray<char>(new_capacity + 1);
+    std::memcpy(new_data, old_data, static_cast<std::size_t>(old_size));
+  } else {
+    new_data = old_data;
+  }
+  std::memcpy(new_data + old_size, data, static_cast<std::size_t>(n) + 1);
+  if (new_capacity <= max_small_size_) {
+    setSmall(new_type, old_size + n);
+  } else {
+    if (needs_new_buffer && !old_small) {
+      il::deallocate(old_data);
+    }
+    large_.data = new_data;
+    setLarge(new_type, old_size + n, new_capacity);
+  }
+}
+
+inline void String::append(const String& s) {
+  append(s.type(), s.data(), s.size());
+}
 
 inline void String::append(const char* data) {
-  il::int_t size = 0;
-  while (data[size] != '\0') {
-    ++size;
-  }
-  append(data, size);
+  bool is_ascii;
+  const il::int_t n = il::cstringSize(data, il::io, is_ascii);
+  append(is_ascii ? il::StringType::Ascii : il::StringType::Utf8, data, n);
 }
+
+inline void String::append(const char* data, il::int_t n) {
+  append(il::StringType::Bytes, data, n);
+}
+
+void append(const char* data, il::int_t n);
 
 inline void String::append(char c) {
   IL_EXPECT_MEDIUM(static_cast<unsigned char>(c) < 128);
@@ -269,7 +474,7 @@ inline void String::append(char c) {
   data[0] = c;
   data[1] = '\0';
   if (isSmall()) {
-    setSmallSize(new_size);
+    setSmall(type(), new_size);
   } else {
     large_.size = new_size;
   }
@@ -289,7 +494,7 @@ inline void String::append(il::int_t n, char c) {
   }
   data[n] = '\0';
   if (isSmall()) {
-    setSmallSize(new_size);
+    setSmall(type(), new_size);
   } else {
     large_.size = new_size;
   }
@@ -301,18 +506,17 @@ inline void String::append(int rune) {
   const unsigned int urune = static_cast<unsigned int>(rune);
   const il::int_t old_size = size();
   il::int_t new_size;
+  il::int_t new_capacity;
   if (urune < 0x00000080u) {
     new_size = old_size + 1;
-    const il::int_t new_capacity =
-        il::max(new_size, il::min(max_small_size_, 2 * old_size));
+    new_capacity = il::max(new_size, il::min(max_small_size_, 2 * old_size));
     reserve(new_capacity);
     unsigned char* data = reinterpret_cast<unsigned char*>(end());
     data[0] = static_cast<unsigned char>(urune);
     data[1] = '\0';
   } else if (urune < 0x00000800u) {
     new_size = old_size + 2;
-    const il::int_t new_capacity =
-        il::max(new_size, il::min(max_small_size_, 2 * old_size));
+    new_capacity = il::max(new_size, il::min(max_small_size_, 2 * old_size));
     reserve(new_capacity);
     unsigned char* data = reinterpret_cast<unsigned char*>(end());
     data[0] = static_cast<unsigned char>((urune >> 6) | 0x000000C0u);
@@ -320,8 +524,7 @@ inline void String::append(int rune) {
     data[2] = '\0';
   } else if (urune < 0x00010000u) {
     new_size = old_size + 3;
-    const il::int_t new_capacity =
-        il::max(new_size, il::min(max_small_size_, 2 * old_size));
+    new_capacity = il::max(new_size, il::min(max_small_size_, 2 * old_size));
     reserve(new_capacity);
     unsigned char* data = reinterpret_cast<unsigned char*>(end());
     data[0] = static_cast<unsigned char>((urune >> 12) | 0x000000E0u);
@@ -331,8 +534,7 @@ inline void String::append(int rune) {
     data[3] = '\0';
   } else {
     new_size = old_size + 4;
-    const il::int_t new_capacity =
-        il::max(new_size, il::min(max_small_size_, 2 * old_size));
+    new_capacity = il::max(new_size, il::min(max_small_size_, 2 * old_size));
     reserve(new_capacity);
     unsigned char* data = reinterpret_cast<unsigned char*>(end());
     data[0] = static_cast<unsigned char>((urune >> 18) | 0x000000F0u);
@@ -343,9 +545,15 @@ inline void String::append(int rune) {
     data[3] = static_cast<unsigned char>((urune & 0x0000003Fu) | 0x00000080u);
     data[4] = '\0';
   }
+  const il::StringType old_type = type();
+  const il::StringType new_type =
+      rune < 128 ? old_type
+                 : (old_type == il::StringType::Ascii ? il::StringType::Utf8
+                                                      : old_type);
   if (isSmall()) {
-    setSmallSize(new_size);
+    setSmall(new_type, new_size);
   } else {
+    setLarge(new_type, new_size, new_capacity);
     large_.size = new_size;
   }
 }
@@ -357,9 +565,10 @@ inline void String::append(il::int_t n, int rune) {
   const unsigned int urune = static_cast<unsigned int>(rune);
   const il::int_t old_size = size();
   il::int_t new_size;
+  il::int_t new_capacity;
   if (urune < 0x00000080u) {
     new_size = old_size + n;
-    const il::int_t new_capacity = il::max(new_size, 2 * old_size);
+    new_capacity = il::max(new_size, 2 * old_size);
     reserve(new_capacity);
     unsigned char* data = reinterpret_cast<unsigned char*>(end());
     const unsigned char cu0 = static_cast<unsigned char>(urune);
@@ -369,7 +578,7 @@ inline void String::append(il::int_t n, int rune) {
     data[n] = '\0';
   } else if (urune < 0x00000800u) {
     new_size = old_size + 2 * n;
-    const il::int_t new_capacity = il::max(new_size, 2 * old_size);
+    new_capacity = il::max(new_size, 2 * old_size);
     reserve(new_capacity);
     unsigned char* data = reinterpret_cast<unsigned char*>(end());
     const unsigned char cu0 =
@@ -383,7 +592,7 @@ inline void String::append(il::int_t n, int rune) {
     data[2 * n] = '\0';
   } else if (urune < 0x00010000u) {
     new_size = old_size + 3 * n;
-    const il::int_t new_capacity = il::max(new_size, 2 * old_size);
+    new_capacity = il::max(new_size, 2 * old_size);
     reserve(new_capacity);
     unsigned char* data = reinterpret_cast<unsigned char*>(end());
     const unsigned char cu0 =
@@ -400,7 +609,7 @@ inline void String::append(il::int_t n, int rune) {
     data[3 * n] = '\0';
   } else {
     new_size = old_size + 4 * n;
-    const il::int_t new_capacity = il::max(new_size, 2 * old_size);
+    new_capacity = il::max(new_size, 2 * old_size);
     reserve(new_capacity);
     unsigned char* data = reinterpret_cast<unsigned char*>(end());
     const unsigned char cu0 =
@@ -419,9 +628,15 @@ inline void String::append(il::int_t n, int rune) {
     }
     data[4 * n] = '\0';
   }
+  const il::StringType old_type = type();
+  const il::StringType new_type =
+      rune < 128 ? old_type
+                 : (old_type == il::StringType::Ascii ? il::StringType::Utf8
+                                                      : old_type);
   if (isSmall()) {
-    setSmallSize(new_size);
+    setSmall(new_type, new_size);
   } else {
+    setLarge(new_type, new_size, new_capacity);
     large_.size = new_size;
   }
 }
@@ -433,9 +648,13 @@ inline const char* String::asCString() const {
 inline bool String::isEmpty() const { return size() == 0; }
 
 inline bool String::isSmall() const {
-  const unsigned char category_extract_mask = 0xC0;
-  return (static_cast<unsigned char>(data_[max_small_size_]) &
-          category_extract_mask) == 0;
+  return (static_cast<unsigned char>(data_[max_small_size_ + 1]) &
+          0x80_uchar) == 0x00_uchar;
+}
+
+inline il::StringType String::type() const {
+  return static_cast<il::StringType>(
+      static_cast<unsigned char>(data_[max_small_size_ + 1]) & 0x60_uchar);
 }
 
 inline bool String::operator==(const il::String& other) const {
@@ -471,38 +690,38 @@ inline bool String::endsWith(const char* data) const {
   }
 }
 
-inline il::int_t String::getSize(const char* data) {
-  il::int_t i = 0;
-  while (data[i] != '\0') {
-    ++i;
-  }
-  return i;
-}
-
-inline il::int_t String::small_size() const {
-  return max_small_size_ - static_cast<il::int_t>(data_[max_small_size_]);
+inline il::int_t String::smallSize() const {
+  return data_[max_small_size_ + 1] & static_cast<unsigned char>(0x1F);
 }
 
 inline il::int_t String::largeCapacity() const {
-  constexpr unsigned char category_extract_mask = 0xC0;
+  constexpr unsigned char category_extract_mask = 0xD0_uchar;
   constexpr std::size_t capacity_extract_mask =
       ~(static_cast<std::size_t>(category_extract_mask)
         << ((sizeof(std::size_t) - 1) * 8));
-  return static_cast<il::int_t>(static_cast<std::size_t>(large_.capacity) &
-                                capacity_extract_mask);
+  return static_cast<il::int_t>(
+      (static_cast<std::size_t>(large_.capacity) & capacity_extract_mask) << 3);
 }
 
-inline void String::setSmallSize(il::int_t n) {
+inline void String::setSmall(il::StringType type, il::int_t n) {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(n) <=
                    static_cast<std::size_t>(max_small_size_));
 
-  data_[max_small_size_] = static_cast<unsigned char>(max_small_size_ - n);
+  unsigned char value = static_cast<unsigned char>(n);
+  value |= static_cast<unsigned char>(type);
+  data_[max_small_size_ + 1] = value;
 }
 
-inline void String::setLargeCapacity(il::int_t r) {
-  large_.capacity = static_cast<il::int_t>(
-      static_cast<std::size_t>(r) |
-      (static_cast<std::size_t>(0x80) << ((sizeof(std::size_t) - 1) * 8)));
+inline void String::setLarge(il::StringType type, il::int_t n, il::int_t r) {
+  IL_EXPECT_MEDIUM(n >= 0);
+  IL_EXPECT_MEDIUM(n <= r);
+
+  large_.size = n;
+  large_.capacity =
+      (static_cast<std::size_t>(r) >> 3) |
+      (static_cast<std::size_t>(static_cast<unsigned char>(type))
+       << ((sizeof(std::size_t) - 1) * 8)) |
+      (static_cast<std::size_t>(0x80_uchar) << ((sizeof(std::size_t) - 1) * 8));
 }
 
 inline const char* String::data() const {
@@ -525,56 +744,6 @@ inline char* String::end() {
   return (isSmall() ? data_ : large_.data) + size();
 }
 
-inline void String::append(const char* data, il::int_t n) {
-  IL_EXPECT_FAST(n >= 0);
-  IL_EXPECT_AXIOM("data must point to an array of length at least n");
-
-  const bool old_small = isSmall();
-  const il::int_t old_size = old_small ? small_size() : large_.size;
-  const il::int_t old_capacity = old_small ? max_small_size_ : largeCapacity();
-  char* old_data = old_small ? data_ : large_.data;
-
-  const std::size_t u_needed_size =
-      static_cast<std::size_t>(old_size) + static_cast<std::size_t>(n);
-  il::int_t new_capacity;
-  bool needs_new_buffer;
-  if (u_needed_size <= static_cast<std::size_t>(old_capacity)) {
-    new_capacity = old_capacity;
-    needs_new_buffer = false;
-  } else {
-    const std::size_t u_confort_capacity =
-        2 * static_cast<std::size_t>(old_size);
-    const std::size_t u_new_capacity =
-        il::max(u_needed_size, u_confort_capacity);
-    constexpr std::size_t sentinel_integer = static_cast<std::size_t>(1)
-                                             << (sizeof(std::size_t) * 8 - 1);
-    if (u_new_capacity + 1 >= sentinel_integer) {
-      il::abort();
-    }
-    new_capacity = static_cast<il::int_t>(u_new_capacity);
-    needs_new_buffer = true;
-  }
-
-  char* new_data;
-  if (needs_new_buffer) {
-    new_data = il::allocateArray<char>(new_capacity + 1);
-    std::memcpy(new_data, old_data, static_cast<std::size_t>(old_size));
-  } else {
-    new_data = old_data;
-  }
-  std::memcpy(new_data + old_size, data, static_cast<std::size_t>(n) + 1);
-  if (new_capacity <= max_small_size_) {
-    setSmallSize(old_size + n);
-  } else {
-    if (needs_new_buffer && !old_small) {
-      il::deallocate(old_data);
-    }
-    large_.data = new_data;
-    large_.size = old_size + n;
-    setLargeCapacity(new_capacity);
-  }
-}
-
 inline bool String::validRune(int rune) {
   const unsigned int code_point_max = 0x0010FFFFu;
   const unsigned int lead_surrogate_min = 0x0000D800u;
@@ -582,6 +751,17 @@ inline bool String::validRune(int rune) {
   const unsigned int urune = static_cast<unsigned int>(rune);
   return urune <= code_point_max &&
          (urune < lead_surrogate_min || urune > lead_surrogate_max);
+}
+
+inline il::int_t constexpr String::sizeCString(const char* data) {
+  return data[0] == '\0' ? 0 : sizeCString(data + 1) + 1;
+}
+
+// Return the next integer modulo 4
+inline il::int_t String::nextCapacity(il::int_t r) {
+  return static_cast<il::int_t>(
+      (static_cast<std::size_t>(r) + static_cast<std::size_t>(3)) &
+      ~static_cast<std::size_t>(3));
 }
 
 }  // namespace il

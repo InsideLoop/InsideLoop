@@ -59,7 +59,7 @@ class ConstStringView {
   ConstStringView prefix(il::int_t i1) const;
   ConstStringView substring(il::int_t i0, il::int_t i1) const;
 
-  int toRune(il::int_t i) const;
+  int rune(il::int_t i) const;
   il::int_t nextRune(il::int_t i) const;
 
   const char& operator[](il::int_t i) const;
@@ -124,7 +124,7 @@ inline bool ConstStringView::containsNewLine(il::int_t i) const {
          (i + 1 < size() && data_[i] == '\r' && data_[i + 1] == '\n');
 }
 
-inline int ConstStringView::toRune(il::int_t i) const {
+inline int ConstStringView::rune(il::int_t i) const {
   unsigned int ans = 0;
   const unsigned char* data = reinterpret_cast<const unsigned char*>(begin());
   if ((data[i] & 0x80u) == 0) {
@@ -256,7 +256,7 @@ inline char& StringView::operator[](il::int_t i) {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
                    static_cast<std::size_t>(this->size()));
 
-  return (reinterpret_cast<char*>(this->data_))[i];
+  return this->data_[i];
 }
 
 inline StringView StringView::substring(il::int_t i0, il::int_t i1) {
