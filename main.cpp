@@ -12,10 +12,7 @@
 #include <il/String.h>
 
 int main() {
-  il::String nom = "François Fayard";
+  il::String nom = "François";
 
-  for (il::int_t i = 0; i < nom.size(); ++i) {
-    std::cout << i << " " << nom.isRuneBoundary(i) << std::endl;
-  }
   return 0;
 }

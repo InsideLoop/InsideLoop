@@ -37,18 +37,7 @@ namespace il {
 // 01: wtf8
 // 11: byte
 
-template <il::int_t m>
-inline bool isAscii(const char (&data)[m]) {
-  bool ans = true;
-  for (il::int_t i = 0; i < m - 1; ++i) {
-    if ((static_cast<unsigned char>(data[i]) & 0x80_uchar) != 0x00_uchar) {
-      ans = false;
-    }
-  }
-  return ans;
-}
-
-inline il::int_t cstringSize(const char* s, il::io_t, bool& is_ascii) {
+inline il::int_t cstringSizeType(const char* s, il::io_t, bool& is_ascii) {
   is_ascii = true;
   il::int_t n = 0;
   while (s[n] != '\0') {
@@ -59,6 +48,33 @@ inline il::int_t cstringSize(const char* s, il::io_t, bool& is_ascii) {
   }
   return n;
 }
+
+inline constexpr il::int_t cstringSize(const char* data) {
+  il::int_t i = 0;
+  while (data[i] != '\0') {
+    ++i;
+  }
+  return i;
+}
+
+inline constexpr bool isAscii(const char* data) {
+  return data[0] == '\0' ? true
+                         : ((static_cast<unsigned char>(data[0]) &
+                             0x80_uchar) == 0x00_uchar) &&
+                               isAscii(data + 1);
+}
+
+// template <il::int_t m>
+// inline bool isAscii(const char (&data)[m]) {
+//  bool ans = true;
+//  for (il::int_t i = 0; i < m - 1; ++i) {
+//    if ((static_cast<unsigned char>(data[i]) & 0x80_uchar) != 0x00_uchar) {
+//      ans = false;
+//    }
+//  }
+//  return ans;
+//}
+
 
 inline constexpr bool auxIsUtf8(const char* s, int nbBytes, int pos,
                                 bool surrogate) {
@@ -136,7 +152,10 @@ class String {
 
  public:
   String();
-  String(const char* data);
+  template <il::int_t m>
+  String(const char (&data)[m]);
+  template <il::int_t m>
+  String(il::StringType, const char (&data)[m]);
   explicit String(const char* data, il::int_t n);
   explicit String(il::StringType type, const char* data, il::int_t n);
   explicit String(il::unsafe_t, il::int_t n);
@@ -165,6 +184,7 @@ class String {
   bool endsWith(const char* data) const;
   const char* asCString() const;
   bool operator==(const il::String& other) const;
+  bool isEqual(const char* data) const;
   const char* data() const;
   const char* begin() const;
   const char* end() const;
@@ -193,16 +213,31 @@ inline String::String() {
   setSmall(il::StringType::Ascii, 0);
 }
 
-inline String::String(const char* data) {
-  bool is_ascii;
-  const il::int_t n = il::cstringSize(data, il::io, is_ascii);
+template <il::int_t m>
+inline String::String(const char (&data)[m]) {
+  const il::int_t n = m - 1;
   if (n <= max_small_size_) {
-    std::memcpy(data_, data, static_cast<std::size_t>(n + 1));
+    std::memcpy(data_, data, static_cast<std::size_t>(m));
+    setSmall(il::StringType::Utf8, n);
+  } else {
+    const il::int_t r = nextCapacity(n);
+    large_.data = il::allocateArray<char>(r + 1);
+    std::memcpy(large_.data, data, static_cast<std::size_t>(m));
+    setLarge(il::StringType::Utf8, n, r);
+  }
+}
+
+template <il::int_t m>
+inline String::String(il::StringType type, const char (&data)[m]) {
+  const il::int_t n = m - 1;
+  const bool is_ascii = (type == il::StringType::Ascii);
+  if (n <= max_small_size_) {
+    std::memcpy(data_, data, static_cast<std::size_t>(m));
     setSmall(is_ascii ? il::StringType::Ascii : il::StringType::Utf8, n);
   } else {
     const il::int_t r = nextCapacity(n);
     large_.data = il::allocateArray<char>(r + 1);
-    std::memcpy(large_.data, data, static_cast<std::size_t>(n + 1));
+    std::memcpy(large_.data, data, static_cast<std::size_t>(m));
     setLarge(is_ascii ? il::StringType::Ascii : il::StringType::Utf8, n, r);
   }
 }
@@ -257,7 +292,7 @@ inline String::String(String&& s) {
 
 inline String& String::operator=(const char* data) {
   bool is_ascii;
-  const il::int_t size = il::cstringSize(data, il::io, is_ascii);
+  const il::int_t size = il::cstringSizeType(data, il::io, is_ascii);
   const il::StringType type =
       is_ascii ? il::StringType::Ascii : il::StringType::Utf8;
   if (size <= max_small_size_) {
@@ -453,7 +488,7 @@ inline void String::append(const String& s) {
 
 inline void String::append(const char* data) {
   bool is_ascii;
-  const il::int_t n = il::cstringSize(data, il::io, is_ascii);
+  const il::int_t n = il::cstringSizeType(data, il::io, is_ascii);
   append(is_ascii ? il::StringType::Ascii : il::StringType::Utf8, data, n);
 }
 
@@ -670,6 +705,19 @@ inline bool String::operator==(const il::String& other) const {
     }
     return true;
   }
+}
+
+inline bool String::isEqual(const char* data) const {
+  bool ans = true;
+  const char* p = begin();
+  il::int_t i = 0;
+  while (ans && i < size()) {
+    if (p[i] != data[i] || data[i] == '\0') {
+      ans = false;
+    }
+    ++i;
+  }
+  return ans;
 }
 
 inline bool String::endsWith(const char* data) const {

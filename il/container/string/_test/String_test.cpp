@@ -36,10 +36,10 @@ TEST(String, c_string_constructor_1) {
 }
 
 TEST(String, c_string_constructor_2) {
-  il::String s{"A quite\0 large string !!!"};
+  il::String s = "A quite\0 large string !!!";
   const char* p = s.asCString();
 
-  ASSERT_TRUE(s.size() == 7 && s.isSmall() && 0 == std::strcmp(p, "A quite"));
+  ASSERT_TRUE(s.size() == 25 && !s.isSmall() && 0 == std::strcmp(p, "A quite\0 large string !!!"));
 }
 
 TEST(String, reserve_0) {

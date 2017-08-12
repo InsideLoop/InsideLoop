@@ -165,8 +165,8 @@ TEST(Dynamic, string_constructor_1) {
 
 TEST(Dynamic, string_constructor_2) {
   const char* c_string = "Hello";
-  const il::String string = c_string;
-  il::Dynamic a = c_string;
+  const il::String string{c_string, il::cstringSize(c_string)};
+  il::Dynamic a{c_string, il::cstringSize(c_string)};
 
   ASSERT_TRUE(a.isString() && a.asString() == string && !a.isNull() &&
               !a.isBool() && !a.isInteger() && !a.isDouble() && !a.isArray() &&

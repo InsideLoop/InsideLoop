@@ -130,6 +130,15 @@ class HashFunction<il::String> {
     }
     return hash & mask;
   }
+  template <il::int_t m>
+  static constexpr std::size_t hash(const char (&s)[m]) {
+    const il::int_t n = m - 1;
+    std::size_t hash = 5381;
+    for (il::int_t i = 0; i < n; ++i) {
+      hash = ((hash << 5) + hash) + s[i];
+    }
+    return hash;
+  }
   static bool isEqual(const il::String& s0, const il::String& s1) {
     const il::int_t n0 = s0.size();
     const il::int_t n1 = s1.size();
@@ -141,6 +150,21 @@ class HashFunction<il::String> {
     const char* p1 = s1.asCString();
     il::int_t i = 0;
     while (i < n0 && p0[i] == p1[i]) {
+      ++i;
+    }
+    return i == n0;
+  }
+  template <il::int_t m>
+  static bool isEqual(const il::String& s0, const char (&s1)[m]) {
+    const il::int_t n0 = s0.size();
+    const il::int_t n1 = m - 1;
+    if (n0 != n1) {
+      return false;
+    }
+
+    const char* p0 = s0.asCString();
+    il::int_t i = 0;
+    while (i < n0 && p0[i] == s1[i]) {
       ++i;
     }
     return i == n0;
