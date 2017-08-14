@@ -10,8 +10,8 @@
 #include <il/String.h>
 
 int main() {
-  il::String prenom = "François";
-  il::String nom = il::join(prenom, " Fayard");
+  il::String prenom = "François Frayard François Frayard François Frayard ";
+  prenom.clear();
 
   return 0;
 }

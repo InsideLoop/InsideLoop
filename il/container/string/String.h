@@ -198,6 +198,8 @@ class String {
   void append(const char* data, il::int_t n);
   void append(il::StringType type, const char* data, il::int_t n);
 
+  void clear();
+
   bool endsWith(const char* data) const;
 
   const char* asCString() const;
@@ -451,6 +453,16 @@ inline void String::setSafe(il::StringType type, il::int_t n) {
   } else {
     large_.data[n] = '\0';
     large_.size = n;
+  }
+}
+
+inline void String::clear() {
+  if (isSmall()) {
+    data_[0] = '\0';
+    setSmall(il::StringType::Ascii, 0);
+  } else {
+    large_.data[0] = '\0';
+    setLarge(il::StringType::Ascii, 0, capacity());
   }
 }
 
