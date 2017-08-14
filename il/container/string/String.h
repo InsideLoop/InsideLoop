@@ -37,6 +37,17 @@ namespace il {
 // 01: wtf8
 // 11: byte
 
+constexpr il::int_t mySizeCString(const char* s, int i) {
+  return *s == '\0' ? i : mySizeCString(s + 1, i + 1);
+}
+
+constexpr bool myIsAscii(const char* s) {
+  return (*s == '\0') ||
+         ((static_cast<unsigned char>(*s) < static_cast<unsigned char>(128))
+              ? myIsAscii(s + 1)
+              : false);
+}
+
 inline il::int_t cstringSizeType(const char* s, il::io_t, bool& is_ascii) {
   is_ascii = true;
   il::int_t n = 0;
@@ -74,7 +85,6 @@ inline constexpr bool isAscii(const char* data) {
 //  }
 //  return ans;
 //}
-
 
 inline constexpr bool auxIsUtf8(const char* s, int nbBytes, int pos,
                                 bool surrogate) {
@@ -173,15 +183,23 @@ class String {
   bool isRuneBoundary(il::int_t i) const;
   void reserve(il::int_t r);
   void setSafe(il::StringType type, il::int_t n);
-  void append(il::StringType type, const char* data, il::int_t n);
+
+  template <il::int_t m>
+  void append(const char (&s0)[m]);
   void append(const String& s);
-  void append(const char* data);
-  void append(const char* data, il::int_t n);
+  void append(const String& s0, const String& s1);
+  template <il::int_t m>
+  void append(const String& s0, const char (&s1)[m]);
+
   void append(char c);
   void append(int rune);
   void append(il::int_t n, char c);
   void append(il::int_t n, int rune);
+  void append(const char* data, il::int_t n);
+  void append(il::StringType type, const char* data, il::int_t n);
+
   bool endsWith(const char* data) const;
+
   const char* asCString() const;
   bool operator==(const il::String& other) const;
   bool isEqual(const char* data) const;
@@ -482,14 +500,24 @@ inline void String::append(il::StringType type, const char* data, il::int_t n) {
   }
 }
 
+template <il::int_t m>
+inline void String::append(const char (&s0)[m]) {
+  append(il::StringType::Utf8, s0, m - 1);
+}
+
 inline void String::append(const String& s) {
   append(s.type(), s.data(), s.size());
 }
 
-inline void String::append(const char* data) {
-  bool is_ascii;
-  const il::int_t n = il::cstringSizeType(data, il::io, is_ascii);
-  append(is_ascii ? il::StringType::Ascii : il::StringType::Utf8, data, n);
+inline void String::append(const String& s0, const String& s1) {
+  append(s0.type(), s0.data(), s0.size());
+  append(s1.type(), s1.data(), s1.size());
+}
+
+template <il::int_t m>
+inline void String::append(const String& s0, const char (&s1)[m]) {
+  append(s0.type(), s0.data(), s0.size());
+  append(il::StringType::Utf8, s1, m - 1);
 }
 
 inline void String::append(const char* data, il::int_t n) {
@@ -810,6 +838,53 @@ inline il::int_t String::nextCapacity(il::int_t r) {
   return static_cast<il::int_t>(
       (static_cast<std::size_t>(r) + static_cast<std::size_t>(3)) &
       ~static_cast<std::size_t>(3));
+}
+
+inline il::String join(const il::String& s0, const il::String& s1) {
+  const il::int_t n0 = s0.size();
+  const il::int_t n1 = s1.size();
+  const il::StringType t0 = s0.type();
+  const il::StringType t1 = s1.type();
+  il::String ans{il::unsafe, n0 + n1};
+  char* data = ans.data();
+  std::memcpy(data, s0.data(), static_cast<std::size_t>(n0));
+  std::memcpy(data + n0, s1.data(), static_cast<std::size_t>(n1 + 1));
+  const il::StringType t = static_cast<il::StringType>(
+      il::max(static_cast<unsigned char>(t0), static_cast<unsigned char>(t1)));
+  ans.setSafe(t, n0 + n1);
+  return ans;
+}
+
+template <il::int_t m>
+inline il::String join(const il::String& s0, const char (&s1)[m]) {
+  const il::int_t n0 = s0.size();
+  const il::int_t n1 = m - 1;
+  const il::StringType t0 = s0.type();
+  const il::StringType t1 = il::StringType::Utf8;
+  il::String ans{il::unsafe, n0 + n1};
+  char* data = ans.data();
+  std::memcpy(data, s0.data(), static_cast<std::size_t>(n0));
+  std::memcpy(data + n0, s1, static_cast<std::size_t>(m));
+  const il::StringType t = static_cast<il::StringType>(
+      il::max(static_cast<unsigned char>(t0), static_cast<unsigned char>(t1)));
+  ans.setSafe(t, n0 + n1);
+  return ans;
+}
+
+template <il::int_t m>
+inline il::String join(const char (&s0)[m], const il::String& s1) {
+  const il::int_t n0 = m - 1;
+  const il::int_t n1 = s1.size();
+  const il::StringType t0 = il::StringType::Utf8;
+  const il::StringType t1 = s1.type();
+  il::String ans{il::unsafe, n0 + n1};
+  char* data = ans.data();
+  std::memcpy(data, s0, static_cast<std::size_t>(n0));
+  std::memcpy(data + n0, s1.data(), static_cast<std::size_t>(n1 + 1));
+  const il::StringType t = static_cast<il::StringType>(
+      il::max(static_cast<unsigned char>(t0), static_cast<unsigned char>(t1)));
+  ans.setSafe(t, n0 + n1);
+  return ans;
 }
 
 }  // namespace il

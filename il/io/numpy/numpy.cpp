@@ -133,7 +133,11 @@ void saveNumpyInfo(const NumpyInfo& numpy_info, il::io_t, std::FILE* fp,
   header.append(numpy_info.type);
   // ordering
   header.append("', 'fortran_order': ");
-  header.append(numpy_info.fortran_order ? "True" : "False");
+  if (numpy_info.fortran_order){
+    header.append("True");
+  } else {
+    header.append("False");
+  }
   // shape of the array
   // The buffer can hold enough digits for any 64-bit integer
   char buffer[21];
