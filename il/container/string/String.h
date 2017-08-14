@@ -30,6 +30,7 @@ namespace il {
 // The last bit (the most significant ones as we are on a little endian
 // system), is used to know if the string is a small string or no (0 for small
 // string and 1 for large string).
+//
 // The 2 bits before are used to know the kind of the string. We use (little
 // endian):
 // 00: ascii
@@ -148,6 +149,26 @@ enum class StringType : unsigned char {
   Bytes = 0x60_uchar
 };
 
+inline il::StringType joinType(il::StringType t0, il::StringType t1) {
+  return static_cast<il::StringType>(
+      il::max(static_cast<unsigned char>(t0), static_cast<unsigned char>(t1)));
+}
+
+inline il::StringType joinType(il::StringType t0, il::StringType t1,
+                               il::StringType t2) {
+  return static_cast<il::StringType>(il::max(static_cast<unsigned char>(t0),
+                                             static_cast<unsigned char>(t1),
+                                             static_cast<unsigned char>(t2)));
+}
+
+inline il::StringType joinType(il::StringType t0, il::StringType t1,
+                               il::StringType t2, il::StringType t3) {
+  return static_cast<il::StringType>(
+      il::max(static_cast<unsigned char>(t0), static_cast<unsigned char>(t1),
+              static_cast<unsigned char>(t2), static_cast<unsigned char>(t3)));
+}
+
+
 class String {
  private:
   struct LargeString {
@@ -181,7 +202,9 @@ class String {
   bool isSmall() const;
   il::StringType type() const;
   bool isRuneBoundary(il::int_t i) const;
+
   void reserve(il::int_t r);
+
   void setSafe(il::StringType type, il::int_t n);
 
   template <il::int_t m>
@@ -190,6 +213,17 @@ class String {
   void append(const String& s0, const String& s1);
   template <il::int_t m>
   void append(const String& s0, const char (&s1)[m]);
+  template <il::int_t m>
+  void append(const char (&s0)[m], const String& s1);
+  void append(const String& s0, const String& s1, const String& s2);
+  template <il::int_t m>
+  void append(const char (&s0)[m], const String& s1, const String& s2);
+  template <il::int_t m>
+  void append(const String& s0, const char (&s1)[m], const String& s2);
+  template <il::int_t m>
+  void append(const String& s0, const String& s1, const char (&s2)[m]);
+  template <il::int_t m0, il::int_t m2>
+  void append(const char (&s0)[m0], const String& s1, const char (&s2)[m2]);
 
   void append(char c);
   void append(int rune);
@@ -531,6 +565,102 @@ inline void String::append(const String& s0, const char (&s1)[m]) {
   append(s0.type(), s0.data(), s0.size());
   append(il::StringType::Utf8, s1, m - 1);
 }
+
+template <il::int_t m>
+inline void String::append(const char (&s0)[m], const String& s1) {
+  const il::int_t old_n = size();
+  const il::int_t n0 = m - 1;
+  const il::int_t n1 = s1.size();
+  const il::StringType t = joinType(type(), il::StringType::Utf8, s1.type());
+  reserve(old_n + n0 + n1);
+  char* p = data();
+  std::memcpy(p + old_n, s0, n0);
+  std::memcpy(p + old_n + n0, s1.data(), n1 + 1);
+  setSafe(t, old_n + n0 + n1);
+}
+
+inline void String::append(const String& s0, const String& s1,
+                           const String& s2) {
+  const il::int_t old_n = size();
+  const il::int_t n0 = s0.size();
+  const il::int_t n1 = s1.size();
+  const il::int_t n2 = s2.size();
+  const il::StringType t = joinType(type(), s0.type(), s1.type(), s2.type());
+  reserve(old_n + n0 + n1 + n2);
+  char* p = data();
+  std::memcpy(p + old_n, s0.data(), n0);
+  std::memcpy(p + old_n + n0, s1.data(), n1);
+  std::memcpy(p + old_n + n0 + n1, s2.data(), n2 + 1);
+  setSafe(t, old_n + n0 + n1 + n2);
+}
+
+template <il::int_t m>
+inline void String::append(const char (&s0)[m], const String& s1,
+                           const String& s2) {
+  const il::int_t old_n = size();
+  const il::int_t n0 = m - 1;
+  const il::int_t n1 = s1.size();
+  const il::int_t n2 = s2.size();
+  const il::StringType t =
+      joinType(type(), il::StringType::Utf8, s1.type(), s2.type());
+  reserve(old_n + n0 + n1 + n2);
+  char* p = data();
+  std::memcpy(p + old_n, s0, n0);
+  std::memcpy(p + old_n + n0, s1.data(), n1);
+  std::memcpy(p + old_n + n0 + n1, s2.data(), n2 + 1);
+  setSafe(t, old_n + n0 + n1 + n2);
+}
+
+template <il::int_t m>
+inline void String::append(const String& s0, const char (&s1)[m],
+                           const String& s2) {
+  const il::int_t old_n = size();
+  const il::int_t n0 = s0.size();
+  const il::int_t n1 = m - 1;
+  const il::int_t n2 = s2.size();
+  const il::StringType t =
+      joinType(type(), s0.type(), il::StringType::Utf8, s2.type());
+  reserve(old_n + n0 + n1 + n2);
+  char* p = data();
+  std::memcpy(p + old_n, s0.data(), n0);
+  std::memcpy(p + old_n + n0, s1, n1);
+  std::memcpy(p + old_n + n0 + n1, s2.data(), n2 + 1);
+  setSafe(t, old_n + n0 + n1 + n2);
+}
+
+template <il::int_t m>
+inline void String::append(const String& s0, const String& s1,
+                           const char (&s2)[m]) {
+  const il::int_t old_n = size();
+  const il::int_t n0 = s0.size();
+  const il::int_t n1 = s1.size();
+  const il::int_t n2 = m - 1;
+  const il::StringType t =
+      joinType(type(), s0.type(), s1.type(), il::StringType::Utf8);
+  reserve(old_n + n0 + n1 + n2);
+  char* p = data();
+  std::memcpy(p + old_n, s0.data(), n0);
+  std::memcpy(p + old_n + n0, s1.data(), n1);
+  std::memcpy(p + old_n + n0 + n1, s2, m);
+  setSafe(t, old_n + n0 + n1 + n2);
+}
+
+template <il::int_t m0, il::int_t m2>
+inline void String::append(const char (&s0)[m0], const String& s1,
+                           const char (&s2)[m2]) {
+  const il::int_t old_n = size();
+  const il::int_t n0 = m0 - 1;
+  const il::int_t n1 = s1.size();
+  const il::int_t n2 = m2 - 1;
+  const il::StringType t =
+      joinType(type(), il::StringType::Utf8, s1.type(), il::StringType::Utf8);
+  reserve(old_n + n0 + n1 + n2);
+  char* p = data();
+  std::memcpy(p + old_n, s0, n0);
+  std::memcpy(p + old_n + n0, s1.data(), n1);
+  std::memcpy(p + old_n + n0 + n1, s2, m2);
+  setSafe(t, old_n + n0 + n1 + n2);
+};
 
 inline void String::append(const char* data, il::int_t n) {
   append(il::StringType::Bytes, data, n);
@@ -896,6 +1026,72 @@ inline il::String join(const char (&s0)[m], const il::String& s1) {
   const il::StringType t = static_cast<il::StringType>(
       il::max(static_cast<unsigned char>(t0), static_cast<unsigned char>(t1)));
   ans.setSafe(t, n0 + n1);
+  return ans;
+}
+
+inline il::String join(const il::String& s0, const il::String& s1,
+                       const il::String& s2) {
+  const il::int_t n0 = s0.size();
+  const il::int_t n1 = s1.size();
+  const il::int_t n2 = s2.size();
+  const il::StringType t = il::joinType(s0.type(), s1.type(), s2.type());
+  il::String ans{il::unsafe, n0 + n1 + n2};
+  char* p = ans.data();
+  std::memcpy(p, s0.data(), n0);
+  std::memcpy(p + n0, s1.data(), n1);
+  std::memcpy(p + n0 + n1, s2.data(), n2 + 1);
+  ans.setSafe(t, n0 + n1 + n2);
+  return ans;
+}
+
+template <il::int_t m>
+inline il::String join(const char (&s0)[m], const il::String& s1,
+                       const il::String& s2) {
+  const il::int_t n0 = m - 1;
+  const il::int_t n1 = s1.size();
+  const il::int_t n2 = s2.size();
+  const il::StringType t =
+      il::joinType(il::StringType::Utf8, s1.type(), s2.type());
+  il::String ans{il::unsafe, n0 + n1 + n2};
+  char* p = ans.data();
+  std::memcpy(p, s0, n0);
+  std::memcpy(p + n0, s1.data(), n1);
+  std::memcpy(p + n0 + n1, s2.data(), n2 + 1);
+  ans.setSafe(t, n0 + n1 + n2);
+  return ans;
+}
+
+template <il::int_t m>
+inline il::String join(const il::String& s0, const char (&s1)[m],
+                       const il::String& s2) {
+  const il::int_t n0 = s0.size();
+  const il::int_t n1 = m - 1;
+  const il::int_t n2 = s2.size();
+  const il::StringType t =
+      il::joinType(s0.type(), il::StringType::Utf8, s2.type());
+  il::String ans{il::unsafe, n0 + n1 + n2};
+  char* p = ans.data();
+  std::memcpy(p, s0.data(), n0);
+  std::memcpy(p + n0, s1, n1);
+  std::memcpy(p + n0 + n1, s2.data(), n2 + 1);
+  ans.setSafe(t, n0 + n1 + n2);
+  return ans;
+}
+
+template <il::int_t m>
+inline il::String join(const il::String& s0, const il::String& s1,
+                       const char (&s2)[m]) {
+  const il::int_t n0 = s0.size();
+  const il::int_t n1 = s1.size();
+  const il::int_t n2 = m - 1;
+  const il::StringType t =
+      il::joinType(s0.type(), s1.type(), il::StringType::Utf8);
+  il::String ans{il::unsafe, n0 + n1 + n2};
+  char* p = ans.data();
+  std::memcpy(p, s0.data(), n0);
+  std::memcpy(p + n0, s1.data(), n1);
+  std::memcpy(p + n0 + n1, s2, m);
+  ans.setSafe(t, n0 + n1 + n2);
   return ans;
 }
 

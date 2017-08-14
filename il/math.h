@@ -52,16 +52,16 @@ T min(const il::Array<T>& A) {
   return ans;
 }
 
-template <typename T>
-T max(T a, T b, T c) {
-  auto temp = T{max(b, c)};
-  return a >= temp ? a : temp;
-}
-
-template <typename T>
-T max(T a, T b, T c, T d) {
-  return max(max(a, b), max(c, d));
-}
+//template <typename T>
+//T max(T a, T b, T c) {
+//  auto temp = T{max(b, c)};
+//  return a >= temp ? a : temp;
+//}
+//
+//template <typename T>
+//T max(T a, T b, T c, T d) {
+//  return max(max(a, b), max(c, d));
+//}
 
 template <typename T>
 T max(const il::Array<T>& v) {
