@@ -12,6 +12,7 @@
 
 // <cstring> is needed for memcpy
 #include <cstring>
+#include <iostream>
 
 #include <il/base.h>
 #include <il/core/memory/allocate.h>
@@ -249,6 +250,9 @@ class String {
   //  void setRaw();
   //  il::String split(il::int_t n);
   //  void resize(il::unsafe_t, il::int_t n);
+  friend std::ostream& operator<<(std::ostream& os, const String& s) {
+    return os << s.data();
+  }
 
  private:
   il::int_t smallSize() const;

@@ -169,6 +169,7 @@ set(SOURCE_FILES
     il/norm.h
     il/numpy.h
     il/png.h
+    il/Set.h
     il/SmallArray.h
     il/SparseMatrixCSR.h
     il/StaticArray.h
@@ -214,6 +215,7 @@ set(SOURCE_FILES
     il/container/hash/HashFunction.h
     il/container/hash/Map.h
     il/container/hash/MapArray.h
+    il/container/hash/Set.h
     il/container/string/String.h
     il/container/string/StringView.h
     il/container/string/UTF16String.h

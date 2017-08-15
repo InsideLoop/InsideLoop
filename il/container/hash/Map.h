@@ -215,7 +215,7 @@ Map<K, V, F>& Map<K, V, F>::operator=(const Map<K, V, F>& map) {
     if (old_p >= 0) {
       const il::int_t old_m = nbBuckets(old_p);
       for (il::int_t i = 0; i < old_m; ++i) {
-        if (!F::is_empy(bucket_ + i) && !F::isTombstone(bucket_ + i)) {
+        if (!F::isEmpty(bucket_ + i) && !F::isTombstone(bucket_ + i)) {
           (&((bucket_ + i)->value))->~V();
           (&((bucket_ + i)->key))->~K();
         }

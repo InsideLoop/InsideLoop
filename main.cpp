@@ -7,15 +7,25 @@
 //
 //==============================================================================
 
+#include <il/Set.h>
 #include <il/String.h>
-#include <string>
-#include <iostream>
+#include <il/format.h>
 
 int main() {
-  il::String a = "François";
-  il::String b = "Fayard";
+  il::String nom = "François";
+  std::cout << il::format("Hello {0}! I wish a happy {1} for all {0}.", nom,
+                          2017)
+            << std::endl;
 
-  il::String c = il::join(a, " ", b);
+  il::Set<il::String> set{};
+  set.insert("Fayard");
+  set.insert("Bron");
+  set.insert("François");
+  set.insert("Frédéric");
+
+  for (il::int_t i = set.first(); i != set.sentinel(); i = set.next(i)) {
+    std::cout << set[i] << std::endl;
+  }
 
   return 0;
 }
