@@ -8,6 +8,7 @@
 //==============================================================================
 
 #include <il/io/toml/toml.h>
+#include <il/container/string/algorithm_string.h>
 
 namespace il {
 
@@ -48,11 +49,7 @@ void TomlParser::checkEndOfLineOrComment(il::ConstStringView string, il::io_t,
 }
 
 il::String TomlParser::currentLine() const {
-  char line[24];
-  line[23] = '\0';
-  std::sprintf(line, "%td", line_number_);
-  il::String ans = line;
-  return line;
+  return il::toString(line_number_);
 }
 
 il::Type TomlParser::parseType(il::ConstStringView string, il::io_t,

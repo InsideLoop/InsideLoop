@@ -34,10 +34,21 @@
 #define IL_UNIX
 #endif
 
-#if INTPTR_MAX == INT32_MAX
-#define IL_32_BIT
-#elif INTPTR_MAX == INT64_MAX
+#if _WIN32 || _WIN64
+#if _WIN64
 #define IL_64_BIT
+#else
+#define IL-32_BIT
+#endif
+#endif
+
+// Check GCC
+#if __GNUC__
+#if __x86_64__ || __ppc64__
+#define IL_64_BIT
+#else
+#define IL_32_BIT
+#endif
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////

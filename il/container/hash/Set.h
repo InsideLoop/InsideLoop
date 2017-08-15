@@ -52,7 +52,7 @@ Set<T, F>::Set() {
   nb_elements_ = 0;
   nb_tombstones_ = 0;
   p_ = -1;
-};
+}
 
 template <typename T, typename F>
 Set<T, F>::Set(const Set<T, F>& set) {
@@ -184,7 +184,7 @@ il::int_t Set<T, F>::search(const T& x) const {
     i &= mask;
     ++delta_i;
   }
-};
+}
 
 template <typename T, typename F>
 void Set<T, F>::insert(const T& x, il::io_t, il::int_t i) {
@@ -205,7 +205,7 @@ void Set<T, F>::insert(const T& x, il::io_t, il::int_t i) {
   new (bucket_ + i_local) T(x);
   ++nb_elements_;
   i = i_local;
-};
+}
 
 template <typename T, typename F>
 void Set<T, F>::insert(const T& x) {
@@ -213,23 +213,23 @@ void Set<T, F>::insert(const T& x) {
   if (!found(i)) {
     insert(x, il::io, i);
   }
-};
+}
 
 template <typename T, typename F>
 bool Set<T, F>::found(il::int_t i) const {
   return i >= 0;
-};
+}
 
 template <typename T, typename F>
 bool Set<T, F>::contains(const T& x) const {
   const il::int_t i = search(x);
   return i >= 0;
-};
+}
 
 template <typename T, typename F>
 const T& Set<T, F>::operator[](il::int_t i) const {
   return bucket_[i];
-};
+}
 
 template <typename T, typename F>
 il::int_t Set<T, F>::first() const {
@@ -240,13 +240,13 @@ il::int_t Set<T, F>::first() const {
     ++i;
   }
   return i;
-};
+}
 
 template <typename T, typename F>
 il::int_t Set<T, F>::sentinel() const {
   return static_cast<il::int_t>(static_cast<std::size_t>(1) << p_);
   ;
-};
+}
 
 template <typename T, typename F>
 il::int_t Set<T, F>::next(il::int_t i) const {
@@ -257,7 +257,7 @@ il::int_t Set<T, F>::next(il::int_t i) const {
     ++i;
   }
   return i;
-};
+}
 
 template <typename T, typename F>
 il::int_t Set<T, F>::nbBuckets() const {

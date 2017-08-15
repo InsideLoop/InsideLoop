@@ -117,7 +117,7 @@ int Map<K, V, F>::pForSlots(il::int_t n) {
       return ans;
     }
   }
-};
+}
 
 template <typename K, typename V, typename F>
 Map<K, V, F>::Map() {
@@ -394,7 +394,7 @@ il::int_t Map<K, V, F>::searchCString(const char (&key)[m]) const {
     i &= mask;
     ++delta_i;
   }
-};
+}
 
 template <typename K, typename V, typename F>
 bool Map<K, V, F>::found(il::int_t i) const {
@@ -422,7 +422,7 @@ void Map<K, V, F>::insertCString(const char (&key)[m], const V& value, il::io_t,
   new (&((bucket_ + i_local)->value)) V(value);
   ++nb_elements_;
   i = i_local;
-};
+}
 
 template <typename K, typename V, typename F>
 void Map<K, V, F>::insert(const K& key, const V& value, il::io_t,

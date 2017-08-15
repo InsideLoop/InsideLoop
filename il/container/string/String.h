@@ -62,7 +62,7 @@ inline il::int_t cstringSizeType(const char* s, il::io_t, bool& is_ascii) {
   return n;
 }
 
-inline constexpr il::int_t cstringSize(const char* data) {
+inline il::int_t cstringSize(const char* data) {
   il::int_t i = 0;
   while (data[i] != '\0') {
     ++i;
@@ -664,7 +664,7 @@ inline void String::append(const char (&s0)[m0], const String& s1,
   std::memcpy(p + old_n + n0, s1.data(), n1);
   std::memcpy(p + old_n + n0 + n1, s2, m2);
   setSafe(t, old_n + n0 + n1 + n2);
-};
+}
 
 inline void String::append(const char* data, il::int_t n) {
   append(il::StringType::Bytes, data, n);
