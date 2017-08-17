@@ -169,7 +169,6 @@ inline il::StringType joinType(il::StringType t0, il::StringType t1,
               static_cast<unsigned char>(t2), static_cast<unsigned char>(t3)));
 }
 
-
 class String {
  private:
   struct LargeString {
@@ -881,6 +880,7 @@ inline bool String::operator==(const il::String& other) const {
   }
 }
 
+
 inline bool String::isEqual(const char* data) const {
   bool ans = true;
   const char* p = begin();
@@ -1097,6 +1097,16 @@ inline il::String join(const il::String& s0, const il::String& s1,
   std::memcpy(p + n0 + n1, s2, m);
   ans.setSafe(t, n0 + n1 + n2);
   return ans;
+}
+
+inline bool operator<(const il::String& s0, const il::String& s1) {
+  const int compare = std::strcmp(s0.data(), s1.data());
+  return compare < 0;
+}
+
+inline bool operator<(const char* s0, const il::String& s1) {
+  const int compare = std::strcmp(s0, s1.data());
+  return compare < 0;
 }
 
 }  // namespace il

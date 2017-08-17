@@ -7,25 +7,18 @@
 //
 //==============================================================================
 
-#include <il/Set.h>
-#include <il/String.h>
-#include <il/format.h>
+#include <iostream>
+
+#include <il/Map.h>
 
 int main() {
-  il::String nom = "François";
-  std::cout << il::format("Hello {0}! I wish a happy {1} for all {0}.", nom,
-                          2017)
-            << std::endl;
+  il::Map<int, int> map{};
+  map.insert(0, 5);
+  map.insert(1, 2);
+  std::cout << map.nbElements() << " " << map.nbBuckets() << std::endl;
 
-  il::Set<il::String> set{};
-  set.insert("Fayard");
-  set.insert("Bron");
-  set.insert("François");
-  set.insert("Frédéric");
-
-  for (il::int_t i = set.first(); i != set.sentinel(); i = set.next(i)) {
-    std::cout << set[i] << std::endl;
-  }
+  map.clear();
+  std::cout << map.nbElements() << " " << map.nbBuckets() << std::endl;
 
   return 0;
 }

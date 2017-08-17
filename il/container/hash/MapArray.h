@@ -56,7 +56,7 @@ template <typename K, typename V, typename F>
 void MapArray<K, V, F>::set(const K& key, const V& value) {
   const il::int_t i = array_.size();
   array_.append(il::emplace, key, value);
-  map_.set(key, i);
+  map_.insert(key, i);
 }
 
 template <typename K, typename V, typename F>
@@ -64,14 +64,14 @@ void MapArray<K, V, F>::set(const K& key, V&& value) {
   const il::int_t i = array_.size();
   //  array_.append(il::KeyValue<K, V>{key, std::move(value)});
   array_.append(il::emplace, key, std::move(value));
-  map_.set(key, i);
+  map_.insert(key, i);
 }
 
 template <typename K, typename V, typename F>
 void MapArray<K, V, F>::set(K&& key, V&& value) {
   const il::int_t i = array_.size();
   array_.append(il::emplace, key, std::move(value));
-  map_.set(std::move(key), i);
+  map_.insert(std::move(key), i);
 }
 
 template <typename K, typename V, typename F>

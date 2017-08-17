@@ -31,16 +31,16 @@ template <>
 class HashFunction<int> {
  public:
   static inline bool isEmpty(int val) {
-    return val == std::numeric_limits<int>::max();
-  }
-  static inline bool isTombstone(int val) {
     return val == std::numeric_limits<int>::min();
   }
+  static inline bool isTombstone(int val) {
+    return val == std::numeric_limits<int>::min() + 1;
+  }
   static inline void constructEmpty(il::io_t, int* val) {
-    *val = std::numeric_limits<int>::max();
+    *val = std::numeric_limits<int>::min();
   }
   static inline void constructTombstone(il::io_t, int* val) {
-    *val = std::numeric_limits<int>::min();
+    *val = std::numeric_limits<int>::min() + 1;
   }
   static std::size_t hash(int val, int p) {
 #ifdef IL_64_BIT
@@ -61,16 +61,16 @@ template <>
 class HashFunction<long> {
  public:
   static inline bool isEmpty(long val) {
-    return val == std::numeric_limits<long>::max();
-  }
-  static inline bool isTombstone(long val) {
     return val == std::numeric_limits<long>::min();
   }
+  static inline bool isTombstone(long val) {
+    return val == std::numeric_limits<long>::min() + 1;
+  }
   static inline void constructEmpty(il::io_t, long* val) {
-    *val = std::numeric_limits<long>::max();
+    *val = std::numeric_limits<long>::min();
   }
   static inline void constructTombstone(il::io_t, long* val) {
-    *val = std::numeric_limits<long>::min();
+    *val = std::numeric_limits<long>::min() + 1;
   }
   // Note that a 32-bit hash would be
   //
@@ -130,8 +130,15 @@ class HashFunction<il::String> {
     }
     return hash & mask;
   }
+  static std::size_t hash(const char* s, il::int_t n) {
+    std::size_t hash = 5381;
+    for (il::int_t i = 0; i < n; ++i) {
+      hash = ((hash << 5) + hash) + s[i];
+    }
+    return hash;
+  }
   template <il::int_t m>
-  static constexpr std::size_t hash(const char (&s)[m]) {
+  static std::size_t hash(const char (&s)[m]) {
     const il::int_t n = m - 1;
     std::size_t hash = 5381;
     for (il::int_t i = 0; i < n; ++i) {
@@ -150,6 +157,20 @@ class HashFunction<il::String> {
     const char* p1 = s1.asCString();
     il::int_t i = 0;
     while (i < n0 && p0[i] == p1[i]) {
+      ++i;
+    }
+    return i == n0;
+  }
+  static bool isEqual(const il::String& s0, const char* s1, il::int_t n) {
+    const il::int_t n0 = s0.size();
+    const il::int_t n1 = n;
+    if (n0 != n1) {
+      return false;
+    }
+
+    const char* p0 = s0.asCString();
+    il::int_t i = 0;
+    while (i < n0 && p0[i] == s1[i]) {
       ++i;
     }
     return i == n0;
