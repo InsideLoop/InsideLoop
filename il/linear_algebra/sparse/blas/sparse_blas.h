@@ -37,9 +37,9 @@ inline void blas(double alpha, const il::SparseMatrixCSR<il::int_t, double>& A,
                  const il::Array<double>& x, double beta, il::io_t,
                  il::Array<double>& y) {
   //#pragma omp parallel for
-  for (int i = 0; i < A.size(0); ++i) {
+  for (il::int_t i = 0; i < A.size(0); ++i) {
     double sum = 0.0;
-    for (int k = A.row(i); k < A.row(i + 1); ++k) {
+    for (il::int_t k = A.row(i); k < A.row(i + 1); ++k) {
       sum += A.element(k) * x[A.column(k)];
     }
     y[i] = alpha * sum + beta * y[i];

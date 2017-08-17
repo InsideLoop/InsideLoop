@@ -9,16 +9,12 @@
 
 #include <iostream>
 
-#include <il/Map.h>
+#include <il/String.h>
+#include <il/Array.h>
 
 int main() {
-  il::Map<int, int> map{};
-  map.insert(0, 5);
-  map.insert(1, 2);
-  std::cout << map.nbElements() << " " << map.nbBuckets() << std::endl;
-
-  map.clear();
-  std::cout << map.nbElements() << " " << map.nbBuckets() << std::endl;
+  il::Array<il::String> s{10, "François"};
+  IL_UNUSED(s);
 
   return 0;
 }

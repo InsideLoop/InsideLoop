@@ -1,3 +1,4 @@
 .idea
+gtest/tmp/b.npy
 cmake-build-debug
 cmake-build-release

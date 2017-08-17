@@ -1,5 +1,5 @@
-#include <string>
 #include <il/String.h>
+#include <string>
 
 static void IlStringConstruct_0(benchmark::State& state) {
   while (state.KeepRunning()) {

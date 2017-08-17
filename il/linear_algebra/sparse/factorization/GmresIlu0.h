@@ -98,7 +98,7 @@ inline void GmresIlu0::computePreconditionner(
     il::io_t, il::SparseMatrixCSR<int, double> &A) {
   IL_EXPECT_FAST(A.size(0) == A.size(1));
 
-  const int n = A.size(0);
+  const int n = static_cast<int>(A.size(0));
   bilu0_.resize(A.nbNonZeros());
   convertCToFortran(il::io, A);
   // In this example, specific for DCSRILU0 entries are set in turn:
@@ -130,7 +130,7 @@ inline il::Array<double> il::GmresIlu0::solve(
   IL_EXPECT_FAST(preconditionner_computed_);
   IL_EXPECT_FAST(A.size(0) == y.size());
 
-  const int n = A.size(0);
+  const int n = static_cast<int>(A.size(0));
 
   convertCToFortran(il::io, A);
   il::Array<double> yloc = y;
@@ -165,7 +165,7 @@ inline il::Array<double> il::GmresIlu0::solve(
   // ipar_[3]: Contains the current iteration number. The initial value is 0
   // ipar_[4]: Specifies the maximum number of iterations. The default value is
   //           min(150, n)
-  ipar_[4] = max_nb_iteration_;
+  ipar_[4] = static_cast<int>(max_nb_iteration_);
   // ipar_[5]: If the value is not 0, is report error messages according to
   //           ipar_[1]. The default value is 1.
   // ipar_[6]: For Warnings.
@@ -186,7 +186,7 @@ inline il::Array<double> il::GmresIlu0::solve(
   //            number of iterations to ipar_[14] before the restart.
   //            The default value is min(150, n) which means that by default,
   //            the non-restarted version of FGMRES method is used.
-  ipar_[14] = restart_iteration_;
+  ipar_[14] = static_cast<int>(restart_iteration_);
   ipar_[30] = behaviour_zero_diagonal_;
 
   // dpar_[0]: Specifies the relative tolerance. The default value is 1.0e-6
@@ -284,7 +284,7 @@ inline il::int_t il::GmresIlu0::nbIterations() const { return nb_iteration_; }
 
 inline void GmresIlu0::convertCToFortran(il::io_t,
                                          il::SparseMatrixCSR<int, double> &A) {
-  int n = A.size(0);
+  int n = static_cast<int>(A.size(0));
   int *row = A.rowData();
   for (int i = 0; i < n + 1; ++i) {
     row[i] += 1;
@@ -297,7 +297,7 @@ inline void GmresIlu0::convertCToFortran(il::io_t,
 
 inline void GmresIlu0::convertFortranToC(il::io_t,
                                          il::SparseMatrixCSR<int, double> &A) {
-  int n = A.size(0);
+  int n = static_cast<int>(A.size(0));
   int *row = A.rowData();
   for (int i = 0; i < n + 1; ++i) {
     row[i] -= 1;

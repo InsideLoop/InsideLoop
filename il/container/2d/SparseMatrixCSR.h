@@ -123,7 +123,7 @@ SparseMatrixCSR<Index, T>::SparseMatrixCSR(
   n0_ = n;
   n1_ = n;
 
-  const Index nb_entries = position.size();
+  const Index nb_entries = static_cast<Index>(position.size());
   index.resize(nb_entries);
 
   // Compute the numbers of entries per Row. After this section, the
@@ -171,7 +171,7 @@ SparseMatrixCSR<Index, T>::SparseMatrixCSR(
   // For each row, we sort them according to their column.
   for (Index i = 0; i < n; ++i) {
     for (Index p = 0; p < nb_entries_per_row[i] - 1; ++p) {
-      Index min_col = n;
+      Index min_col = static_cast<Index>(n);
       Index min_p = -1;
       for (Index q = p; q < nb_entries_per_row[i]; ++q) {
         if (col_of_rowIndex(i, q) < min_col) {

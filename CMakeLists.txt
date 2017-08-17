@@ -382,7 +382,7 @@ add_cxx_compiler_flag(-Werror MINSIZEREL)
 add_cxx_compiler_flag(-pedantic)
 add_cxx_compiler_flag(-pedantic-errors)
 add_cxx_compiler_flag(-Wshorten-64-to-32)
-add_cxx_compiler_flag(-Wfloat-equal)
+#add_cxx_compiler_flag(-Wfloat-equal)
 add_cxx_compiler_flag(-fstrict-aliasing)
 if (NOT BENCHMARK_ENABLE_EXCEPTIONS)
     add_cxx_compiler_flag(-fno-exceptions)
@@ -498,7 +498,11 @@ set(BENCHMARK_FILES
     gbenchmark/src/sleep.cc
     gbenchmark/src/string_util.cc
     gbenchmark/src/sysinfo.cc
-    gbenchmark/src/timers.cc)
+    gbenchmark/src/timers.cc
+    il/container/hash/_benchmark/Map_il_vs_std_benchmark.h
+    il/container/string/_benchmark/String_benchmark.h
+    il/container/string/_benchmark/String_il_vs_std_benchmark.h
+    )
 
 # C++ feature checks
 # Determine the correct regular expression engine to use
