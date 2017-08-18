@@ -4,4 +4,4 @@
 #include <il/container/string/_benchmark/String_il_vs_std_benchmark.h>
 #include <il/container/hash/_benchmark/Map_il_vs_std_benchmark.h>
 
-BENCHMARK_MAIN();
+BENCHMARK_MAIN()

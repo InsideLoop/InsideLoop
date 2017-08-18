@@ -1109,6 +1109,14 @@ inline bool operator<(const char* s0, const il::String& s1) {
   return compare < 0;
 }
 
+inline il::String toString(const std::string& s) {
+  return il::String{il::StringType::Bytes, s.c_str(), static_cast<il::int_t>(s.size())};
+}
+
+inline il::String toString(const char* s) {
+  return il::String{il::StringType::Bytes, s, il::cstringSize(s)};
+}
+
 }  // namespace il
 
 #endif  // IL_STRING_H

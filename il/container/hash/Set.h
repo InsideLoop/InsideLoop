@@ -35,10 +35,12 @@ class Set {
   void insert(const T& x);
   bool found(il::int_t i) const;
   bool contains(const T& x) const;
+  void clear();
   const T& operator[](il::int_t i) const;
   il::int_t first() const;
   il::int_t sentinel() const;
   il::int_t next(il::int_t i) const;
+  il::int_t nbElements() const;
 
  private:
   il::int_t nbBuckets() const;
@@ -227,6 +229,19 @@ bool Set<T, F>::contains(const T& x) const {
 }
 
 template <typename T, typename F>
+void Set<T, F>::clear() {
+  if (p_ >= 0) {
+    const il::int_t m = nbBuckets();
+    for (il::int_t i = 0; i < m; ++i) {
+      if (!F::isEmpty(bucket_[i]) && !F::isTombstone(bucket_[i])) {
+        (bucket_ + i)->~T();
+      }
+    }
+  }
+  nb_elements_ = 0;
+}
+
+template <typename T, typename F>
 const T& Set<T, F>::operator[](il::int_t i) const {
   return bucket_[i];
 }
@@ -257,6 +272,11 @@ il::int_t Set<T, F>::next(il::int_t i) const {
     ++i;
   }
   return i;
+}
+
+template <typename T, typename F>
+il::int_t Set<T, F>::nbElements() const {
+  return nb_elements_;
 }
 
 template <typename T, typename F>

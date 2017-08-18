@@ -8,13 +8,13 @@
 //==============================================================================
 
 #include <iostream>
+#include <string>
 
 #include <il/String.h>
-#include <il/Array.h>
 
 int main() {
-  il::Array<il::String> s{10, "François"};
-  IL_UNUSED(s);
+  std::string s0 = "Francois";
+  il::String s1 = il::toString(s0);
 
   return 0;
 }
