@@ -1,3 +1,5 @@
+#include <benchmark/benchmark.h>
+
 #include <il/String.h>
 #include <string>
 

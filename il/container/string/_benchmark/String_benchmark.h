@@ -1,3 +1,5 @@
+#include <benchmark/benchmark.h>
+
 #include <il/String.h>
 
 static void StringConstruct_Small_0(benchmark::State& state) {
