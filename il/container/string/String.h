@@ -242,6 +242,7 @@ class String {
 
   const char* asCString() const;
   bool operator==(const il::String& other) const;
+  bool operator!=(const il::String& other) const;
   bool isEqual(const char* data) const;
   const char* data() const;
   const char* begin() const;
@@ -918,6 +919,10 @@ inline bool String::operator==(const il::String& other) const {
   }
 }
 
+inline bool String::operator!=(const il::String& other) const {
+  return !(*this == other);
+}
+
 inline bool String::isEqual(const char* data) const {
   bool ans = true;
   const char* p = begin();
@@ -1144,6 +1149,35 @@ inline bool operator<(const il::String& s0, const il::String& s1) {
 inline bool operator<(const char* s0, const il::String& s1) {
   const int compare = std::strcmp(s0, s1.data());
   return compare < 0;
+}
+
+inline bool operator==(const char* s0, const il::String& s1) {
+  const il::int_t s0_size = il::size(s0);
+  const il::int_t s1_size = s1.size();
+  if (s0_size != s1_size) {
+    return false;
+  } else {
+    const char* p0 = s0;
+    const char* p1 = s1.data();
+    for (il::int_t i = 0; i < s0_size; ++i) {
+      if (p0[i] != p1[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+}
+
+inline bool operator!=(const char* s0, const il::String& s1) {
+  return !(s0 == s1);
+}
+
+inline bool operator==(const il::String& s0, const char* s1) {
+  return (s1 == s0);
+}
+
+inline bool operator!=(const il::String& s0, const char* s1) {
+  return !(s1 == s0);
 }
 
 inline il::String toString(const std::string& s) {

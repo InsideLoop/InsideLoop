@@ -12,11 +12,10 @@
 #include <il/String.h>
 
 int main() {
-  il::String s = "François";
+  il::String s0 = "Francois";
 
-  il::String sub0 = s.prefix(4);
-  il::String sub1 = s.suffix(3);
-  il::String sub2 = s.substring(1, 4);
+  std::cout << (s0 == "Francois") << std::endl;
+
 
   return 0;
 }
