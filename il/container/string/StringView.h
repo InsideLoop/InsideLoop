@@ -56,8 +56,8 @@ class ConstStringView {
   void trimSuffix();
 
   ConstStringView substring(il::int_t i0, il::int_t i1) const;
-  ConstStringView suffix(il::int_t n) const;
-  ConstStringView prefix(il::int_t n) const;
+//  ConstStringView suffix(il::int_t n) const;
+//  ConstStringView prefix(il::int_t n) const;
 
   int rune(il::int_t i) const;
   il::int_t nextRune(il::int_t i) const;
@@ -197,19 +197,19 @@ inline ConstStringView ConstStringView::substring(il::int_t i0,
   return ConstStringView{data_ + i0, i1 - i0};
 }
 
-inline ConstStringView ConstStringView::suffix(il::int_t n) const {
-  IL_EXPECT_MEDIUM(static_cast<std::size_t>(n) <=
-                   static_cast<std::size_t>(size()));
-
-  return ConstStringView{data_ + size() - n, size()};
-}
-
-inline ConstStringView ConstStringView::prefix(il::int_t n) const {
-  IL_EXPECT_MEDIUM(static_cast<std::size_t>(n) <=
-                   static_cast<std::size_t>(size()));
-
-  return ConstStringView{data_, n};
-}
+//inline ConstStringView ConstStringView::suffix(il::int_t n) const {
+//  IL_EXPECT_MEDIUM(static_cast<std::size_t>(n) <=
+//                   static_cast<std::size_t>(size()));
+//
+//  return ConstStringView{data_ + size() - n, size()};
+//}
+//
+//inline ConstStringView ConstStringView::prefix(il::int_t n) const {
+//  IL_EXPECT_MEDIUM(static_cast<std::size_t>(n) <=
+//                   static_cast<std::size_t>(size()));
+//
+//  return ConstStringView{data_, n};
+//}
 
 inline bool ConstStringView::operator==(const char* string) const {
   bool match = true;

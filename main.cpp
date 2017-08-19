@@ -13,9 +13,9 @@
 
 int main() {
   il::String s0 = "Francois";
+  il::String s1 = "Fayard";
 
-  std::cout << (s0 == "Francois") << std::endl;
-
+  il::String s = il::join(s0, " ", s1, s0, s1, "f", s0, s1);
 
   return 0;
 }

@@ -115,7 +115,7 @@ NumpyInfo getNumpyInfo(il::io_t, std::FILE* fp, il::Status& status) {
       break;
     }
     const il::int_t i3 = il::search(",", shape_string);
-    shape_string = shape_string.suffix(i3 + 1);
+    shape_string = shape_string.substring(i3 + 1, shape_string.size());
     ++i;
   }
 

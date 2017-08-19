@@ -159,6 +159,16 @@ T max(T a, T b, T c, T d) {
 }
 
 template <typename T>
+T max(T a, T b, T c, T d, T e) {
+  return max(max(a, b), max(c, d), e);
+}
+
+template <typename T>
+T max(T a, T b, T c, T d, T e, T f) {
+  return max(max(a, b), max(c, d), max(e, f));
+}
+
+template <typename T>
 T min(T a, T b) {
   return a <= b ? a : b;
 }
