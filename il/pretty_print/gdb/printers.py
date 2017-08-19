@@ -521,7 +521,7 @@ class StringPrinter:
 		if self.val['large_']['capacity'] >= 2**63:
 			self.is_small = False
 			self.size = self.val['large_']['size']
-			self.capacity = n
+			self.capacity = 8 * n
 			self.string = self.val['large_']['data'].string()
 		else:
 			self.is_small = True

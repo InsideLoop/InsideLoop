@@ -84,6 +84,13 @@ class Map {
   const K& key(il::int_t i) const;
   const V& value(il::int_t i) const;
   V& value(il::int_t i);
+  const V& valueForKey(const K& key) const;
+  const V& valueForKey(const K& key, const V& default_value) const;
+  template <il::int_t m>
+  const V& valueForCString(const char (&key)[m]) const;
+  template <il::int_t m>
+  const V& valueForCString(const char (&key)[m], const V& default_value) const;
+
   void clear();
   bool isEmpty() const;
   il::int_t nbElements() const;
@@ -610,6 +617,48 @@ V& Map<K, V, F>::value(il::int_t i) {
 
   return bucket_[i].value;
 }
+
+template <typename K, typename V, typename F>
+const V& Map<K, V, F>::valueForKey(const K& key) const {
+  const il::int_t i = search(key);
+  if (found(i)) {
+    return value(i);
+  } else {
+    return V{};
+  }
+};
+
+template <typename K, typename V, typename F>
+const V& Map<K, V, F>::valueForKey(const K& key, const V& default_value) const {
+  const il::int_t i = search(key);
+  if (found(i)) {
+    return value(i);
+  } else {
+    return default_value;
+  }
+};
+
+template <typename K, typename V, typename F>
+template <il::int_t m>
+const V& Map<K, V, F>::valueForCString(const char (&key)[m]) const {
+  const il::int_t i = search(key);
+  if (found(i)) {
+    return value(i);
+  } else {
+    return V{};
+  }
+};
+
+template <typename K, typename V, typename F>
+template <il::int_t m>
+const V& Map<K, V, F>::valueForCString(const char (&key)[m], const V& default_value) const {
+  const il::int_t i = search(key);
+  if (found(i)) {
+    return value(i);
+  } else {
+    return default_value;
+  }
+};
 
 template <typename K, typename V, typename F>
 il::int_t Map<K, V, F>::nbElements() const {

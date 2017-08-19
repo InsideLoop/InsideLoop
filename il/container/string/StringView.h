@@ -41,10 +41,12 @@ class ConstStringView {
   bool endsWithNewLine() const;
   bool endsWithDigit() const;
 
-  bool contains(il::int_t i, const char* data) const;
-  bool contains(il::int_t i, char c) const;
-  bool containsDigit(il::int_t i) const;
-  bool containsNewLine(il::int_t i) const;
+  bool has(il::int_t i, const char* data) const;
+  bool has(il::int_t i, char c) const;
+  bool hasSpace(il::int_t i) const;
+  bool hasDigit(il::int_t i) const;
+  bool hasHexaDecimal(il::int_t i) const;
+  bool hasNewLine(il::int_t i) const;
 
   il::int_t nextChar(il::int_t, char c) const;
   il::int_t nextDigit(il::int_t) const;
@@ -56,8 +58,8 @@ class ConstStringView {
   void trimSuffix();
 
   ConstStringView substring(il::int_t i0, il::int_t i1) const;
-//  ConstStringView suffix(il::int_t n) const;
-//  ConstStringView prefix(il::int_t n) const;
+  //  ConstStringView suffix(il::int_t n) const;
+  //  ConstStringView prefix(il::int_t n) const;
 
   int rune(il::int_t i) const;
   il::int_t nextRune(il::int_t i) const;
@@ -103,11 +105,28 @@ inline const char& ConstStringView::operator[](il::int_t i) const {
   return data_[i];
 }
 
-inline bool ConstStringView::containsDigit(il::int_t i) const {
+inline bool ConstStringView::hasSpace(il::int_t i) const {
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
+                   static_cast<std::size_t>(size()));
+
+  return (data_[i] == ' ') || (data_[i] == '\f') || (data_[i] == '\n') ||
+         (data_[i] == '\r') || (data_[i] == '\t') || (data_[i] == '\v');
+}
+
+inline bool ConstStringView::hasDigit(il::int_t i) const {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
                    static_cast<std::size_t>(size()));
 
   return data_[i] >= '0' && data_[i] <= '9';
+}
+
+inline bool ConstStringView::hasHexaDecimal(il::int_t i) const {
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
+                   static_cast<std::size_t>(size()));
+
+  return (data_[i] >= '0' && data_[i] <= '9') ||
+         (data_[i] >= 'a' && data_[i] <= 'f') ||
+         (data_[i] >= 'A' && data_[i] <= 'F');
 }
 
 inline bool ConstStringView::startsWithDigit() const {
@@ -116,7 +135,7 @@ inline bool ConstStringView::startsWithDigit() const {
   return data_[0] >= '0' && data_[0] <= '9';
 }
 
-inline bool ConstStringView::containsNewLine(il::int_t i) const {
+inline bool ConstStringView::hasNewLine(il::int_t i) const {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
                    static_cast<std::size_t>(size()));
 
@@ -197,14 +216,14 @@ inline ConstStringView ConstStringView::substring(il::int_t i0,
   return ConstStringView{data_ + i0, i1 - i0};
 }
 
-//inline ConstStringView ConstStringView::suffix(il::int_t n) const {
+// inline ConstStringView ConstStringView::suffix(il::int_t n) const {
 //  IL_EXPECT_MEDIUM(static_cast<std::size_t>(n) <=
 //                   static_cast<std::size_t>(size()));
 //
 //  return ConstStringView{data_ + size() - n, size()};
 //}
 //
-//inline ConstStringView ConstStringView::prefix(il::int_t n) const {
+// inline ConstStringView ConstStringView::prefix(il::int_t n) const {
 //  IL_EXPECT_MEDIUM(static_cast<std::size_t>(n) <=
 //                   static_cast<std::size_t>(size()));
 //

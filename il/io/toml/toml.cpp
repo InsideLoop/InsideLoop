@@ -62,12 +62,12 @@ il::Type TomlParser::parseType(il::ConstStringView string, il::io_t,
     if (string[0] == '-' || string[0] == '+') {
       ++i;
     }
-    while (i < string.size() && string.containsDigit(i)) {
+    while (i < string.size() && string.hasDigit(i)) {
       ++i;
     }
     if (i < string.size() && string[i] == '.') {
       ++i;
-      while (i < string.size() && string.containsDigit(i)) {
+      while (i < string.size() && string.hasDigit(i)) {
         ++i;
       }
       status.setOk();
@@ -124,7 +124,7 @@ il::Dynamic TomlParser::parseNumber(il::io_t, il::ConstStringView& string,
   // Check that there is no leading 0
   if (i + 1 < string.size() && string[i] == '0' &&
       !(string[i + 1] == '.' || string[i + 1] == ' ' ||
-        string.containsNewLine(i + 1))) {
+          string.hasNewLine(i + 1))) {
     status.setError(il::Error::ParseNumber);
     IL_SET_SOURCE(status);
     status.setInfo("line", line_number_);
@@ -133,11 +133,11 @@ il::Dynamic TomlParser::parseNumber(il::io_t, il::ConstStringView& string,
 
   // Skip the digits (there should be at least one) before the '.' ot the 'e'
   const il::int_t i_begin_number = i;
-  while (i < string.size() && string.containsDigit(i)) {
+  while (i < string.size() && string.hasDigit(i)) {
     ++i;
     if (i < string.size() && string[i] == '_') {
       ++i;
-      if (i == string.size() || (!string.containsDigit(i + 1))) {
+      if (i == string.size() || (!string.hasDigit(i + 1))) {
         status.setError(il::Error::ParseNumber);
         IL_SET_SOURCE(status);
         status.setInfo("line", line_number_);
@@ -178,7 +178,7 @@ il::Dynamic TomlParser::parseNumber(il::io_t, il::ConstStringView& string,
     // Skip the digits (there should be at least one). Note that trailing 0
     // are accepted.
     const il::int_t i_begin_number = i;
-    while (i < string.size() && string.containsDigit(i)) {
+    while (i < string.size() && string.hasDigit(i)) {
       ++i;
     }
     if (i == i_begin_number) {
@@ -198,7 +198,7 @@ il::Dynamic TomlParser::parseNumber(il::io_t, il::ConstStringView& string,
         ++i;
       }
       const il::int_t i_begin_exponent = i;
-      while (i < string.size() && string.containsDigit(i)) {
+      while (i < string.size() && string.hasDigit(i)) {
         ++i;
       }
       if (i == i_begin_exponent) {
@@ -633,7 +633,7 @@ il::String TomlParser::parseKey(char end, il::io_t, il::ConstStringView& string,
       return key;
     }
 
-    // Check if the key contains forbidden characters
+    // Check if the key has forbidden characters
     il::ConstStringView key_string = string.substring(0, j);
     string.removePrefix(j_end);
 
