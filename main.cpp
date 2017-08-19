@@ -8,13 +8,15 @@
 //==============================================================================
 
 #include <iostream>
-#include <string>
 
 #include <il/String.h>
 
 int main() {
-  std::string s0 = "Francois";
-  il::String s1 = il::toString(s0);
+  il::String s = "François";
+
+  il::String sub0 = s.prefix(4);
+  il::String sub1 = s.suffix(3);
+  il::String sub2 = s.substring(1, 4);
 
   return 0;
 }

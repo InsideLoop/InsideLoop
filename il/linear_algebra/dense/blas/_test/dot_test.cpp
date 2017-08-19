@@ -12,6 +12,7 @@
 #include <il/linear_algebra/dense/blas/dot.h>
 #include <il/math.h>
 
+#ifdef IL_BLAS
 TEST(dot, matrix_vector_f_0) {
   il::Array2D<double> A{il::value, {{1.0, 2.0}, {3.0, 4.0}, {5.0, 6.0}}};
   il::Array<double> x{il::value, {1.0, 2.0, 3.0}};
@@ -170,3 +171,4 @@ TEST(dot, matrix_c_simd_1) {
 
   ASSERT_TRUE(C.size(0) == 1 && C.size(1) == 3 && error <= 1.0e-15);
 }
+#endif

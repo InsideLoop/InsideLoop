@@ -62,7 +62,7 @@ inline il::int_t cstringSizeType(const char* s, il::io_t, bool& is_ascii) {
   return n;
 }
 
-inline il::int_t cstringSize(const char* data) {
+inline il::int_t size(const char* data) {
   il::int_t i = 0;
   while (data[i] != '\0') {
     ++i;
@@ -231,6 +231,10 @@ class String {
   void append(il::int_t n, int rune);
   void append(const char* data, il::int_t n);
   void append(il::StringType type, const char* data, il::int_t n);
+
+  il::String substring(il::int_t i0, il::int_t i1) const;
+  il::String prefix(il::int_t n) const;
+  il::String suffix(il::int_t n) const;
 
   void clear();
 
@@ -454,7 +458,7 @@ inline il::int_t String::capacity() const {
 }
 
 inline bool String::isRuneBoundary(il::int_t i) const {
-  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <=
                    static_cast<std::size_t>(size()));
 
   const char* data = this->data();
@@ -547,6 +551,40 @@ inline void String::append(il::StringType type, const char* data, il::int_t n) {
     large_.data = new_data;
     setLarge(new_type, old_size + n, new_capacity);
   }
+}
+
+inline il::String String::substring(il::int_t i0, il::int_t i1) const {
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i0) <=
+                   static_cast<std::size_t>(size()));
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i1) <=
+                   static_cast<std::size_t>(size()));
+  IL_EXPECT_MEDIUM(i0 <= i1);
+
+  if (type() == il::StringType::Utf8) {
+    IL_EXPECT_MEDIUM(isRuneBoundary(i0));
+    IL_EXPECT_MEDIUM(isRuneBoundary(i1));
+  }
+  return il::String{type(), data_ + i0, i1 - i0};
+}
+
+inline il::String String::suffix(il::int_t n) const {
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(n) <=
+                   static_cast<std::size_t>(size()));
+
+  if (type() == il::StringType::Utf8) {
+    IL_EXPECT_MEDIUM(isRuneBoundary(size() - n));
+  }
+  return il::String{type(), data_ + size() - n, n};
+}
+
+inline String String::prefix(il::int_t n) const {
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(n) <=
+                   static_cast<std::size_t>(size()));
+
+  if (type() == il::StringType::Utf8) {
+    IL_EXPECT_MEDIUM(isRuneBoundary(n));
+  }
+  return il::String{type(), data_, n};
 }
 
 template <il::int_t m>
@@ -880,7 +918,6 @@ inline bool String::operator==(const il::String& other) const {
   }
 }
 
-
 inline bool String::isEqual(const char* data) const {
   bool ans = true;
   const char* p = begin();
@@ -1110,11 +1147,12 @@ inline bool operator<(const char* s0, const il::String& s1) {
 }
 
 inline il::String toString(const std::string& s) {
-  return il::String{il::StringType::Bytes, s.c_str(), static_cast<il::int_t>(s.size())};
+  return il::String{il::StringType::Bytes, s.c_str(),
+                    static_cast<il::int_t>(s.size())};
 }
 
 inline il::String toString(const char* s) {
-  return il::String{il::StringType::Bytes, s, il::cstringSize(s)};
+  return il::String{il::StringType::Bytes, s, il::size(s)};
 }
 
 }  // namespace il

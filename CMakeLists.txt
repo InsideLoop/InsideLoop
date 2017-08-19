@@ -303,7 +303,10 @@ set(UNIT_TEST_FILES
     il/linear_algebra/sparse/factorization/_test/GmresIlu0_test.cpp
     il/io/_test/numpy_test.cpp
     il/io/toml/_test/toml_valid_test.cpp
-    gtest/src/gtest-all.cc il/core/_test/Status_test.cpp il/MapArray.h il/container/string/_test/StringView_test.cpp)
+    gtest/src/gtest-all.cc
+    il/core/_test/Status_test.cpp
+    il/MapArray.h
+    il/container/string/_test/StringView_test.cpp)
 
 add_executable(InsideLoopUnitTest ${SOURCE_FILES} ${UNIT_TEST_FILES} test.cpp)
 
@@ -390,11 +393,11 @@ endif()
 #if (NOT BENCHMARK_USE_LIBCXX)
 #    add_cxx_compiler_flag(-Wzero-as-null-pointer-constant)
 #endif()
-if (HAVE_CXX_FLAG_FSTRICT_ALIASING)
-    if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "Intel") #ICC17u2: Many false positives for Wstrict-aliasing
-        add_cxx_compiler_flag(-Wstrict-aliasing)
-    endif()
-endif()
+#if (HAVE_CXX_FLAG_FSTRICT_ALIASING)
+#    if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "Intel") #ICC17u2: Many false positives for Wstrict-aliasing
+#        add_cxx_compiler_flag(-Wstrict-aliasing)
+#    endif()
+#endif()
 # ICC17u2: overloaded virtual function "benchmark::Fixture::SetUp" is only partially overridden
 # (because of deprecated overload)
 add_cxx_compiler_flag(-wd654)
@@ -412,19 +415,19 @@ if (CYGWIN)
 endif()
 
 # Link time optimisation
-if (BENCHMARK_ENABLE_LTO)
-    add_cxx_compiler_flag(-flto)
-    if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU")
-        find_program(GCC_AR gcc-ar)
-        if (GCC_AR)
-            set(CMAKE_AR ${GCC_AR})
-        endif()
-        find_program(GCC_RANLIB gcc-ranlib)
-        if (GCC_RANLIB)
-            set(CMAKE_RANLIB ${GCC_RANLIB})
-        endif()
-    endif()
-endif()
+#if (BENCHMARK_ENABLE_LTO)
+#    add_cxx_compiler_flag(-flto)
+#    if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU")
+#        find_program(GCC_AR gcc-ar)
+#        if (GCC_AR)
+#            set(CMAKE_AR ${GCC_AR})
+#        endif()
+#        find_program(GCC_RANLIB gcc-ranlib)
+#        if (GCC_RANLIB)
+#            set(CMAKE_RANLIB ${GCC_RANLIB})
+#        endif()
+#    endif()
+#endif()
 
 # Coverage build type
 set(CMAKE_CXX_FLAGS_COVERAGE "${CMAKE_CXX_FLAGS_DEBUG}" CACHE STRING
@@ -448,21 +451,20 @@ set(CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}" CACHE STRING
 add_cxx_compiler_flag(--coverage COVERAGE)
 
 if (BENCHMARK_USE_LIBCXX)
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-add_cxx_compiler_flag(-stdlib=libc++)
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
-"${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
-add_cxx_compiler_flag(-nostdinc++)
-message("libc++ header path must be manually specified using CMAKE_CXX_FLAGS")
-# Adding -nodefaultlibs directly to CMAKE_<TYPE>_LINKER_FLAGS will break
-# configuration checks such as 'find_package(Threads)'
-list(APPEND BENCHMARK_CXX_LINKER_FLAGS -nodefaultlibs)
-# -lc++ cannot be added directly to CMAKE_<TYPE>_LINKER_FLAGS because
-# linker flags appear before all linker inputs and -lc++ must appear after.
-list(APPEND BENCHMARK_CXX_LIBRARIES c++)
-else()
-message(FATAL "-DBENCHMARK_USE_LIBCXX:BOOL=ON is not supported for compiler")
-endif()
+  if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    add_cxx_compiler_flag(-stdlib=libc++)
+  elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+    add_cxx_compiler_flag(-nostdinc++)
+    message("libc++ header path must be manually specified using CMAKE_CXX_FLAGS")
+    # Adding -nodefaultlibs directly to CMAKE_<TYPE>_LINKER_FLAGS will break
+    # configuration checks such as 'find_package(Threads)'
+    list(APPEND BENCHMARK_CXX_LINKER_FLAGS -nodefaultlibs)
+    # -lc++ cannot be added directly to CMAKE_<TYPE>_LINKER_FLAGS because
+    # linker flags appear before all linker inputs and -lc++ must appear after.
+    list(APPEND BENCHMARK_CXX_LIBRARIES c++)
+  else()
+    message(FATAL "-DBENCHMARK_USE_LIBCXX:BOOL=ON is not supported for compiler")
+  endif()
 endif(BENCHMARK_USE_LIBCXX)
 
 # C++ feature checks
@@ -471,18 +473,14 @@ cxx_feature_check(STD_REGEX)
 cxx_feature_check(GNU_POSIX_REGEX)
 cxx_feature_check(POSIX_REGEX)
 if(NOT HAVE_STD_REGEX AND NOT HAVE_GNU_POSIX_REGEX AND NOT HAVE_POSIX_REGEX)
-message(FATAL_ERROR "Failed to determine the source files for the regular expression backend")
+  message(FATAL_ERROR "Failed to determine the source files for the regular expression backend")
 endif()
-if (NOT BENCHMARK_ENABLE_EXCEPTIONS AND HAVE_STD_REGEX
-AND NOT HAVE_GNU_POSIX_REGEX AND NOT HAVE_POSIX_REGEX)
-message(WARNING "Using std::regex with exceptions disabled is not fully supported")
+if (NOT BENCHMARK_ENABLE_EXCEPTIONS AND HAVE_STD_REGEX AND NOT HAVE_GNU_POSIX_REGEX AND NOT HAVE_POSIX_REGEX)
+  message(WARNING "Using std::regex with exceptions disabled is not fully supported")
 endif()
 cxx_feature_check(STEADY_CLOCK)
 # Ensure we have pthreads
 find_package(Threads REQUIRED)
-
-
-
 
 set(BENCHMARK_FILES
     gbenchmark/src/benchmark.cc
@@ -523,7 +521,7 @@ find_package(Threads REQUIRED)
 add_executable(InsideLoopBenchmark ${SOURCE_FILES} ${BENCHMARK_FILES} benchmark.cpp)
 
 target_include_directories(InsideLoopBenchmark PUBLIC ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/gbenchmark/include)
-target_link_libraries(InsideLoopBenchmark ${CMAKE_MKL_LIBRARIES} ${CMAKE_PNG_LIBRARIES} ${CMAKE_OPENBLAS_LIBRARIES})
+target_link_libraries(InsideLoopBenchmark ${CMAKE_MKL_LIBRARIES} ${CMAKE_PNG_LIBRARIES} ${CMAKE_OPENBLAS_LIBRARIES} "pthread")
 
 if (APPLE)
     if (IL_MKL)

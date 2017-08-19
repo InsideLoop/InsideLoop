@@ -11,6 +11,7 @@
 
 #include <il/linear_algebra/dense/factorization/linearSolve.h>
 
+#ifdef IL_BLAS
 TEST(linear_solve, square_matrix_0) {
   il::int_t test_passed{false};
 
@@ -120,3 +121,4 @@ TEST(linear_solve, singular_matrix_1) {
 
   ASSERT_TRUE(test_passed);
 }
+#endif

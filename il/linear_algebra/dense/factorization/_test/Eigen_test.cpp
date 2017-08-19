@@ -12,6 +12,8 @@
 #include <gtest/gtest.h>
 
 #include <il/Array2D.h>
+
+#ifdef IL_BLAS
 #include <il/linear_algebra/dense/factorization/Eigen.h>
 
 bool complex_sort(std::complex<double> z0, std::complex<double> z1) {
@@ -100,3 +102,4 @@ TEST(Eigen, test3) {
               std::abs(ev[2] - result[2]) <= epsilon &&
               std::abs(ev[3] - result[3]) <= epsilon);
 }
+#endif

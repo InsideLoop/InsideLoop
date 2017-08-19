@@ -11,6 +11,7 @@
 
 #include <il/norm.h>
 
+#ifdef IL_BLAS
 TEST(norm_staticarray, L1) {
   il::StaticArray<double, 3> v{il::value, {-2.0, 0.5, 1.0}};
 
@@ -46,3 +47,4 @@ TEST(norm_array, Linf) {
 
   ASSERT_DOUBLE_EQ(il::norm(v, il::Norm::Linf), 2.0);
 }
+#endif
