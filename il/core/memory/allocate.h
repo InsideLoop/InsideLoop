@@ -14,6 +14,7 @@
 #include <cstdlib>
 
 #include <il/core/math/safe_arithmetic.h>
+#include <il/math.h>
 
 namespace il {
 
@@ -22,8 +23,9 @@ T* allocateArray(il::int_t n) {
   IL_EXPECT_FAST(n >= 0);
 
   const std::size_t u_n = static_cast<std::size_t>(n);
-  constexpr std::size_t u_max_integer =
-      static_cast<std::size_t>(1) << (sizeof(std::size_t) * 8 - sizeof(T));
+  const std::size_t u_max_integer =
+      static_cast<std::size_t>(1)
+      << (sizeof(std::size_t) * 8 - (1 + il::nextLog2(sizeof(T))));
   if (u_n >= u_max_integer) {
     il::abort();
   }

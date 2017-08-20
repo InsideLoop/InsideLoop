@@ -204,6 +204,7 @@ class String {
 
  public:
   String();
+  String(char c);
   template <il::int_t m>
   String(const char (&data)[m]);
   template <il::int_t m>
@@ -300,6 +301,12 @@ class String {
 inline String::String() {
   data_[0] = '\0';
   setSmall(il::StringType::Ascii, 0);
+}
+
+inline String::String(char c) {
+  data_[0] = c;
+  data_[1] = '\0';
+  setSmall(il::StringType::Ascii, 1);
 }
 
 template <il::int_t m>

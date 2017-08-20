@@ -13,8 +13,6 @@
 #include <cmath>
 #include <complex>
 
-#include <il/container/1d/Array.h>
-
 namespace il {
 
 template <typename T>
@@ -40,17 +38,6 @@ T min(T a, T b, T c, T d) {
   return min(min(a, b), min(c, d));
 }
 
-template <typename T>
-T min(const il::Array<T>& A) {
-  IL_EXPECT_FAST(A.size() > 0);
-  T ans{A[0]};
-  for (il::int_t k = 0; k < A.size(); ++k) {
-    if (A[k] < ans) {
-      ans = A[k];
-    }
-  }
-  return ans;
-}
 
 //template <typename T>
 //T max(T a, T b, T c) {
@@ -63,62 +50,6 @@ T min(const il::Array<T>& A) {
 //  return max(max(a, b), max(c, d));
 //}
 
-template <typename T>
-T max(const il::Array<T>& v) {
-  IL_EXPECT_FAST(v.size() > 0);
-  T max{v[0]};
-  for (il::int_t k = 0; k < v.size(); ++k) {
-    if (v[k] > max) {
-      max = v[k];
-    }
-  }
-  return max;
-}
-
-template <typename T>
-T mean(const il::Array<T>& v) {
-  IL_EXPECT_FAST(v.size() > 0);
-  T ans = 0;
-  for (il::int_t i = 0; i < v.size(); ++i) {
-    ans += v[i];
-  }
-  ans /= v.size();
-  return ans;
-}
-
-template <typename T>
-T sigma(const il::Array<T>& v) {
-  IL_EXPECT_FAST(v.size() > 1);
-  T mean = 0;
-  for (il::int_t i = 0; i < v.size(); ++i) {
-    mean += v[i];
-  }
-  mean /= v.size();
-  T sigma = 0;
-  for (il::int_t i = 0; i < v.size(); ++i) {
-    sigma += (v[i] - mean) * (v[i] - mean);
-  }
-  sigma /= v.size() - 1;
-  sigma = std::sqrt(sigma);
-  return sigma;
-}
-
-template <typename T>
-void transvection(il::Array<T>& x, il::int_t k1, T lambda, il::int_t k2) {
-  x[k1] += lambda * x[k2];
-}
-
-template <typename T>
-void dilation(il::Array<T>& x, il::int_t k, T lambda) {
-  x[k] *= lambda;
-}
-
-template <typename T>
-void swap(il::Array<T>& x, il::int_t k1, il::int_t k2) {
-  T temp{x[k1]};
-  x[k1] = x[k2];
-  x[k2] = temp;
-}
 
 template <typename T>
 T abs(T x) {
@@ -244,7 +175,7 @@ static const int table_log2_64[64] = {
     62, 57, 46, 52, 38, 26, 32, 41, 50, 36, 17, 19, 29, 10, 13, 21,
     56, 45, 25, 31, 35, 16, 9,  12, 44, 24, 15, 8,  23, 7,  6,  5};
 
-inline int next_log2_64(std::uint64_t x) {
+inline int nextLog2(std::size_t x) {
   //  x |= x >> 1;
   //  x |= x >> 2;
   //  x |= x >> 4;
@@ -255,13 +186,12 @@ inline int next_log2_64(std::uint64_t x) {
   //      static_cast<il::int_t>((x * 0x07EDD5E59A4E28C2) >> 58);
   //
   //  return table_log2_64[index];
-  std::uint64_t power = 1;
+  std::size_t power = 1;
   int k = 0;
   while (power < x) {
     power *= 2;
     k += 1;
   }
-
   return k;
 }
 
