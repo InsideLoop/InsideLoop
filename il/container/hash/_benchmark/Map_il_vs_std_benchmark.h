@@ -46,7 +46,8 @@ static void IlMapString_Insert(benchmark::State& state) {
   il::Array<il::String> v{n};
   unsigned int k = 1234567891;
   for (il::int_t i = 0; i < n; ++i) {
-    v[i] = il::String{reinterpret_cast<const char*>(&k), sizeof(unsigned int)};
+    v[i] = il::String{il::StringType::Bytes, reinterpret_cast<const char*>(&k),
+                      sizeof(unsigned int)};
     k = 93u * k + 117u;
   }
 
@@ -80,7 +81,8 @@ static void IlMapString_Search(benchmark::State& state) {
   il::Array<il::String> v{n};
   unsigned int k = 1234567891;
   for (il::int_t i = 0; i < n; ++i) {
-    v[i] = il::String{reinterpret_cast<const char*>(&k), sizeof(unsigned int)};
+    v[i] = il::String{il::StringType::Bytes, reinterpret_cast<const char*>(&k),
+                      sizeof(unsigned int)};
     k = 93u * k + 117u;
   }
   il::Map<il::String, int> map{n};

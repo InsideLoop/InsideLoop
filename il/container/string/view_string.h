@@ -11,21 +11,20 @@
 #define IL_VIEW_STRING_H
 
 #include <il/String.h>
-#include <il/StringView.h>
 
 namespace il {
 
-inline ConstStringView view(const il::String& string) {
-  return ConstStringView{string.asCString(), string.size()};
+inline StringView view(const il::String& string) {
+  return StringView{string.type(), string.asCString(), string.size()};
 }
 
-inline ConstStringView view(const char* string) {
+inline StringView view(const char* string) {
   il::int_t size = 0;
   while (string[size] != '\0') {
     ++size;
   }
 
-  return ConstStringView{string, size};
+  return StringView{il::StringType::Bytes, string, size};
 }
 
 }  // namespace il

@@ -10,8 +10,13 @@
 #include <iostream>
 
 #include <il/String.h>
-#include <il/Map.h>
 
 int main() {
+  il::String s = "Hello!Hello!";
+  il::StringView v = s;
+
+  IL_UNUSED(v);
+  IL_UNUSED(s);
+
   return 0;
 }

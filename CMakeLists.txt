@@ -180,7 +180,6 @@ set(SOURCE_FILES
     il/Status.h
     il/String.h
     il/string_util.h
-    il/StringView.h
     il/Timer.h
     il/toml.h
     il/TriDiagonal.h
@@ -217,7 +216,6 @@ set(SOURCE_FILES
     il/container/hash/MapArray.h
     il/container/hash/Set.h
     il/container/string/String.h
-    il/container/string/StringView.h
     il/container/string/UTF16String.h
     il/container/string/unicode.h
     il/container/string/view_string.h

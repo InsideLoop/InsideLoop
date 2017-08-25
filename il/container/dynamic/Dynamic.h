@@ -88,7 +88,7 @@ class Dynamic {
   Dynamic(double value);
   template <il::int_t m>
   Dynamic(const char (&value)[m]);
-  Dynamic(const char* value, il::int_t n);
+  Dynamic(il::StringType t, const char* value, il::int_t n);
   Dynamic(const il::String& value);
   Dynamic(il::String&& value);
   Dynamic(const il::Array<il::Dynamic>& value);
@@ -183,9 +183,9 @@ inline Dynamic::Dynamic(const char (&value)[m]) {
   string_val_ = new il::String{value};
 }
 
-inline Dynamic::Dynamic(const char* value, il::int_t n) {
+inline Dynamic::Dynamic(il::StringType t, const char* value, il::int_t n) {
   type_ = il::Type::String;
-  string_val_ = new il::String{value, n};
+  string_val_ = new il::String{t, value, n};
 }
 
 inline Dynamic::Dynamic(const il::String& value) {

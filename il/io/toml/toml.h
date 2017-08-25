@@ -18,7 +18,6 @@
 
 #include <il/Array.h>
 #include <il/String.h>
-#include <il/StringView.h>
 #include <il/container/string/algorithm_string.h>
 
 #ifdef IL_WINDOWS
@@ -39,45 +38,45 @@ class TomlParser {
   TomlParser();
   il::MapArray<il::String, il::Dynamic> parse(const il::String &filename,
                                               il::io_t, il::Status &status);
-  il::ConstStringView skipWhitespaceAndComments(il::ConstStringView string,
+  il::StringView skipWhitespaceAndComments(il::StringView string,
                                                 il::io_t, il::Status &status);
-  il::Dynamic parseValue(il::io_t, il::ConstStringView &string,
+  il::Dynamic parseValue(il::io_t, il::StringView &string,
                          il::Status &status);
-  il::Dynamic parseArray(il::io_t, il::ConstStringView &string,
+  il::Dynamic parseArray(il::io_t, il::StringView &string,
                          il::Status &status);
   il::Dynamic parseValueArray(il::Type value_type, il::io_t,
-                              il::ConstStringView &string, il::Status &status);
+                              il::StringView &string, il::Status &status);
   il::Dynamic parseObjectArray(il::Type object_type, char delimiter, il::io_t,
-                               il::ConstStringView &string, il::Status &status);
-  il::Dynamic parseInlineTable(il::io_t, il::ConstStringView &string,
+                               il::StringView &string, il::Status &status);
+  il::Dynamic parseInlineTable(il::io_t, il::StringView &string,
                                il::Status &status);
-  void parseKeyValue(il::io_t, il::ConstStringView &string,
+  void parseKeyValue(il::io_t, il::StringView &string,
                      il::MapArray<il::String, il::Dynamic> &toml,
                      il::Status &status);
-  void checkEndOfLineOrComment(il::ConstStringView string, il::io_t,
+  void checkEndOfLineOrComment(il::StringView string, il::io_t,
                                il::Status &status);
   il::String currentLine() const;
-  il::Dynamic parseNumber(il::io_t, il::ConstStringView &string,
+  il::Dynamic parseNumber(il::io_t, il::StringView &string,
                           il::Status &status);
-  il::Type parseType(il::ConstStringView string, il::io_t, il::Status &status);
-  il::Dynamic parseBool(il::io_t, il::ConstStringView &string, Status &status);
+  il::Type parseType(il::StringView string, il::io_t, il::Status &status);
+  il::Dynamic parseBool(il::io_t, il::StringView &string, Status &status);
   il::String parseStringLiteral(char delimiter, il::io_t,
-                                il::ConstStringView &string,
+                                il::StringView &string,
                                 il::Status &status);
-  il::String parseEscapeCode(il::io_t, il::ConstStringView &string,
+  il::String parseEscapeCode(il::io_t, il::StringView &string,
                              il::Status &status);
-  il::String parseKey(char end, il::io_t, il::ConstStringView &string,
+  il::String parseKey(char end, il::io_t, il::StringView &string,
                       il::Status &status);
-  void parseTable(il::io_t, il::ConstStringView &string,
+  void parseTable(il::io_t, il::StringView &string,
                   il::MapArray<il::String, il::Dynamic> *&toml,
                   il::Status &status);
-  void parseSingleTable(il::io_t, il::ConstStringView &string,
+  void parseSingleTable(il::io_t, il::StringView &string,
                         il::MapArray<il::String, il::Dynamic> *&toml,
                         il::Status &status);
-  void parseTableArray(il::io_t, il::ConstStringView &string,
+  void parseTableArray(il::io_t, il::StringView &string,
                        il::MapArray<il::String, il::Dynamic> *&toml,
                        il::Status &status);
-  il::Dynamic parseString(il::io_t, il::ConstStringView &string,
+  il::Dynamic parseString(il::io_t, il::StringView &string,
                           il::Status &status);
 
  private:

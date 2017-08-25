@@ -75,7 +75,7 @@ TEST(String, append_0) {
 }
 
 TEST(String, append_1) {
-  il::String s{"Hello"};
+  il::String s = "Hello";
   s.append(" world! I am so happy to be there");
 
   ASSERT_TRUE(s.size() == 38 && !s.isSmall() && s.capacity() >= 38 &&
@@ -105,10 +105,10 @@ TEST(String, append_3) {
                                "Hello world! I am so happy to be there"));
 }
 
-TEST(String, append_4) {
-  il::String s = "HelloHelloHelloHello";
-  s.append(s);
-
-  ASSERT_TRUE(s.size() == 40 &&
-              s == "HelloHelloHelloHelloHelloHelloHelloHello");
-}
+//TEST(String, append_4) {
+//  il::String s = "HelloHelloHelloHello";
+//  s.append(s);
+//
+//  ASSERT_TRUE(s.size() == 40 &&
+//              s == "HelloHelloHelloHelloHelloHelloHelloHello");
+//}

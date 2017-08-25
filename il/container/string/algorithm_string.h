@@ -13,7 +13,6 @@
 #include <cstdio>
 
 #include <il/String.h>
-#include <il/StringView.h>
 #include <il/container/string/view_string.h>
 
 namespace il {
@@ -27,7 +26,7 @@ inline il::String toString(il::int_t n) {
   return ans;
 }
 
-inline il::ConstStringView removeWhitespaceLeft(ConstStringView string) {
+inline il::StringView removeWhitespaceLeft(StringView string) {
   il::int_t i = 0;
   while (i < string.size() && (string[i] == ' ' || string[i] == '\t')) {
     ++i;
@@ -37,7 +36,7 @@ inline il::ConstStringView removeWhitespaceLeft(ConstStringView string) {
   return string;
 }
 
-inline il::int_t search(ConstStringView a, ConstStringView b) {
+inline il::int_t search(StringView a, StringView b) {
   const il::int_t na = a.size();
   const il::int_t nb = b.size();
   il::int_t k = 0;
@@ -59,7 +58,7 @@ inline il::int_t search(ConstStringView a, ConstStringView b) {
   return -1;
 }
 
-inline il::int_t search(const char* a, ConstStringView b) {
+inline il::int_t search(const char* a, StringView b) {
   return il::search(il::view(a), b);
 }
 
@@ -67,11 +66,12 @@ inline il::int_t search(const String& a, const String& b) {
   return il::search(il::view(a), il::view(b));
 }
 
-inline il::int_t search(const char* a, const String& b) {
-  return il::search(ConstStringView{a}, il::view(b));
+template <il::int_t m>
+inline il::int_t search(const char (&s)[m], const String& b) {
+  return il::search(StringView{s}, il::view(b));
 }
 
-inline il::int_t count(char c, ConstStringView a) {
+inline il::int_t count(char c, StringView a) {
   IL_EXPECT_FAST(static_cast<unsigned char>(c) < 128);
 
   il::int_t ans = 0;

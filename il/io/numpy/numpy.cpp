@@ -10,7 +10,6 @@
 #include <il/io/numpy/numpy.h>
 
 #include <il/String.h>
-#include <il/StringView.h>
 #include <il/container/string/algorithm_string.h>
 
 namespace il {
@@ -20,7 +19,7 @@ NumpyInfo getNumpyInfo(il::io_t, std::FILE* fp, il::Status& status) {
 
   char first_buffer[11];
   first_buffer[10] = '\0';
-  il::StringView buffer{first_buffer, 10};
+  il::StringView buffer{il::StringType::Bytes, first_buffer, 10};
 
   // Read the first 10 bytes of the files. It should contain:
   // - The magic string "\x93NUMPY"
@@ -29,13 +28,13 @@ NumpyInfo getNumpyInfo(il::io_t, std::FILE* fp, il::Status& status) {
   // - The number of bytes for the header length
   //
   std::size_t count = 10;
-  const std::size_t read = fread(buffer.begin(), sizeof(char), count, fp);
+  const std::size_t read = fread(first_buffer, sizeof(char), count, fp);
   if (read != count) {
     status.setError(il::Error::BinaryFileWrongFormat);
     IL_SET_SOURCE(status);
     return numpy_info;
   }
-  if (!(buffer.substring(0, 6) == "\x93NUMPY")) {
+  if (!(buffer.subview(0, 6) == "\x93NUMPY")) {
     status.setError(il::Error::BinaryFileWrongFormat);
     IL_SET_SOURCE(status);
     return numpy_info;
@@ -43,7 +42,7 @@ NumpyInfo getNumpyInfo(il::io_t, std::FILE* fp, il::Status& status) {
   char major_version = buffer[6];
   char minor_version = buffer[7];
   unsigned short header_length =
-      *reinterpret_cast<unsigned short*>(buffer.begin() + 8);
+      *reinterpret_cast<unsigned short*>(first_buffer + 8);
   if (major_version != 1 || minor_version != 0) {
     status.setError(il::Error::BinaryFileWrongFormat);
     IL_SET_SOURCE(status);
@@ -53,8 +52,8 @@ NumpyInfo getNumpyInfo(il::io_t, std::FILE* fp, il::Status& status) {
   // Read the header
   //
   il::Array<char> second_buffer{header_length + 1};
-  StringView header = StringView{second_buffer.begin(), header_length + 1};
-  char* success = fgets(header.asCString(), header_length + 1, fp);
+  StringView header = StringView{il::StringType::Bytes, second_buffer.begin(), header_length + 1};
+  char* success = fgets(second_buffer.begin(), header_length + 1, fp);
   if (success == nullptr || !(header[header.size() - 2] == '\n')) {
     status.setError(il::Error::BinaryFileWrongFormat);
     IL_SET_SOURCE(status);
@@ -76,9 +75,9 @@ NumpyInfo getNumpyInfo(il::io_t, std::FILE* fp, il::Status& status) {
     return numpy_info;
   }
 
-  ConstStringView type_string = header.substring(i4 + 10);
+  StringView type_string = header.subview(i4 + 10, header.size());
   const il::int_t i5 = il::search("'", type_string);
-  numpy_info.type = il::String{type_string.asCString(), i5};
+  numpy_info.type = il::String{il::StringType::Bytes, type_string.data(), i5};
 
   // Read the ordering for multidimensional arrays
   //
@@ -89,7 +88,7 @@ NumpyInfo getNumpyInfo(il::io_t, std::FILE* fp, il::Status& status) {
     return numpy_info;
   }
 
-  ConstStringView fortran_order_string = header.substring(i0 + 16, i0 + 20);
+  StringView fortran_order_string = header.subview(i0 + 16, i0 + 20);
   numpy_info.fortran_order = (fortran_order_string == "True") ? true : false;
 
   // Read the dimensions
@@ -101,7 +100,7 @@ NumpyInfo getNumpyInfo(il::io_t, std::FILE* fp, il::Status& status) {
     IL_SET_SOURCE(status);
     return numpy_info;
   }
-  ConstStringView shape_string = header.substring(i1 + 1, i2);
+  StringView shape_string = header.subview(i1 + 1, i2);
   if (shape_string.back(0) == ',') {
     numpy_info.shape.resize(1);
   } else {
@@ -115,7 +114,7 @@ NumpyInfo getNumpyInfo(il::io_t, std::FILE* fp, il::Status& status) {
       break;
     }
     const il::int_t i3 = il::search(",", shape_string);
-    shape_string = shape_string.substring(i3 + 1, shape_string.size());
+    shape_string = shape_string.subview(i3 + 1, shape_string.size());
     ++i;
   }
 
@@ -165,7 +164,7 @@ void saveNumpyInfo(const NumpyInfo& numpy_info, il::io_t, std::FILE* fp,
   magic.append(static_cast<char>(0x00));
   // Size of the header
   unsigned short short_int = static_cast<unsigned short>(header.size());
-  magic.append(reinterpret_cast<char*>(&short_int), 2);
+  magic.append(il::StringType::Bytes, reinterpret_cast<char*>(&short_int), 2);
   magic.append(header);
 
   std::size_t written = std::fwrite(magic.asCString(), sizeof(char),

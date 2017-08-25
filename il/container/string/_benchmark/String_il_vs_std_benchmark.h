@@ -45,23 +45,23 @@ static void StdStringConstruct_2(benchmark::State& state) {
   }
 }
 
-static void IlStringAppend_0(benchmark::State& state) {
-  while (state.KeepRunning()) {
-    il::String s0 = "Hello";
-    il::String s1 = "world";
-    s0.append(" ", s1, "!");
-    benchmark::DoNotOptimize(s0.data());
-  }
-}
-
-static void StdStringAppend_0(benchmark::State& state) {
-  while (state.KeepRunning()) {
-    std::string s0 = "Hello";
-    std::string s1 = "world";
-    s0 = s0 + " " + s1 + "!";
-    benchmark::DoNotOptimize(s0.data());
-  }
-}
+//static void IlStringAppend_0(benchmark::State& state) {
+//  while (state.KeepRunning()) {
+//    il::String s0 = "Hello";
+//    il::String s1 = "world";
+//    s0.append(" ", s1, "!");
+//    benchmark::DoNotOptimize(s0.data());
+//  }
+//}
+//
+//static void StdStringAppend_0(benchmark::State& state) {
+//  while (state.KeepRunning()) {
+//    std::string s0 = "Hello";
+//    std::string s1 = "world";
+//    s0 = s0 + " " + s1 + "!";
+//    benchmark::DoNotOptimize(s0.data());
+//  }
+//}
 
 BENCHMARK(IlStringConstruct_0);
 BENCHMARK(StdStringConstruct_0);
@@ -69,5 +69,5 @@ BENCHMARK(IlStringConstruct_1);
 BENCHMARK(StdStringConstruct_1);
 BENCHMARK(IlStringConstruct_2);
 BENCHMARK(StdStringConstruct_2);
-BENCHMARK(IlStringAppend_0);
-BENCHMARK(StdStringAppend_0);
+//BENCHMARK(IlStringAppend_0);
+//BENCHMARK(StdStringAppend_0);

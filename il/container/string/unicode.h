@@ -78,7 +78,7 @@ namespace il {
 
 // inline il::UTF16String toUtf16(const il::String& string) {
 //  il::UTF16String ans{};
-//  il::ConstStringView view{string.data(), string.size()};
+//  il::StringView view{string.data(), string.size()};
 //
 //  for (il::int_t i = 0; i < view.size(); i = view.nextRune(i)) {
 //    ans.append(view.rune(i));

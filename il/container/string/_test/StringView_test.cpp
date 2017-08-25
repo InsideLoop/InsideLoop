@@ -10,11 +10,10 @@
 #include <gtest/gtest.h>
 
 #include <il/String.h>
-#include <il/StringView.h>
 
 TEST(StringView, Rune_0) {
   il::String s = "abc";
-  il::StringView sv{s.data(), s.size()};
+  il::StringView sv = s;
 
   const il::int_t i0 = 0;
   const il::int_t i1 = sv.nextRune(i0);
@@ -27,7 +26,7 @@ TEST(StringView, Rune_0) {
 
 TEST(StringView, Rune_1) {
   il::String s = u8"nço";
-  il::StringView sv{s.data(), s.size()};
+  il::StringView sv = s;
 
   const il::int_t i0 = 0;
   const il::int_t i1 = sv.nextRune(i0);
