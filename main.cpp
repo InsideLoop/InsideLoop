@@ -15,6 +15,7 @@
 #include <il/String.h>
 
 int main() {
+  il::Array<il::int_t> z{il::value, {1, 2, 3}};
   il::Array<double> a{il::value, {1.0, 2.0, 3.0}};
   il::Array2D<double> b{il::value, {{1.0, 2.0, 3.0}, {4.0, 5.0, 6.0}}};
   il::Array2C<double> c{il::value, {{1.0, 2.0, 3.0}, {4.0, 5.0, 6.0}}};

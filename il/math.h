@@ -13,6 +13,8 @@
 #include <cmath>
 #include <complex>
 
+#include <il/base.h>
+
 namespace il {
 
 template <typename T>
