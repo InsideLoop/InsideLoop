@@ -297,7 +297,7 @@ il::int_t Set<T, F>::nbBuckets() const {
 template <typename T, typename F>
 il::int_t Set<T, F>::nbBuckets(int p) const {
   return (p >= 0) ? static_cast<il::int_t>(static_cast<std::size_t>(1) << p)
-                   : 0;
+                  : 0;
 }
 
 template <typename T, typename F>

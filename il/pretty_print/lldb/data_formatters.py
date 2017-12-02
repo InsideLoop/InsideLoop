@@ -24,6 +24,7 @@ def __lldb_init_module (debugger, dict):
     debugger.HandleCommand("type synthetic add -x \"il::Array<\" --python-class data_formatters.ArrayProvider")
     debugger.HandleCommand("type synthetic add -x \"il::StaticArray<\" --python-class data_formatters.StaticArrayProvider")
     debugger.HandleCommand("type synthetic add -x \"il::Array2D<\" --python-class data_formatters.Array2DProvider")
+    debugger.HandleCommand("type synthetic add -x \"il::StaticArray2D<\" --python-class data_formatters.StaticArray2DProvider")
     debugger.HandleCommand("type synthetic add -x \"il::Array2C<\" --python-class data_formatters.Array2CProvider")
     debugger.HandleCommand("type synthetic add -x \"il::Array3D<\" --python-class data_formatters.Array3DProvider")
     debugger.HandleCommand("type synthetic add -x \"il::Array3C<\" --python-class data_formatters.Array3CProvider")
@@ -72,29 +73,13 @@ class ArrayProvider:
 class StaticArrayProvider:
     def __init__(self, valobj, internal_dict):
         self.valobj = valobj
-        self.data = self.valobj.GetChildMemberWithName('data_').GetChildAtIndex(0)
-        self.data_type = self.data.GetType()
-        self.type_size = self.data_type.GetByteSize()
-        self.size = self.valobj.GetChildMemberWithName('size_')
+        self.data = self.valobj.GetChildMemberWithName('data_')
 
     def num_children(self):
-        return self.size
-
-    def get_child_index(self, name):
-        try:
-            return int(name.lstrip('[').rstrip(']'))
-        except:
-            return -1
+        return self.data.GetNumChildren()
 
     def get_child_at_index(self, index):
-        if index < 0:
-            return None
-        if index >= self.num_children():
-            return None
-        try:
-            return self.valobj.GetChildMemberWithName('data_').CreateChildAtIndex('[' + str(index) + ']', index)
-        except:
-            return None
+        return self.data.GetChildAtIndex(index)
 
 class Array2DProvider:
     def __init__(self, valobj, internal_dict):
@@ -167,6 +152,19 @@ class Array2CProvider:
                 '[' + str(i) + ", " + str(j) + ']', offset, self.data_type)
         except:
             return None
+
+class StaticArray2DProvider:
+    def __init__(self, valobj, internal_dict):
+        self.valobj = valobj
+        self.data = self.valobj.GetChildMemberWithName('data_')
+        self.size_0 = self.valobj.GetChildMemberWithName('size_0_')
+        self.size_1 = self.valobj.GetChildMemberWithName('size_1_')
+
+    def num_children(self):
+        return self.data.GetNumChildren()
+
+    def get_child_at_index(self, index):
+        return self.data.GetChildAtIndex(index)
 
 class Array3DProvider:
     def __init__(self, valobj, internal_dict):

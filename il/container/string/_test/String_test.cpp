@@ -48,7 +48,8 @@ TEST(String, c_string_constructor_2) {
   il::String s = "A quite\0 large string !!!";
   const char* p = s.asCString();
 
-  ASSERT_TRUE(s.size() == 25 && !s.isSmall() && 0 == std::strcmp(p, "A quite\0 large string !!!"));
+  ASSERT_TRUE(s.size() == 25 && !s.isSmall() &&
+              0 == std::strcmp(p, "A quite\0 large string !!!"));
 }
 
 TEST(String, reserve_0) {
@@ -114,7 +115,7 @@ TEST(String, append_3) {
                                "Hello world! I am so happy to be there"));
 }
 
-//TEST(String, append_4) {
+// TEST(String, append_4) {
 //  il::String s = "HelloHelloHelloHello";
 //  s.append(s);
 //

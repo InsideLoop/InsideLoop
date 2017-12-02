@@ -1268,9 +1268,8 @@ inline il::int_t StringView::size() const { return size_ - data_; }
 
 inline bool String::isSmall() const {
   return (static_cast<unsigned char>(small_[max_small_size_ + 1]) &
-      0x80_uchar) == 0x00_uchar;
+          0x80_uchar) == 0x00_uchar;
 }
-
 
 inline bool StringView::isEmpty() const { return size_ == data_; }
 

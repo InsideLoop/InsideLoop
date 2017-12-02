@@ -18,8 +18,8 @@
 
 #include <benchmark/benchmark.h>
 
-#include <vector>
 #include <il/Array.h>
+#include <vector>
 
 static void IlArray_Append(benchmark::State& state) {
   while (state.KeepRunning()) {

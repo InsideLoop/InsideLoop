@@ -61,7 +61,8 @@ NumpyInfo getNumpyInfo(il::io_t, std::FILE* fp, il::Status& status) {
   // Read the header
   //
   il::Array<char> second_buffer{header_length + 1};
-  StringView header = StringView{il::StringType::Bytes, second_buffer.begin(), header_length + 1};
+  StringView header = StringView{il::StringType::Bytes, second_buffer.begin(),
+                                 header_length + 1};
   char* success = fgets(second_buffer.begin(), header_length + 1, fp);
   if (success == nullptr || !(header[header.size() - 2] == '\n')) {
     status.setError(il::Error::BinaryFileWrongFormat);
@@ -141,7 +142,7 @@ void saveNumpyInfo(const NumpyInfo& numpy_info, il::io_t, std::FILE* fp,
   header.append(numpy_info.type);
   // ordering
   header.append("', 'fortran_order': ");
-  if (numpy_info.fortran_order){
+  if (numpy_info.fortran_order) {
     header.append("True");
   } else {
     header.append("False");

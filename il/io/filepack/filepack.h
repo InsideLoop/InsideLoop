@@ -84,7 +84,8 @@ void auxLoad(il::int_t n, il::io_t, il::Map<il::String, il::Dynamic>& config,
     }
     il::Array<char> raw_string{size_string - 1};
     std::fread(raw_string.data(), sizeof(char), size_string - 1, file);
-    il::String string{raw_string.data(), size_string - 1};
+    il::String string{il::StringType::Bytes, raw_string.data(),
+                      size_string - 1};
     k += string.size() + 1;
 
     il::Type type;
@@ -96,23 +97,23 @@ void auxLoad(il::int_t n, il::io_t, il::Map<il::String, il::Dynamic>& config,
         bool value = false;
         std::fread(&value, sizeof(bool), 1, file);
         k += sizeof(bool);
-        config.set(std::move(string), il::Dynamic{value});
+        config.insert(std::move(string), il::Dynamic{value});
       } break;
       case il::Type::Integer: {
         const il::int_t value = readVarint(il::io, k, file);
-        config.set(std::move(string), il::Dynamic{value});
+        config.insert(std::move(string), il::Dynamic{value});
       } break;
       case il::Type::Float: {
         float value = 0.0f;
         std::fread(&value, sizeof(float), 1, file);
         k += sizeof(float);
-        config.set(std::move(string), il::Dynamic{value});
+        config.insert(std::move(string), il::Dynamic{value});
       } break;
       case il::Type::Double: {
         double value = 0.0;
         std::fread(&value, sizeof(double), 1, file);
         k += sizeof(double);
-        config.set(std::move(string), il::Dynamic{value});
+        config.insert(std::move(string), il::Dynamic{value});
       } break;
       case il::Type::String: {
         il::int_t size = 0;
@@ -121,8 +122,9 @@ void auxLoad(il::int_t n, il::io_t, il::Map<il::String, il::Dynamic>& config,
         il::Array<char> raw_value{size + 1};
         std::fread(raw_value.data(), sizeof(char), size + 1, file);
         k += size + 1;
-        il::String value = raw_value.data();
-        config.set(std::move(string), il::Dynamic{std::move(value)});
+        il::String value{il::StringType::Bytes, raw_value.data(),
+                         raw_value.size()};
+        config.insert(std::move(string), il::Dynamic{std::move(value)});
       } break;
       case il::Type::ArrayOfDouble: {
         il::int_t size = 0;
@@ -131,7 +133,7 @@ void auxLoad(il::int_t n, il::io_t, il::Map<il::String, il::Dynamic>& config,
         il::Array<double> v{size};
         std::fread(v.data(), sizeof(double), size, file);
         k += sizeof(double) * size;
-        config.set(std::move(string), il::Dynamic{std::move(v)});
+        config.insert(std::move(string), il::Dynamic{std::move(v)});
       } break;
       case il::Type::Array2dOfUint8: {
         il::int_t size0 = 0;
@@ -142,7 +144,7 @@ void auxLoad(il::int_t n, il::io_t, il::Map<il::String, il::Dynamic>& config,
         il::Array2D<unsigned char> A{size0, size1};
         std::fread(A.data(), sizeof(double), size0 * size1, file);
         k += sizeof(unsigned char) * size0 * size1;
-        config.set(std::move(string), il::Dynamic{std::move(A)});
+        config.insert(std::move(string), il::Dynamic{std::move(A)});
       } break;
       case il::Type::Array2dOfDouble: {
         il::int_t size0 = 0;
@@ -153,7 +155,7 @@ void auxLoad(il::int_t n, il::io_t, il::Map<il::String, il::Dynamic>& config,
         il::Array2D<double> v{size0, size1};
         std::fread(v.data(), sizeof(double), size0 * size1, file);
         k += sizeof(double) * size0 * size1;
-        config.set(std::move(string), il::Dynamic{std::move(v)});
+        config.insert(std::move(string), il::Dynamic{std::move(v)});
       } break;
       case il::Type::MapArray:
       case il::Type::Map: {
@@ -165,6 +167,7 @@ void auxLoad(il::int_t n, il::io_t, il::Map<il::String, il::Dynamic>& config,
                       il::Dynamic{il::Map<il::String, il::Dynamic>{n}}, il::io,
                       i);
         if (!config.found(i)) {
+          // Hello
         }
         il::Map<il::String, il::Dynamic>& config_inner =
             config.value(i).asMap();
@@ -292,9 +295,18 @@ class LoadHelperData<il::MapArray<il::String, il::Dynamic>> {
 
 #ifdef IL_UNIX
     std::FILE* file = std::fopen(filename.asCString(), "rb");
+    if (!file) {
+      status.setError(il::Error::FilesystemFileNotFound);
+      return ans;
+    }
 #else
     il::UTF16String filename_utf16 = il::toUtf16(filename);
-    std::FILE* file = _wfopen(filename_utf16.asWString(), L"rb");
+    std::FILE* file;
+    errno_t error_nb = _wfopen_s(&file, filename_utf16.asWString(), L"rb");
+    if (error_nb != 0) {
+      status.setError(il::Error::FilesystemFileNotFound);
+      return ans;
+    }
 #endif
 
     auxLoad(-1, il::io, ans, file);
@@ -319,9 +331,18 @@ class LoadHelperData<il::Map<il::String, il::Dynamic>> {
 
 #ifdef IL_UNIX
     std::FILE* file = std::fopen(filename.asCString(), "rb");
+    if (!file) {
+      status.setError(il::Error::FilesystemFileNotFound);
+      return ans;
+    }
 #else
     il::UTF16String filename_utf16 = il::toUtf16(filename);
-    std::FILE* file = _wfopen(filename_utf16.asWString(), L"rb");
+    std::FILE* file;
+    errno_t error_nb = _wfopen_s(&file, filename_utf16.asWString(), L"rb");
+    if (error_nb != 0) {
+      status.setError(il::Error::FilesystemFileNotFound);
+      return ans;
+    }
 #endif
 
     auxLoad(-1, il::io, ans, file);
@@ -442,9 +463,18 @@ class SaveHelperData<il::MapArray<il::String, il::Dynamic>> {
                    const il::String& filename, il::io_t, il::Status& status) {
 #ifdef IL_UNIX
     std::FILE* file = std::fopen(filename.asCString(), "wb");
+    if (!file) {
+      status.setError(il::Error::FilesystemFileNotFound);
+      return;
+    }
 #else
     il::UTF16String filename_utf16 = il::toUtf16(filename);
-    std::FILE* file = _wfopen(filename_utf16.asWString(), L"wb");
+    std::FILE* file;
+    errno_t error_nb = _wfopen_s(&file, filename_utf16.asWString(), L"wb");
+    if (error_nb != 0) {
+      status.setError(il::Error::FilesystemFileNotFound);
+      return;
+    }
 #endif
 
     il::int_t n = 0;

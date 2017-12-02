@@ -20,8 +20,8 @@
 
 #include <benchmark/benchmark.h>
 
-#include <il/String.h>
 #include <il/Map.h>
+#include <il/String.h>
 
 static void BM_MapCString(benchmark::State& state) {
   il::Map<il::String, int> map{7};
@@ -98,6 +98,4 @@ BENCHMARK(BM_Map);
 BENCHMARK(BM_SetMapCString);
 BENCHMARK(BM_SetMap);
 
-
 BENCHMARK_MAIN();
-

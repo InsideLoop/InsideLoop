@@ -47,7 +47,7 @@
 #if _WIN64
 #define IL_64_BIT
 #else
-#define IL-32_BIT
+#define IL -32_BIT
 #endif
 #endif
 

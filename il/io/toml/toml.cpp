@@ -16,15 +16,16 @@
 //
 //==============================================================================
 
-#include <il/io/toml/toml.h>
 #include <il/container/string/algorithm_string.h>
+#include <il/io/toml/toml.h>
 
 namespace il {
 
 TomlParser::TomlParser() {}
 
-il::StringView TomlParser::skipWhitespaceAndComments(
-    il::StringView string, il::io_t, il::Status& status) {
+il::StringView TomlParser::skipWhitespaceAndComments(il::StringView string,
+                                                     il::io_t,
+                                                     il::Status& status) {
   string.trimPrefix();
   while (string.isEmpty() || string[0] == '#' || string.startsWithNewLine()) {
     const char* error = std::fgets(buffer_line_, max_line_length_ + 1, file_);
@@ -133,7 +134,7 @@ il::Dynamic TomlParser::parseNumber(il::io_t, il::StringView& string,
   // Check that there is no leading 0
   if (i + 1 < string.size() && string[i] == '0' &&
       !(string[i + 1] == '.' || string[i + 1] == ' ' ||
-          string.hasNewLine(i + 1))) {
+        string.hasNewLine(i + 1))) {
     status.setError(il::Error::ParseNumber);
     IL_SET_SOURCE(status);
     status.setInfo("line", line_number_);
@@ -927,7 +928,8 @@ il::MapArray<il::String, il::Dynamic> TomlParser::parse(
   while (std::fgets(buffer_line_, max_line_length_ + 1, file_) != nullptr) {
     ++line_number_;
 
-    il::StringView line{il::StringType::Bytes, buffer_line_, il::size(buffer_line_)};
+    il::StringView line{il::StringType::Bytes, buffer_line_,
+                        il::size(buffer_line_)};
     line = il::removeWhitespaceLeft(line);
 
     if (line.isEmpty() || line.startsWithNewLine() || line[0] == '#') {

@@ -10,8 +10,8 @@
 #ifndef FMT_OSTREAM_H_
 #define FMT_OSTREAM_H_
 
-#include "format.h"
 #include <ostream>
+#include "format.h"
 
 namespace fmt {
 
@@ -58,7 +58,7 @@ struct DummyStream : std::ostream {
 
 No &operator<<(std::ostream &, int);
 
-template<typename T>
+template <typename T>
 struct ConvertToIntImpl<T, true> {
   // Convert to int only if T doesn't have an overloaded operator<<.
   enum {
@@ -72,8 +72,8 @@ FMT_API void write(std::ostream &os, Writer &w);
 
 // Formats a value.
 template <typename Char, typename ArgFormatter_, typename T>
-void format_arg(BasicFormatter<Char, ArgFormatter_> &f,
-                const Char *&format_str, const T &value) {
+void format_arg(BasicFormatter<Char, ArgFormatter_> &f, const Char *&format_str,
+                const T &value) {
   internal::MemoryBuffer<Char, internal::INLINE_BUFFER_SIZE> buffer;
 
   internal::FormatBuf<Char> format_buf(buffer);
@@ -81,7 +81,7 @@ void format_arg(BasicFormatter<Char, ArgFormatter_> &f,
   output << value;
 
   BasicStringRef<Char> str(&buffer[0], buffer.size());
-  typedef internal::MakeArg< BasicFormatter<Char> > MakeArg;
+  typedef internal::MakeArg<BasicFormatter<Char> > MakeArg;
   format_str = f.format(format_str, MakeArg(str));
 }
 
@@ -99,7 +99,7 @@ FMT_VARIADIC(void, print, std::ostream &, CStringRef)
 }  // namespace fmt
 
 #ifdef FMT_HEADER_ONLY
-# include "ostream.cc"
+#include "ostream.cc"
 #endif
 
 #endif  // FMT_OSTREAM_H_

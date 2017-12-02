@@ -56,7 +56,7 @@ static void StringJoin_0(benchmark::State& state) {
   while (state.KeepRunning()) {
     il::String s0 = "hello";
     il::String s1 = "world";
-    il::String s = il::join(s0, " ",  s1, "!");
+    il::String s = il::join(s0, " ", s1, "!");
 
     benchmark::DoNotOptimize(s0.data());
     benchmark::DoNotOptimize(s1.data());
@@ -64,7 +64,7 @@ static void StringJoin_0(benchmark::State& state) {
   }
 }
 
-//static void StringFFJoinLarge(benchmark::State& state) {
+// static void StringFFJoinLarge(benchmark::State& state) {
 //  while (state.KeepRunning()) {
 //    auto j1 = il::join("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz",
 //                       "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz");
@@ -87,10 +87,9 @@ static void StringJoin_0(benchmark::State& state) {
 //  }
 //}
 
-
 BENCHMARK(StringConstruct_Small_0);
 BENCHMARK(StringConstruct_Large);
 BENCHMARK(StringAppend_0);
 BENCHMARK(StringAppend_1);
 BENCHMARK(StringJoin_0);
-//BENCHMARK(StringFFJoinLarge);
+// BENCHMARK(StringFFJoinLarge);

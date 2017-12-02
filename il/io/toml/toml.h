@@ -47,12 +47,10 @@ class TomlParser {
   TomlParser();
   il::MapArray<il::String, il::Dynamic> parse(const il::String &filename,
                                               il::io_t, il::Status &status);
-  il::StringView skipWhitespaceAndComments(il::StringView string,
-                                                il::io_t, il::Status &status);
-  il::Dynamic parseValue(il::io_t, il::StringView &string,
-                         il::Status &status);
-  il::Dynamic parseArray(il::io_t, il::StringView &string,
-                         il::Status &status);
+  il::StringView skipWhitespaceAndComments(il::StringView string, il::io_t,
+                                           il::Status &status);
+  il::Dynamic parseValue(il::io_t, il::StringView &string, il::Status &status);
+  il::Dynamic parseArray(il::io_t, il::StringView &string, il::Status &status);
   il::Dynamic parseValueArray(il::Type value_type, il::io_t,
                               il::StringView &string, il::Status &status);
   il::Dynamic parseObjectArray(il::Type object_type, char delimiter, il::io_t,
@@ -65,13 +63,11 @@ class TomlParser {
   void checkEndOfLineOrComment(il::StringView string, il::io_t,
                                il::Status &status);
   il::String currentLine() const;
-  il::Dynamic parseNumber(il::io_t, il::StringView &string,
-                          il::Status &status);
+  il::Dynamic parseNumber(il::io_t, il::StringView &string, il::Status &status);
   il::Type parseType(il::StringView string, il::io_t, il::Status &status);
   il::Dynamic parseBool(il::io_t, il::StringView &string, Status &status);
   il::String parseStringLiteral(char delimiter, il::io_t,
-                                il::StringView &string,
-                                il::Status &status);
+                                il::StringView &string, il::Status &status);
   il::String parseEscapeCode(il::io_t, il::StringView &string,
                              il::Status &status);
   il::String parseKey(char end, il::io_t, il::StringView &string,
@@ -85,8 +81,7 @@ class TomlParser {
   void parseTableArray(il::io_t, il::StringView &string,
                        il::MapArray<il::String, il::Dynamic> *&toml,
                        il::Status &status);
-  il::Dynamic parseString(il::io_t, il::StringView &string,
-                          il::Status &status);
+  il::Dynamic parseString(il::io_t, il::StringView &string, il::Status &status);
 
  private:
   static bool containsDigit(char c);
@@ -279,14 +274,19 @@ class SaveHelper<il::Map<il::String, il::Dynamic>> {
                    const il::String &filename, il::io_t, il::Status &status) {
 #ifdef IL_UNIX
     std::FILE *file = std::fopen(filename.asCString(), "wb");
-#else
-    il::UTF16String filename_utf16 = il::toUtf16(filename);
-    std::FILE *file = _wfopen(filename_utf16.asWString(), L"wb");
-#endif
     if (!file) {
       status.setError(il::Error::FilesystemFileNotFound);
       return;
     }
+#else
+    il::UTF16String filename_utf16 = il::toUtf16(filename);
+    std::FILE *file;
+    errno_t error_nb = _wfopen_s(&file, filename_utf16.asWString(), L"wb");
+    if (error_nb != 0) {
+      status.setError(il::Error::FilesystemFileNotFound);
+      return;
+    }
+#endif
 
     il::String root_name{};
     save_aux(toml, root_name, il::io, file, status);
@@ -313,14 +313,19 @@ class SaveHelperToml<il::MapArray<il::String, il::Dynamic>> {
                    const il::String &filename, il::io_t, il::Status &status) {
 #ifdef IL_UNIX
     std::FILE *file = std::fopen(filename.asCString(), "wb");
-#else
-    il::UTF16String filename_utf16 = il::toUtf16(filename);
-    std::FILE *file = _wfopen(filename_utf16.asWString(), L"wb");
-#endif
     if (!file) {
       status.setError(il::Error::FilesystemFileNotFound);
       return;
     }
+#else
+    il::UTF16String filename_utf16 = il::toUtf16(filename);
+    std::FILE *file;
+    errno_t error_nb = _wfopen_s(&file, filename_utf16.asWString(), L"wb");
+    if (error_nb != 0) {
+      status.setError(il::Error::FilesystemFileNotFound);
+      return;
+    }
+#endif
 
     il::String root_name{};
     save_aux(toml, root_name, il::io, file, status);

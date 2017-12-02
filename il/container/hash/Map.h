@@ -238,7 +238,7 @@ Map<K, V, F>& Map<K, V, F>::operator=(const Map<K, V, F>& map) {
     if (old_p >= 0) {
       const il::int_t old_m = nbBuckets(old_p);
       for (il::int_t i = 0; i < old_m; ++i) {
-        if (!F::isEmpty(bucket_ + i) && !F::isTombstone(bucket_ + i)) {
+        if (!F::isEmpty(bucket_[i].key) && !F::isTombstone(bucket_[i].key)) {
           (&((bucket_ + i)->value))->~V();
           (&((bucket_ + i)->key))->~K();
         }
@@ -405,8 +405,8 @@ il::int_t Map<K, V, F>::searchCString(const char* key, il::int_t n) const {
   while (true) {
     if (F::isEmpty(bucket_[i].key)) {
       return (i_tombstone == static_cast<std::size_t>(-1))
-             ? -(1 + static_cast<il::int_t>(i))
-             : -(1 + static_cast<il::int_t>(i_tombstone));
+                 ? -(1 + static_cast<il::int_t>(i))
+                 : -(1 + static_cast<il::int_t>(i_tombstone));
     } else if (F::isTombstone(bucket_[i].key)) {
       i_tombstone = i;
     } else if (F::isEqual(bucket_[i].key, key, n)) {
@@ -452,7 +452,7 @@ bool Map<K, V, F>::found(il::int_t i) const {
 
 template <typename K, typename V, typename F>
 void Map<K, V, F>::insertCString(const char* key, const il::int_t n,
-                                 const V& value, il::io_t, il::int_t& i){
+                                 const V& value, il::io_t, il::int_t& i) {
   IL_EXPECT_FAST(!found(i));
 
   il::int_t i_local = -(1 + i);
@@ -660,7 +660,8 @@ const V& Map<K, V, F>::valueForCString(const char (&key)[m]) const {
 
 template <typename K, typename V, typename F>
 template <il::int_t m>
-const V& Map<K, V, F>::valueForCString(const char (&key)[m], const V& default_value) const {
+const V& Map<K, V, F>::valueForCString(const char (&key)[m],
+                                       const V& default_value) const {
   const il::int_t i = search(key);
   if (found(i)) {
     return value(i);

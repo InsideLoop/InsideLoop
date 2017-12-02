@@ -49,18 +49,16 @@ T min(T a, T b, T c, T d) {
   return min(min(a, b), min(c, d));
 }
 
-
-//template <typename T>
-//T max(T a, T b, T c) {
+// template <typename T>
+// T max(T a, T b, T c) {
 //  auto temp = T{max(b, c)};
 //  return a >= temp ? a : temp;
 //}
 //
-//template <typename T>
-//T max(T a, T b, T c, T d) {
+// template <typename T>
+// T max(T a, T b, T c, T d) {
 //  return max(max(a, b), max(c, d));
 //}
-
 
 template <typename T>
 T abs(T x) {

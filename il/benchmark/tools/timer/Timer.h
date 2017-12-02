@@ -24,6 +24,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <limits>
+#include <thread>
 
 #include <il/core/base.h>
 
@@ -41,6 +42,7 @@ class Timer {
   void stop();
   void reset();
   double time() const;
+  void sleepUntil(double time) const;
 };
 
 inline Timer::Timer() : point_begin_{} {
@@ -70,6 +72,19 @@ inline void Timer::reset() {
 }
 
 inline double Timer::time() const { return time_; }
+
+inline void Timer::sleepUntil(double time) const {
+  IL_EXPECT_FAST(launched_);
+  const double time_left =
+      time -
+      1.0e-9 * std::chrono::duration_cast<std::chrono::nanoseconds>(
+                   std::chrono::high_resolution_clock::now() - point_begin_)
+                   .count();
+  if (time_left > 0.0) {
+    std::this_thread::sleep_for(
+        std::chrono::nanoseconds{static_cast<std::size_t>(time_left * 1.0e9)});
+  }
+}
 
 class TimerCycles {
  private:

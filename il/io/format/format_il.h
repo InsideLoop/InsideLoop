@@ -19,8 +19,8 @@
 #ifndef IL_FORMAT_IL_H
 #define IL_FORMAT_IL_H
 
-#include <il/io/format/format.h>
 #include <il/String.h>
+#include <il/io/format/format.h>
 #include <string>
 
 namespace il {
@@ -32,6 +32,6 @@ il::String format(Args&&... args) {
   return ans;
 }
 
-}
+}  // namespace il
 
 #endif  // IL_FORMAT_IL_H
