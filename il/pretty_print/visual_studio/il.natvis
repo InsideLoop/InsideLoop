@@ -13,13 +13,19 @@
   </Expand>
 </Type>
 
+<Type Name="il::StaticArray&lt;*,*&gt;">
+    <DisplayString>{{ size={$T2} }}</DisplayString>
+    <Expand>
+        <ArrayItems>
+            <Size>$T2</Size>
+            <ValuePointer>data_</ValuePointer>
+        </ArrayItems>
+    </Expand>
+</Type>
+
 <Type Name="il::Array2D&lt;*&gt;">
-  <DisplayString>{{ size={size_[0] - data_} x {size_[1] - data_}}}</DisplayString>
+  <DisplayString>{{ size = ({size_[0] - data_}, {size_[1] - data_})}}</DisplayString>
   <Expand>
-    <Item Name="[size(0)]">size_[0] - data_</Item>
-    <Item Name="[size(1)]">size_[1] - data_</Item>
-    <Item Name="[capacity(0)]">capacity_[0] - data_</Item>
-    <Item Name="[capacity(1)]">capacity_[1] - data_</Item>
     <ArrayItems Condition="size_[0] != data_">
       <Direction>Backward</Direction>
       <Rank>2</Rank>
@@ -29,8 +35,60 @@
   </Expand>
 </Type>
 
+<Type Name="il::StaticArray2D&lt;*,*&gt;">
+    <DisplayString>{{ size= {$T2}, {$T3} }}</DisplayString>
+    <Expand>
+        <ArrayItems>
+        	<Direction>Backward</Direction>
+            <Rank>2</Rank>
+            <Size>$i == 0 ? $T2 : $T3</Size>
+            <ValuePointer>data_</ValuePointer>
+        </ArrayItems>
+    </Expand>
+</Type>
+
+<Type Name="il::Array2C&lt;*&gt;">
+  <DisplayString>{{ size = ({size_[0] - data_}, {size_[1] - data_})}}</DisplayString>
+  <Expand>
+    <ArrayItems Condition="size_[0] != data_">
+      <Direction>Forward</Direction>
+      <Rank>2</Rank>
+      <Size>size_[$i] - data_</Size>
+      <ValuePointer>data_</ValuePointer>
+    </ArrayItems>
+  </Expand>
+</Type>
+
+<Type Name="il::StaticArray2C&lt;*,*&gt;">
+    <DisplayString>{{ size= {$T2}, {$T3} }}</DisplayString>
+    <Expand>
+        <ArrayItems>
+        	<Direction>Forward</Direction>
+            <Rank>2</Rank>
+            <Size>$i == 0 ? $T2 : $T3</Size>
+            <ValuePointer>data_</ValuePointer>
+        </ArrayItems>
+    </Expand>
+</Type>
+
+<Type Name="il::Map&lt;*&gt;" Priority="Medium">
+    <DisplayString>{{ size = {nb_elements_} }}</DisplayString>
+    <Expand>
+        <Item Name="[nbElements]">nb_elements_</Item>
+        <Item Name="[nbTombstones]">nb_tombstones_</Item>
+        <Item Name="[nbBuckets]">size_</Item>
+    </Expand>
+</Type>
+
 <Type Name="il::String">
-	<DisplayString>{data_,s8}</DisplayString>
+  <DisplayString Condition="large_.capacity &lt; 4 * debug_small_large_">{small_,s8}</DisplayString>
+  <DisplayString Condition="large_.capacity &gt;= 4 * debug_small_large_">{large_.data,s8}</DisplayString>
+  <Expand>
+    <Item Condition="large_.capacity &lt; 4 * debug_small_large_" Name="[size]" ExcludeView="simple">small_[23] % 32</Item>
+    <Item Condition="large_.capacity &gt;= 4 * debug_small_large_" Name="[size]" ExcludeView="simple">large_.size</Item>
+    <Item Condition="large_.capacity &lt; 4 * debug_small_large_" Name="[capacity]" ExcludeView="simple">22</Item>
+    <Item Condition="large_.capacity &gt;= 4 * debug_small_large_" Name="[capacity]" ExcludeView="simple">8 * (large_.capacity % debug_small_large_)</Item>
+  </Expand>
 </Type>
 
 </AutoVisualizer>

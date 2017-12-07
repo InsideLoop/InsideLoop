@@ -57,6 +57,9 @@ class Map {
   static constexpr il::int_t kMaxSize_ =
       3 * static_cast<il::int_t>(static_cast<std::size_t>(1)
                                  << (8 * sizeof(std::size_t) - 4));
+#ifdef IL_DEBUGGER_HELPERS
+  il::int_t size_;
+#endif
 
  public:
   Map();
@@ -160,6 +163,9 @@ Map<K, V, F>::Map() {
   nb_elements_ = 0;
   nb_tombstones_ = 0;
   p_ = -1;
+#ifdef IL_DEBUGGER_HELPERS
+  size_ = 0;
+#endif
 }
 
 template <typename K, typename V, typename F>
@@ -172,6 +178,9 @@ Map<K, V, F>::Map(il::int_t n) {
   } else if (n == 0) {
     bucket_ = nullptr;
     p_ = -1;
+#ifdef IL_DEBUGGER_HELPERS
+    size_ = 0;
+#endif
   } else {
     const int p = pForSlots(n);
     const il::int_t m = nbBuckets(p);
@@ -180,6 +189,9 @@ Map<K, V, F>::Map(il::int_t n) {
       F::constructEmpty(il::io, reinterpret_cast<K*>(bucket_ + i));
     }
     p_ = p;
+#ifdef IL_DEBUGGER_HELPERS
+    size_ = std::pow(2, p_);
+#endif
   }
   nb_elements_ = 0;
   nb_tombstones_ = 0;
@@ -195,6 +207,9 @@ Map<K, V, F>::Map(il::value_t, std::initializer_list<il::KeyValue<K, V>> list) {
   if (n == 0) {
     bucket_ = nullptr;
     p_ = -1;
+#ifdef IL_DEBUGGER_HELPERS
+    size_ = 0;
+#endif
   } else {
     const int p = pForSlots(n);
     const il::int_t m = nbBuckets(p);
@@ -203,6 +218,9 @@ Map<K, V, F>::Map(il::value_t, std::initializer_list<il::KeyValue<K, V>> list) {
       F::constructEmpty(il::io, reinterpret_cast<K*>(bucket_ + i));
     }
     p_ = p;
+#ifdef IL_DEBUGGER_HELPERS
+    size_ = std::pow(2, p_);
+#endif
     nb_elements_ = 0;
     nb_tombstones_ = 0;
     for (il::int_t k = 0; k < n; ++k) {
@@ -216,6 +234,9 @@ Map<K, V, F>::Map(il::value_t, std::initializer_list<il::KeyValue<K, V>> list) {
 template <typename K, typename V, typename F>
 Map<K, V, F>::Map(const Map<K, V, F>& map) {
   p_ = map.p_;
+#ifdef IL_DEBUGGER_HELPERS
+  size_ = map.size_;
+#endif
   nb_elements_ = 0;
   nb_tombstones_ = 0;
   if (p_ >= 0) {
@@ -234,10 +255,16 @@ template <typename K, typename V, typename F>
 Map<K, V, F>::Map(Map<K, V, F>&& map) {
   bucket_ = map.bucket_;
   p_ = map.p_;
+#ifdef IL_DEBUGGER_HELPERS
+  size_ = map.size_;
+#endif
   nb_elements_ = map.nb_elements_;
   nb_tombstones_ = map.nb_tombstones_;
   map.bucket_ = nullptr;
   map.p_ = -1;
+#ifdef IL_DEBUGGER_HELPERS
+  size_ = 0;
+#endif
   map.nb_elements_ = 0;
   map.nb_tombstones_ = 0;
 }
@@ -270,9 +297,15 @@ Map<K, V, F>& Map<K, V, F>::operator=(const Map<K, V, F>& map) {
       }
     }
     p_ = p;
+#ifdef IL_DEBUGGER_HELPERS
+    size_ = std::pow(2, p_);
+#endif
   } else {
     bucket_ = nullptr;
     p_ = -1;
+#ifdef IL_DEBUGGER_HELPERS
+    size_ = 0;
+#endif
   }
   nb_elements_ = map.nb_elements_;
   nb_tombstones_ = map.nb_tombstones_;
@@ -295,6 +328,9 @@ Map<K, V, F>& Map<K, V, F>::operator=(Map<K, V, F>&& map) {
     }
     bucket_ = map.bucket_;
     p_ = map.p_;
+#ifdef IL_DEBUGGER_HELPERS
+    size_ = map.size_;
+#endif
     nb_elements_ = map.nb_elements_;
     nb_tombstones_ = map.nb_tombstones_;
     map.bucket_ = nullptr;
@@ -829,6 +865,9 @@ void Map<K, V, F>::reserveWithP(int p) {
     F::constructEmpty(il::io, reinterpret_cast<K*>(bucket_ + i));
   }
   p_ = p;
+#ifdef IL_DEBUGGER_HELPERS
+  size_ = std::pow(2, p_);
+#endif
   nb_elements_ = 0;
   nb_tombstones_ = 0;
 

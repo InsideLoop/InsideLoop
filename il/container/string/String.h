@@ -87,6 +87,10 @@ class String {
     char small_[sizeof(LargeString)];
     LargeString large_;
   };
+#ifdef IL_DEBUGGER_HELPERS
+  static const std::size_t debug_small_large_ =
+      (static_cast<std::size_t>(1) << (8 * sizeof(std::size_t) - 3));
+#endif
 
  public:
   String();
