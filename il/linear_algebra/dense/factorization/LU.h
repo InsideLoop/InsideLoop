@@ -198,6 +198,47 @@ const double& LU<il::Array2D<double>>::U(il::int_t i, il::int_t j) const {
   return lu_(i, j);
 }
 
+template <>
+class LU<il::Array2C<double>> {
+ private:
+  il::Array<lapack_int> ipiv_;
+  il::Array2C<double> lu_;
+
+ public:
+  // Computes a LU factorization of a general n0 x n1 matrix A using partial
+  // pivoting with row interchanges. The factorization has the form
+  //
+  //  A = P.L.U
+  //
+  // where P is a permutation matrix, L is lower triangular with unit diagonal
+  // elements, and U is upper triangular.
+  LU(il::Array2C<double> A, il::io_t, il::Status& status);
+};
+
+LU<il::Array2C<double>>::LU(il::Array2C<double> A, il::io_t, il::Status& status)
+    : ipiv_{}, lu_{} {
+  IL_EXPECT_FAST(A.size(0) == A.size(1));
+
+  const int layout = LAPACK_ROW_MAJOR;
+  const lapack_int m = static_cast<lapack_int>(A.size(0));
+  const lapack_int n = static_cast<lapack_int>(A.size(1));
+  const lapack_int lda = static_cast<lapack_int>(A.stride(0));
+  il::Array<lapack_int> ipiv{A.size(0) < A.size(1) ? A.size(0) : A.size(1)};
+  const lapack_int lapack_error =
+      LAPACKE_dgetrf(layout, m, n, A.data(), lda, ipiv.data());
+
+  IL_EXPECT_FAST(lapack_error >= 0);
+  if (lapack_error == 0) {
+    status.setOk();
+    ipiv_ = std::move(ipiv);
+    lu_ = std::move(A);
+  } else {
+    status.setError(il::Error::MatrixSingular);
+    IL_SET_SOURCE(status);
+    status.setInfo("rank", il::int_t{lapack_error - 1});
+  }
+}
+
 il::LowerArray2D<double> LU<il::Array2D<double>>::L() const {
   IL_EXPECT_FAST(size(0) == size(1));
 

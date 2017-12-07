@@ -76,10 +76,10 @@ Cholesky<il::Array2D<double>>::Cholesky(il::Array2D<double> A, il::io_t,
       LAPACKE_dpotrf(layout, uplo, n, A.data(), lda);
   IL_EXPECT_FAST(lapack_error >= 0);
   if (lapack_error == 0) {
-    status.set(ErrorCode::ok);
+    status.setOk();
     l_ = std::move(A);
   } else {
-    status.set(ErrorCode::nonpositive_number);
+    status.setError(il::Error::FloatingPointNegative);
   }
 }
 
@@ -154,10 +154,10 @@ Cholesky<LowerArray2D<double>>::Cholesky(il::LowerArray2D<double> A, il::io_t,
   const lapack_int lapack_error = LAPACKE_dpptrf(layout, uplo, n, A.data());
   IL_EXPECT_FAST(lapack_error >= 0);
   if (lapack_error == 0) {
-    status.set(ErrorCode::ok);
+    status.setOk();
     l_ = std::move(A);
   } else {
-    status.set(ErrorCode::negative_number);
+    status.setError(il::Error::FloatingPointNonPositive);
   }
 }
 

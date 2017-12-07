@@ -18,8 +18,12 @@
 
 #include <iostream>
 
+#include <il/Map.h>
+#include <il/String.h>
+
 int main() {
-  std::cout << "Hello, world!" << std::endl;
+  il::Map<il::String, il::int_t> map{2};
+  map.insertCString("Lyon", 400000);
 
   return 0;
 }

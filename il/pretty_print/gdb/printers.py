@@ -582,12 +582,12 @@ class MapStringPrinter:
 		yield "nb_buckets", self.nb_buckets
 		yield "capacity_elements", self.capacity_elements
 		yield "capacity_tombstones", self.capacity_tombstones
-		i = 0
 		for k in range(0, self.nb_buckets):
 			pointer = self.slot + k
 			string = "*((long long*)("+str(pointer)+")+2)"
-			value = gdb.parse_and_eval(string)
-			if (value < 4611686018427387904):
+			value = int(gdb.parse_and_eval(string))
+			value_bis = value // (2**56)
+			if (value_bis != 31 and value_bis != 30):
 				item = pointer.dereference()
 				yield ("[%s] " % k), item
 
