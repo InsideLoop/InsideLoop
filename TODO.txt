@@ -30,3 +30,20 @@ load<T>(filename, il::io, status)
 
 
 <il/Toml.h> -> <il/toml.h>
+
+
+- il::find
+- il::findAll
+- il::findMin
+- il::findMax
+- il::sort
+- il::count
+
+- il::forEach
+
+- il::map
+
+
+
+always return an index
+Therefore, we need we need to get an index for every data structure

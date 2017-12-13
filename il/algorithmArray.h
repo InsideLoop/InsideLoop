@@ -16,16 +16,5 @@
 //
 //==============================================================================
 
-#include <il/algorithmArray.h>
+#include <il/algorithm/algorithmArray.h>
 
-int main() {
-  il::Array<double> v{il::value,
-                      {-1.0, 1.0, 2.0, 3.0, -12, 1000.0, 10.0, 100.0}};
-
-  const double x0 = il::min(v);
-  const double x1 = il::max(v);
-  const il::int_t i = il::findMin(v);
-  const il::int_t j = il::findMax(v);
-
-  return 0;
-}

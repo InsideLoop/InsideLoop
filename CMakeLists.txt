@@ -157,6 +157,7 @@ endif()
 ################################################################################
 
 set(SOURCE_FILES
+    il/algorithmArray.h
     il/Array.h
     il/Array2D.h
     il/Array2C.h
@@ -196,6 +197,7 @@ set(SOURCE_FILES
     il/UTF16String.h
     il/unicode.h
     il/UpperArray2D.h
+    il/algorithm/algorithmArray.h
     il/container/1d/Array.h
     il/container/1d/ArrayView.h
     il/container/1d/SmallArray.h
