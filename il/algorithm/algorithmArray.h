@@ -25,6 +25,31 @@
 
 namespace il {
 
+template <typename T>
+struct MinMax {
+  T min;
+  T max;
+};
+
+template <typename T>
+MinMax<T> minMax(const il::Array<T>& v, il::int_t i_begin, il::int_t i_end) {
+  IL_EXPECT_FAST(i_begin < i_end);
+
+  MinMax<T> ans{};
+  ans.min = std::numeric_limits<T>::max();
+  ans.max = -std::numeric_limits<T>::max();
+  for (il::int_t i = i_begin; i < i_end; ++i) {
+    if (v[i] < ans.min) {
+      ans.min = v[i];
+    }
+    if (v[i] > ans.max) {
+      ans.max = v[i];
+    }
+  }
+  return ans;
+}
+
+
 //template <typename T, typename F>
 //bool allOf(const il::Array<T>& v, const F& f) {
 //  il::int_t i = 0;

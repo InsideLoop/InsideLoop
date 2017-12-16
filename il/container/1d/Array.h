@@ -190,6 +190,8 @@ class Array {
   */
   void resize(il::int_t n);
 
+  void resize(il::int_t n, const T& x);
+
   /* \brief Get the capacity of the il::Array<T>
    */
   il::int_t capacity() const;
@@ -658,6 +660,39 @@ void Array<T>::resize(il::int_t n) {
     } else {
       for (il::int_t i = n_old; i < n; ++i) {
         new (data_ + i) T{};
+      }
+    }
+  }
+  size_ = data_ + n;
+}
+
+template <typename T>
+void Array<T>::resize(il::int_t n, const T& x) {
+  IL_EXPECT_FAST(n >= 0);
+
+  if (n <= capacity()) {
+    if (il::isTrivial<T>::value) {
+      for (il::int_t i = size(); i < n; ++i) {
+        data_[i] = x;
+      }
+    } else {
+      for (il::int_t i = size() - 1; i >= n; --i) {
+        (data_ + i)->~T();
+      }
+      for (il::int_t i = size(); i < n; ++i) {
+        new (data_ + i) T{x};
+      }
+    }
+  } else {
+    const il::int_t n_old = size();
+    increaseCapacity(n);
+    if (il::isTrivial<T>::value) {
+      for (il::int_t i = n_old; i < n; ++i) {
+        data_[i] = x;
+      }
+    } else {
+      for (il::int_t i = n_old; i < n; ++i) {
+        new (data_ + i) T{x};
       }
     }
   }

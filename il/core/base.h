@@ -156,6 +156,12 @@ typedef std::ptrdiff_t int_t;
 #define IL_INTEGER_MAX 2147483647
 #endif
 
+
+struct Range {
+  il::int_t begin;
+  il::int_t end;
+};
+
 template <typename T>
 T max(T a, T b) {
   return a >= b ? a : b;
