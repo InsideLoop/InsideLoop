@@ -22,114 +22,9 @@
 #include <algorithm>
 
 #include <il/Array.h>
+#include <il/math.h>
 
 namespace il {
-
-template <typename T>
-struct MinMax {
-  T min;
-  T max;
-};
-
-template <typename T>
-MinMax<T> minMax(const il::Array<T>& v, il::int_t i_begin, il::int_t i_end) {
-  IL_EXPECT_FAST(i_begin < i_end);
-
-  MinMax<T> ans{};
-  ans.min = std::numeric_limits<T>::max();
-  ans.max = -std::numeric_limits<T>::max();
-  for (il::int_t i = i_begin; i < i_end; ++i) {
-    if (v[i] < ans.min) {
-      ans.min = v[i];
-    }
-    if (v[i] > ans.max) {
-      ans.max = v[i];
-    }
-  }
-  return ans;
-}
-
-
-//template <typename T, typename F>
-//bool allOf(const il::Array<T>& v, const F& f) {
-//  il::int_t i = 0;
-//  while (i < v.size() && f(v[i])) {
-//    ++i;
-//  }
-//  return (i == v.size());
-//};
-//
-//template <typename T, typename F>
-//bool anyOf(const il::Array<T>& v, const F& f) {
-//  il::int_t i = 0;
-//  while (i < v.size() && !f(v[i])) {
-//    ++i;
-//  }
-//  return (i < v.size());
-//};
-//
-//template <typename T>
-//bool count(const il::Array<T>& v, const T& x) {
-//  il::int_t ans = 0;
-//  for (il::int_t i = 0; i < v.size(); ++i) {
-//    if (v[i] == x) {
-//      ++ans;
-//    }
-//  }
-//  return ans;
-//};
-//
-//template <typename T, typename F>
-//bool count(const il::Array<T>& v, const F& f) {
-//  il::int_t ans = 0;
-//  for (il::int_t i = 0; i < v.size(); ++i) {
-//    if (f(v[i])) {
-//      ++ans;
-//    }
-//  }
-//  return ans;
-//};
-
-//template <typename T>
-//il::Array<il::int_t> searchAll(const il::Array<T>& v, const T& x) {
-//  il::Array<il::int_t> ans{};
-//  for (il::int_t i = 0; i < v.size(); ++i) {
-//    if (v[i] == x) {
-//      ans.append(i);
-//    }
-//  }
-//  return ans;
-//};
-
-//template <typename T, typename F>
-//il::Array<il::int_t> searchAll(const il::Array<T>& v, const F& f) {
-//  il::Array<il::int_t> ans{};
-//  for (il::int_t i = 0; i < v.size(); ++i) {
-//    if (f(v[i])) {
-//      ans.append(i);
-//    }
-//  }
-//  return ans;
-//};
-
-
-template <typename T>
-il::int_t search(const il::Array<T>& v, const T& x) {
-  il::int_t i = 0;
-  while (i < v.size() && v[i] != x) {
-    ++i;
-  }
-  return (i < v.size()) ? i : -1;
-};
-
-template <typename T, typename F>
-il::int_t search(const il::Array<T>& v, const F& f) {
-  il::int_t i = 0;
-  while (i < v.size() && !f(v[i])) {
-    ++i;
-  }
-  return (i < v.size()) ? i : -1;
-};
 
 template <typename T>
 T min(const il::Array<T>& v) {
@@ -137,6 +32,19 @@ T min(const il::Array<T>& v) {
 
   il::int_t min_value = v[0];
   for (il::int_t i = 1; i < v.size(); ++i) {
+    if (v[i] < min_value) {
+      min_value = v[i];
+    }
+  }
+  return min_value;
+}
+
+template <typename T>
+T min(const il::Array<T>& v, il::Range range) {
+  IL_EXPECT_FAST(range.begin < range.end);
+
+  il::int_t min_value = v[range.begin];
+  for (il::int_t i = range.begin + 1; i < range.end; ++i) {
     if (v[i] < min_value) {
       min_value = v[i];
     }
@@ -158,7 +66,46 @@ T max(const il::Array<T>& v) {
 }
 
 template <typename T>
-il::int_t findMin(const il::Array<T>& v) {
+T max(const il::Array<T>& v, il::Range range) {
+  IL_EXPECT_FAST(range.begin < range.end);
+
+  il::int_t max_value = v[range.begin];
+  for (il::int_t i = range.begin + 1; i < range.end; ++i) {
+    if (v[i] > max_value) {
+      max_value = v[i];
+    }
+  }
+  return max_value;
+}
+
+template <typename T>
+T maxAbs(const il::Array<T>& v) {
+  IL_EXPECT_FAST(v.size() > 0);
+
+  il::int_t max_value = il::abs(v[0]);
+  for (il::int_t i = 1; i < v.size(); ++i) {
+    if (il::abs(v[i]) > max_value) {
+      max_value = il::abs(v[i]);
+    }
+  }
+  return max_value;
+}
+
+template <typename T>
+T maxAbs(const il::Array<T>& v, il::Range range) {
+  IL_EXPECT_FAST(range.begin < range.end);
+
+  il::int_t max_value = il::abs(v[range.begin]);
+  for (il::int_t i = range.begin + 1; i < range.end; ++i) {
+    if (v[i] > max_value) {
+      max_value = il::abs(v[i]);
+    }
+  }
+  return max_value;
+}
+
+template <typename T>
+il::int_t indexMin(const il::Array<T>& v) {
   IL_EXPECT_FAST(v.size() > 0);
 
   il::int_t min_index = 0;
@@ -173,7 +120,22 @@ il::int_t findMin(const il::Array<T>& v) {
 }
 
 template <typename T>
-il::int_t findMax(const il::Array<T>& v) {
+il::int_t indexMin(const il::Array<T>& v, il::Range range) {
+  IL_EXPECT_FAST(range.begin < range.end);
+
+  il::int_t min_index = range.begin;
+  T min_value = v[range.begin];
+  for (il::int_t i = range.begin + 1; i < range.end; ++i) {
+    if (v[i] < min_value) {
+      min_index = i;
+      min_value = v[i];
+    }
+  }
+  return min_index;
+}
+
+template <typename T>
+il::int_t indexMax(const il::Array<T>& v) {
   IL_EXPECT_FAST(v.size() > 0);
 
   il::int_t max_index = 0;
@@ -188,45 +150,187 @@ il::int_t findMax(const il::Array<T>& v) {
 }
 
 template <typename T>
-T mean(const il::Array<T>& v) {
+il::int_t indexMax(const il::Array<T>& v, il::Range range) {
+  IL_EXPECT_FAST(range.begin < range.end);
+
+  il::int_t max_index = range.begin;
+  T max_value = v[range.begin];
+  for (il::int_t i = range.begin + 1; i < range.end; ++i) {
+    if (v[i] > max_value) {
+      max_index = i;
+      max_value = v[i];
+    }
+  }
+  return max_index;
+}
+
+template <typename T>
+il::int_t indexMaxAbs(const il::Array<T>& v) {
   IL_EXPECT_FAST(v.size() > 0);
 
-  T ans = 0;
-  for (il::int_t i = 0; i < v.size(); ++i) {
-    ans += v[i];
+  il::int_t max_index = 0;
+  T max_value = il::abs(v[0]);
+  for (il::int_t i = 1; i < v.size(); ++i) {
+    if (il::abs(v[i]) > max_value) {
+      max_index = i;
+      max_value = il::abs(v[i]);
+    }
   }
-  ans /= v.size();
+  return max_index;
+}
+
+template <typename T>
+il::int_t indexMaxAbs(const il::Array<T>& v, il::Range range) {
+  IL_EXPECT_FAST(range.begin < range.end);
+
+  il::int_t max_index = range.begin;
+  T max_value = il::abs(v[range.begin]);
+  for (il::int_t i = range.begin + 1; i < range.end; ++i) {
+    if (il::abs(v[i]) > max_value) {
+      max_index = i;
+      max_value = il::abs(v[i]);
+    }
+  }
+  return max_index;
+}
+
+template <typename T>
+struct MinMax {
+  T min;
+  T max;
+};
+
+template <typename T>
+MinMax<T> minMax(const il::Array<T>& v) {
+  IL_EXPECT_FAST(v.size() > 0);
+
+  MinMax<T> ans{};
+  ans.min = v[0];
+  ans.max = v[0];
+  for (il::int_t i = 1; i < v.size(); ++i) {
+    if (v[i] < ans.min) {
+      ans.min = v[i];
+    }
+    if (v[i] > ans.max) {
+      ans.max = v[i];
+    }
+  }
+  return ans;
+}
+
+template <typename T>
+MinMax<T> minMax(const il::Array<T>& v, il::Range range) {
+  IL_EXPECT_FAST(v.size() > 0);
+
+  MinMax<T> ans{};
+  ans.min = v[range.begin];
+  ans.max = v[range.end];
+  for (il::int_t i = range.begin + 1; i < range.end; ++i) {
+    if (v[i] < ans.min) {
+      ans.min = v[i];
+    }
+    if (v[i] > ans.max) {
+      ans.max = v[i];
+    }
+  }
   return ans;
 }
 
 //template <typename T>
-//T variance(const il::Array<T>& v) {
-//  IL_EXPECT_FAST(v.size() > 1);
-//
-//  T mean = 0;
-//  for (il::int_t i = 0; i < v.size(); ++i) {
-//    mean += v[i];
-//  }
-//  mean /= v.size();
-//  T variance = 0;
-//  for (il::int_t i = 0; i < v.size(); ++i) {
-//    variance += (v[i] - mean) * (v[i] - mean);
-//  }
-//  variance /= v.size();
-//  return variance;
+//void sort(il::io_t, il::Array<T>& v) {
+//  std::sort(v.begin(), v.end());
 //}
 
-//template <typename T, typename F>
-//void map(const F& f, il::io_t, il::Array<T>& v) {
-//  for (il::int_t i = 0; i < v.size(); ++i) {
-//    v[i] = f(v[i]);
-//  }
-//};
+template <typename T>
+void sort_aux(il::Range range, il::io_t, il::Array<T>& v) {
+  if (range.end - range.begin <= 1) {
+    return;
+  } else if (range.end - range.begin <= 15) {
+    for (il::int_t i = range.begin + 1; i < range.end; ++i) {
+      il::int_t j = i;
+      while (j > 0 && v[j - 1] > v[j]) {
+        const T aux = v[j];
+        v[j] = v[j - 1];
+        v[j - 1] = aux;
+        --j;
+      }
+    }
+    return;
+  }
+  // choose the pivot using the median rule
+  const il::int_t i_begin = range.begin;
+  const il::int_t i_end = range.end - 1;
+  const il::int_t i_middle = range.begin + (range.end - range.begin) / 2;
+  il::int_t pivot;
+  if (v[i_begin] < v[i_end]) {
+    if (v[i_middle] < v[i_begin]) {
+      pivot = i_begin;
+    } else {
+      pivot = (v[i_middle] > v[i_end]) ? i_end : i_middle;
+    }
+  } else {
+    if (v[i_middle] < v[i_end]) {
+      pivot = i_end;
+    } else {
+      pivot = (v[i_begin] < v[i_middle]) ? i_begin : i_middle;
+    }
+  }
+  // swap the pivot and the last element so that the pivot is at the end
+  {
+    const T aux = v[i_end];
+    v[i_end] = v[pivot];
+    v[pivot] = aux;
+    pivot = i_end;
+  }
+  // Partition into 2 parts
+  const T value_pivot = v[pivot];
+  il::int_t j = range.begin;
+  for (il::int_t i = range.begin; i < range.end - 1; ++i) {
+    if (v[i] < value_pivot) {
+      // Swap v[j] and v[i]
+      const T aux = v[i];
+      v[i] = v[j];
+      v[j] = aux;
+      ++j;
+    }
+  }
+  // T* pj = v.data() + range.begin;
+  // T* pend = v.data() + range.end - 1;
+  // const T val = v[pivot];
+  // for (T* pi = pj; pi != pend; ++pi) {
+  // 	if (*pi < val) {
+  //     const T aux = *pi;
+  //     *pi = *pj;
+  //     *pj = aux;
+  //     ++pj;
+  // 	}
+  // }
+  // il::int_t j = pj - v.data();
+
+  // Swap the element j and the last element so the pivot is in place
+  {
+    const T aux = v[i_end];
+    v[i_end] = v[j];
+    v[j] = aux;
+  }
+  // Recursively sort the 2 other parts
+  sort_aux(il::Range{range.begin, j}, il::io, v);
+  sort_aux(il::Range{j + 1, range.end}, il::io, v);
+}
 
 template <typename T>
 void sort(il::io_t, il::Array<T>& v) {
-  std::sort(v.begin(), v.end());
+  il::sort_aux(il::Range{0, v.size()}, il::io, v);
+
 }
+
+template <typename T>
+il::Array<T> sort(il::Array<T>& v) {
+  il::Array<T> w = v;
+  il::sort_aux(il::Range{0, w.size()}, il::io, w);
+  return w;
+}
+
 
 template <typename T>
 il::Array<T> sort(const il::Array<T>& v) {
@@ -248,6 +352,65 @@ il::int_t binarySearch(const il::Array<T>& v, const T& x) {
     }
   }
   return (i_end == i_begin + 1 && v[i_begin] == x) ? i_begin : -1;
+}
+
+template <typename T>
+T mean(const il::Array<T>& v) {
+  IL_EXPECT_FAST(v.size() > 0);
+
+  T ans = 0;
+  for (il::int_t i = 0; i < v.size(); ++i) {
+    ans += v[i];
+  }
+  ans /= v.size();
+  return ans;
+}
+
+enum class VarianceKind { Population, Sample };
+
+template <typename T>
+T variance(const il::Array<T>& v, il::VarianceKind kind) {
+  IL_EXPECT_FAST(v.size() > ((kind == il::VarianceKind::Population) ? 0 : 1));
+
+  T mean = 0;
+  for (il::int_t i = 0; i < v.size(); ++i) {
+    mean += v[i];
+  }
+  mean /= v.size();
+  T variance = 0;
+  for (il::int_t i = 0; i < v.size(); ++i) {
+    variance += (v[i] - mean) * (v[i] - mean);
+  }
+  const il::int_t degrees_of_freedom =
+      (kind == il::VarianceKind::Population) ? v.size() : (v.size() - 1);
+  variance /= degrees_of_freedom;
+  return variance;
+}
+
+template <typename T>
+struct MeanVariance {
+  T mean;
+  T variance;
+};
+
+template <typename T>
+MeanVariance<T> meanVariance(const il::Array<T>& v, il::VarianceKind kind) {
+  IL_EXPECT_FAST(v.size() > ((kind == il::VarianceKind::Population) ? 0 : 1));
+
+  T mean = 0;
+  for (il::int_t i = 0; i < v.size(); ++i) {
+    mean += v[i];
+  }
+  mean /= v.size();
+  T variance = 0;
+  for (il::int_t i = 0; i < v.size(); ++i) {
+    variance += (v[i] - mean) * (v[i] - mean);
+  }
+  const il::int_t degrees_of_freedom =
+      (kind == il::VarianceKind::Population) ? v.size() : (v.size() - 1);
+  variance /= degrees_of_freedom;
+
+  return MeanVariance<T>{mean, variance};
 }
 
 }  // namespace il
