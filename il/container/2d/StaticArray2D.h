@@ -102,7 +102,7 @@ class StaticArray2D {
 
   il::Array2DView<T> view() const;
 
-  il::Array2DEdit<T> edit() const;
+  il::Array2DEdit<T> edit();
 
   /* \brief Get a pointer to the first element of the array for a const
   // object
@@ -173,12 +173,12 @@ il::int_t StaticArray2D<T, n0, n1>::size(il::int_t d) const {
 
 template <typename T, il::int_t n0, il::int_t n1>
 il::Array2DView<T> StaticArray2D<T, n0, n1>::view() const {
-  return il::Array2DView<T>{data_, n0, n1, n0, 0, 0};
+  return il::Array2DView<T>{data(), n0, n1, n0, 0, 0};
 }
 
 template <typename T, il::int_t n0, il::int_t n1>
-il::Array2DEdit<T> StaticArray2D<T, n0, n1>::edit() const {
-  return il::Array2DEdit<T>{data_, n0, n1, n0, 0, 0};
+il::Array2DEdit<T> StaticArray2D<T, n0, n1>::edit() {
+  return il::Array2DEdit<T>{data(), n0, n1, n0, 0, 0};
 }
 
 template <typename T, il::int_t n0, il::int_t n1>

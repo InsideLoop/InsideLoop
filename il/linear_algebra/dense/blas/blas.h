@@ -249,13 +249,13 @@ inline void blas(double alpha, const il::Array2DView<double> &A,
               ldb, beta, C.data(), ldc);
 }
 
-inline void blas(double alpha, const il::Array2DView<double> &A, Blas info_a,
+inline void blas(double alpha, const il::Array2DView<double> &A, bool transpose,
                  const il::Array2DView<double> &B, double beta, il::io_t,
                  il::Array2DEdit<double> &C) {
   IL_EXPECT_FAST(A.size(1) == B.size(0));
   IL_EXPECT_FAST(C.size(0) == A.size(0));
   IL_EXPECT_FAST(C.size(1) == B.size(1));
-  IL_EXPECT_FAST(info_a == il::Blas::Transpose);
+  IL_EXPECT_FAST(transpose);
 
   const IL_CBLAS_LAYOUT layout = CblasColMajor;
   const CBLAS_TRANSPOSE transa = CblasTrans;
@@ -271,12 +271,12 @@ inline void blas(double alpha, const il::Array2DView<double> &A, Blas info_a,
 }
 
 inline void blas(double alpha, const il::Array2DView<double> &A,
-                 const il::Array2DView<double> &B, Blas info_b, double beta,
+                 const il::Array2DView<double> &B, bool transpose, double beta,
                  il::io_t, il::Array2DEdit<double> &C) {
   IL_EXPECT_FAST(A.size(1) == B.size(0));
   IL_EXPECT_FAST(C.size(0) == A.size(0));
   IL_EXPECT_FAST(C.size(1) == B.size(1));
-  IL_EXPECT_FAST(info_b == il::Blas::Transpose);
+  IL_EXPECT_FAST(transpose);
 
   const IL_CBLAS_LAYOUT layout = CblasColMajor;
   const CBLAS_TRANSPOSE transa = CblasNoTrans;
