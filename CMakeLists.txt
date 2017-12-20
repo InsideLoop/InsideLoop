@@ -31,8 +31,9 @@ project(InsideLoopUnitTest CXX)
 project(Program CXX)
 
 set(IL_OPENMP 0)
+set(IL_BLAS 1)
+set(IL_MKL 1)
 set(IL_OPENBLAS 0)
-set(IL_MKL 0)
 set(IL_PNG 0)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++11")
@@ -43,7 +44,8 @@ if (UNIX)
 #        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -pedantic")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")
     elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -pedantic")
+#        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -pedantic")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
     elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -pedantic")
     endif()
@@ -309,6 +311,7 @@ set(UNIT_TEST_FILES
     il/linear_algebra/dense/blas/_test/dot_test.cpp
     il/linear_algebra/dense/blas/_test/cross_test.cpp
     il/linear_algebra/dense/factorization/_test/Eigen_test.cpp
+    il/linear_algebra/dense/factorization/_test/Singular_test.cpp
     il/linear_algebra/sparse/factorization/_test/Pardiso_test.cpp
     il/linear_algebra/sparse/factorization/_test/GmresIlu0_test.cpp
     il/io/_test/numpy_test.cpp

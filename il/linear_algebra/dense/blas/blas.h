@@ -45,8 +45,8 @@ namespace il {
 ////////////////////////////////////////////////////////////////////////////////
 
 template <typename T, il::int_t n0, il::int_t n1, il::int_t n2>
-void blas(T alpha, const il::StaticArray3D<T, n0, n1, n2>& A, T beta, il::io_t,
-          il::StaticArray3D<T, n0, n1, n2>& B) {
+void blas(T alpha, const il::StaticArray3D<T, n0, n1, n2> &A, T beta, il::io_t,
+          il::StaticArray3D<T, n0, n1, n2> &B) {
   for (il::int_t i2 = 0; i2 < n2; ++i2) {
     for (il::int_t i1 = 0; i1 < n1; ++i1) {
       for (il::int_t i0 = 0; i0 < n0; ++i0) {
@@ -59,8 +59,8 @@ void blas(T alpha, const il::StaticArray3D<T, n0, n1, n2>& A, T beta, il::io_t,
 #ifdef IL_BLAS
 // x, y are vectors
 // y <- alpha x + y
-inline void blas(double alpha, const il::Array<double>& x, il::io_t,
-                 il::Array<double>& y) {
+inline void blas(double alpha, const il::Array<double> &x, il::io_t,
+                 il::Array<double> &y) {
   IL_EXPECT_FAST(x.size() == y.size());
 
   const IL_CBLAS_INT n{static_cast<IL_CBLAS_INT>(x.size())};
@@ -71,8 +71,8 @@ inline void blas(double alpha, const il::Array<double>& x, il::io_t,
 
 // x, y are vectors
 // y <- alpha x + beta y
-inline void blas(float alpha, const il::Array<float>& x, float beta, il::io_t,
-                 il::Array<float>& y) {
+inline void blas(float alpha, const il::Array<float> &x, float beta, il::io_t,
+                 il::Array<float> &y) {
   IL_EXPECT_FAST(x.size() == y.size());
 
   const IL_CBLAS_INT n{static_cast<IL_CBLAS_INT>(x.size())};
@@ -83,8 +83,8 @@ inline void blas(float alpha, const il::Array<float>& x, float beta, il::io_t,
 
 // x, y are vectors
 // y <- alpha x + beta y
-inline void blas(double alpha, const il::Array<double>& x, double beta,
-                 il::io_t, il::Array<double>& y) {
+inline void blas(double alpha, const il::Array<double> &x, double beta,
+                 il::io_t, il::Array<double> &y) {
   IL_EXPECT_FAST(x.size() == y.size());
 
   const IL_CBLAS_INT n{static_cast<IL_CBLAS_INT>(x.size())};
@@ -99,9 +99,9 @@ inline void blas(double alpha, const il::Array<double>& x, double beta,
 
 // A is a matrix, x, y are vectors
 // y <- alpha A.x + beta y
-inline void blas(float alpha, const il::Array2D<float>& A,
-                 const il::Array<float>& x, float beta, il::io_t,
-                 il::Array<float>& y) {
+inline void blas(float alpha, const il::Array2D<float> &A,
+                 const il::Array<float> &x, float beta, il::io_t,
+                 il::Array<float> &y) {
   IL_EXPECT_FAST(A.size(0) == y.size());
   IL_EXPECT_FAST(A.size(1) == x.size());
   IL_EXPECT_FAST(&x != &y);
@@ -120,9 +120,9 @@ inline void blas(float alpha, const il::Array2D<float>& A,
 
 // A is a matrix, x, y are vectors
 // y <- alpha A.x + beta y
-inline void blas(double alpha, const il::Array2D<double>& A,
-                 const il::Array<double>& x, double beta, il::io_t,
-                 il::Array<double>& y) {
+inline void blas(double alpha, const il::Array2D<double> &A,
+                 const il::Array<double> &x, double beta, il::io_t,
+                 il::Array<double> &y) {
   IL_EXPECT_FAST(A.size(0) == y.size());
   IL_EXPECT_FAST(A.size(1) == x.size());
   IL_EXPECT_FAST(&x != &y);
@@ -141,9 +141,9 @@ inline void blas(double alpha, const il::Array2D<double>& A,
 
 // A is a matrix, x, y are vectors
 // y <- alpha A.x + beta y
-inline void blas(double alpha, const il::Array2C<double>& A,
-                 const il::Array<double>& x, double beta, il::io_t,
-                 il::Array<double>& y) {
+inline void blas(double alpha, const il::Array2C<double> &A,
+                 const il::Array<double> &x, double beta, il::io_t,
+                 il::Array<double> &y) {
   IL_EXPECT_FAST(A.size(0) == y.size());
   IL_EXPECT_FAST(A.size(1) == x.size());
   IL_EXPECT_FAST(&x != &y);
@@ -166,9 +166,9 @@ inline void blas(double alpha, const il::Array2C<double>& A,
 
 // A, B, C are matrices
 // C <- alpha A.B + beta C
-inline void blas(float alpha, const il::Array2D<float>& A,
-                 const il::Array2D<float>& B, float beta, il::io_t,
-                 il::Array2D<float>& C) {
+inline void blas(float alpha, const il::Array2D<float> &A,
+                 const il::Array2D<float> &B, float beta, il::io_t,
+                 il::Array2D<float> &C) {
   IL_EXPECT_FAST(A.size(1) == B.size(0));
   IL_EXPECT_FAST(C.size(0) == A.size(0));
   IL_EXPECT_FAST(C.size(1) == B.size(1));
@@ -188,11 +188,29 @@ inline void blas(float alpha, const il::Array2D<float>& A,
               ldb, beta, C.data(), ldc);
 }
 
+// A is a matrix, x, y are vectors
+// y <- alpha A.x + beta y
+template <il::int_t n>
+void blas(double alpha, const il::StaticArray2D<double, n, n> &A,
+          const il::StaticArray2D<double, n, n> &B, double beta, il::io_t,
+          il::StaticArray2D<double, n, n> &C) {
+  IL_EXPECT_FAST(&A != &C);
+  IL_EXPECT_FAST(&B != &C);
+
+  const IL_CBLAS_LAYOUT layout = CblasColMajor;
+  const CBLAS_TRANSPOSE transa = CblasNoTrans;
+  const CBLAS_TRANSPOSE transb = CblasNoTrans;
+  const IL_CBLAS_INT lapack_n = static_cast<IL_CBLAS_INT>(n);
+
+  cblas_dgemm(layout, transa, transb, lapack_n, lapack_n, lapack_n, alpha,
+              A.data(), lapack_n, B.data(), lapack_n, beta, C.data(), lapack_n);
+}
+
 // A, B, C are matrices
 // C <- alpha A.B + beta C
-inline void blas(double alpha, const il::Array2D<double>& A,
-                 const il::Array2D<double>& B, double beta, il::io_t,
-                 il::Array2D<double>& C) {
+inline void blas(double alpha, const il::Array2D<double> &A,
+                 const il::Array2D<double> &B, double beta, il::io_t,
+                 il::Array2D<double> &C) {
   IL_EXPECT_FAST(A.size(1) == B.size(0));
   IL_EXPECT_FAST(C.size(0) == A.size(0));
   IL_EXPECT_FAST(C.size(1) == B.size(1));
@@ -212,9 +230,70 @@ inline void blas(double alpha, const il::Array2D<double>& A,
               ldb, beta, C.data(), ldc);
 }
 
-inline void blas(double alpha, const il::Array2D<double>& A, Blas info_a,
-                 const il::Array2D<double>& B, Blas info_b, double beta,
-                 il::io_t, il::Array2D<double>& C) {
+inline void blas(double alpha, const il::Array2DView<double> &A,
+                 const il::Array2DView<double> &B, double beta, il::io_t,
+                 il::Array2DEdit<double> &C) {
+  IL_EXPECT_FAST(A.size(1) == B.size(0));
+  IL_EXPECT_FAST(C.size(0) == A.size(0));
+  IL_EXPECT_FAST(C.size(1) == B.size(1));
+
+  const IL_CBLAS_LAYOUT layout = CblasColMajor;
+  const CBLAS_TRANSPOSE trans = CblasNoTrans;
+  const IL_CBLAS_INT m = static_cast<IL_CBLAS_INT>(A.size(0));
+  const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(B.size(1));
+  const IL_CBLAS_INT k = static_cast<IL_CBLAS_INT>(A.size(1));
+  const IL_CBLAS_INT lda = static_cast<IL_CBLAS_INT>(A.stride(1));
+  const IL_CBLAS_INT ldb = static_cast<IL_CBLAS_INT>(B.stride(1));
+  const IL_CBLAS_INT ldc = static_cast<IL_CBLAS_INT>(C.stride(1));
+  cblas_dgemm(layout, trans, trans, m, n, k, alpha, A.data(), lda, B.data(),
+              ldb, beta, C.data(), ldc);
+}
+
+inline void blas(double alpha, const il::Array2DView<double> &A, Blas info_a,
+                 const il::Array2DView<double> &B, double beta, il::io_t,
+                 il::Array2DEdit<double> &C) {
+  IL_EXPECT_FAST(A.size(1) == B.size(0));
+  IL_EXPECT_FAST(C.size(0) == A.size(0));
+  IL_EXPECT_FAST(C.size(1) == B.size(1));
+  IL_EXPECT_FAST(info_a == il::Blas::Transpose);
+
+  const IL_CBLAS_LAYOUT layout = CblasColMajor;
+  const CBLAS_TRANSPOSE transa = CblasTrans;
+  const CBLAS_TRANSPOSE transb = CblasNoTrans;
+  const IL_CBLAS_INT m = static_cast<IL_CBLAS_INT>(A.size(0));
+  const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(B.size(1));
+  const IL_CBLAS_INT k = static_cast<IL_CBLAS_INT>(A.size(1));
+  const IL_CBLAS_INT lda = static_cast<IL_CBLAS_INT>(A.stride(1));
+  const IL_CBLAS_INT ldb = static_cast<IL_CBLAS_INT>(B.stride(1));
+  const IL_CBLAS_INT ldc = static_cast<IL_CBLAS_INT>(C.stride(1));
+  cblas_dgemm(layout, transa, transb, m, n, k, alpha, A.data(), lda, B.data(),
+              ldb, beta, C.data(), ldc);
+}
+
+inline void blas(double alpha, const il::Array2DView<double> &A,
+                 const il::Array2DView<double> &B, Blas info_b, double beta,
+                 il::io_t, il::Array2DEdit<double> &C) {
+  IL_EXPECT_FAST(A.size(1) == B.size(0));
+  IL_EXPECT_FAST(C.size(0) == A.size(0));
+  IL_EXPECT_FAST(C.size(1) == B.size(1));
+  IL_EXPECT_FAST(info_b == il::Blas::Transpose);
+
+  const IL_CBLAS_LAYOUT layout = CblasColMajor;
+  const CBLAS_TRANSPOSE transa = CblasNoTrans;
+  const CBLAS_TRANSPOSE transb = CblasNoTrans;
+  const IL_CBLAS_INT m = static_cast<IL_CBLAS_INT>(A.size(0));
+  const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(B.size(1));
+  const IL_CBLAS_INT k = static_cast<IL_CBLAS_INT>(A.size(1));
+  const IL_CBLAS_INT lda = static_cast<IL_CBLAS_INT>(A.stride(1));
+  const IL_CBLAS_INT ldb = static_cast<IL_CBLAS_INT>(B.stride(1));
+  const IL_CBLAS_INT ldc = static_cast<IL_CBLAS_INT>(C.stride(1));
+  cblas_dgemm(layout, transa, transb, m, n, k, alpha, A.data(), lda, B.data(),
+              ldb, beta, C.data(), ldc);
+}
+
+inline void blas(double alpha, const il::Array2D<double> &A, Blas info_a,
+                 const il::Array2D<double> &B, Blas info_b, double beta,
+                 il::io_t, il::Array2D<double> &C) {
   IL_EXPECT_FAST(A.size(1) == B.size(0));
   IL_EXPECT_FAST(C.size(0) == A.size(0));
   IL_EXPECT_FAST(C.size(1) == B.size(1));
@@ -246,9 +325,9 @@ inline void blas(double alpha, const il::Array2D<double>& A, Blas info_a,
 
 // A, B, C are matrices
 // C <- alpha A.B + beta C
-inline void blas(float alpha, const il::Array2C<float>& A,
-                 const il::Array2C<float>& B, float beta, il::io_t,
-                 il::Array2C<float>& C) {
+inline void blas(float alpha, const il::Array2C<float> &A,
+                 const il::Array2C<float> &B, float beta, il::io_t,
+                 il::Array2C<float> &C) {
   IL_EXPECT_FAST(A.size(1) == B.size(0));
   IL_EXPECT_FAST(C.size(0) == A.size(0));
   IL_EXPECT_FAST(C.size(1) == B.size(1));
@@ -270,9 +349,9 @@ inline void blas(float alpha, const il::Array2C<float>& A,
 
 // A, B, C are matrices
 // C <- alpha A.B + beta C
-inline void blas(double alpha, const il::Array2C<double>& A,
-                 const il::Array2C<double>& B, double beta, il::io_t,
-                 il::Array2C<double>& C) {
+inline void blas(double alpha, const il::Array2C<double> &A,
+                 const il::Array2C<double> &B, double beta, il::io_t,
+                 il::Array2C<double> &C) {
   IL_EXPECT_FAST(A.size(1) == B.size(0));
   IL_EXPECT_FAST(C.size(0) == A.size(0));
   IL_EXPECT_FAST(C.size(1) == B.size(1));
@@ -292,9 +371,9 @@ inline void blas(double alpha, const il::Array2C<double>& A,
               ldb, beta, C.data(), ldc);
 }
 
-inline void blas(double alpha, const il::Array2C<double>& A, Blas info_a,
-                 const il::Array2C<double>& B, Blas info_b, double beta,
-                 il::io_t, il::Array2C<double>& C) {
+inline void blas(double alpha, const il::Array2C<double> &A, Blas info_a,
+                 const il::Array2C<double> &B, Blas info_b, double beta,
+                 il::io_t, il::Array2C<double> &C) {
   IL_EXPECT_FAST(A.size(1) == B.size(0));
   IL_EXPECT_FAST(C.size(0) == A.size(0));
   IL_EXPECT_FAST(C.size(1) == B.size(1));
@@ -326,9 +405,9 @@ inline void blas(double alpha, const il::Array2C<double>& A, Blas info_a,
 #endif  // IL_MKL
 
 template <typename T, il::int_t n0, il::int_t n>
-void blas(double alpha, const il::StaticArray2D<T, n0, n>& A,
-          const il::StaticArray<T, n>& B, double beta, il::io_t,
-          il::StaticArray<T, n0>& C) {
+void blas(double alpha, const il::StaticArray2D<T, n0, n> &A,
+          const il::StaticArray<T, n> &B, double beta, il::io_t,
+          il::StaticArray<T, n0> &C) {
   for (il::int_t i0 = 0; i0 < n0; ++i0) {
     C[i0] *= beta;
     for (il::int_t i = 0; i < n; ++i) {
@@ -338,9 +417,9 @@ void blas(double alpha, const il::StaticArray2D<T, n0, n>& A,
 }
 
 template <typename T, il::int_t n0, il::int_t n1, il::int_t n>
-void blas(double alpha, const il::StaticArray3D<T, n0, n1, n>& A,
-          const il::StaticArray<T, n>& B, double beta, il::io_t,
-          il::StaticArray2D<T, n0, n1>& C) {
+void blas(double alpha, const il::StaticArray3D<T, n0, n1, n> &A,
+          const il::StaticArray<T, n> &B, double beta, il::io_t,
+          il::StaticArray2D<T, n0, n1> &C) {
   for (il::int_t i0 = 0; i0 < n0; ++i0) {
     for (il::int_t i1 = 0; i1 < n1; ++i1) {
       C(i0, i1) *= beta;
@@ -352,9 +431,9 @@ void blas(double alpha, const il::StaticArray3D<T, n0, n1, n>& A,
 }
 
 template <typename T, il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n>
-void blas(double alpha, const il::StaticArray4D<T, n0, n1, n2, n>& A,
-          const il::StaticArray<T, n>& B, double beta, il::io_t,
-          il::StaticArray3D<T, n0, n1, n2>& C) {
+void blas(double alpha, const il::StaticArray4D<T, n0, n1, n2, n> &A,
+          const il::StaticArray<T, n> &B, double beta, il::io_t,
+          il::StaticArray3D<T, n0, n1, n2> &C) {
   for (il::int_t i0 = 0; i0 < n0; ++i0) {
     for (il::int_t i1 = 0; i1 < n1; ++i1) {
       for (il::int_t i2 = 0; i2 < n2; ++i2) {

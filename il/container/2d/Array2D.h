@@ -28,7 +28,7 @@
 // <utility> is needed for std::move
 #include <utility>
 
-#include <il/base.h>
+#include <il/container/2d/Array2DView.h>
 #include <il/core/memory/allocate.h>
 
 namespace il {
@@ -193,6 +193,14 @@ class Array2D {
   /* \brief Get the alignment of the pointer returned by data()
    */
   il::int_t alignment() const;
+
+  il::Array2DView<T> view() const;
+
+  il::Array2DView<T> view(il::Range range0, il::Range range1) const;
+
+  il::Array2DEdit<T> edit() const;
+
+  il::Array2DEdit<T> edit(il::Range range0, il::Range range1) const;
 
   /* \brief Get a pointer to const to the first element of the array
   // \details One should use this method only when using C-style API
@@ -986,6 +994,38 @@ il::int_t Array2D<T>::alignment() const {
 }
 
 template <typename T>
+il::Array2DView<T> Array2D<T>::view() const {
+  return il::Array2DView<T>{data(), size(0), size(1), stride(1), 0, 0};
+}
+
+template <typename T>
+il::Array2DView<T> Array2D<T>::view(il::Range range0, il::Range range1) const {
+  const il::int_t the_stride = stride(1);
+  return il::Array2DView<T>{data_ + range1.begin * the_stride + range0.begin,
+                            range0.end - range0.begin,
+                            range1.end - range1.begin,
+                            the_stride,
+                            0,
+                            0};
+}
+
+template <typename T>
+il::Array2DEdit<T> Array2D<T>::edit() const {
+  return il::Array2DEdit<T>{data(), size(0), size(1), stride(1), 0, 0};
+}
+
+template <typename T>
+il::Array2DEdit<T> Array2D<T>::edit(il::Range range0, il::Range range1) const {
+  const il::int_t the_stride = stride(1);
+  return il::Array2DEdit<T>{data_ + range1.begin * the_stride + range0.begin,
+                            range0.end - range0.begin,
+                            range1.end - range1.begin,
+                            the_stride,
+                            0,
+                            0};
+}
+
+template <typename T>
 const T* Array2D<T>::data() const {
   return data_;
 }
@@ -1065,6 +1105,7 @@ bool Array2D<T>::invariance() const {
   }
   return ans;
 }
+
 }  // namespace il
 
 #endif  // IL_ARRAY2D_H

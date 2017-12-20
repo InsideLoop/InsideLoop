@@ -22,7 +22,7 @@
 // <initializer_list> is needed for std::initializer_list<T>
 #include <initializer_list>
 
-#include <il/base.h>
+#include <il/container/2d/Array2DView.h>
 
 namespace il {
 
@@ -100,6 +100,10 @@ class StaticArray2D {
   */
   il::int_t size(il::int_t d) const;
 
+  il::Array2DView<T> view() const;
+
+  il::Array2DEdit<T> edit() const;
+
   /* \brief Get a pointer to the first element of the array for a const
   // object
   // \details One should use this method only when using C-style API
@@ -168,6 +172,16 @@ il::int_t StaticArray2D<T, n0, n1>::size(il::int_t d) const {
 }
 
 template <typename T, il::int_t n0, il::int_t n1>
+il::Array2DView<T> StaticArray2D<T, n0, n1>::view() const {
+  return il::Array2DView<T>{data_, n0, n1, n0, 0, 0};
+}
+
+template <typename T, il::int_t n0, il::int_t n1>
+il::Array2DEdit<T> StaticArray2D<T, n0, n1>::edit() const {
+  return il::Array2DEdit<T>{data_, n0, n1, n0, 0, 0};
+}
+
+template <typename T, il::int_t n0, il::int_t n1>
 const T* StaticArray2D<T, n0, n1>::data() const {
   return data_;
 }
@@ -176,6 +190,7 @@ template <typename T, il::int_t n0, il::int_t n1>
 T* StaticArray2D<T, n0, n1>::data() {
   return data_;
 }
+
 }  // namespace il
 
 #endif  // IL_STATICARRAY2D_H

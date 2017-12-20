@@ -22,6 +22,7 @@
 #include <algorithm>
 
 #include <il/Array.h>
+#include <il/StaticArray.h>
 #include <il/math.h>
 
 namespace il {
@@ -236,8 +237,8 @@ MinMax<T> minMax(const il::Array<T>& v, il::Range range) {
   return ans;
 }
 
-//template <typename T>
-//void sort(il::io_t, il::Array<T>& v) {
+// template <typename T>
+// void sort(il::io_t, il::Array<T>& v) {
 //  std::sort(v.begin(), v.end());
 //}
 
@@ -294,19 +295,6 @@ void sort_aux(il::Range range, il::io_t, il::Array<T>& v) {
       ++j;
     }
   }
-  // T* pj = v.data() + range.begin;
-  // T* pend = v.data() + range.end - 1;
-  // const T val = v[pivot];
-  // for (T* pi = pj; pi != pend; ++pi) {
-  // 	if (*pi < val) {
-  //     const T aux = *pi;
-  //     *pi = *pj;
-  //     *pj = aux;
-  //     ++pj;
-  // 	}
-  // }
-  // il::int_t j = pj - v.data();
-
   // Swap the element j and the last element so the pivot is in place
   {
     const T aux = v[i_end];
@@ -321,7 +309,11 @@ void sort_aux(il::Range range, il::io_t, il::Array<T>& v) {
 template <typename T>
 void sort(il::io_t, il::Array<T>& v) {
   il::sort_aux(il::Range{0, v.size()}, il::io, v);
+}
 
+template <typename T, il::int_t n>
+void sort(il::io_t, il::StaticArray<T, n>& v) {
+  std::sort(v.data(), v.data() + n);
 }
 
 template <typename T>
@@ -330,7 +322,6 @@ il::Array<T> sort(il::Array<T>& v) {
   il::sort_aux(il::Range{0, w.size()}, il::io, w);
   return w;
 }
-
 
 template <typename T>
 il::Array<T> sort(const il::Array<T>& v) {

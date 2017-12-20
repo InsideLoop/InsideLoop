@@ -18,41 +18,10 @@
 
 #include <iostream>
 
-#include <il/Array.h>
-#include <il/algorithmArray.h>
-#include <il/Timer.h>
+#include <il/StaticArray.h>
 
 int main() {
-//  const il::int_t n = 100000000;
-  const il::int_t n = 10;
-  il::Array<double> v{n};
-  double x = 0.12345678987654321;
-  for (il::int_t i = 0; i < n; ++i) {
-    v[i] = x;
-    x = 4 * x * (1 - x);
-  }
-
-  il::Timer timer{};
-
-  timer.reset();
-  {
-    il::Array<double> w = v;
-    timer.start();
-    std::sort(w.begin(), w.end());
-    timer.stop();
-  }
-
-  std::cout << "std: " << timer.time() << " s" << std::endl;
-
-  timer.reset();
-  {
-    il::Array<double> w = v;
-    timer.start();
-    il::sort(il::io, w);
-    timer.stop();
-  }
-
-  std::cout << "il: " << timer.time() << " s" << std::endl;
+  il::StaticArray<double, 3> a{};
 
   return 0;
 }

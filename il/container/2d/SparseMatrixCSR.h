@@ -24,6 +24,7 @@
 #include <il/SmallArray.h>
 #include <il/StaticArray.h>
 #include <il/linear_algebra/dense/norm.h>
+#include <il/algorithmArray.h>
 #include <il/math.h>
 
 namespace il {
