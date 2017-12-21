@@ -24,7 +24,7 @@
 namespace il {
 
 template <typename T>
-class ConstArrayView {
+class ArrayView {
  protected:
   T* data_;
   T* size_;
@@ -33,26 +33,28 @@ class ConstArrayView {
 
  public:
   /* \brief Default constructor
-  // \details It creates a ConstArrayView of size 0.
+  // \details It creates a ArrayView of size 0.
   */
-  ConstArrayView();
+  ArrayView();
 
-  /* \brief Construct an il::ConstArrayView<T> from a C-array (a pointer) and
+  /* \brief Construct an il::ArrayView<T> from a C-array (a pointer) and
   // its size
   //
   // void f(const double* p, il::int_t n) {
-  //   il::ConstArrayView<double> v{p, n};
+  //   il::ArrayView<double> v{p, n};
   //   ...
   // }
   */
-  explicit ConstArrayView(const T* data, il::int_t n, il::int_t align_mod = 0,
-                          il::int_t align_r = 0);
+  explicit ArrayView(const T* data, il::int_t n);
+
+  explicit ArrayView(const T* data, il::int_t n, il::int_t align_mod,
+                     il::int_t align_r);
 
   /* \brief Accessor
   // \details Access (read only) the i-th element of the array view. Bound
   // checking is done in debug mode but not in release mode.
   //
-  // il::ConstArrayView<double> v{p, n};
+  // il::ArrayView<double> v{p, n};
   // std::cout << v[0] << std::endl;
   */
   const T& operator[](il::int_t i) const;
@@ -65,7 +67,7 @@ class ConstArrayView {
 
   /* \brief Get the size of the array view
   //
-  // il::ConstArrayView<double> v{p, n};
+  // il::ArrayView<double> v{p, n};
   // for (il::int_t k = 0; k < v.size(); ++k) {
   //   std::cout << v[k] << std::endl;
   // }
@@ -88,92 +90,31 @@ class ConstArrayView {
 };
 
 template <typename T>
-ConstArrayView<T>::ConstArrayView() {
-  data_ = nullptr;
-  size_ = nullptr;
-  alignment_ = 0;
-  align_r_ = 0;
-}
-
-template <typename T>
-ConstArrayView<T>::ConstArrayView(const T* data, il::int_t n,
-                                  il::int_t align_mod, il::int_t align_r) {
-  IL_EXPECT_FAST(il::isTrivial<T>::value);
-  IL_EXPECT_FAST(sizeof(T) == alignof(T));
-  IL_EXPECT_FAST(n >= 0);
-  IL_EXPECT_FAST(align_mod > 0);
-  IL_EXPECT_FAST(align_mod % alignof(T) == 0);
-  IL_EXPECT_FAST(align_mod <= SHRT_MAX);
-  IL_EXPECT_FAST(align_r >= 0);
-  IL_EXPECT_FAST(align_r < align_mod);
-  IL_EXPECT_FAST(align_r % alignof(T) == 0);
-  IL_EXPECT_FAST(align_r <= SHRT_MAX);
-
-  data_ = const_cast<T*>(data);
-  size_ = const_cast<T*>(data) + n;
-  alignment_ = 0;
-  align_r_ = 0;
-}
-
-template <typename T>
-const T& ConstArrayView<T>::operator[](il::int_t i) const {
-  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
-                   static_cast<std::size_t>(size()));
-  return data_[i];
-}
-
-template <typename T>
-const T& ConstArrayView<T>::back() const {
-  IL_EXPECT_MEDIUM(size() > 0);
-  return size_[-1];
-}
-
-template <typename T>
-il::int_t ConstArrayView<T>::size() const {
-  return size_ - data_;
-}
-
-template <typename T>
-const T* ConstArrayView<T>::data() const {
-  return data_;
-}
-
-template <typename T>
-const T* ConstArrayView<T>::begin() const {
-  return data_;
-}
-
-template <typename T>
-const T* ConstArrayView<T>::end() const {
-  return size_;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-template <typename T>
-class ArrayView : public ConstArrayView<T> {
+class ArrayEdit : public ArrayView<T> {
  public:
   /* \brief Default constructor
-  // \details It creates a ConstArrayView of size 0.
+  // \details It creates a ArrayView of size 0.
   */
-  ArrayView();
+  ArrayEdit();
 
-  /* \brief Construct an il::ArrayView<T> from a C-array (a pointer) and
+  /* \brief Construct an il::ArrayEdit<T> from a C-array (a pointer) and
   // its size
   //
   // void f(double* p, int n) {
-  //   il::ArrayView<double> v{p, n};
+  //   il::ArrayEdit<double> v{p, n};
   //   ...
   // }
   */
-  explicit ArrayView(T* data, il::int_t n, il::int_t align_mod = 0,
-                     il::int_t align_r = 0);
+  explicit ArrayEdit(T* data, il::int_t n);
+
+  explicit ArrayEdit(T* data, il::int_t n, il::int_t align_mod,
+                     il::int_t align_r);
 
   /* \brief Accessor
   // \details Access (read or write) the i-th element of the array view. Bound
   // checking is done in debug mode but not in release mode.
   //
-  // il::ArrayView<double> v{p, n};
+  // il::ArrayEdit<double> v{p, n};
   // v[0] = 0.0;
   // v[n] = 0.0; // Program is aborted in debug mode and has undefined
   //             // behavior in release mode
@@ -202,40 +143,115 @@ class ArrayView : public ConstArrayView<T> {
 };
 
 template <typename T>
-ArrayView<T>::ArrayView() : ConstArrayView<T>{} {}
+ArrayView<T>::ArrayView() {
+  data_ = nullptr;
+  size_ = nullptr;
+  alignment_ = 0;
+  align_r_ = 0;
+}
 
 template <typename T>
-ArrayView<T>::ArrayView(T* data, il::int_t n, il::int_t align_mod,
+ArrayView<T>::ArrayView(const T* data, il::int_t n) {
+  IL_EXPECT_FAST(n >= 0);
+
+  data_ = const_cast<T*>(data);
+  size_ = const_cast<T*>(data) + n;
+  alignment_ = 0;
+  align_r_ = 0;
+}
+
+template <typename T>
+ArrayView<T>::ArrayView(const T* data, il::int_t n, il::int_t align_mod,
+                        il::int_t align_r) {
+  IL_EXPECT_FAST(il::isTrivial<T>::value);
+  IL_EXPECT_FAST(sizeof(T) == alignof(T));
+  IL_EXPECT_FAST(n >= 0);
+  IL_EXPECT_FAST(align_mod > 0);
+  IL_EXPECT_FAST(align_mod % alignof(T) == 0);
+  IL_EXPECT_FAST(align_mod <= SHRT_MAX);
+  IL_EXPECT_FAST(align_r >= 0);
+  IL_EXPECT_FAST(align_r < align_mod);
+  IL_EXPECT_FAST(align_r % alignof(T) == 0);
+  IL_EXPECT_FAST(align_r <= SHRT_MAX);
+
+  data_ = const_cast<T*>(data);
+  size_ = const_cast<T*>(data) + n;
+  alignment_ = 0;
+  align_r_ = 0;
+}
+
+template <typename T>
+const T& ArrayView<T>::operator[](il::int_t i) const {
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
+                   static_cast<std::size_t>(size()));
+  return data_[i];
+}
+
+template <typename T>
+const T& ArrayView<T>::back() const {
+  IL_EXPECT_MEDIUM(size() > 0);
+  return size_[-1];
+}
+
+template <typename T>
+il::int_t ArrayView<T>::size() const {
+  return size_ - data_;
+}
+
+template <typename T>
+const T* ArrayView<T>::data() const {
+  return data_;
+}
+
+template <typename T>
+const T* ArrayView<T>::begin() const {
+  return data_;
+}
+
+template <typename T>
+const T* ArrayView<T>::end() const {
+  return size_;
+}
+
+template <typename T>
+ArrayEdit<T>::ArrayEdit() : ArrayView<T>{} {}
+
+template <typename T>
+ArrayEdit<T>::ArrayEdit(T* data, il::int_t n) : ArrayView<T>{data, n} {}
+
+template <typename T>
+ArrayEdit<T>::ArrayEdit(T* data, il::int_t n, il::int_t align_mod,
                         il::int_t align_r)
-    : ConstArrayView<T>{data, n, align_mod, align_r} {}
+    : ArrayView<T>{data, n, align_mod, align_r} {}
 
 template <typename T>
-T& ArrayView<T>::operator[](il::int_t i) {
+T& ArrayEdit<T>::operator[](il::int_t i) {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
                    static_cast<std::size_t>(this->size()));
   return this->data_[i];
 }
 
 template <typename T>
-T& ArrayView<T>::back() {
+T& ArrayEdit<T>::back() {
   IL_EXPECT_FAST(this->size() > 0);
   return this->size_[-1];
 }
 
 template <typename T>
-T* ArrayView<T>::data() {
+T* ArrayEdit<T>::data() {
   return this->data_;
 }
 
 template <typename T>
-T* ArrayView<T>::begin() {
+T* ArrayEdit<T>::begin() {
   return this->data_;
 }
 
 template <typename T>
-T* ArrayView<T>::end() {
+T* ArrayEdit<T>::end() {
   return this->size_;
 }
+
 }  // namespace il
 
 #endif  // IL_ARRAYVIEW_H

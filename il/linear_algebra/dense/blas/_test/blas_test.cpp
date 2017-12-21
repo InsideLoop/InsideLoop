@@ -30,4 +30,33 @@ TEST(Blas, daxpy) {
 
   ASSERT_TRUE(y.size() == 2 && y[0] == 3.0 && y[1] == 5.0);
 }
+
+TEST(Blas, Array2DDoubleArray2DDouble_0) {
+  il::Array2D<double> A{il::value, {{1.0}, {2.0}}};
+  il::Array2D<double> B{il::value, {{3.0, 4.0}, {5.0, 6.0}, {7.0, 8.0}}};
+  const double alpha = 2.0;
+  const double beta = 3.0;
+  il::Array2D<double> C{il::value, {{9.0}, {10.0}, {11.0}}};
+
+  il::blas(alpha, A, B, beta, il::io, C);
+
+  ASSERT_TRUE(C.size(0) == 1 && C.size(1) == 3 && C(0, 0) == 49.0 &&
+              C(0, 1) == 64.0 && C(0, 2) == 79.0);
+}
+
+TEST(Blas, Array2DDoubleArray2DDouble_1) {
+  il::Array2D<double> A{il::value, {{1.0}, {2.0}}};
+  il::Array2D<double> B{il::value, {{3.0, 4.0}, {5.0, 6.0}, {7.0, 8.0}}};
+  const double alpha = 2.0;
+  const double beta = 3.0;
+  il::Array2D<double> C{il::value, {{9.0}, {10.0}, {11.0}}};
+  A.reserve(A.size(0) + 3, A.size(1) + 4);
+  B.reserve(B.size(0) + 5, B.size(1) + 6);
+  C.reserve(C.size(0) + 7, C.size(1) + 8);
+
+  il::blas(alpha, A, B, beta, il::io, C);
+
+  ASSERT_TRUE(C.size(0) == 1 && C.size(1) == 3 && C(0, 0) == 49.0 &&
+      C(0, 1) == 64.0 && C(0, 2) == 79.0);
+}
 #endif

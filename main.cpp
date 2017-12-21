@@ -18,10 +18,17 @@
 
 #include <iostream>
 
+#include <il/Array.h>
 #include <il/StaticArray.h>
+#include <il/ArrayView.h>
+
+void f(il::ArrayEdit<double> v) {
+  v[0] = 1.0;
+}
 
 int main() {
-  il::StaticArray<double, 3> a{};
+  il::Array<double> v{3, 0.0};
+  f(v.edit());
 
   return 0;
 }

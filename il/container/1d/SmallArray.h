@@ -28,7 +28,7 @@
 // <utility> is needed for std::move
 #include <utility>
 
-#include <il/base.h>
+#include <il/container/1d/ArrayView.h>
 #include <il/core/memory/allocate.h>
 
 namespace il {
@@ -187,6 +187,14 @@ class SmallArray {
   */
   template <typename... Args>
   void append(Args&&... args);
+
+  il::ArrayView<T> view() const;
+
+  il::ArrayView<T> view(il::Range range) const;
+
+  il::ArrayEdit<T> edit();
+
+  il::ArrayEdit<T> edit(il::Range range);
 
   /* \brief Get a pointer to const to the first element of the array
   // \details One should use this method only when using C-style API
@@ -561,6 +569,36 @@ template <typename T, il::int_t small_size>
 T* SmallArray<T, small_size>::data() {
   return data_;
 }
+
+template <typename T, il::int_t small_size>
+il::ArrayView<T> SmallArray<T, small_size>::view() const {
+  return il::ArrayView<T>{data_, size()};
+};
+
+template <typename T, il::int_t small_size>
+il::ArrayView<T> SmallArray<T, small_size>::view(il::Range range) const {
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(range.begin) <
+                   static_cast<std::size_t>(size()));
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(range.end) <=
+                   static_cast<std::size_t>(size()));
+
+  return il::ArrayView<T>{data_ + range.begin, range.end - range.begin};
+};
+
+template <typename T, il::int_t small_size>
+il::ArrayEdit<T> SmallArray<T, small_size>::edit() {
+  return il::ArrayEdit<T>{data_, size()};
+};
+
+template <typename T, il::int_t small_size>
+il::ArrayEdit<T> SmallArray<T, small_size>::edit(il::Range range) {
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(range.begin) <
+                   static_cast<std::size_t>(size()));
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(range.end) <=
+                   static_cast<std::size_t>(size()));
+
+  return il::ArrayEdit<T>{data_ + range.begin, range.end - range.begin};
+};
 
 template <typename T, il::int_t small_size>
 const T* SmallArray<T, small_size>::data() const {

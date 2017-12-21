@@ -155,6 +155,31 @@ class Array2DPrinter:
 	def to_string(self):
 		return "[size0: %s], [size1: %s], [capacity0: %s], [capacity1: %s]" % (self.size0, self.size1, self.capacity0, self.capacity1)
 
+class Array2DViewPrinter:
+	def __init__(self, val):
+		type = val.type
+		if type.code == gdb.TYPE_CODE_REF:
+			type = type.target()
+		self.type = type.unqualified().strip_typedefs()
+		self.innerType = self.type.template_argument(0)
+		self.val = val
+		self.data = self.val['data_'].cast(self.innerType.pointer())
+		self.size0 = self.val['debug_size_0_']
+		self.size1 = self.val['debug_size_1_']
+		self.stride = self.val['debug_stride_']
+
+	def children(self):
+		yield "size_0", self.size0
+		yield "size_1", self.size1
+		# for k1 in range(0, self.size1):
+		# 	for k0 in range(0, self.size0):
+		# 		dataPtr = self.data + self.stride * k1 + k0
+		# 		item = dataPtr.dereference()
+		# 		yield ("[%s, %s]" % (k0, k1)), item
+
+	def to_string(self):
+		return "[size0: %s], [size1: %s]" % (self.size0, self.size1)
+
 class StaticArray2DPrinter:
 	def __init__(self, val):
 		type = val.type
@@ -707,6 +732,7 @@ def build_insideloop_dictionary ():
 	pretty_printers_dict[re.compile('^il::ArrayView<.*>$')]  = lambda val: ArrayViewPrinter(val)
 	pretty_printers_dict[re.compile('^il::ConstArrayView<.*>$')]  = lambda val: ArrayViewPrinter(val)
 	pretty_printers_dict[re.compile('^il::Array2D<.*>$')]  = lambda val: Array2DPrinter(val)
+	# pretty_printers_dict[re.compile('^il::Array2DView<.*>$')]  = lambda val: Array2DViewPrinter(val)
 	pretty_printers_dict[re.compile('^il::Array2C<.*>$')]  = lambda val: Array2CPrinter(val)
 	pretty_printers_dict[re.compile('^il::StaticArray2D<.*>$')]  = lambda val: StaticArray2DPrinter(val)
 	pretty_printers_dict[re.compile('^il::StaticArray2C<.*>$')]  = lambda val: StaticArray2CPrinter(val)

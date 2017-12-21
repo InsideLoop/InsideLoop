@@ -24,7 +24,7 @@
 // <initializer_list> is needed for std::initializer_list<T>
 #include <initializer_list>
 
-#include <il/base.h>
+#include <il/container/1d/ArrayView.h>
 
 namespace il {
 
@@ -105,6 +105,14 @@ class StaticArray {
   // }
   */
   il::int_t size() const;
+
+  il::ArrayView<T> view() const;
+
+  il::ArrayView<T> view(il::Range range) const;
+
+  il::ArrayEdit<T> edit();
+
+  il::ArrayEdit<T> edit(il::Range range);
 
   /* \brief Get a pointer to the first element of the array for a const
   // object
@@ -196,6 +204,36 @@ template <typename T, il::int_t n>
 il::int_t StaticArray<T, n>::size() const {
   return n;
 }
+
+template <typename T, il::int_t n>
+il::ArrayView<T> StaticArray<T, n>::view() const {
+  return il::ArrayView<T>{data_, n};
+};
+
+template <typename T, il::int_t n>
+il::ArrayView<T> StaticArray<T, n>::view(il::Range range) const {
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(range.begin) <
+                   static_cast<std::size_t>(n));
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(range.end) <=
+                   static_cast<std::size_t>(n));
+
+  return il::ArrayView<T>{data_ + range.begin, range.end - range.begin};
+};
+
+template <typename T, il::int_t n>
+il::ArrayEdit<T> StaticArray<T, n>::edit() {
+  return il::ArrayEdit<T>{data_, n};
+};
+
+template <typename T, il::int_t n>
+il::ArrayEdit<T> StaticArray<T, n>::edit(il::Range range) {
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(range.begin) <
+                   static_cast<std::size_t>(n));
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(range.end) <=
+                   static_cast<std::size_t>(n));
+
+  return il::ArrayEdit<T>{data_ + range.begin, range.end - range.begin};
+};
 
 template <typename T, il::int_t n>
 const T* StaticArray<T, n>::data() const {

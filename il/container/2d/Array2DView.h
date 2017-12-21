@@ -26,7 +26,7 @@ namespace il {
 template <typename T>
 class Array2DView {
  protected:
-#ifdef IL_DEBUG_VISUALIZER
+#ifdef IL_DEBUGGER_HELPERS
   il::int_t debug_size_0_;
   il::int_t debug_size_1_;
   il::int_t debug_stride_;
@@ -119,7 +119,7 @@ class Array2DEdit : public Array2DView<T> {
 
 template <typename T>
 Array2DView<T>::Array2DView() {
-#ifdef IL_DEBUG_VISUALIZER
+#ifdef IL_DEBUGGER_HELPERS
   debug_size_0_ = 0;
   debug_size_1_ = 0;
   debug_stride_ = 0;
@@ -140,7 +140,7 @@ Array2DView<T>::Array2DView(const T* data, il::int_t n0, il::int_t n1,
   IL_EXPECT_FAST(stride > 0);
   if (n0 > 0 && n1 > 0) {
     data_ = const_cast<T*>(data);
-#ifdef IL_DEBUG_VISUALIZER
+#ifdef IL_DEBUGGER_HELPERS
     debug_size_0_ = n0;
     debug_size_1_ = n1;
     debug_stride_ = stride;
@@ -151,7 +151,7 @@ Array2DView<T>::Array2DView(const T* data, il::int_t n0, il::int_t n1,
     align_mod_ = align_mod;
     align_r_ = align_r;
   } else {
-#ifdef IL_DEBUG_VISUALIZER
+#ifdef IL_DEBUGGER_HELPERS
     debug_size_0_ = 0;
     debug_size_1_ = 0;
     debug_stride_ = 0;

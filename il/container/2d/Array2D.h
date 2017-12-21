@@ -198,9 +198,9 @@ class Array2D {
 
   il::Array2DView<T> view(il::Range range0, il::Range range1) const;
 
-  il::Array2DEdit<T> edit() const;
+  il::Array2DEdit<T> edit();
 
-  il::Array2DEdit<T> edit(il::Range range0, il::Range range1) const;
+  il::Array2DEdit<T> edit(il::Range range0, il::Range range1);
 
   /* \brief Get a pointer to const to the first element of the array
   // \details One should use this method only when using C-style API
@@ -1000,6 +1000,15 @@ il::Array2DView<T> Array2D<T>::view() const {
 
 template <typename T>
 il::Array2DView<T> Array2D<T>::view(il::Range range0, il::Range range1) const {
+  IL_EXPECT_FAST(static_cast<std::size_t>(range0.begin) <
+                 static_cast<std::size_t>(size(0)));
+  IL_EXPECT_FAST(static_cast<std::size_t>(range0.end) <=
+                 static_cast<std::size_t>(size(0)));
+  IL_EXPECT_FAST(static_cast<std::size_t>(range1.begin) <
+                 static_cast<std::size_t>(size(1)));
+  IL_EXPECT_FAST(static_cast<std::size_t>(range1.end) <=
+                 static_cast<std::size_t>(size(1)));
+
   const il::int_t the_stride = stride(1);
   return il::Array2DView<T>{data_ + range1.begin * the_stride + range0.begin,
                             range0.end - range0.begin,
@@ -1010,12 +1019,21 @@ il::Array2DView<T> Array2D<T>::view(il::Range range0, il::Range range1) const {
 }
 
 template <typename T>
-il::Array2DEdit<T> Array2D<T>::edit() const {
+il::Array2DEdit<T> Array2D<T>::edit() {
   return il::Array2DEdit<T>{data(), size(0), size(1), stride(1), 0, 0};
 }
 
 template <typename T>
-il::Array2DEdit<T> Array2D<T>::edit(il::Range range0, il::Range range1) const {
+il::Array2DEdit<T> Array2D<T>::edit(il::Range range0, il::Range range1) {
+  IL_EXPECT_FAST(static_cast<std::size_t>(range0.begin) <
+                 static_cast<std::size_t>(size(0)));
+  IL_EXPECT_FAST(static_cast<std::size_t>(range0.end) <=
+                 static_cast<std::size_t>(size(0)));
+  IL_EXPECT_FAST(static_cast<std::size_t>(range1.begin) <
+                 static_cast<std::size_t>(size(1)));
+  IL_EXPECT_FAST(static_cast<std::size_t>(range1.end) <=
+                 static_cast<std::size_t>(size(1)));
+
   const il::int_t the_stride = stride(1);
   return il::Array2DEdit<T>{data_ + range1.begin * the_stride + range0.begin,
                             range0.end - range0.begin,

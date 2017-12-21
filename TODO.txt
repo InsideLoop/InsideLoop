@@ -47,3 +47,5 @@ load<T>(filename, il::io, status)
 
 always return an index
 Therefore, we need we need to get an index for every data structure
+
+- Array2DView should work with 0 size

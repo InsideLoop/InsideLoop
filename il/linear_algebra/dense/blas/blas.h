@@ -230,9 +230,9 @@ inline void blas(double alpha, const il::Array2D<double> &A,
               ldb, beta, C.data(), ldc);
 }
 
-inline void blas(double alpha, const il::Array2DView<double> &A,
-                 const il::Array2DView<double> &B, double beta, il::io_t,
-                 il::Array2DEdit<double> &C) {
+inline void blas(double alpha, const il::Array2DView<double>& A,
+                 const il::Array2DView<double>& B, double beta, il::io_t,
+                 il::Array2DEdit<double> C) {
   IL_EXPECT_FAST(A.size(1) == B.size(0));
   IL_EXPECT_FAST(C.size(0) == A.size(0));
   IL_EXPECT_FAST(C.size(1) == B.size(1));
@@ -249,20 +249,20 @@ inline void blas(double alpha, const il::Array2DView<double> &A,
               ldb, beta, C.data(), ldc);
 }
 
-inline void blas(double alpha, const il::Array2DView<double> &A, bool transpose,
-                 const il::Array2DView<double> &B, double beta, il::io_t,
-                 il::Array2DEdit<double> &C) {
-  IL_EXPECT_FAST(A.size(1) == B.size(0));
-  IL_EXPECT_FAST(C.size(0) == A.size(0));
+inline void blas(double alpha, const il::Array2DView<double>& A, il::MatrixOperator op,
+                 const il::Array2DView<double>& B, double beta, il::io_t,
+                 il::Array2DEdit<double> C) {
+  IL_EXPECT_FAST(A.size(0) == B.size(0));
+  IL_EXPECT_FAST(C.size(0) == A.size(1));
   IL_EXPECT_FAST(C.size(1) == B.size(1));
-  IL_EXPECT_FAST(transpose);
+  IL_EXPECT_FAST(op == il::MatrixOperator::Tranpose);
 
   const IL_CBLAS_LAYOUT layout = CblasColMajor;
   const CBLAS_TRANSPOSE transa = CblasTrans;
   const CBLAS_TRANSPOSE transb = CblasNoTrans;
-  const IL_CBLAS_INT m = static_cast<IL_CBLAS_INT>(A.size(0));
+  const IL_CBLAS_INT m = static_cast<IL_CBLAS_INT>(A.size(1));
+  const IL_CBLAS_INT k = static_cast<IL_CBLAS_INT>(A.size(0));
   const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(B.size(1));
-  const IL_CBLAS_INT k = static_cast<IL_CBLAS_INT>(A.size(1));
   const IL_CBLAS_INT lda = static_cast<IL_CBLAS_INT>(A.stride(1));
   const IL_CBLAS_INT ldb = static_cast<IL_CBLAS_INT>(B.stride(1));
   const IL_CBLAS_INT ldc = static_cast<IL_CBLAS_INT>(C.stride(1));
@@ -270,20 +270,20 @@ inline void blas(double alpha, const il::Array2DView<double> &A, bool transpose,
               ldb, beta, C.data(), ldc);
 }
 
-inline void blas(double alpha, const il::Array2DView<double> &A,
-                 const il::Array2DView<double> &B, bool transpose, double beta,
-                 il::io_t, il::Array2DEdit<double> &C) {
-  IL_EXPECT_FAST(A.size(1) == B.size(0));
+inline void blas(double alpha, const il::Array2DView<double>& A,
+                 const il::Array2DView<double>& B, il::MatrixOperator op, double beta,
+                 il::io_t, il::Array2DEdit<double> C) {
+  IL_EXPECT_FAST(A.size(1) == B.size(1));
   IL_EXPECT_FAST(C.size(0) == A.size(0));
-  IL_EXPECT_FAST(C.size(1) == B.size(1));
-  IL_EXPECT_FAST(transpose);
+  IL_EXPECT_FAST(C.size(1) == B.size(0));
+  IL_EXPECT_FAST(op == il::MatrixOperator::Tranpose);
 
   const IL_CBLAS_LAYOUT layout = CblasColMajor;
   const CBLAS_TRANSPOSE transa = CblasNoTrans;
-  const CBLAS_TRANSPOSE transb = CblasNoTrans;
+  const CBLAS_TRANSPOSE transb = CblasTrans;
   const IL_CBLAS_INT m = static_cast<IL_CBLAS_INT>(A.size(0));
-  const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(B.size(1));
   const IL_CBLAS_INT k = static_cast<IL_CBLAS_INT>(A.size(1));
+  const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(B.size(0));
   const IL_CBLAS_INT lda = static_cast<IL_CBLAS_INT>(A.stride(1));
   const IL_CBLAS_INT ldb = static_cast<IL_CBLAS_INT>(B.stride(1));
   const IL_CBLAS_INT ldc = static_cast<IL_CBLAS_INT>(C.stride(1));
