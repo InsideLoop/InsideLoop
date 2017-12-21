@@ -74,6 +74,10 @@ class ArrayView {
   */
   il::int_t size() const;
 
+  il::ArrayView<T> view() const;
+
+  il::ArrayView<T> view(il::Range range) const;
+
   /* \brief Get a pointer to const to the first element of the array view
   // \details One should use this method only when using C-style API
   */
@@ -126,6 +130,14 @@ class ArrayEdit : public ArrayView<T> {
   // the program. In release mode, it will lead to undefined behavior.
   */
   T& back();
+
+  il::ArrayView<T> view() const;
+
+  il::ArrayView<T> view(il::Range range) const;
+
+  il::ArrayEdit<T> edit();
+
+  il::ArrayEdit<T> edit(il::Range range);
 
   /* \brief Get a pointer to the first element of the array view
   // \details One should use this method only when using C-style API
@@ -199,6 +211,21 @@ il::int_t ArrayView<T>::size() const {
 }
 
 template <typename T>
+il::ArrayView<T> ArrayView<T>::view() const {
+  return il::ArrayView<T>{data_, size()};
+};
+
+template <typename T>
+il::ArrayView<T> ArrayView<T>::view(il::Range range) const {
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(range.begin) <
+                   static_cast<std::size_t>(size()));
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(range.end) <=
+                   static_cast<std::size_t>(size()));
+
+  return il::ArrayView<T>{data_ + range.begin, range.end - range.begin};
+};
+
+template <typename T>
 const T* ArrayView<T>::data() const {
   return data_;
 }
@@ -236,6 +263,21 @@ T& ArrayEdit<T>::back() {
   IL_EXPECT_FAST(this->size() > 0);
   return this->size_[-1];
 }
+
+template <typename T>
+il::ArrayEdit<T> ArrayEdit<T>::edit() {
+  return il::ArrayEdit<T>{this->data_, this->size()};
+};
+
+template <typename T>
+il::ArrayEdit<T> ArrayEdit<T>::edit(il::Range range) {
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(range.begin) <
+                   static_cast<std::size_t>(this->size()));
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(range.end) <=
+                   static_cast<std::size_t>(this->size()));
+
+  return il::ArrayEdit<T>{this->data_ + range.begin, range.end - range.begin};
+};
 
 template <typename T>
 T* ArrayEdit<T>::data() {
