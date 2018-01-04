@@ -171,11 +171,11 @@ class Array2DViewPrinter:
 	def children(self):
 		yield "size_0", self.size0
 		yield "size_1", self.size1
-		# for k1 in range(0, self.size1):
-		# 	for k0 in range(0, self.size0):
-		# 		dataPtr = self.data + self.stride * k1 + k0
-		# 		item = dataPtr.dereference()
-		# 		yield ("[%s, %s]" % (k0, k1)), item
+		for k1 in range(0, self.size1):
+			for k0 in range(0, self.size0):
+				dataPtr = self.data + self.stride * k1 + k0
+				item = dataPtr.dereference()
+				yield ("[%s, %s]" % (k0, k1)), item
 
 	def to_string(self):
 		return "[size0: %s], [size1: %s]" % (self.size0, self.size1)
@@ -732,7 +732,7 @@ def build_insideloop_dictionary ():
 	pretty_printers_dict[re.compile('^il::ArrayView<.*>$')]  = lambda val: ArrayViewPrinter(val)
 	pretty_printers_dict[re.compile('^il::ConstArrayView<.*>$')]  = lambda val: ArrayViewPrinter(val)
 	pretty_printers_dict[re.compile('^il::Array2D<.*>$')]  = lambda val: Array2DPrinter(val)
-	# pretty_printers_dict[re.compile('^il::Array2DView<.*>$')]  = lambda val: Array2DViewPrinter(val)
+	pretty_printers_dict[re.compile('^il::Array2DView<.*>$')]  = lambda val: Array2DViewPrinter(val)
 	pretty_printers_dict[re.compile('^il::Array2C<.*>$')]  = lambda val: Array2CPrinter(val)
 	pretty_printers_dict[re.compile('^il::StaticArray2D<.*>$')]  = lambda val: StaticArray2DPrinter(val)
 	pretty_printers_dict[re.compile('^il::StaticArray2C<.*>$')]  = lambda val: StaticArray2CPrinter(val)

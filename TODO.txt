@@ -16,6 +16,19 @@
 //
 //==============================================================================
 
+
+Funny:
+- If x is a floating point > 0, 1/x is not always a floating point
+  Use x = 1.0e-320 or any denormalized number
+
+Think about it:
+- 2018-01-04: The Array2DView can now have a size of n0 x 0 or 0 x n1 with
+              n0 or n1 > 0. The way the data is stored implies that there should
+              be an array of length n.
+              Is it really a problem?
+
+
+
 Changes:
 
 save(object, filename, il::io, status)

@@ -97,7 +97,6 @@ LU<il::StaticArray2D<double, n, n>>::inverse() const {
   return inverse;
 }
 
-/*
 template <>
 class LU<il::Array2D<double>> {
 private:
@@ -145,7 +144,6 @@ public:
   il::UpperArray2D<double> U() const;
 };
 
-template <>
 LU<il::Array2D<double>>::LU(il::Array2D<double> A, il::io_t, il::Status &status)
     : ipiv_{}, lu_{} {
   const int layout = LAPACK_COL_MAJOR;
@@ -168,12 +166,11 @@ LU<il::Array2D<double>>::LU(il::Array2D<double> A, il::io_t, il::Status &status)
   }
 }
 
-template <> il::int_t LU<il::Array2D<double>>::size(il::int_t d) const {
+il::int_t LU<il::Array2D<double>>::size(il::int_t d) const {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(d) < static_cast<std::size_t>(2));
   return lu_.size(d);
 }
 
-template <>
 il::Array<double> LU<il::Array2D<double>>::solve(il::Array<double> y) const {
   IL_EXPECT_FAST(lu_.size(0) == lu_.size(1));
 
@@ -190,7 +187,6 @@ il::Array<double> LU<il::Array2D<double>>::solve(il::Array<double> y) const {
   return y;
 }
 
-template <>
 il::Array2D<double>
 LU<il::Array2D<double>>::solve(il::Array2D<double> y) const {
   IL_EXPECT_FAST(lu_.size(0) == lu_.size(1));
@@ -209,7 +205,7 @@ LU<il::Array2D<double>>::solve(il::Array2D<double> y) const {
   return y;
 }
 
-template <> il::Array2D<double> LU<il::Array2D<double>>::inverse() const {
+il::Array2D<double> LU<il::Array2D<double>>::inverse() const {
   IL_EXPECT_FAST(lu_.size(0) == lu_.size(1));
 
   il::Array2D<double> inverse{lu_};
@@ -223,7 +219,7 @@ template <> il::Array2D<double> LU<il::Array2D<double>>::inverse() const {
   return inverse;
 }
 
-template <> double LU<il::Array2D<double>>::determinant() const {
+double LU<il::Array2D<double>>::determinant() const {
   IL_EXPECT_FAST(lu_.size(0) == lu_.size(1));
 
   double det = 1.0;
@@ -234,7 +230,6 @@ template <> double LU<il::Array2D<double>>::determinant() const {
   return det;
 }
 
-template <>
 double LU<il::Array2D<double>>::conditionNumber(il::Norm norm_type,
                                                 double norm_a) const {
   IL_EXPECT_FAST(lu_.size(0) == lu_.size(1));
@@ -252,18 +247,17 @@ double LU<il::Array2D<double>>::conditionNumber(il::Norm norm_type,
   return 1.0 / rcond;
 }
 
-template <>
 const double &LU<il::Array2D<double>>::L(il::int_t i, il::int_t j) const {
   IL_EXPECT_MEDIUM(j < i);
   return lu_(i, j);
 }
 
-template <>
 const double &LU<il::Array2D<double>>::U(il::int_t i, il::int_t j) const {
   IL_EXPECT_MEDIUM(j >= i);
   return lu_(i, j);
 }
 
+/*
 template <> class LU<il::Array2C<double>> {
 private:
   il::Array<lapack_int> ipiv_;
@@ -375,6 +369,7 @@ template <> il::UpperArray2D<double> LU<il::Array2D<double>>::U() const {
 //  }
 //}
  */
+
 } // namespace il
 
 #endif // IL_PARTIALLU_H

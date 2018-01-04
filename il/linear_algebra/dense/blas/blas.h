@@ -93,6 +93,20 @@ inline void blas(double alpha, const il::Array<double> &x, double beta,
   cblas_daxpby(n, alpha, x.data(), incx, beta, y.data(), incy);
 }
 
+inline void blas(double alpha, const il::Array2D<double>& a, double beta,
+                 il::io_t, il::Array2D<double>& b) {
+  IL_EXPECT_FAST(a.size(0) == b.size(0));
+  IL_EXPECT_FAST(a.size(1) == b.size(1));
+
+  const il::int_t n0 = a.size(0);
+  const il::int_t n1 = a.size(1);
+  for (il::int_t i1 = 0; i1 < n1; ++i1) {
+    for (il::int_t i0 = 0; i0 < n0; ++i0) {
+      b(i0, i1) = beta * b(i0, i1) + alpha * a(i0, i1);
+    }
+  }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // BLAS Level 2
 ////////////////////////////////////////////////////////////////////////////////
