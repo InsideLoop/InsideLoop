@@ -99,6 +99,8 @@ class Array {
 
   explicit Array(il::int_t n, const T& x, il::align_t, il::int_t alignment);
 
+  explicit Array(il::ArrayView<T> v);
+
   /* \brief Construct an array from a brace-initialized list
   // \details The size and the capacity of the il::Array<T> is adjusted
   to
@@ -419,6 +421,26 @@ Array<T>::Array(il::int_t n, const T& x, il::align_t, il::int_t alignment,
 template <typename T>
 Array<T>::Array(il::int_t n, const T& x, il::align_t, il::int_t alignment)
     : Array{n, x, il::align, alignment, 0, alignment} {}
+
+template <typename T>
+Array<T>::Array(il::ArrayView<T> v) {
+  const il::int_t n = v.size();
+
+  if (n > 0) {
+    data_ = il::allocateArray<T>(n);
+    for (il::int_t i = 0; i < n; ++i) {
+      new (data_ + i) T{v[i]};
+    }
+  } else {
+    data_ = nullptr;
+  }
+  size_ = data_ + n;
+  capacity_ = data_ + n;
+  alignment_ = 0;
+  align_r_ = 0;
+  align_mod_ = 0;
+  shift_ = 0;
+}
 
 template <typename T>
 Array<T>::Array(il::value_t, std::initializer_list<T> list) {

@@ -265,6 +265,7 @@ set(SOURCE_FILES
     il/linear_algebra/sparse/blas/sparse_linear_algebra.h
     il/linear_algebra/sparse/blas/SparseMatrixBlas.h
     il/linear_algebra/cuda/dense/blas/cuda_blas.h
+    il/linear_algebra/matrixFree/solver/Gmres.cpp
     il/unit/time.h
     il/random/sobol.h)
 
@@ -513,7 +514,7 @@ set(BENCHMARK_FILES
     il/container/hash/_benchmark/Map_il_vs_std_benchmark.h
     il/container/string/_benchmark/String_benchmark.h
     il/container/string/_benchmark/String_il_vs_std_benchmark.h
-    )
+        il/linear_algebra/matrixFree/solver/Gmres.cpp il/linear_algebra/matrixFree/solver/Gmres.h)
 
 # C++ feature checks
 # Determine the correct regular expression engine to use

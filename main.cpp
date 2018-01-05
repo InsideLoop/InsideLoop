@@ -18,51 +18,80 @@
 
 #include <iostream>
 
-#include <il/Array2D.h>
-#include <il/linear_algebra/dense/blas/blas.h>
-#include <il/linear_algebra/matrixFree/solver/MatrixFreeGmres.h>
+#include <il/Array.h>
+#include <il/linear_algebra/matrixFree/solver/Gmres.h>
 
-class DenseMatrix {
+class Diagonal : public il::ArrayFunctor<double> {
  private:
-  il::Array2D<double> a_;
+  il::int_t n_;
+  double epsilon_;
 
  public:
-  DenseMatrix(il::Array2D<double> a) : a_{std::move(a)} {};
-  il::int_t size(il::int_t d) const { return a_.size(d); };
-  void dot(const il::ArrayView<double>& x, il::io_t,
-           il::ArrayEdit<double>& y) const {
-    IL_EXPECT_FAST(y.size() == a_.size(0));
-    IL_EXPECT_FAST(x.size() == a_.size(1));
+  Diagonal(il::int_t n, double epsilon) {
+    n_ = n;
+    epsilon_ = epsilon;
+  }
+  il::int_t sizeInput() const override { return n_; }
+  il::int_t sizeOutput() const override { return n_; }
+  void operator()(il::ArrayView<double> x, il::io_t,
+                  il::ArrayEdit<double> y) const override {
+    IL_EXPECT_FAST(x.size() == n_);
+    IL_EXPECT_FAST(y.size() == n_);
 
-    for (il::int_t i = 0; i < y.size(); ++i) {
-      y[i] = 0.0;
+    const il::int_t n = n_;
+    const double epsilon = epsilon_;
+    const double alpha = 1.0 / (n - 1);
+    y[0] = x[0];
+    for (il::int_t i = 1; i < n - 1; ++i) {
+      y[i] = epsilon * x[i - 1] + (1 + alpha * i) * x[i] + epsilon * x[i + 1];
     }
+    y[n - 1] = 2 * x[n - 1];
+  }
+};
 
-    il::blas(1.0, a_.view(), x, 0.0, il::io, y);
+class Preconditionner : public il::ArrayFunctor<double> {
+ private:
+  il::int_t n_;
+
+ public:
+  Preconditionner(il::int_t n) { n_ = n; }
+  il::int_t sizeInput() const override { return n_; }
+  il::int_t sizeOutput() const override { return n_; }
+  void operator()(il::ArrayView<double> x, il::io_t,
+                  il::ArrayEdit<double> y) const override {
+    IL_EXPECT_FAST(x.size() == n_);
+    IL_EXPECT_FAST(y.size() == n_);
+
+    const il::int_t n = n_;
+    const double alpha = 1.0 / (n - 1);
+    for (il::int_t i = 0; i < n; ++i) {
+      y[i] = x[i] / (1 + alpha * i);
+    }
   }
 };
 
 int main() {
-  const il::int_t nb_eigen_values = 5;
-  const il::int_t dim_eigen_spaces = 6;
-  const il::int_t n = dim_eigen_spaces * nb_eigen_values;
+  const il::int_t n = 100;
+  const double epsilon = 0.1;
+  const Diagonal matrix{n, epsilon};
+  const Preconditionner preconditionner{n};
 
-  il::Array2D<double> a{n, n, 0.0};
-  for (il::int_t k = 0; k < n; ++k) {
-    a(k, k) = 1.0 + k / dim_eigen_spaces;
-  }
-  DenseMatrix m{a};
-  const il::Array<double> y{n, 1.0};
-
-  const double relative_precision_solver = 1.0e-5;
+  const double relative_precision = 1.0e-1;
   const il::int_t max_nb_iterations = 100;
-  const il::int_t restart_iteration = 20;
-  // This object should be const
-  il::MatrixFreeGmres<DenseMatrix> solver{relative_precision_solver,
-                                          max_nb_iterations, restart_iteration};
-  const il::Array<double> x = solver.solve(m, y);
+  const il::int_t restart_iteration = 10;
 
-  const il::int_t nb_iterations = solver.nbIterations();
+  il::Gmres gmres_solver{relative_precision, max_nb_iterations,
+                         restart_iteration};
+  const il::Array<double> y{n, 1.0};
+  il::Array<double> x{n};
+
+  const bool use_preconditionner = true;
+  const bool use_x_as_initial_value = false;
+  gmres_solver.solve(matrix, preconditionner, y.view(), use_preconditionner,
+                     use_x_as_initial_value, il::io, x.edit());
+
+  std::cout << "Number of iterations: " << gmres_solver.nbIterations()
+            << std::endl;
 
   return 0;
 }
