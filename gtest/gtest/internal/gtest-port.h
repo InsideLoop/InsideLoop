@@ -338,13 +338,13 @@
 // 20110325, but maintenance releases in the 4.4 and 4.5 series followed
 // this date, so check for those versions by their date stamps.
 // https://gcc.gnu.org/onlinedocs/libstdc++/manual/abi.html#abi.versioning
-#if GTEST_LANG_CXX11 && (!defined(__GLIBCXX__) ||                                            \
-                         (__GLIBCXX__ >= 20110325ul &&                                       \
-                          /* GCC >= 4.6.0 */               /* Blacklist of patch releases of \
-                                                              older branches: */             \
-                              __GLIBCXX__ != 20110416ul && /* GCC 4.4.6 */                   \
-                          __GLIBCXX__ != 20120313ul &&     /* GCC 4.4.7 */                   \
-                          __GLIBCXX__ != 20110428ul &&     /* GCC 4.5.3 */                   \
+#if GTEST_LANG_CXX11 && (!defined(__GLIBCXX__) ||                              \
+                         (__GLIBCXX__ >= 20110325ul &&                         \
+                          /* GCC >= 4.6.0 */ /* Blacklist of patch releases of \
+                                                older branches: */             \
+                              __GLIBCXX__ != 20110416ul && /* GCC 4.4.6 */     \
+                          __GLIBCXX__ != 20120313ul &&     /* GCC 4.4.7 */     \
+                          __GLIBCXX__ != 20110428ul &&     /* GCC 4.5.3 */     \
                           __GLIBCXX__ != 20120702ul))      /* GCC 4.5.4 */
 #define GTEST_STDLIB_CXX11 1
 #endif
@@ -1224,13 +1224,13 @@ class GTEST_API_ RE {
 
 // Formats a source file path and a line number as they would appear
 // in an error message from the compiler used to compile this code.
-GTEST_API_ ::std::string FormatFileLocation(const char* file, int line);
+GTEST_API_::std::string FormatFileLocation(const char* file, int line);
 
 // Formats a file location for compiler-independent XML output.
 // Although this function is not platform dependent, we put it next to
 // FormatFileLocation in order to contrast the two functions.
-GTEST_API_ ::std::string FormatCompilerIndependentFileLocation(const char* file,
-                                                               int line);
+GTEST_API_::std::string FormatCompilerIndependentFileLocation(const char* file,
+                                                              int line);
 
 // Defines logging utilities:
 //   GTEST_LOG_(severity) - logs messages at the specified severity level. The
@@ -1290,7 +1290,7 @@ inline void FlushInfoLog() { fflush(NULL); }
   if (::testing::internal::IsTrue(condition)) \
     ;                                         \
   else                                        \
-    GTEST_LOG_(FATAL) << "Condition " #condition " failed. "
+  GTEST_LOG_(FATAL) << "Condition " #condition " failed. "
 #endif  // !defined(GTEST_CHECK_)
 
 // An all-mode assert to verify that the given POSIX-style function
@@ -2501,9 +2501,9 @@ typedef TypeWithSize<8>::Int TimeInMillis;  // Represents time in milliseconds.
 #define GTEST_DEFINE_bool_(name, default_val, doc) \
   GTEST_API_ bool GTEST_FLAG(name) = (default_val)
 #define GTEST_DEFINE_int32_(name, default_val, doc) \
-  GTEST_API_ ::testing::internal::Int32 GTEST_FLAG(name) = (default_val)
+  GTEST_API_::testing::internal::Int32 GTEST_FLAG(name) = (default_val)
 #define GTEST_DEFINE_string_(name, default_val, doc) \
-  GTEST_API_ ::std::string GTEST_FLAG(name) = (default_val)
+  GTEST_API_::std::string GTEST_FLAG(name) = (default_val)
 
 #endif  // !defined(GTEST_DECLARE_bool_)
 

@@ -147,7 +147,7 @@ inline void save_aux(const M &toml, const il::String &name, il::io_t,
   for (il::int_t i = toml.first(); i != toml.sentinel(); i = toml.next(i)) {
     const il::Dynamic &value = toml.value(i);
     const il::Type type = value.type();
-    if (type != il::Type::MapArray && type != il::Type::Map) {
+    if (type != il::Type::TypeMapArray && type != il::Type::TypeMap) {
       error = std::fputs(toml.key(i).asCString(), file);
       if (error == EOF) return;
       error = std::fputs(" = ", file);
@@ -224,7 +224,7 @@ inline void save_aux(const M &toml, const il::String &name, il::io_t,
       }
       error = std::fputs("\n", file);
       if (error == EOF) return;
-    } else if (type == il::Type::MapArray) {
+    } else if (type == il::Type::TypeMapArray) {
       error = std::fputs("\n[", file);
       if (error == EOF) return;
       if (name.size() != 0) {
@@ -242,7 +242,7 @@ inline void save_aux(const M &toml, const il::String &name, il::io_t,
         status.rearm();
         return;
       }
-    } else if (type == il::Type::Map) {
+    } else if (type == il::Type::TypeMap) {
       error = std::fputs("\n[", file);
       if (error == EOF) return;
       if (name.size() != 0) {

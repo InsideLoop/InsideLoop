@@ -94,7 +94,7 @@ il::Type TomlParser::parseType(il::StringView string, il::io_t,
     return il::Type::Array;
   } else if (string[0] == '{') {
     status.setOk();
-    return il::Type::MapArray;
+    return il::Type::TypeMapArray;
   } else {
     status.setError(il::Error::ParseCanNotDetermineType);
     IL_SET_SOURCE(status);
@@ -574,7 +574,7 @@ void TomlParser::parseKeyValue(il::io_t, il::StringView& string,
   }
 
   status.setOk();
-  toml.set(key, value);
+  toml.insert(key, value);
 }
 
 il::String TomlParser::parseKey(char end, il::io_t, il::StringView& string,
@@ -708,7 +708,7 @@ il::Dynamic TomlParser::parseValue(il::io_t, il::StringView& string,
     case il::Type::Array:
       ans = parseArray(il::io, string, parse_status);
       break;
-    case il::Type::MapArray:
+    case il::Type::TypeMapArray:
       ans = parseInlineTable(il::io, string, parse_status);
       break;
     default:

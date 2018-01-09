@@ -59,8 +59,8 @@ enum class Type : unsigned char {
   Array2cOfUint8,
   Array2cOfFloat,
   Array2cOfDouble,
-  Map,
-  MapArray
+  TypeMap,
+  TypeMapArray
 };
 
 class Dynamic {
@@ -248,32 +248,32 @@ inline Dynamic::Dynamic(il::Array2D<unsigned char>&& value) {
 }
 
 inline Dynamic::Dynamic(const il::Map<il::String, il::Dynamic>& value) {
-  type_ = il::Type::Map;
+  type_ = il::Type::TypeMap;
   map_val_ = new il::Map<il::String, il::Dynamic>{value};
 }
 
 inline Dynamic::Dynamic(il::Map<il::String, il::Dynamic>&& value) {
-  type_ = il::Type::Map;
+  type_ = il::Type::TypeMap;
   map_val_ = new il::Map<il::String, il::Dynamic>{std::move(value)};
 }
 
 inline Dynamic::Dynamic(const il::MapArray<il::String, il::Dynamic>& value) {
-  type_ = il::Type::MapArray;
+  type_ = il::Type::TypeMapArray;
   map_array_val_ = new il::MapArray<il::String, il::Dynamic>{value};
 }
 
 inline Dynamic::Dynamic(il::MapArray<il::String, il::Dynamic>&& value) {
-  type_ = il::Type::MapArray;
+  type_ = il::Type::TypeMapArray;
   map_array_val_ = new il::MapArray<il::String, il::Dynamic>{std::move(value)};
 }
 
 inline Dynamic::Dynamic(il::Type value) {
   type_ = value;
   switch (value) {
-    case il::Type::Map:
+    case il::Type::TypeMap:
       map_val_ = new il::Map<il::String, il::Dynamic>{};
       break;
-    case il::Type::MapArray:
+    case il::Type::TypeMapArray:
       map_array_val_ = new il::MapArray<il::String, il::Dynamic>{};
       break;
     default:
@@ -294,9 +294,9 @@ inline Dynamic::Dynamic(const il::Dynamic& other) {
   } else if (type_ == il::Type::Array2dOfDouble) {
     array2d_of_double_val_ =
         new il::Array2D<double>{*other.array2d_of_double_val_};
-  } else if (type_ == il::Type::Map) {
+  } else if (type_ == il::Type::TypeMap) {
     map_val_ = new il::Map<il::String, il::Dynamic>{*other.map_val_};
-  } else if (type_ == il::Type::MapArray) {
+  } else if (type_ == il::Type::TypeMapArray) {
     map_array_val_ =
         new il::MapArray<il::String, il::Dynamic>{*other.map_array_val_};
   } else {
@@ -322,9 +322,9 @@ inline il::Dynamic& Dynamic::operator=(const il::Dynamic& other) {
   } else if (type_ == il::Type::Array2dOfDouble) {
     array2d_of_double_val_ =
         new il::Array2D<double>{*other.array2d_of_double_val_};
-  } else if (type_ == il::Type::Map) {
+  } else if (type_ == il::Type::TypeMap) {
     map_val_ = new il::Map<il::String, il::Dynamic>{*other.map_val_};
-  } else if (type_ == il::Type::MapArray) {
+  } else if (type_ == il::Type::TypeMapArray) {
     map_array_val_ =
         new il::MapArray<il::String, il::Dynamic>{*other.map_array_val_};
   } else {
@@ -369,9 +369,11 @@ inline bool Dynamic::isArray2dOfUint8() const {
   return type_ == il::Type::Array2dOfUint8;
 }
 
-inline bool Dynamic::isMap() const { return type_ == il::Type::Map; }
+inline bool Dynamic::isMap() const { return type_ == il::Type::TypeMap; }
 
-inline bool Dynamic::isMapArray() const { return type_ == il::Type::MapArray; }
+inline bool Dynamic::isMapArray() const {
+  return type_ == il::Type::TypeMapArray;
+}
 
 inline bool Dynamic::toBool() const { return bool_val_; }
 
@@ -441,13 +443,13 @@ inline void Dynamic::releaseMemory() {
     delete array2d_of_double_val_;
   } else if (type_ == il::Type::Array2dOfUint8) {
     delete array2d_of_uint8_val_;
-  } else if (type_ == il::Type::Map) {
+  } else if (type_ == il::Type::TypeMap) {
     delete map_val_;
-  } else if (type_ == il::Type::MapArray) {
+  } else if (type_ == il::Type::TypeMapArray) {
     delete map_array_val_;
   }
 }
 
 }  // namespace il
 
-#endif  // IL_DYN_H
+#endif  // IL_DYNAMIC_H

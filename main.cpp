@@ -19,79 +19,19 @@
 #include <iostream>
 
 #include <il/Array.h>
-#include <il/linear_algebra/matrixFree/solver/Gmres.h>
+#include <il/Dynamic.h>
+#include <il/String.h>
+#include <il/Map.h>
+#include <il/MapArray.h>
 
-class Diagonal : public il::ArrayFunctor<double> {
- private:
-  il::int_t n_;
-  double epsilon_;
-
- public:
-  Diagonal(il::int_t n, double epsilon) {
-    n_ = n;
-    epsilon_ = epsilon;
-  }
-  il::int_t sizeInput() const override { return n_; }
-  il::int_t sizeOutput() const override { return n_; }
-  void operator()(il::ArrayView<double> x, il::io_t,
-                  il::ArrayEdit<double> y) const override {
-    IL_EXPECT_FAST(x.size() == n_);
-    IL_EXPECT_FAST(y.size() == n_);
-
-    const il::int_t n = n_;
-    const double epsilon = epsilon_;
-    const double alpha = 1.0 / (n - 1);
-    y[0] = x[0];
-    for (il::int_t i = 1; i < n - 1; ++i) {
-      y[i] = epsilon * x[i - 1] + (1 + alpha * i) * x[i] + epsilon * x[i + 1];
-    }
-    y[n - 1] = 2 * x[n - 1];
-  }
-};
-
-class Preconditionner : public il::ArrayFunctor<double> {
- private:
-  il::int_t n_;
-
- public:
-  Preconditionner(il::int_t n) { n_ = n; }
-  il::int_t sizeInput() const override { return n_; }
-  il::int_t sizeOutput() const override { return n_; }
-  void operator()(il::ArrayView<double> x, il::io_t,
-                  il::ArrayEdit<double> y) const override {
-    IL_EXPECT_FAST(x.size() == n_);
-    IL_EXPECT_FAST(y.size() == n_);
-
-    const il::int_t n = n_;
-    const double alpha = 1.0 / (n - 1);
-    for (il::int_t i = 0; i < n; ++i) {
-      y[i] = x[i] / (1 + alpha * i);
-    }
-  }
-};
 
 int main() {
-  const il::int_t n = 100;
-  const double epsilon = 0.1;
-  const Diagonal matrix{n, epsilon};
-  const Preconditionner preconditionner{n};
+  const il::String name = "Francois";
 
-  const double relative_precision = 1.0e-1;
-  const il::int_t max_nb_iterations = 100;
-  const il::int_t restart_iteration = 10;
-
-  il::Gmres gmres_solver{relative_precision, max_nb_iterations,
-                         restart_iteration};
-  const il::Array<double> y{n, 1.0};
-  il::Array<double> x{n};
-
-  const bool use_preconditionner = true;
-  const bool use_x_as_initial_value = false;
-  gmres_solver.solve(matrix, preconditionner, y.view(), use_preconditionner,
-                     use_x_as_initial_value, il::io, x.edit());
-
-  std::cout << "Number of iterations: " << gmres_solver.nbIterations()
-            << std::endl;
+  il::Map<il::String, int> config0{};
+  il::Map<int, il::Dynamic> config1{};
+  il::Map<il::String, il::Dynamic> config2{};
+  il::MapArray<il::String, il::Dynamic> config3{};
 
   return 0;
 }

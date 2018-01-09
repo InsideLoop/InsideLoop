@@ -77,7 +77,7 @@
   if (const ::testing::AssertionResult gtest_ar = (expression)) \
     ;                                                           \
   else                                                          \
-    on_failure(gtest_ar.failure_message())
+  on_failure(gtest_ar.failure_message())
 
 // Helper function for implementing {EXPECT|ASSERT}_PRED1.  Don't use
 // this in your code.
@@ -86,10 +86,10 @@ AssertionResult AssertPred1Helper(const char* pred_text, const char* e1,
                                   Pred pred, const T1& v1) {
   if (pred(v1)) return AssertionSuccess();
 
-  return AssertionFailure()
-         << pred_text << "(" << e1 << ") evaluates to false, where"
-         << "\n"
-         << e1 << " evaluates to " << v1;
+  return AssertionFailure() << pred_text << "(" << e1
+                            << ") evaluates to false, where"
+                            << "\n"
+                            << e1 << " evaluates to " << v1;
 }
 
 // Internal macro for implementing {EXPECT|ASSERT}_PRED_FORMAT1.
@@ -235,15 +235,15 @@ AssertionResult AssertPred5Helper(const char* pred_text, const char* e1,
                                   const T4& v4, const T5& v5) {
   if (pred(v1, v2, v3, v4, v5)) return AssertionSuccess();
 
-  return AssertionFailure()
-         << pred_text << "(" << e1 << ", " << e2 << ", " << e3 << ", " << e4
-         << ", " << e5 << ") evaluates to false, where"
-         << "\n"
-         << e1 << " evaluates to " << v1 << "\n"
-         << e2 << " evaluates to " << v2 << "\n"
-         << e3 << " evaluates to " << v3 << "\n"
-         << e4 << " evaluates to " << v4 << "\n"
-         << e5 << " evaluates to " << v5;
+  return AssertionFailure() << pred_text << "(" << e1 << ", " << e2 << ", "
+                            << e3 << ", " << e4 << ", " << e5
+                            << ") evaluates to false, where"
+                            << "\n"
+                            << e1 << " evaluates to " << v1 << "\n"
+                            << e2 << " evaluates to " << v2 << "\n"
+                            << e3 << " evaluates to " << v3 << "\n"
+                            << e4 << " evaluates to " << v4 << "\n"
+                            << e5 << " evaluates to " << v5;
 }
 
 // Internal macro for implementing {EXPECT|ASSERT}_PRED_FORMAT5.

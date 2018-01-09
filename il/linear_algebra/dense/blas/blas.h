@@ -93,8 +93,8 @@ inline void blas(double alpha, const il::Array<double> &x, double beta,
   cblas_daxpby(n, alpha, x.data(), incx, beta, y.data(), incy);
 }
 
-inline void blas(double alpha, const il::Array2D<double>& a, double beta,
-                 il::io_t, il::Array2D<double>& b) {
+inline void blas(double alpha, const il::Array2D<double> &a, double beta,
+                 il::io_t, il::Array2D<double> &b) {
   IL_EXPECT_FAST(a.size(0) == b.size(0));
   IL_EXPECT_FAST(a.size(1) == b.size(1));
 

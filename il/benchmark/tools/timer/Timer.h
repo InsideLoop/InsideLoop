@@ -61,9 +61,10 @@ inline void Timer::stop() {
       std::chrono::high_resolution_clock::now();
   IL_EXPECT_FAST(launched_);
   launched_ = false;
-  time_ += 1.0e-9 * std::chrono::duration_cast<std::chrono::nanoseconds>(
-                        point_end - point_begin_)
-                        .count();
+  time_ += 1.0e-9 *
+           std::chrono::duration_cast<std::chrono::nanoseconds>(point_end -
+                                                                point_begin_)
+               .count();
 }
 
 inline void Timer::reset() {
@@ -77,9 +78,10 @@ inline void Timer::sleepUntil(double time) const {
   IL_EXPECT_FAST(launched_);
   const double time_left =
       time -
-      1.0e-9 * std::chrono::duration_cast<std::chrono::nanoseconds>(
-                   std::chrono::high_resolution_clock::now() - point_begin_)
-                   .count();
+      1.0e-9 *
+          std::chrono::duration_cast<std::chrono::nanoseconds>(
+              std::chrono::high_resolution_clock::now() - point_begin_)
+              .count();
   if (time_left > 0.0) {
     std::this_thread::sleep_for(
         std::chrono::nanoseconds{static_cast<std::size_t>(time_left * 1.0e9)});

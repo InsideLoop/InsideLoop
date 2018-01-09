@@ -121,7 +121,7 @@ inline BENCHMARK_ALWAYS_INLINE int64_t Now() {
   // because is provides nanosecond resolution (which is noticable at
   // least for PNaCl modules running on x86 Mac & Linux).
   // Initialize to always return 0 if clock_gettime fails.
-  struct timespec ts = { 0, 0 };
+  struct timespec ts = {0, 0};
   clock_gettime(CLOCK_MONOTONIC, &ts);
   return static_cast<int64_t>(ts.tv_sec) * 1000000000 + ts.tv_nsec;
 #elif defined(__aarch64__)
@@ -133,8 +133,8 @@ inline BENCHMARK_ALWAYS_INLINE int64_t Now() {
   asm volatile("mrs %0, cntvct_el0" : "=r"(virtual_timer_value));
   return virtual_timer_value;
 #elif defined(__ARM_ARCH)
-  // V6 is the earliest arch that has a standard cyclecount
-  // Native Client validator doesn't allow MRC instructions.
+// V6 is the earliest arch that has a standard cyclecount
+// Native Client validator doesn't allow MRC instructions.
 #if (__ARM_ARCH >= 6)
   uint32_t pmccntr;
   uint32_t pmuseren;

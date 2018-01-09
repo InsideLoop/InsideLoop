@@ -57,6 +57,6 @@ TEST(Blas, Array2DDoubleArray2DDouble_1) {
   il::blas(alpha, A, B, beta, il::io, C);
 
   ASSERT_TRUE(C.size(0) == 1 && C.size(1) == 3 && C(0, 0) == 49.0 &&
-      C(0, 1) == 64.0 && C(0, 2) == 79.0);
+              C(0, 1) == 64.0 && C(0, 2) == 79.0);
 }
 #endif

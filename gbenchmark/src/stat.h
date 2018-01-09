@@ -124,7 +124,8 @@ class Stat1 {
         *stddev = VType();
       } else {
         VType avg_squares = sum_squares_ * (1.0 / numsamples_);
-        *stddev = Sqrt(numsamples_ / (numsamples_ - 1.0) * (avg_squares - Sqr(mean)));
+        *stddev =
+            Sqrt(numsamples_ / (numsamples_ - 1.0) * (avg_squares - Sqr(mean)));
       }
     }
     return mean;

@@ -163,7 +163,6 @@ BENCHMARK(BM_test)->Unit(benchmark::kMillisecond);
 #ifndef BENCHMARK_BENCHMARK_H_
 #define BENCHMARK_BENCHMARK_H_
 
-
 #if __cplusplus >= 201103L
 #define BENCHMARK_HAS_CXX11
 #endif
@@ -173,19 +172,19 @@ BENCHMARK(BM_test)->Unit(benchmark::kMillisecond);
 #include <cassert>
 #include <cstddef>
 #include <iosfwd>
-#include <string>
-#include <vector>
 #include <map>
 #include <set>
+#include <string>
+#include <vector>
 
 #if defined(BENCHMARK_HAS_CXX11)
-#include <type_traits>
 #include <initializer_list>
+#include <type_traits>
 #include <utility>
 #endif
 
 #if defined(_MSC_VER)
-#include <intrin.h> // for _ReadWriteBarrier
+#include <intrin.h>  // for _ReadWriteBarrier
 #endif
 
 #ifndef BENCHMARK_HAS_CXX11
@@ -230,13 +229,14 @@ BENCHMARK(BM_test)->Unit(benchmark::kMillisecond);
 #else
 #define BENCHMARK_BUILTIN_EXPECT(x, y) x
 #define BENCHMARK_DEPRECATED_MSG(msg)
-#define BENCHMARK_WARNING_MSG(msg) __pragma(message(__FILE__ "(" BENCHMARK_INTERNAL_TOSTRING(__LINE__) ") : warning note: " msg))
+#define BENCHMARK_WARNING_MSG(msg)                           \
+  __pragma(message(__FILE__ "(" BENCHMARK_INTERNAL_TOSTRING( \
+      __LINE__) ") : warning note: " msg))
 #endif
 
 #if defined(__GNUC__) && !defined(__clang__)
 #define BENCHMARK_GCC_VERSION (__GNUC__ * 100 + __GNUC_MINOR__)
 #endif
-
 
 namespace benchmark {
 class BenchmarkReporter;
@@ -288,9 +288,8 @@ BENCHMARK_UNUSED static int stream_init_anchor = InitializeStreams();
 
 }  // namespace internal
 
-
 #if !defined(__GNUC__) || defined(__pnacl__) || defined(EMSCRIPTN)
-# define BENCHMARK_HAS_NO_INLINE_ASSEMBLY
+#define BENCHMARK_HAS_NO_INLINE_ASSEMBLY
 #endif
 
 // The DoNotOptimize(...) function can be used to prevent a value or
@@ -300,8 +299,8 @@ BENCHMARK_UNUSED static int stream_init_anchor = InitializeStreams();
 #ifndef BENCHMARK_HAS_NO_INLINE_ASSEMBLY
 template <class Tp>
 inline BENCHMARK_ALWAYS_INLINE void DoNotOptimize(Tp const& value) {
-  // Clang doesn't like the 'X' constraint on `value` and certain GCC versions
-  // don't like the 'g' constraint. Attempt to placate them both.
+// Clang doesn't like the 'X' constraint on `value` and certain GCC versions
+// don't like the 'g' constraint. Attempt to placate them both.
 #if defined(__clang__)
   asm volatile("" : : "g"(value) : "memory");
 #else
@@ -320,9 +319,7 @@ inline BENCHMARK_ALWAYS_INLINE void DoNotOptimize(Tp const& value) {
   _ReadWriteBarrier();
 }
 
-inline BENCHMARK_ALWAYS_INLINE void ClobberMemory() {
-  _ReadWriteBarrier();
-}
+inline BENCHMARK_ALWAYS_INLINE void ClobberMemory() { _ReadWriteBarrier(); }
 #else
 template <class Tp>
 inline BENCHMARK_ALWAYS_INLINE void DoNotOptimize(Tp const& value) {
@@ -331,38 +328,33 @@ inline BENCHMARK_ALWAYS_INLINE void DoNotOptimize(Tp const& value) {
 // FIXME Add ClobberMemory() for non-gnu and non-msvc compilers
 #endif
 
-
-
 // This class is used for user-defined counters.
 class Counter {
-public:
-
+ public:
   enum Flags {
-    kDefaults   = 0,
+    kDefaults = 0,
     // Mark the counter as a rate. It will be presented divided
     // by the duration of the benchmark.
-    kIsRate     = 1,
+    kIsRate = 1,
     // Mark the counter as a thread-average quantity. It will be
     // presented divided by the number of threads.
     kAvgThreads = 2,
     // Mark the counter as a thread-average rate. See above.
-    kAvgThreadsRate = kIsRate|kAvgThreads
+    kAvgThreadsRate = kIsRate | kAvgThreads
   };
 
   double value;
-  Flags  flags;
+  Flags flags;
 
   BENCHMARK_ALWAYS_INLINE
   Counter(double v = 0., Flags f = kDefaults) : value(v), flags(f) {}
 
-  BENCHMARK_ALWAYS_INLINE operator double const& () const { return value; }
-  BENCHMARK_ALWAYS_INLINE operator double      & ()       { return value; }
-
+  BENCHMARK_ALWAYS_INLINE operator double const&() const { return value; }
+  BENCHMARK_ALWAYS_INLINE operator double&() { return value; }
 };
 
 // This is the container for the user-defined counters.
 typedef std::map<std::string, Counter> UserCounters;
-
 
 // TimeUnit is passed to a benchmark in order to specify the order of magnitude
 // for the measured time.
@@ -384,14 +376,12 @@ class ThreadManager;
 
 enum ReportMode
 #if defined(BENCHMARK_HAS_CXX11)
-  : unsigned
+    : unsigned
 #else
 #endif
-  {
-  RM_Unspecified,  // The mode has not been manually specified
+{ RM_Unspecified,  // The mode has not been manually specified
   RM_Default,      // The mode is user-specified as default.
-  RM_ReportAggregatesOnly
-};
+  RM_ReportAggregatesOnly };
 }  // namespace internal
 
 // State is passed to a running Benchmark and contains state for the
@@ -985,13 +975,12 @@ class Fixture : public internal::Benchmark {
   void BaseClass##_##Method##_Benchmark::BenchmarkCase
 
 // Helper macro to create a main routine in a test that runs the benchmarks
-#define BENCHMARK_MAIN()                   \
-  int main(int argc, char** argv) {        \
-    ::benchmark::Initialize(&argc, argv);  \
+#define BENCHMARK_MAIN()                                                \
+  int main(int argc, char** argv) {                                     \
+    ::benchmark::Initialize(&argc, argv);                               \
     if (::benchmark::ReportUnrecognizedArguments(argc, argv)) return 1; \
-    ::benchmark::RunSpecifiedBenchmarks(); \
+    ::benchmark::RunSpecifiedBenchmarks();                              \
   }
-
 
 // ------------------------------------------------------
 // Benchmark Reporters
@@ -1130,17 +1119,19 @@ class BenchmarkReporter {
 // Simple reporter that outputs benchmark data to the console. This is the
 // default reporter used by RunSpecifiedBenchmarks().
 class ConsoleReporter : public BenchmarkReporter {
-public:
+ public:
   enum OutputOptions {
     OO_None = 0,
     OO_Color = 1,
     OO_Tabular = 2,
-    OO_ColorTabular = OO_Color|OO_Tabular,
+    OO_ColorTabular = OO_Color | OO_Tabular,
     OO_Defaults = OO_ColorTabular
   };
   explicit ConsoleReporter(OutputOptions opts_ = OO_Defaults)
-      : output_options_(opts_), name_field_width_(0),
-        prev_counters_(), printed_header_(false) {}
+      : output_options_(opts_),
+        name_field_width_(0),
+        prev_counters_(),
+        printed_header_(false) {}
 
   virtual bool ReportContext(const Context& context);
   virtual void ReportRuns(const std::vector<Run>& reports);
@@ -1178,7 +1169,7 @@ class CSVReporter : public BenchmarkReporter {
   void PrintRunData(const Run& report);
 
   bool printed_header_;
-  std::set< std::string > user_counter_names_;
+  std::set<std::string> user_counter_names_;
 };
 
 inline const char* GetTimeUnitString(TimeUnit unit) {
@@ -1205,6 +1196,6 @@ inline double GetTimeUnitMultiplier(TimeUnit unit) {
   }
 }
 
-} // namespace benchmark
+}  // namespace benchmark
 
 #endif  // BENCHMARK_BENCHMARK_H_

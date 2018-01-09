@@ -44,8 +44,8 @@ class MatrixFreeGmres {
  public:
   MatrixFreeGmres();
   MatrixFreeGmres(double relative_precision, int max_nb_iteration,
-            int restart_iteration);
-  il::Array<double> solve(const M& m, const il::Array<double> &y);
+                  int restart_iteration);
+  il::Array<double> solve(const M& m, const il::Array<double>& y);
   il::int_t nbIterations() const;
 };
 
@@ -53,8 +53,8 @@ template <typename M>
 MatrixFreeGmres<M>::MatrixFreeGmres() : MatrixFreeGmres{1.0e-3, 100, 20} {}
 
 template <typename M>
-MatrixFreeGmres<M>::MatrixFreeGmres(double relative_precision, int max_nb_iteration,
-                            int restart_iteration)
+MatrixFreeGmres<M>::MatrixFreeGmres(double relative_precision,
+                                    int max_nb_iteration, int restart_iteration)
     : ipar_{}, dpar_{} {
   relative_precision_ = relative_precision;
   max_nb_iteration_ = max_nb_iteration;
@@ -62,7 +62,8 @@ MatrixFreeGmres<M>::MatrixFreeGmres(double relative_precision, int max_nb_iterat
 }
 
 template <typename M>
-il::Array<double> il::MatrixFreeGmres<M>::solve(const M& m, const il::Array<double> &y) {
+il::Array<double> il::MatrixFreeGmres<M>::solve(const M& m,
+                                                const il::Array<double>& y) {
   IL_EXPECT_FAST(m.size(0) == y.size());
 
   const int n = static_cast<int>(m.size(0));
@@ -121,7 +122,7 @@ il::Array<double> il::MatrixFreeGmres<M>::solve(const M& m, const il::Array<doub
   //            The default value is min(150, n) which means that by default,
   //            the non-restarted version of FGMRES method is used.
   ipar_[14] = static_cast<int>(restart_iteration_);
-  //ipar_[30] = behaviour_zero_diagonal_;
+  // ipar_[30] = behaviour_zero_diagonal_;
 
   // dpar_[0]: Specifies the relative tolerance. The default value is 1.0e-6
   dpar_[0] = 1.0e-6;
@@ -225,7 +226,9 @@ il::Array<double> il::MatrixFreeGmres<M>::solve(const M& m, const il::Array<doub
 }
 
 template <typename M>
-il::int_t il::MatrixFreeGmres<M>::nbIterations() const { return nb_iteration_; }
+il::int_t il::MatrixFreeGmres<M>::nbIterations() const {
+  return nb_iteration_;
+}
 
 }  // namespace il
 

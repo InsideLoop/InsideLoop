@@ -208,7 +208,12 @@ Array2DEdit<T> Array2DEdit<T>::edit(il::Range r0, il::Range r1) {
                    static_cast<std::size_t>(this->size(1)));
 
   const il::int_t my_stride = this->stride(1);
-  return il::Array2DEdit<T>{data() + r0.begin + r1.begin * my_stride, r0.end - r0.begin, r1.end - r1.begin, my_stride, 0, 0};
+  return il::Array2DEdit<T>{data() + r0.begin + r1.begin * my_stride,
+                            r0.end - r0.begin,
+                            r1.end - r1.begin,
+                            my_stride,
+                            0,
+                            0};
 }
 
 template <typename T>

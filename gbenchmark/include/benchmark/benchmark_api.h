@@ -15,11 +15,13 @@
 #define BENCHMARK_BENCHMARK_API_H_
 
 #ifdef __DEPRECATED
-# ifndef BENCHMARK_WARNING_MSG
+#ifndef BENCHMARK_WARNING_MSG
 #   warning the benchmark_api.h header has been deprecated and will be removed, please include benchmark.h instead
-# else
-    BENCHMARK_WARNING_MSG("the benchmark_api.h header has been deprecated and will be removed, please include benchmark.h instead")
-# endif
+#else
+BENCHMARK_WARNING_MSG(
+    "the benchmark_api.h header has been deprecated and will be removed, "
+    "please include benchmark.h instead")
+#endif
 #endif
 
 #include "benchmark.h"  // For forward declaration of BenchmarkReporter

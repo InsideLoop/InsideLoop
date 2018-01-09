@@ -72,20 +72,21 @@ class Regex {
 
 inline bool Regex::Init(const std::string& spec, std::string* error) {
 #ifdef BENCHMARK_HAS_NO_EXCEPTIONS
-  ((void)error); // suppress unused warning
+  ((void)error);  // suppress unused warning
 #else
   try {
 #endif
-    re_ = std::regex(spec, std::regex_constants::extended);
-    init_ = true;
+  re_ = std::regex(spec, std::regex_constants::extended);
+  init_ = true;
 #ifndef BENCHMARK_HAS_NO_EXCEPTIONS
-  } catch (const std::regex_error& e) {
-    if (error) {
-      *error = e.what();
-    }
+}
+catch (const std::regex_error& e) {
+  if (error) {
+    *error = e.what();
   }
+}
 #endif
-  return init_;
+return init_;
 }
 
 inline Regex::~Regex() {}

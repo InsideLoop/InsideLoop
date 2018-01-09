@@ -20,10 +20,10 @@
 #define IL_UNICODE_H
 
 #include <il/base.h>
+#include <il/container/string/String.h>
 #include <iostream>
-//#include <il/container/string/String.h>
 //#include <il/container/string/StringView.h>
-//#include <il/container/string/UTF16String.h>
+#include <il/container/string/UTF16String.h>
 
 namespace il {
 
@@ -85,16 +85,26 @@ namespace il {
 //  return auxIsUtf8(s, 0, 0, false);
 //}
 
-// inline il::UTF16String toUtf16(const il::String& string) {
-//  il::UTF16String ans{};
-//  il::StringView view{string.data(), string.size()};
-//
-//  for (il::int_t i = 0; i < view.size(); i = view.nextRune(i)) {
-//    ans.append(view.rune(i));
-//  }
-//  ans.append('\0');
-//  return ans;
-//}
+inline il::UTF16String toUtf16(const il::String& string) {
+  il::UTF16String ans{};
+  il::StringView view{string.type(), string.data(), string.size()};
+
+  for (il::int_t i = 0; i < view.size(); i = view.nextRune(i)) {
+    ans.append(view.rune(i));
+  }
+  ans.append('\0');
+  return ans;
+}
+
+inline il::String toUtf8(const il::UTF16String& string) {
+  il::String ans{};
+
+  for (il::int_t i = 0; i < string.size(); i = string.nextRune(i)) {
+    ans.append(string.rune(i));
+  }
+  ans.append('\0');
+  return ans;
+}
 
 enum Rune : int {
   Snowman = 0x2603,

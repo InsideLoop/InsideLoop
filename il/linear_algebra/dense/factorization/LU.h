@@ -41,11 +41,11 @@ class LU {};
 
 template <il::int_t n>
 class LU<il::StaticArray2D<double, n, n>> {
-private:
+ private:
   il::StaticArray<lapack_int, n> ipiv_;
   il::StaticArray2D<double, n, n> lu_;
 
-public:
+ public:
   // Computes a LU factorization of a general n0 x n1 matrix A using partial
   // pivoting with row interchanges. The factorization has the form
   //
@@ -85,8 +85,8 @@ LU<il::StaticArray2D<double, n, n>>::LU(il::StaticArray2D<double, n, n> A,
 }
 
 template <il::int_t n>
-il::StaticArray2D<double, n, n>
-LU<il::StaticArray2D<double, n, n>>::inverse() const {
+il::StaticArray2D<double, n, n> LU<il::StaticArray2D<double, n, n>>::inverse()
+    const {
   il::StaticArray2D<double, n, n> inverse = lu_;
   const int layout = LAPACK_COL_MAJOR;
   const lapack_int lapack_n = static_cast<lapack_int>(n);
@@ -99,11 +99,11 @@ LU<il::StaticArray2D<double, n, n>>::inverse() const {
 
 template <>
 class LU<il::Array2D<double>> {
-private:
+ private:
   il::Array<lapack_int> ipiv_;
   il::Array2D<double> lu_;
 
-public:
+ public:
   // Computes a LU factorization of a general n0 x n1 matrix A using partial
   // pivoting with row interchanges. The factorization has the form
   //
@@ -187,8 +187,8 @@ il::Array<double> LU<il::Array2D<double>>::solve(il::Array<double> y) const {
   return y;
 }
 
-il::Array2D<double>
-LU<il::Array2D<double>>::solve(il::Array2D<double> y) const {
+il::Array2D<double> LU<il::Array2D<double>>::solve(
+    il::Array2D<double> y) const {
   IL_EXPECT_FAST(lu_.size(0) == lu_.size(1));
   IL_EXPECT_FAST(lu_.size(0) == y.size(0));
 
@@ -370,6 +370,6 @@ template <> il::UpperArray2D<double> LU<il::Array2D<double>>::U() const {
 //}
  */
 
-} // namespace il
+}  // namespace il
 
-#endif // IL_PARTIALLU_H
+#endif  // IL_PARTIALLU_H

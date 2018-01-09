@@ -1165,10 +1165,9 @@ inline il::int_t size(const char* data) {
 }
 
 inline constexpr bool isAscii(const char* data) {
-  return data[0] == '\0' ? true
-                         : ((static_cast<unsigned char>(data[0]) &
-                             0x80_uchar) == 0x00_uchar) &&
-                               isAscii(data + 1);
+  return data[0] == '\0' ? true : ((static_cast<unsigned char>(data[0]) &
+                                    0x80_uchar) == 0x00_uchar) &&
+                                      isAscii(data + 1);
 }
 
 // template <il::int_t m>

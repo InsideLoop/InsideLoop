@@ -78,7 +78,7 @@ class UTF16String {
   void append(il::int_t n, char c);
   void append(il::int_t n, int cp);
   il::int_t nextRune(il::int_t i) const;
-  int cp(il::int_t i) const;
+  int rune(il::int_t i) const;
   bool isEmpty() const;
   const unsigned short* begin() const;
   const unsigned short* end() const;
@@ -354,7 +354,7 @@ inline il::int_t UTF16String::nextRune(il::int_t i) const {
   }
 }
 
-inline int UTF16String::cp(il::int_t i) const {
+inline int UTF16String::rune(il::int_t i) const {
   const unsigned short* data = begin();
   if (data[i] < 0xD800u || data[i] >= 0xDC00u) {
     return static_cast<int>(data[i]);

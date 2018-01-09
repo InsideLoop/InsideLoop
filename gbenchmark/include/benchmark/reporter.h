@@ -15,11 +15,13 @@
 #define BENCHMARK_REPORTER_H_
 
 #ifdef __DEPRECATED
-# ifndef BENCHMARK_WARNING_MSG
+#ifndef BENCHMARK_WARNING_MSG
 #   warning the reporter.h header has been deprecated and will be removed, please include benchmark.h instead
-# else
-    BENCHMARK_WARNING_MSG("the reporter.h header has been deprecated and will be removed, please include benchmark.h instead")
-# endif
+#else
+BENCHMARK_WARNING_MSG(
+    "the reporter.h header has been deprecated and will be removed, please "
+    "include benchmark.h instead")
+#endif
 #endif
 
 #include "benchmark.h"  // For forward declaration of BenchmarkReporter

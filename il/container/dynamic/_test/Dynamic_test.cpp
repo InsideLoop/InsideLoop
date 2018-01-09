@@ -254,8 +254,8 @@ TEST(Dynamic, copy_constructor_array_0) {
 
 TEST(Dynamic, copy_constructor_hashmaparray_0) {
   il::MapArray<il::String, il::Dynamic> map{};
-  map.set(il::String{"Hello"}, il::Dynamic{5});
-  map.set(il::String{"World!"}, il::Dynamic{6});
+  map.insert(il::String{"Hello"}, il::Dynamic{5});
+  map.insert(il::String{"World!"}, il::Dynamic{6});
 
   il::Dynamic b = map;
   il::Dynamic a{b};
@@ -264,7 +264,7 @@ TEST(Dynamic, copy_constructor_hashmaparray_0) {
               a.asMapArray().search("Hello") >= 0 &&
               a.asMapArray().search("World!") >= 0 && !a.isNull() &&
               !a.isBool() && !a.isInteger() && !a.isDouble() && !a.isString() &&
-              !a.isArray() && a.type() == il::Type::MapArray);
+              !a.isArray() && a.type() == il::Type::TypeMapArray);
 }
 
 TEST(Dynamic, move_constructor_null) {
@@ -341,8 +341,8 @@ TEST(Dynamic, move_constructor_array_0) {
 
 TEST(Dynamic, move_constructor_hashmaparray_0) {
   il::MapArray<il::String, il::Dynamic> map{};
-  map.set(il::String{"Hello"}, il::Dynamic{5});
-  map.set(il::String{"World!"}, il::Dynamic{6});
+  map.insert(il::String{"Hello"}, il::Dynamic{5});
+  map.insert(il::String{"World!"}, il::Dynamic{6});
 
   il::Dynamic b = map;
   il::Dynamic a = std::move(b);
@@ -351,7 +351,7 @@ TEST(Dynamic, move_constructor_hashmaparray_0) {
               a.asMapArray().search("Hello") >= 0 &&
               a.asMapArray().search("World!") >= 0 && !a.isNull() &&
               !a.isBool() && !a.isInteger() && !a.isDouble() && !a.isString() &&
-              !a.isArray() && a.type() == il::Type::MapArray && b.isNull());
+              !a.isArray() && a.type() == il::Type::TypeMapArray && b.isNull());
 }
 
 TEST(Dynamic, copy_assignement_null) {
@@ -433,8 +433,8 @@ TEST(Dynamic, copy_assignement_array_0) {
 
 TEST(Dynamic, copy_assignement_hashmaparray_0) {
   il::MapArray<il::String, il::Dynamic> map{};
-  map.set(il::String{"Hello"}, il::Dynamic{5});
-  map.set(il::String{"World!"}, il::Dynamic{6});
+  map.insert(il::String{"Hello"}, il::Dynamic{5});
+  map.insert(il::String{"World!"}, il::Dynamic{6});
 
   il::Dynamic b = map;
   il::Dynamic a{};
@@ -444,7 +444,7 @@ TEST(Dynamic, copy_assignement_hashmaparray_0) {
               a.asMapArray().search("Hello") >= 0 &&
               a.asMapArray().search("World!") >= 0 && !a.isNull() &&
               !a.isBool() && !a.isInteger() && !a.isDouble() && !a.isString() &&
-              !a.isArray() && a.type() == il::Type::MapArray);
+              !a.isArray() && a.type() == il::Type::TypeMapArray);
 }
 
 TEST(Dynamic, move_assignement_null) {
@@ -528,8 +528,8 @@ TEST(Dynamic, move_assignement_array_0) {
 
 TEST(Dynamic, move_assignement_hashmaparray_0) {
   il::MapArray<il::String, il::Dynamic> map{};
-  map.set(il::String{"Hello"}, il::Dynamic{5});
-  map.set(il::String{"World!"}, il::Dynamic{6});
+  map.insert(il::String{"Hello"}, il::Dynamic{5});
+  map.insert(il::String{"World!"}, il::Dynamic{6});
 
   il::Dynamic b = map;
   il::Dynamic a{};
@@ -539,5 +539,5 @@ TEST(Dynamic, move_assignement_hashmaparray_0) {
               a.asMapArray().search("Hello") >= 0 &&
               a.asMapArray().search("World!") >= 0 && !a.isNull() &&
               !a.isBool() && !a.isInteger() && !a.isDouble() && !a.isString() &&
-              !a.isArray() && a.type() == il::Type::MapArray && b.isNull());
+              !a.isArray() && a.type() == il::Type::TypeMapArray && b.isNull());
 }

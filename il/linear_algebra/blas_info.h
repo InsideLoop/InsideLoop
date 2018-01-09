@@ -21,11 +21,7 @@
 
 namespace il {
 
-enum class MatrixOperator {
-  None,
-  Tranpose,
-  ConjugateTranspose
-};
+enum class MatrixOperator { None, Tranpose, ConjugateTranspose };
 
 enum class Blas {
   Regular,

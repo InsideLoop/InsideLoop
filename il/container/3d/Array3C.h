@@ -560,9 +560,8 @@ Array3C<T>::Array3C(
         IL_EXPECT_FAST(static_cast<il::int_t>((list.begin() + i0)->size()) ==
                        n1);
         for (il::int_t i1 = 0; i1 < n1; ++i1) {
-          IL_EXPECT_FAST(static_cast<il::int_t>(
-                             ((list.begin() + i0)->begin() + i1)->size()) ==
-                         n2);
+          IL_EXPECT_FAST(static_cast<il::int_t>(((list.begin() + i0)->begin() +
+                                                 i1)->size()) == n2);
           memcpy(data_ + (i0 * r1 + i1) * r2,
                  ((list.begin() + i0)->begin() + i1)->begin(), n2 * sizeof(T));
         }
@@ -572,9 +571,8 @@ Array3C<T>::Array3C(
         IL_EXPECT_FAST(static_cast<il::int_t>((list.begin() + i0)->size()) ==
                        n1);
         for (il::int_t i1 = 0; i1 < n1; ++i1) {
-          IL_EXPECT_FAST(static_cast<il::int_t>(
-                             ((list.begin() + i0)->begin() + i1)->size()) ==
-                         n2);
+          IL_EXPECT_FAST(static_cast<il::int_t>(((list.begin() + i0)->begin() +
+                                                 i1)->size()) == n2);
           for (il::int_t i2 = 0; i2 < n2; ++i2) {
             new (data_ + (i0 * r1 + i1) * r2 + i2)
                 T(*(((list.begin() + i0)->begin() + i1)->begin() + i2));
@@ -1169,9 +1167,8 @@ template <typename T>
 il::int_t Array3C<T>::stride(il::int_t d) const {
   IL_EXPECT_FAST(static_cast<std::size_t>(d) < static_cast<std::size_t>(3));
 
-  return (d == 2)
-             ? 1
-             : (capacity_[2] - data_) * ((d == 1) ? 1 : (capacity_[1] - data_));
+  return (d == 2) ? 1 : (capacity_[2] - data_) *
+                            ((d == 1) ? 1 : (capacity_[1] - data_));
 }
 
 template <typename T>
