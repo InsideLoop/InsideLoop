@@ -1162,7 +1162,8 @@ class NativeArray {
       goto GTEST_CONCAT_TOKEN_(gtest_label_testthrow_, __LINE__);           \
     }                                                                       \
   } else                                                                    \
-  GTEST_CONCAT_TOKEN_(gtest_label_testthrow_, __LINE__) : fail(gtest_msg.value)
+    GTEST_CONCAT_TOKEN_(gtest_label_testthrow_, __LINE__)                   \
+        : fail(gtest_msg.value)
 
 #define GTEST_TEST_NO_THROW_(statement, fail)                       \
   GTEST_AMBIGUOUS_ELSE_BLOCKER_                                     \
@@ -1173,10 +1174,10 @@ class NativeArray {
       goto GTEST_CONCAT_TOKEN_(gtest_label_testnothrow_, __LINE__); \
     }                                                               \
   } else                                                            \
-  GTEST_CONCAT_TOKEN_(gtest_label_testnothrow_, __LINE__)           \
-      : fail("Expected: " #statement                                \
-             " doesn't throw an exception.\n"                       \
-             "  Actual: it throws.")
+    GTEST_CONCAT_TOKEN_(gtest_label_testnothrow_, __LINE__)         \
+        : fail("Expected: " #statement                              \
+               " doesn't throw an exception.\n"                     \
+               "  Actual: it throws.")
 
 #define GTEST_TEST_ANY_THROW_(statement, fail)                       \
   GTEST_AMBIGUOUS_ELSE_BLOCKER_                                      \
@@ -1191,23 +1192,23 @@ class NativeArray {
       goto GTEST_CONCAT_TOKEN_(gtest_label_testanythrow_, __LINE__); \
     }                                                                \
   } else                                                             \
-  GTEST_CONCAT_TOKEN_(gtest_label_testanythrow_, __LINE__)           \
-      : fail("Expected: " #statement                                 \
-             " throws an exception.\n"                               \
-             "  Actual: it doesn't.")
+    GTEST_CONCAT_TOKEN_(gtest_label_testanythrow_, __LINE__)         \
+        : fail("Expected: " #statement                               \
+               " throws an exception.\n"                             \
+               "  Actual: it doesn't.")
 
 // Implements Boolean test assertions such as EXPECT_TRUE. expression can be
 // either a boolean expression or an AssertionResult. text is a textual
 // represenation of expression as it was passed into the EXPECT_TRUE.
-#define GTEST_TEST_BOOLEAN_(expression, text, actual, expected, fail)          \
-  GTEST_AMBIGUOUS_ELSE_BLOCKER_                                                \
-  if (const ::testing::AssertionResult gtest_ar_ =                             \
-          ::testing::AssertionResult(expression))                              \
-    ;                                                                          \
-  else                                                                         \
-  fail(::testing::internal::GetBoolAssertionFailureMessage(gtest_ar_, text,    \
-                                                           #actual, #expected) \
-           .c_str())
+#define GTEST_TEST_BOOLEAN_(expression, text, actual, expected, fail) \
+  GTEST_AMBIGUOUS_ELSE_BLOCKER_                                       \
+  if (const ::testing::AssertionResult gtest_ar_ =                    \
+          ::testing::AssertionResult(expression))                     \
+    ;                                                                 \
+  else                                                                \
+    fail(::testing::internal::GetBoolAssertionFailureMessage(         \
+             gtest_ar_, text, #actual, #expected)                     \
+             .c_str())
 
 #define GTEST_TEST_NO_FATAL_FAILURE_(statement, fail)                          \
   GTEST_AMBIGUOUS_ELSE_BLOCKER_                                                \
@@ -1218,11 +1219,11 @@ class NativeArray {
       goto GTEST_CONCAT_TOKEN_(gtest_label_testnofatal_, __LINE__);            \
     }                                                                          \
   } else                                                                       \
-  GTEST_CONCAT_TOKEN_(gtest_label_testnofatal_, __LINE__)                      \
-      : fail("Expected: " #statement                                           \
-             " doesn't generate new fatal "                                    \
-             "failures in the current thread.\n"                               \
-             "  Actual: it does.")
+    GTEST_CONCAT_TOKEN_(gtest_label_testnofatal_, __LINE__)                    \
+        : fail("Expected: " #statement                                         \
+               " doesn't generate new fatal "                                  \
+               "failures in the current thread.\n"                             \
+               "  Actual: it does.")
 
 // Expands to the name of the class that implements the given test.
 #define GTEST_TEST_CLASS_NAME_(test_case_name, test_name) \

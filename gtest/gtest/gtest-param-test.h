@@ -1473,17 +1473,17 @@ Combine(const Generator1& g1, const Generator2& g2, const Generator3& g3,
       GTEST_TEST_CLASS_NAME_(test_case_name, test_name)::AddToRegistry();      \
   void GTEST_TEST_CLASS_NAME_(test_case_name, test_name)::TestBody()
 
-// The optional last argument to INSTANTIATE_TEST_CASE_P allows the user
-// to specify a function or functor that generates custom test name suffixes
-// based on the test parameters. The function should accept one argument of
-// type testing::TestParamInfo<class ParamType>, and return std::string.
-//
-// testing::PrintToStringParamName is a builtin test suffix generator that
-// returns the value of testing::PrintToString(GetParam()). It does not work
-// for std::string or C strings.
-//
-// Note: test names must be non-empty, unique, and may only contain ASCII
-// alphanumeric characters or underscore.
+  // The optional last argument to INSTANTIATE_TEST_CASE_P allows the user
+  // to specify a function or functor that generates custom test name suffixes
+  // based on the test parameters. The function should accept one argument of
+  // type testing::TestParamInfo<class ParamType>, and return std::string.
+  //
+  // testing::PrintToStringParamName is a builtin test suffix generator that
+  // returns the value of testing::PrintToString(GetParam()). It does not work
+  // for std::string or C strings.
+  //
+  // Note: test names must be non-empty, unique, and may only contain ASCII
+  // alphanumeric characters or underscore.
 
 #define INSTANTIATE_TEST_CASE_P(prefix, test_case_name, generator, ...)      \
   ::testing::internal::ParamGenerator<test_case_name::ParamType>             \

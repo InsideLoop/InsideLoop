@@ -126,7 +126,7 @@ void auxLoad(il::int_t n, il::io_t, il::Map<il::String, il::Dynamic>& config,
                          raw_value.size()};
         config.insert(std::move(string), il::Dynamic{std::move(value)});
       } break;
-      case il::Type::ArrayOfDouble: {
+      case il::Type::TypeArrayOfDouble: {
         il::int_t size = 0;
         std::fread(&size, sizeof(il::int_t), 1, file);
         k += sizeof(il::int_t);
@@ -135,7 +135,7 @@ void auxLoad(il::int_t n, il::io_t, il::Map<il::String, il::Dynamic>& config,
         k += sizeof(double) * size;
         config.insert(std::move(string), il::Dynamic{std::move(v)});
       } break;
-      case il::Type::Array2dOfUint8: {
+      case il::Type::TypeArray2dOfUint8: {
         il::int_t size0 = 0;
         il::int_t size1 = 0;
         std::fread(&size0, sizeof(il::int_t), 1, file);
@@ -146,7 +146,7 @@ void auxLoad(il::int_t n, il::io_t, il::Map<il::String, il::Dynamic>& config,
         k += sizeof(unsigned char) * size0 * size1;
         config.insert(std::move(string), il::Dynamic{std::move(A)});
       } break;
-      case il::Type::Array2dOfDouble: {
+      case il::Type::TypeArray2dOfDouble: {
         il::int_t size0 = 0;
         il::int_t size1 = 0;
         std::fread(&size0, sizeof(il::int_t), 1, file);
@@ -234,7 +234,7 @@ void auxLoad(il::int_t n, il::io_t,
                          raw_value.size()};
         config.insert(std::move(string), il::Dynamic{std::move(value)});
       } break;
-      case il::Type::ArrayOfDouble: {
+      case il::Type::TypeArrayOfDouble: {
         il::int_t size = 0;
         std::fread(&size, sizeof(il::int_t), 1, file);
         k += sizeof(il::int_t);
@@ -243,7 +243,7 @@ void auxLoad(il::int_t n, il::io_t,
         k += sizeof(double) * size;
         config.insert(std::move(string), il::Dynamic{std::move(v)});
       } break;
-      case il::Type::Array2dOfUint8: {
+      case il::Type::TypeArray2dOfUint8: {
         il::int_t size0 = 0;
         il::int_t size1 = 0;
         std::fread(&size0, sizeof(il::int_t), 1, file);
@@ -254,7 +254,7 @@ void auxLoad(il::int_t n, il::io_t,
         k += sizeof(unsigned char) * size0 * size1;
         config.insert(std::move(string), il::Dynamic{std::move(A)});
       } break;
-      case il::Type::Array2dOfDouble: {
+      case il::Type::TypeArray2dOfDouble: {
         il::int_t size0 = 0;
         il::int_t size1 = 0;
         std::fread(&size0, sizeof(il::int_t), 1, file);
@@ -412,14 +412,14 @@ void auxSave(const il::MapArray<il::String, il::Dynamic>& data, il::io_t,
                     size + 1, file);
         n += sizeof(il::int_t) + size + 1;
       } break;
-      case il::Type::ArrayOfDouble: {
+      case il::Type::TypeArrayOfDouble: {
         const il::int_t size = data.value(i).asArrayOfDouble().size();
         std::fwrite(&size, sizeof(il::int_t), 1, file);
         std::fwrite(data.value(i).asArrayOfDouble().data(), sizeof(double),
                     size, file);
         n += sizeof(il::int_t) + sizeof(double) * size;
       } break;
-      case il::Type::Array2dOfUint8: {
+      case il::Type::TypeArray2dOfUint8: {
         const il::Array2D<unsigned char>& A = data.value(i).asArray2dOfUint8();
         const il::int_t size0 = A.size(0);
         const il::int_t size1 = A.size(1);
@@ -431,7 +431,7 @@ void auxSave(const il::MapArray<il::String, il::Dynamic>& data, il::io_t,
         }
         n += 2 * sizeof(il::int_t) + sizeof(unsigned char) * size0 * size1;
       } break;
-      case il::Type::Array2dOfDouble: {
+      case il::Type::TypeArray2dOfDouble: {
         const il::Array2D<double>& A = data.value(i).asArray2dOfDouble();
         const il::int_t size0 = A.size(0);
         const il::int_t size1 = A.size(1);

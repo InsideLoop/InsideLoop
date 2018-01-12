@@ -213,8 +213,8 @@ GTEST_API_ bool ExitedUnsuccessfully(int exit_status);
       }                                                                      \
     }                                                                        \
   } else                                                                     \
-  GTEST_CONCAT_TOKEN_(gtest_label_, __LINE__)                                \
-      : fail(::testing::internal::DeathTest::LastMessage())
+    GTEST_CONCAT_TOKEN_(gtest_label_, __LINE__)                              \
+        : fail(::testing::internal::DeathTest::LastMessage())
 // The symbol "fail" here expands to something into which a message
 // can be streamed.
 
@@ -227,7 +227,7 @@ GTEST_API_ bool ExitedUnsuccessfully(int exit_status);
   if (::testing::internal::AlwaysTrue()) {                     \
     GTEST_SUPPRESS_UNREACHABLE_CODE_WARNING_BELOW_(statement); \
   } else                                                       \
-  ::testing::Message()
+    ::testing::Message()
 
 // A class representing the parsed contents of the
 // --gtest_internal_run_death_test flag, as it existed when
@@ -305,7 +305,7 @@ InternalRunDeathTestFlag* ParseInternalRunDeathTestFlag();
     GTEST_SUPPRESS_UNREACHABLE_CODE_WARNING_BELOW_(statement);                 \
     terminator;                                                                \
   } else                                                                       \
-  ::testing::Message()
+    ::testing::Message()
 
 #endif  // GTEST_HAS_DEATH_TEST
 

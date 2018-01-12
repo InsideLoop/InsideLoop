@@ -87,7 +87,7 @@ catch (const std::regex_error& e) {
 }
 #endif
 return init_;
-}
+}  // namespace benchmark
 
 inline Regex::~Regex() {}
 

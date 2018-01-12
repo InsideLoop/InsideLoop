@@ -20,10 +20,9 @@
 
 #include <il/Array.h>
 #include <il/Dynamic.h>
-#include <il/String.h>
 #include <il/Map.h>
 #include <il/MapArray.h>
-
+#include <il/String.h>
 
 int main() {
   const il::String name = "Francois";

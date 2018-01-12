@@ -91,7 +91,7 @@ il::Type TomlParser::parseType(il::StringView string, il::io_t,
     return il::Type::Bool;
   } else if (string[0] == '[') {
     status.setOk();
-    return il::Type::Array;
+    return il::Type::TypeArray;
   } else if (string[0] == '{') {
     status.setOk();
     return il::Type::TypeMapArray;
@@ -396,9 +396,9 @@ il::Dynamic TomlParser::parseArray(il::io_t, il::StringView& string,
       status.setOk();
       return ans;
     } break;
-    case il::Type::Array: {
-      ans =
-          parseObjectArray(il::Type::Array, '[', il::io, string, parse_status);
+    case il::Type::TypeArray: {
+      ans = parseObjectArray(il::Type::TypeArray, '[', il::io, string,
+                             parse_status);
       if (!parse_status.ok()) {
         status = std::move(parse_status);
         return ans;
@@ -476,7 +476,7 @@ il::Dynamic TomlParser::parseObjectArray(il::Type object_type, char delimiter,
       return ans;
     }
 
-    if (object_type == il::Type::Array) {
+    if (object_type == il::Type::TypeArray) {
       array.append(parseArray(il::io, string, parse_status));
       if (!parse_status.ok()) {
         status = std::move(parse_status);
@@ -705,7 +705,7 @@ il::Dynamic TomlParser::parseValue(il::io_t, il::StringView& string,
     case il::Type::String:
       ans = parseString(il::io, string, parse_status);
       break;
-    case il::Type::Array:
+    case il::Type::TypeArray:
       ans = parseArray(il::io, string, parse_status);
       break;
     case il::Type::TypeMapArray:

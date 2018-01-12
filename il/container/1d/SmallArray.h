@@ -656,7 +656,7 @@ bool SmallArray<T, small_size>::invariance() const {
   } else {
     ans = ans && (size_ - data_ >= 0);
     ans = ans && (capacity_ - data_ >= 0);
-    ans = ans && ((size_ - data_) <= (capacity_ - data_ >= 0));
+    ans = ans && ((size_ - data_) <= (capacity_ - data_));
   }
   return ans;
 }

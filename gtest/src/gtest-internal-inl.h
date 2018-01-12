@@ -314,9 +314,9 @@ void ShuffleRange(internal::Random* random, int begin, int end,
   GTEST_CHECK_(0 <= begin && begin <= size)
       << "Invalid shuffle range start " << begin << ": must be in range [0, "
       << size << "].";
-  GTEST_CHECK_(begin <= end && end <= size) << "Invalid shuffle range finish "
-                                            << end << ": must be in range ["
-                                            << begin << ", " << size << "].";
+  GTEST_CHECK_(begin <= end && end <= size)
+      << "Invalid shuffle range finish " << end << ": must be in range ["
+      << begin << ", " << size << "].";
 
   // Fisher-Yates shuffle, from
   // http://en.wikipedia.org/wiki/Fisher-Yates_shuffle
@@ -967,8 +967,8 @@ bool ParseNaturalNumber(const ::std::string& str, Integer* number) {
   errno = 0;
 
   char* end;
-// BiggestConvertible is the largest integer type that system-provided
-// string-to-number conversion routines can return.
+  // BiggestConvertible is the largest integer type that system-provided
+  // string-to-number conversion routines can return.
 
 #if GTEST_OS_WINDOWS && !defined(__GNUC__)
 
@@ -1146,9 +1146,9 @@ class GTEST_API_ StreamingListener : public EmptyTestEventListener {
   void OnTestPartResult(const TestPartResult& test_part_result) {
     const char* file_name = test_part_result.file_name();
     if (file_name == NULL) file_name = "";
-    SendLn("event=TestPartResult&file=" + UrlEncode(file_name) + "&line=" +
-           StreamableToString(test_part_result.line_number()) + "&message=" +
-           UrlEncode(test_part_result.message()));
+    SendLn("event=TestPartResult&file=" + UrlEncode(file_name) +
+           "&line=" + StreamableToString(test_part_result.line_number()) +
+           "&message=" + UrlEncode(test_part_result.message()));
   }
 
  private:

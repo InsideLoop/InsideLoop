@@ -190,7 +190,7 @@ Map<K, V, F>::Map(il::int_t n) {
     }
     p_ = p;
 #ifdef IL_DEBUGGER_HELPERS
-    size_ = std::pow(2, p_);
+    size_ = il::ipow(2, p_);
 #endif
   }
   nb_elements_ = 0;
@@ -219,7 +219,7 @@ Map<K, V, F>::Map(il::value_t, std::initializer_list<il::KeyValue<K, V>> list) {
     }
     p_ = p;
 #ifdef IL_DEBUGGER_HELPERS
-    size_ = std::pow(2, p_);
+    size_ = il::ipow(2, p_);
 #endif
     nb_elements_ = 0;
     nb_tombstones_ = 0;
@@ -298,7 +298,7 @@ Map<K, V, F>& Map<K, V, F>::operator=(const Map<K, V, F>& map) {
     }
     p_ = p;
 #ifdef IL_DEBUGGER_HELPERS
-    size_ = std::pow(2, p_);
+    size_ = il::ipow(2, p_);
 #endif
   } else {
     bucket_ = nullptr;
@@ -866,7 +866,7 @@ void Map<K, V, F>::reserveWithP(int p) {
   }
   p_ = p;
 #ifdef IL_DEBUGGER_HELPERS
-  size_ = std::pow(2, p_);
+  size_ = il::ipow(2, p_);
 #endif
   nb_elements_ = 0;
   nb_tombstones_ = 0;

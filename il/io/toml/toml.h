@@ -122,7 +122,7 @@ inline void save_array(const il::Array<il::Dynamic> &array, il::io_t,
         IL_UNUSED(error3);
         IL_UNUSED(error4);
       } break;
-      case il::Type::Array: {
+      case il::Type::TypeArray: {
         save_array(array[j].asArray(), il::io, file, status);
         if (!status.ok()) {
           status.rearm();
@@ -177,7 +177,7 @@ inline void save_aux(const M &toml, const il::String &name, il::io_t,
           error = std::fputs("\"", file);
           if (error == EOF) return;
           break;
-        case il::Type::ArrayOfDouble: {
+        case il::Type::TypeArrayOfDouble: {
           const il::Array<double> &v = value.asArrayOfDouble();
           error = std::fputs("[ ", file);
           if (error == EOF) return;
@@ -191,7 +191,7 @@ inline void save_aux(const M &toml, const il::String &name, il::io_t,
           error = std::fputs(" ]", file);
           if (error == EOF) return;
         } break;
-        case il::Type::Array2dOfDouble: {
+        case il::Type::TypeArray2dOfDouble: {
           const il::Array2D<double> &v = value.asArray2dOfDouble();
           error = std::fputs("[ ", file);
           if (error == EOF) return;
@@ -215,7 +215,7 @@ inline void save_aux(const M &toml, const il::String &name, il::io_t,
           error = std::fputs(" ]", file);
           if (error == EOF) return;
         } break;
-        case il::Type::Array: {
+        case il::Type::TypeArray: {
           save_array(value.asArray(), il::io, file, status);
           status.abortOnError();
         } break;

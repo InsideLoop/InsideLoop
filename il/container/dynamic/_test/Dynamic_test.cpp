@@ -249,7 +249,8 @@ TEST(Dynamic, copy_constructor_array_0) {
               a.asArray().capacity() == 3 && a.asArray()[0].isNull() &&
               a.asArray()[1].isNull() && a.asArray()[2].isNull() &&
               !a.isNull() && !a.isBool() && !a.isInteger() && !a.isDouble() &&
-              !a.isString() && !a.isMapArray() && a.type() == il::Type::Array);
+              !a.isString() && !a.isMapArray() &&
+              a.type() == il::Type::TypeArray);
 }
 
 TEST(Dynamic, copy_constructor_hashmaparray_0) {
@@ -335,8 +336,8 @@ TEST(Dynamic, move_constructor_array_0) {
               a.asArray().capacity() == 3 && a.asArray()[0].isNull() &&
               a.asArray()[1].isNull() && a.asArray()[2].isNull() &&
               !a.isNull() && !a.isBool() && !a.isInteger() && !a.isDouble() &&
-              !a.isString() && !a.isMapArray() && a.type() == il::Type::Array &&
-              b.isNull());
+              !a.isString() && !a.isMapArray() &&
+              a.type() == il::Type::TypeArray && b.isNull());
 }
 
 TEST(Dynamic, move_constructor_hashmaparray_0) {
@@ -428,7 +429,8 @@ TEST(Dynamic, copy_assignement_array_0) {
               a.asArray().capacity() == 3 && a.asArray()[0].isNull() &&
               a.asArray()[1].isNull() && a.asArray()[2].isNull() &&
               !a.isNull() && !a.isBool() && !a.isInteger() && !a.isDouble() &&
-              !a.isString() && !a.isMapArray() && a.type() == il::Type::Array);
+              !a.isString() && !a.isMapArray() &&
+              a.type() == il::Type::TypeArray);
 }
 
 TEST(Dynamic, copy_assignement_hashmaparray_0) {
@@ -522,8 +524,8 @@ TEST(Dynamic, move_assignement_array_0) {
               a.asArray().capacity() == 3 && a.asArray()[0].isNull() &&
               a.asArray()[1].isNull() && a.asArray()[2].isNull() &&
               !a.isNull() && !a.isBool() && !a.isInteger() && !a.isDouble() &&
-              !a.isString() && !a.isMapArray() && a.type() == il::Type::Array &&
-              b.isNull());
+              !a.isString() && !a.isMapArray() &&
+              a.type() == il::Type::TypeArray && b.isNull());
 }
 
 TEST(Dynamic, move_assignement_hashmaparray_0) {

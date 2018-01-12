@@ -49,16 +49,17 @@ enum class Type : unsigned char {
   Float = 3,
   Double = 4,
   String = 5,
-  Array,
-  ArrayOfUint8,
-  ArrayOfFloat,
-  ArrayOfDouble,
-  Array2dOfUint8,
-  Array2dOfFloat,
-  Array2dOfDouble,
-  Array2cOfUint8,
-  Array2cOfFloat,
-  Array2cOfDouble,
+  TypeArray,
+  TypeArrayOfUint8,
+  TypeArrayOfInt32,
+  TypeArrayOfFloat,
+  TypeArrayOfDouble,
+  TypeArray2dOfUint8,
+  TypeArray2dOfFloat,
+  TypeArray2dOfDouble,
+  TypeArray2cOfUint8,
+  TypeArray2cOfFloat,
+  TypeArray2cOfDouble,
   TypeMap,
   TypeMapArray
 };
@@ -78,6 +79,7 @@ class Dynamic {
 
     il::Array<il::Dynamic>* array_val_;
     il::Array<unsigned char>* array_of_uint8_val_;
+    il::Array<int>* array_of_int32_val_;
     il::Array<double>* array_of_double_val_;
     il::Array2D<unsigned char>* array2d_of_uint8_val_;
     il::Array2D<double>* array2d_of_double_val_;
@@ -102,6 +104,10 @@ class Dynamic {
   Dynamic(il::String&& value);
   Dynamic(const il::Array<il::Dynamic>& value);
   Dynamic(il::Array<il::Dynamic>&& value);
+  Dynamic(const il::Array<unsigned char>& value);
+  Dynamic(il::Array<unsigned char>&& value);
+  Dynamic(const il::Array<int>& value);
+  Dynamic(il::Array<int>&& value);
   Dynamic(const il::Array<double>& value);
   Dynamic(il::Array<double>&& value);
   Dynamic(const il::Array2D<double>& value);
@@ -128,6 +134,8 @@ class Dynamic {
   bool isDouble() const;
   bool isString() const;
   bool isArray() const;
+  bool isArrayOfUint8() const;
+  bool isArrayOfInt32() const;
   bool isArrayOfDouble() const;
   bool isArray2dOfDouble() const;
   bool isArray2dOfUint8() const;
@@ -136,12 +144,16 @@ class Dynamic {
 
   bool toBool() const;
   il::int_t toInteger() const;
-  double toFloat() const;
+  float toFloat() const;
   double toDouble() const;
   const il::String& asString() const;
   il::String& asString();
   const il::Array<il::Dynamic>& asArray() const;
   il::Array<il::Dynamic>& asArray();
+  const il::Array<unsigned char>& asArrayOfUint8() const;
+  il::Array<unsigned char>& asArrayOfUint8();
+  const il::Array<int>& asArrayOfInt32() const;
+  il::Array<int>& asArrayOfInt32();
   const il::Array<double>& asArrayOfDouble() const;
   il::Array<double>& asArrayOfDouble();
   const il::Array2D<double>& asArray2dOfDouble() const;
@@ -208,42 +220,62 @@ inline Dynamic::Dynamic(il::String&& value) {
 }
 
 inline Dynamic::Dynamic(const il::Array<il::Dynamic>& value) {
-  type_ = il::Type::Array;
+  type_ = il::Type::TypeArray;
   array_val_ = new il::Array<il::Dynamic>{value};
 }
 
 inline Dynamic::Dynamic(il::Array<il::Dynamic>&& value) {
-  type_ = il::Type::Array;
+  type_ = il::Type::TypeArray;
   array_val_ = new il::Array<il::Dynamic>{std::move(value)};
 }
 
+inline Dynamic::Dynamic(const il::Array<unsigned char>& value) {
+  type_ = il::Type::TypeArrayOfUint8;
+  array_of_uint8_val_ = new il::Array<unsigned char>{value};
+}
+
+inline Dynamic::Dynamic(il::Array<unsigned char>&& value) {
+  type_ = il::Type::TypeArrayOfUint8;
+  array_of_uint8_val_ = new il::Array<unsigned char>{std::move(value)};
+}
+
+inline Dynamic::Dynamic(const il::Array<int>& value) {
+  type_ = il::Type::TypeArrayOfInt32;
+  array_of_int32_val_ = new il::Array<int>{value};
+}
+
+inline Dynamic::Dynamic(il::Array<int>&& value) {
+  type_ = il::Type::TypeArrayOfInt32;
+  array_of_int32_val_ = new il::Array<int>{std::move(value)};
+}
+
 inline Dynamic::Dynamic(const il::Array<double>& value) {
-  type_ = il::Type::ArrayOfDouble;
+  type_ = il::Type::TypeArrayOfDouble;
   array_of_double_val_ = new il::Array<double>{value};
 }
 
 inline Dynamic::Dynamic(il::Array<double>&& value) {
-  type_ = il::Type::ArrayOfDouble;
+  type_ = il::Type::TypeArrayOfDouble;
   array_of_double_val_ = new il::Array<double>{std::move(value)};
 }
 
 inline Dynamic::Dynamic(const il::Array2D<double>& value) {
-  type_ = il::Type::Array2dOfDouble;
+  type_ = il::Type::TypeArray2dOfDouble;
   array2d_of_double_val_ = new il::Array2D<double>{value};
 }
 
 inline Dynamic::Dynamic(il::Array2D<double>&& value) {
-  type_ = il::Type::Array2dOfDouble;
+  type_ = il::Type::TypeArray2dOfDouble;
   array2d_of_double_val_ = new il::Array2D<double>{std::move(value)};
 }
 
 inline Dynamic::Dynamic(const il::Array2D<unsigned char>& value) {
-  type_ = il::Type::Array2dOfUint8;
+  type_ = il::Type::TypeArray2dOfUint8;
   array2d_of_uint8_val_ = new il::Array2D<unsigned char>{value};
 }
 
 inline Dynamic::Dynamic(il::Array2D<unsigned char>&& value) {
-  type_ = il::Type::Array2dOfUint8;
+  type_ = il::Type::TypeArray2dOfUint8;
   array2d_of_uint8_val_ = new il::Array2D<unsigned char>{std::move(value)};
 }
 
@@ -287,11 +319,16 @@ inline Dynamic::Dynamic(const il::Dynamic& other) {
   type_ = other.type_;
   if (type_ == il::Type::String) {
     string_val_ = new il::String{*other.string_val_};
-  } else if (type_ == il::Type::Array) {
+  } else if (type_ == il::Type::TypeArray) {
     array_val_ = new il::Array<il::Dynamic>{*other.array_val_};
-  } else if (type_ == il::Type::ArrayOfDouble) {
+  } else if (type_ == il::Type::TypeArrayOfUint8) {
+    array_of_uint8_val_ =
+        new il::Array<unsigned char>{*other.array_of_uint8_val_};
+  } else if (type_ == il::Type::TypeArrayOfInt32) {
+    array_of_int32_val_ = new il::Array<int>{*other.array_of_int32_val_};
+  } else if (type_ == il::Type::TypeArrayOfDouble) {
     array_of_double_val_ = new il::Array<double>{*other.array_of_double_val_};
-  } else if (type_ == il::Type::Array2dOfDouble) {
+  } else if (type_ == il::Type::TypeArray2dOfDouble) {
     array2d_of_double_val_ =
         new il::Array2D<double>{*other.array2d_of_double_val_};
   } else if (type_ == il::Type::TypeMap) {
@@ -315,11 +352,16 @@ inline il::Dynamic& Dynamic::operator=(const il::Dynamic& other) {
   type_ = other.type_;
   if (type_ == il::Type::String) {
     string_val_ = new il::String{*other.string_val_};
-  } else if (type_ == il::Type::Array) {
+  } else if (type_ == il::Type::TypeArray) {
     array_val_ = new il::Array<il::Dynamic>{*other.array_val_};
-  } else if (type_ == il::Type::ArrayOfDouble) {
+  } else if (type_ == il::Type::TypeArrayOfUint8) {
+    array_of_uint8_val_ =
+        new il::Array<unsigned char>{*other.array_of_uint8_val_};
+  } else if (type_ == il::Type::TypeArrayOfInt32) {
+    array_of_int32_val_ = new il::Array<int>{*other.array_of_int32_val_};
+  } else if (type_ == il::Type::TypeArrayOfDouble) {
     array_of_double_val_ = new il::Array<double>{*other.array_of_double_val_};
-  } else if (type_ == il::Type::Array2dOfDouble) {
+  } else if (type_ == il::Type::TypeArray2dOfDouble) {
     array2d_of_double_val_ =
         new il::Array2D<double>{*other.array2d_of_double_val_};
   } else if (type_ == il::Type::TypeMap) {
@@ -355,18 +397,26 @@ inline bool Dynamic::isDouble() const { return type_ == il::Type::Double; }
 
 inline bool Dynamic::isString() const { return type_ == il::Type::String; }
 
-inline bool Dynamic::isArray() const { return type_ == il::Type::Array; }
+inline bool Dynamic::isArray() const { return type_ == il::Type::TypeArray; }
+
+inline bool Dynamic::isArrayOfUint8() const {
+  return type_ == il::Type::TypeArrayOfUint8;
+}
+
+inline bool Dynamic::isArrayOfInt32() const {
+  return type_ == il::Type::TypeArrayOfInt32;
+}
 
 inline bool Dynamic::isArrayOfDouble() const {
-  return type_ == il::Type::ArrayOfDouble;
+  return type_ == il::Type::TypeArrayOfDouble;
 }
 
 inline bool Dynamic::isArray2dOfDouble() const {
-  return type_ == il::Type::Array2dOfDouble;
+  return type_ == il::Type::TypeArray2dOfDouble;
 }
 
 inline bool Dynamic::isArray2dOfUint8() const {
-  return type_ == il::Type::Array2dOfUint8;
+  return type_ == il::Type::TypeArray2dOfUint8;
 }
 
 inline bool Dynamic::isMap() const { return type_ == il::Type::TypeMap; }
@@ -379,7 +429,7 @@ inline bool Dynamic::toBool() const { return bool_val_; }
 
 inline il::int_t Dynamic::toInteger() const { return integer_val_; }
 
-inline double Dynamic::toFloat() const { return float_val_; }
+inline float Dynamic::toFloat() const { return float_val_; }
 
 inline double Dynamic::toDouble() const { return double_val_; }
 
@@ -392,6 +442,22 @@ inline const il::Array<il::Dynamic>& Dynamic::asArray() const {
 }
 
 inline il::Array<il::Dynamic>& Dynamic::asArray() { return *array_val_; }
+
+inline const il::Array<unsigned char>& Dynamic::asArrayOfUint8() const {
+  return *array_of_uint8_val_;
+}
+
+inline il::Array<unsigned char>& Dynamic::asArrayOfUint8() {
+  return *array_of_uint8_val_;
+}
+
+inline const il::Array<int>& Dynamic::asArrayOfInt32() const {
+  return *array_of_int32_val_;
+}
+
+inline il::Array<int>& Dynamic::asArrayOfInt32() {
+  return *array_of_int32_val_;
+}
 
 inline const il::Array<double>& Dynamic::asArrayOfDouble() const {
   return *array_of_double_val_;
@@ -435,13 +501,17 @@ inline il::MapArray<il::String, il::Dynamic>& Dynamic::asMapArray() {
 inline void Dynamic::releaseMemory() {
   if (type_ == il::Type::String) {
     delete string_val_;
-  } else if (type_ == il::Type::Array) {
+  } else if (type_ == il::Type::TypeArray) {
     delete array_val_;
-  } else if (type_ == il::Type::ArrayOfDouble) {
+  } else if (type_ == il::Type::TypeArrayOfUint8) {
+    delete array_of_uint8_val_;
+  } else if (type_ == il::Type::TypeArrayOfInt32) {
+    delete array_of_int32_val_;
+  } else if (type_ == il::Type::TypeArrayOfDouble) {
     delete array_of_double_val_;
-  } else if (type_ == il::Type::Array2dOfDouble) {
+  } else if (type_ == il::Type::TypeArray2dOfDouble) {
     delete array2d_of_double_val_;
-  } else if (type_ == il::Type::Array2dOfUint8) {
+  } else if (type_ == il::Type::TypeArray2dOfUint8) {
     delete array2d_of_uint8_val_;
   } else if (type_ == il::Type::TypeMap) {
     delete map_val_;

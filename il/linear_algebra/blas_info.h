@@ -32,6 +32,6 @@ enum class Blas {
   HermitianUpper,
   HermitianLower
 };
-}
+}  // namespace il
 
 #endif  // IL_BLAS_INFO_H
