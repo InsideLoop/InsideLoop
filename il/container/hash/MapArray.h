@@ -33,6 +33,7 @@ class MapArray {
  public:
   MapArray();
   MapArray(il::int_t n);
+  MapArray(il::value_t, std::initializer_list<il::KeyValue<K, V>> list);
   void insert(const K& key, const V& value);
   void insert(const K& key, V&& value);
   void insert(K&& key, const V& value);
@@ -53,6 +54,7 @@ class MapArray {
   il::int_t next(il::int_t i) const;
   il::int_t first() const;
   il::int_t sentinel() const;
+  il::int_t nbElements() const;
 };
 
 template <typename K, typename V, typename F>
@@ -64,6 +66,21 @@ MapArray<K, V, F>::MapArray(il::int_t n) : array_{}, map_{n} {
 }
 
 template <typename K, typename V, typename F>
+MapArray<K, V, F>::MapArray(il::value_t,
+                            std::initializer_list<il::KeyValue<K, V>> list) {
+  const il::int_t n = static_cast<il::int_t>(list.size());
+  if (n > 0) {
+    array_.reserve(n);
+    map_.reserve(n);
+    for (il::int_t i = 0; i < n; ++i) {
+      array_.append(il::emplace, (list.begin() + i)->key,
+                    (list.begin() + i)->value);
+      map_.insert((list.begin() + i)->key, i);
+    }
+  }
+};
+
+template <typename K, typename V, typename F>
 void MapArray<K, V, F>::insert(const K& key, const V& value) {
   const il::int_t i = array_.size();
   array_.append(il::emplace, key, value);
@@ -73,7 +90,6 @@ void MapArray<K, V, F>::insert(const K& key, const V& value) {
 template <typename K, typename V, typename F>
 void MapArray<K, V, F>::insert(const K& key, V&& value) {
   const il::int_t i = array_.size();
-  //  array_.append(il::KeyValue<K, V>{key, std::move(value)});
   array_.append(il::emplace, key, std::move(value));
   map_.insert(key, i);
 }
@@ -168,6 +184,11 @@ template <typename K, typename V, typename F>
 il::int_t MapArray<K, V, F>::sentinel() const {
   return array_.size();
 }
+
+template <typename K, typename V, typename F>
+il::int_t MapArray<K, V, F>::nbElements() const {
+  return array_.size();
+};
 
 }  // namespace il
 

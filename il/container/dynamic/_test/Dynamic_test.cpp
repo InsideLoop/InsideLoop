@@ -34,7 +34,7 @@ TEST(Dynamic, default_constructor) {
 
   ASSERT_TRUE(a.isNull() && !a.isBool() && !a.isInteger() && !a.isDouble() &&
               !a.isString() && !a.isArray() && !a.isMapArray() &&
-              a.type() == il::Type::Null);
+              a.type() == il::Type::TNull);
 }
 
 TEST(Dynamic, bool_constructor_0) {
@@ -42,7 +42,7 @@ TEST(Dynamic, bool_constructor_0) {
 
   ASSERT_TRUE(a.isBool() && a.toBool() && !a.isNull() && !a.isInteger() &&
               !a.isDouble() && !a.isString() && !a.isArray() &&
-              !a.isMapArray() && a.type() == il::Type::Bool);
+              !a.isMapArray() && a.type() == il::Type::TBool);
 }
 
 TEST(Dynamic, bool_constructor_1) {
@@ -50,7 +50,7 @@ TEST(Dynamic, bool_constructor_1) {
 
   ASSERT_TRUE(a.isBool() && a.toBool() == false && !a.isNull() &&
               !a.isInteger() && !a.isDouble() && !a.isString() &&
-              !a.isArray() && !a.isMapArray() && a.type() == il::Type::Bool);
+              !a.isArray() && !a.isMapArray() && a.type() == il::Type::TBool);
 }
 
 TEST(Dynamic, integer_constructor_0) {
@@ -58,7 +58,7 @@ TEST(Dynamic, integer_constructor_0) {
 
   ASSERT_TRUE(a.isInteger() && a.toInteger() == 3 && !a.isNull() &&
               !a.isBool() && !a.isDouble() && !a.isString() && !a.isArray() &&
-              !a.isMapArray() && a.type() == il::Type::Integer);
+              !a.isMapArray() && a.type() == il::Type::TInteger);
 }
 
 TEST(Dynamic, integer_constructor_1) {
@@ -66,7 +66,7 @@ TEST(Dynamic, integer_constructor_1) {
 
   ASSERT_TRUE(a.isInteger() && a.toInteger() == -3 && !a.isNull() &&
               !a.isBool() && !a.isDouble() && !a.isString() && !a.isArray() &&
-              !a.isMapArray() && a.type() == il::Type::Integer);
+              !a.isMapArray() && a.type() == il::Type::TInteger);
 }
 
 TEST(Dynamic, integer_constructor_2) {
@@ -75,7 +75,7 @@ TEST(Dynamic, integer_constructor_2) {
 
   ASSERT_TRUE(a.isInteger() && a.toInteger() == n && !a.isNull() &&
               !a.isBool() && !a.isDouble() && !a.isString() && !a.isArray() &&
-              !a.isMapArray() && a.type() == il::Type::Integer);
+              !a.isMapArray() && a.type() == il::Type::TInteger);
 }
 
 TEST(Dynamic, integer_constructor_3) {
@@ -84,7 +84,7 @@ TEST(Dynamic, integer_constructor_3) {
 
   ASSERT_TRUE(a.isInteger() && a.toInteger() == n && !a.isNull() &&
               !a.isBool() && !a.isDouble() && !a.isString() && !a.isArray() &&
-              !a.isMapArray() && a.type() == il::Type::Integer);
+              !a.isMapArray() && a.type() == il::Type::TInteger);
 }
 
 TEST(Dynamic, double_constructor_0) {
@@ -96,7 +96,7 @@ TEST(Dynamic, double_constructor_0) {
 
   ASSERT_TRUE(a.isDouble() && a.toDouble() == x && !a.isNull() && !a.isBool() &&
               !a.isInteger() && !a.isString() && !a.isArray() &&
-              !a.isMapArray() && a.type() == il::Type::Double);
+              !a.isMapArray() && a.type() == il::Type::TDouble);
 }
 
 TEST(Dynamic, double_constructor_1) {
@@ -105,7 +105,7 @@ TEST(Dynamic, double_constructor_1) {
 
   ASSERT_TRUE(a.isDouble() && std::isnan(a.toDouble()) && !a.isNull() &&
               !a.isBool() && !a.isInteger() && !a.isString() && !a.isArray() &&
-              !a.isMapArray() && a.type() == il::Type::Double);
+              !a.isMapArray() && a.type() == il::Type::TDouble);
 }
 
 TEST(Dynamic, double_constructor_2) {
@@ -114,7 +114,7 @@ TEST(Dynamic, double_constructor_2) {
 
   ASSERT_TRUE(a.isDouble() && std::isnan(a.toDouble()) && !a.isNull() &&
               !a.isBool() && !a.isInteger() && !a.isString() && !a.isArray() &&
-              !a.isMapArray() && a.type() == il::Type::Double);
+              !a.isMapArray() && a.type() == il::Type::TDouble);
 }
 
 TEST(Dynamic, double_constructor_3) {
@@ -123,7 +123,7 @@ TEST(Dynamic, double_constructor_3) {
 
   ASSERT_TRUE(a.isDouble() && std::isnan(a.toDouble()) && !a.isNull() &&
               !a.isBool() && !a.isInteger() && !a.isString() && !a.isArray() &&
-              !a.isMapArray() && a.type() == il::Type::Double);
+              !a.isMapArray() && a.type() == il::Type::TDouble);
 }
 
 TEST(Dynamic, double_constructor_4) {
@@ -133,7 +133,7 @@ TEST(Dynamic, double_constructor_4) {
 
   ASSERT_TRUE(a.isDouble() && std::isnan(a.toDouble()) && !a.isNull() &&
               !a.isBool() && !a.isInteger() && !a.isString() && !a.isArray() &&
-              !a.isMapArray() && a.type() == il::Type::Double);
+              !a.isMapArray() && a.type() == il::Type::TDouble);
 }
 
 TEST(Dynamic, double_constructor_5) {
@@ -142,7 +142,7 @@ TEST(Dynamic, double_constructor_5) {
 
   ASSERT_TRUE(a.isDouble() && a.toDouble() == x && !a.isNull() && !a.isBool() &&
               !a.isInteger() && !a.isString() && !a.isArray() &&
-              !a.isMapArray() && a.type() == il::Type::Double);
+              !a.isMapArray() && a.type() == il::Type::TDouble);
 }
 
 TEST(Dynamic, double_constructor_6) {
@@ -151,7 +151,7 @@ TEST(Dynamic, double_constructor_6) {
 
   ASSERT_TRUE(a.isDouble() && a.toDouble() == x && !a.isNull() && !a.isBool() &&
               !a.isInteger() && !a.isString() && !a.isArray() &&
-              !a.isMapArray() && a.type() == il::Type::Double);
+              !a.isMapArray() && a.type() == il::Type::TDouble);
 }
 
 TEST(Dynamic, string_constructor_0) {
@@ -160,7 +160,7 @@ TEST(Dynamic, string_constructor_0) {
 
   ASSERT_TRUE(a.isString() && a.asString() == string && !a.isNull() &&
               !a.isBool() && !a.isInteger() && !a.isDouble() && !a.isArray() &&
-              !a.isMapArray() && a.type() == il::Type::String);
+              !a.isMapArray() && a.type() == il::Type::TString);
 }
 
 TEST(Dynamic, string_constructor_1) {
@@ -169,7 +169,7 @@ TEST(Dynamic, string_constructor_1) {
 
   ASSERT_TRUE(a.isString() && a.asString() == string && !a.isNull() &&
               !a.isBool() && !a.isInteger() && !a.isDouble() && !a.isArray() &&
-              !a.isMapArray() && a.type() == il::Type::String);
+              !a.isMapArray() && a.type() == il::Type::TString);
 }
 
 TEST(Dynamic, string_constructor_2) {
@@ -179,7 +179,7 @@ TEST(Dynamic, string_constructor_2) {
 
   ASSERT_TRUE(a.isString() && a.asString() == string && !a.isNull() &&
               !a.isBool() && !a.isInteger() && !a.isDouble() && !a.isArray() &&
-              !a.isMapArray() && a.type() == il::Type::String);
+              !a.isMapArray() && a.type() == il::Type::TString);
 }
 
 TEST(Dynamic, copy_constructor_null) {
@@ -188,7 +188,7 @@ TEST(Dynamic, copy_constructor_null) {
 
   ASSERT_TRUE(a.isNull() && !a.isBool() && !a.isInteger() && !a.isDouble() &&
               !a.isString() && !a.isArray() && !a.isMapArray() &&
-              a.type() == il::Type::Null);
+              a.type() == il::Type::TNull);
 }
 
 TEST(Dynamic, copy_constructor_bool_0) {
@@ -197,7 +197,7 @@ TEST(Dynamic, copy_constructor_bool_0) {
 
   ASSERT_TRUE(a.isBool() && a.toBool() && !a.isNull() && !a.isInteger() &&
               !a.isDouble() && !a.isString() && !a.isArray() &&
-              !a.isMapArray() && a.type() == il::Type::Bool);
+              !a.isMapArray() && a.type() == il::Type::TBool);
 }
 
 TEST(Dynamic, copy_constructor_bool_1) {
@@ -206,7 +206,7 @@ TEST(Dynamic, copy_constructor_bool_1) {
 
   ASSERT_TRUE(a.isBool() && a.toBool() == false && !a.isNull() &&
               !a.isInteger() && !a.isDouble() && !a.isString() &&
-              !a.isArray() && !a.isMapArray() && a.type() == il::Type::Bool);
+              !a.isArray() && !a.isMapArray() && a.type() == il::Type::TBool);
 }
 
 TEST(Dynamic, copy_constructor_integer_0) {
@@ -216,7 +216,7 @@ TEST(Dynamic, copy_constructor_integer_0) {
 
   ASSERT_TRUE(a.isInteger() && a.toInteger() == 3 && !a.isNull() &&
               !a.isBool() && !a.isDouble() && !a.isString() && !a.isArray() &&
-              !a.isMapArray() && a.type() == il::Type::Integer);
+              !a.isMapArray() && a.type() == il::Type::TInteger);
 }
 
 TEST(Dynamic, copy_constructor_floating_point_0) {
@@ -226,7 +226,7 @@ TEST(Dynamic, copy_constructor_floating_point_0) {
 
   ASSERT_TRUE(a.isDouble() && a.toDouble() == x && !a.isNull() && !a.isBool() &&
               !a.isInteger() && !a.isString() && !a.isArray() &&
-              !a.isMapArray() && a.type() == il::Type::Double);
+              !a.isMapArray() && a.type() == il::Type::TDouble);
 }
 
 TEST(Dynamic, copy_constructor_string_0) {
@@ -236,7 +236,7 @@ TEST(Dynamic, copy_constructor_string_0) {
 
   ASSERT_TRUE(a.isString() && a.asString() == string && !a.isNull() &&
               !a.isBool() && !a.isInteger() && !a.isDouble() && !a.isArray() &&
-              !a.isMapArray() && a.type() == il::Type::String);
+              !a.isMapArray() && a.type() == il::Type::TString);
 }
 
 TEST(Dynamic, copy_constructor_array_0) {
@@ -250,7 +250,7 @@ TEST(Dynamic, copy_constructor_array_0) {
               a.asArray()[1].isNull() && a.asArray()[2].isNull() &&
               !a.isNull() && !a.isBool() && !a.isInteger() && !a.isDouble() &&
               !a.isString() && !a.isMapArray() &&
-              a.type() == il::Type::TypeArray);
+              a.type() == il::Type::TArray);
 }
 
 TEST(Dynamic, copy_constructor_hashmaparray_0) {
@@ -265,7 +265,7 @@ TEST(Dynamic, copy_constructor_hashmaparray_0) {
               a.asMapArray().search("Hello") >= 0 &&
               a.asMapArray().search("World!") >= 0 && !a.isNull() &&
               !a.isBool() && !a.isInteger() && !a.isDouble() && !a.isString() &&
-              !a.isArray() && a.type() == il::Type::TypeMapArray);
+              !a.isArray() && a.type() == il::Type::TMapArray);
 }
 
 TEST(Dynamic, move_constructor_null) {
@@ -274,7 +274,7 @@ TEST(Dynamic, move_constructor_null) {
 
   ASSERT_TRUE(a.isNull() && !a.isBool() && !a.isInteger() && !a.isDouble() &&
               !a.isString() && !a.isArray() && !a.isMapArray() &&
-              a.type() == il::Type::Null && b.isNull());
+              a.type() == il::Type::TNull && b.isNull());
 }
 
 TEST(Dynamic, move_constructor_bool_0) {
@@ -283,7 +283,7 @@ TEST(Dynamic, move_constructor_bool_0) {
 
   ASSERT_TRUE(a.isBool() && a.toBool() && !a.isNull() && !a.isInteger() &&
               !a.isDouble() && !a.isString() && !a.isArray() &&
-              !a.isMapArray() && a.type() == il::Type::Bool && b.isNull());
+              !a.isMapArray() && a.type() == il::Type::TBool && b.isNull());
 }
 
 TEST(Dynamic, move_constructor_bool_1) {
@@ -292,7 +292,7 @@ TEST(Dynamic, move_constructor_bool_1) {
 
   ASSERT_TRUE(a.isBool() && a.toBool() == false && !a.isNull() &&
               !a.isInteger() && !a.isDouble() && !a.isString() &&
-              !a.isArray() && !a.isMapArray() && a.type() == il::Type::Bool &&
+              !a.isArray() && !a.isMapArray() && a.type() == il::Type::TBool &&
               b.isNull());
 }
 
@@ -303,7 +303,7 @@ TEST(Dynamic, move_constructor_integer_0) {
 
   ASSERT_TRUE(a.isInteger() && a.toInteger() == 3 && !a.isNull() &&
               !a.isBool() && !a.isDouble() && !a.isString() && !a.isArray() &&
-              !a.isMapArray() && a.type() == il::Type::Integer && b.isNull());
+              !a.isMapArray() && a.type() == il::Type::TInteger && b.isNull());
 }
 
 TEST(Dynamic, move_constructor_floating_point_0) {
@@ -313,7 +313,7 @@ TEST(Dynamic, move_constructor_floating_point_0) {
 
   ASSERT_TRUE(a.isDouble() && a.toDouble() == x && !a.isNull() && !a.isBool() &&
               !a.isInteger() && !a.isString() && !a.isArray() &&
-              !a.isMapArray() && a.type() == il::Type::Double && b.isNull());
+              !a.isMapArray() && a.type() == il::Type::TDouble && b.isNull());
 }
 
 TEST(Dynamic, move_constructor_string_0) {
@@ -323,7 +323,7 @@ TEST(Dynamic, move_constructor_string_0) {
 
   ASSERT_TRUE(a.isString() && a.asString() == string && !a.isNull() &&
               !a.isBool() && !a.isInteger() && !a.isDouble() && !a.isArray() &&
-              !a.isMapArray() && a.type() == il::Type::String && b.isNull());
+              !a.isMapArray() && a.type() == il::Type::TString && b.isNull());
 }
 
 TEST(Dynamic, move_constructor_array_0) {
@@ -337,7 +337,7 @@ TEST(Dynamic, move_constructor_array_0) {
               a.asArray()[1].isNull() && a.asArray()[2].isNull() &&
               !a.isNull() && !a.isBool() && !a.isInteger() && !a.isDouble() &&
               !a.isString() && !a.isMapArray() &&
-              a.type() == il::Type::TypeArray && b.isNull());
+              a.type() == il::Type::TArray && b.isNull());
 }
 
 TEST(Dynamic, move_constructor_hashmaparray_0) {
@@ -352,7 +352,7 @@ TEST(Dynamic, move_constructor_hashmaparray_0) {
               a.asMapArray().search("Hello") >= 0 &&
               a.asMapArray().search("World!") >= 0 && !a.isNull() &&
               !a.isBool() && !a.isInteger() && !a.isDouble() && !a.isString() &&
-              !a.isArray() && a.type() == il::Type::TypeMapArray && b.isNull());
+              !a.isArray() && a.type() == il::Type::TMapArray && b.isNull());
 }
 
 TEST(Dynamic, copy_assignement_null) {
@@ -362,7 +362,7 @@ TEST(Dynamic, copy_assignement_null) {
 
   ASSERT_TRUE(a.isNull() && !a.isBool() && !a.isInteger() && !a.isDouble() &&
               !a.isString() && !a.isArray() && !a.isMapArray() &&
-              a.type() == il::Type::Null);
+              a.type() == il::Type::TNull);
 }
 
 TEST(Dynamic, copy_assignement_bool_0) {
@@ -372,7 +372,7 @@ TEST(Dynamic, copy_assignement_bool_0) {
 
   ASSERT_TRUE(a.isBool() && a.toBool() && !a.isNull() && !a.isInteger() &&
               !a.isDouble() && !a.isString() && !a.isArray() &&
-              !a.isMapArray() && a.type() == il::Type::Bool);
+              !a.isMapArray() && a.type() == il::Type::TBool);
 }
 
 TEST(Dynamic, copy_assignement_bool_1) {
@@ -382,7 +382,7 @@ TEST(Dynamic, copy_assignement_bool_1) {
 
   ASSERT_TRUE(a.isBool() && a.toBool() == false && !a.isNull() &&
               !a.isInteger() && !a.isDouble() && !a.isString() &&
-              !a.isArray() && !a.isMapArray() && a.type() == il::Type::Bool);
+              !a.isArray() && !a.isMapArray() && a.type() == il::Type::TBool);
 }
 
 TEST(Dynamic, copy_assignement_integer_0) {
@@ -393,7 +393,7 @@ TEST(Dynamic, copy_assignement_integer_0) {
 
   ASSERT_TRUE(a.isInteger() && a.toInteger() == 3 && !a.isNull() &&
               !a.isBool() && !a.isDouble() && !a.isString() && !a.isArray() &&
-              !a.isMapArray() && a.type() == il::Type::Integer);
+              !a.isMapArray() && a.type() == il::Type::TInteger);
 }
 
 TEST(Dynamic, copy_assignement_floating_point_0) {
@@ -404,7 +404,7 @@ TEST(Dynamic, copy_assignement_floating_point_0) {
 
   ASSERT_TRUE(a.isDouble() && a.toDouble() == x && !a.isNull() && !a.isBool() &&
               !a.isInteger() && !a.isString() && !a.isArray() &&
-              !a.isMapArray() && a.type() == il::Type::Double);
+              !a.isMapArray() && a.type() == il::Type::TDouble);
 }
 
 TEST(Dynamic, copy_assignement_string_0) {
@@ -415,7 +415,7 @@ TEST(Dynamic, copy_assignement_string_0) {
 
   ASSERT_TRUE(a.isString() && a.asString() == string && !a.isNull() &&
               !a.isBool() && !a.isInteger() && !a.isDouble() && !a.isArray() &&
-              !a.isMapArray() && a.type() == il::Type::String);
+              !a.isMapArray() && a.type() == il::Type::TString);
 }
 
 TEST(Dynamic, copy_assignement_array_0) {
@@ -430,7 +430,7 @@ TEST(Dynamic, copy_assignement_array_0) {
               a.asArray()[1].isNull() && a.asArray()[2].isNull() &&
               !a.isNull() && !a.isBool() && !a.isInteger() && !a.isDouble() &&
               !a.isString() && !a.isMapArray() &&
-              a.type() == il::Type::TypeArray);
+              a.type() == il::Type::TArray);
 }
 
 TEST(Dynamic, copy_assignement_hashmaparray_0) {
@@ -446,7 +446,7 @@ TEST(Dynamic, copy_assignement_hashmaparray_0) {
               a.asMapArray().search("Hello") >= 0 &&
               a.asMapArray().search("World!") >= 0 && !a.isNull() &&
               !a.isBool() && !a.isInteger() && !a.isDouble() && !a.isString() &&
-              !a.isArray() && a.type() == il::Type::TypeMapArray);
+              !a.isArray() && a.type() == il::Type::TMapArray);
 }
 
 TEST(Dynamic, move_assignement_null) {
@@ -456,7 +456,7 @@ TEST(Dynamic, move_assignement_null) {
 
   ASSERT_TRUE(a.isNull() && !a.isBool() && !a.isInteger() && !a.isDouble() &&
               !a.isString() && !a.isArray() && !a.isMapArray() &&
-              a.type() == il::Type::Null && b.isNull());
+              a.type() == il::Type::TNull && b.isNull());
 }
 
 TEST(Dynamic, move_assignement_bool_0) {
@@ -466,7 +466,7 @@ TEST(Dynamic, move_assignement_bool_0) {
 
   ASSERT_TRUE(a.isBool() && a.toBool() && !a.isNull() && !a.isInteger() &&
               !a.isDouble() && !a.isString() && !a.isArray() &&
-              !a.isMapArray() && a.type() == il::Type::Bool && b.isNull());
+              !a.isMapArray() && a.type() == il::Type::TBool && b.isNull());
 }
 
 TEST(Dynamic, move_assignement_bool_1) {
@@ -476,7 +476,7 @@ TEST(Dynamic, move_assignement_bool_1) {
 
   ASSERT_TRUE(a.isBool() && a.toBool() == false && !a.isNull() &&
               !a.isInteger() && !a.isDouble() && !a.isString() &&
-              !a.isArray() && !a.isMapArray() && a.type() == il::Type::Bool &&
+              !a.isArray() && !a.isMapArray() && a.type() == il::Type::TBool &&
               b.isNull());
 }
 
@@ -488,7 +488,7 @@ TEST(Dynamic, move_assignement_integer_0) {
 
   ASSERT_TRUE(a.isInteger() && a.toInteger() == 3 && !a.isNull() &&
               !a.isBool() && !a.isDouble() && !a.isString() && !a.isArray() &&
-              !a.isMapArray() && a.type() == il::Type::Integer && b.isNull());
+              !a.isMapArray() && a.type() == il::Type::TInteger && b.isNull());
 }
 
 TEST(Dynamic, move_assignement_floating_point_0) {
@@ -499,7 +499,7 @@ TEST(Dynamic, move_assignement_floating_point_0) {
 
   ASSERT_TRUE(a.isDouble() && a.toDouble() == x && !a.isNull() && !a.isBool() &&
               !a.isInteger() && !a.isString() && !a.isArray() &&
-              !a.isMapArray() && a.type() == il::Type::Double && b.isNull());
+              !a.isMapArray() && a.type() == il::Type::TDouble && b.isNull());
 }
 
 TEST(Dynamic, move_assignement_string_0) {
@@ -510,7 +510,7 @@ TEST(Dynamic, move_assignement_string_0) {
 
   ASSERT_TRUE(a.isString() && a.asString() == string && !a.isNull() &&
               !a.isBool() && !a.isInteger() && !a.isDouble() && !a.isArray() &&
-              !a.isMapArray() && a.type() == il::Type::String && b.isNull());
+              !a.isMapArray() && a.type() == il::Type::TString && b.isNull());
 }
 
 TEST(Dynamic, move_assignement_array_0) {
@@ -525,7 +525,7 @@ TEST(Dynamic, move_assignement_array_0) {
               a.asArray()[1].isNull() && a.asArray()[2].isNull() &&
               !a.isNull() && !a.isBool() && !a.isInteger() && !a.isDouble() &&
               !a.isString() && !a.isMapArray() &&
-              a.type() == il::Type::TypeArray && b.isNull());
+              a.type() == il::Type::TArray && b.isNull());
 }
 
 TEST(Dynamic, move_assignement_hashmaparray_0) {
@@ -541,5 +541,5 @@ TEST(Dynamic, move_assignement_hashmaparray_0) {
               a.asMapArray().search("Hello") >= 0 &&
               a.asMapArray().search("World!") >= 0 && !a.isNull() &&
               !a.isBool() && !a.isInteger() && !a.isDouble() && !a.isString() &&
-              !a.isArray() && a.type() == il::Type::TypeMapArray && b.isNull());
+              !a.isArray() && a.type() == il::Type::TMapArray && b.isNull());
 }

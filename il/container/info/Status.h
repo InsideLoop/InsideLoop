@@ -41,6 +41,7 @@ enum class Error : unsigned short {
   FilesystemNoWriteAccess = 0 * 256 + 3,
   FilesystemCanNotCloseFile = 0 * 256 + 4,
   FilesystemCanNotWriteToFile = 0 * 256 + 5,
+  FilesystemFileNotLongEnough = 0 * 256 + 6,
   //
   BinaryFileWrongFormat = 4 * 256 + 0,
   BinaryFileWrongType = 4 * 256 + 1,

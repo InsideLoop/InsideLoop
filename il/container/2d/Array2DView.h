@@ -43,6 +43,8 @@ class Array2DView {
   */
   Array2DView();
 
+  Array2DView(const T* data, il::int_t n0, il::int_t n1, il::int_t stride);
+
   /* \brief Construct an il::Array2DView<T> from a
   C-array (a pointer) and
   // its size and the stride
@@ -130,6 +132,25 @@ Array2DView<T>::Array2DView() {
   size_[0] = nullptr;
   size_[1] = nullptr;
   stride_ = nullptr;
+  align_mod_ = 0;
+  align_r_ = 0;
+}
+
+template <typename T>
+Array2DView<T>::Array2DView(const T* data, il::int_t n0, il::int_t n1,
+                            il::int_t stride) {
+  IL_EXPECT_FAST(n0 >= 0);
+  IL_EXPECT_FAST(n1 >= 0);
+  IL_EXPECT_FAST(stride > 0);
+  data_ = const_cast<T*>(data);
+#ifdef IL_DEBUGGER_HELPERS
+  debug_size_0_ = n0;
+  debug_size_1_ = n1;
+  debug_stride_ = stride;
+#endif
+  size_[0] = data_ + n0;
+  size_[1] = data_ + n1;
+  stride_ = data_ + stride;
   align_mod_ = 0;
   align_r_ = 0;
 }

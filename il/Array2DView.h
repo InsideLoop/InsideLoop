@@ -16,26 +16,4 @@
 //
 //==============================================================================
 
-#include <iostream>
-
-#include <il/File.h>
-
-int main() {
-  const il::String filename = "/home/fayard/Desktop/essai.data";
-  const il::int_t buffer_size = 4 * 8;
-
-  il::Status status{};
-  il::File file{filename, il::FileMode::Read, buffer_size, il::io, status};
-  status.abortOnError();
-
-  double x[4];
-  file.read(2, sizeof(double), il::io, &x, status);
-  status.abortOnError();
-  file.read(4, sizeof(double), il::io, &x, status);
-  status.abortOnError();
-
-  file.close(il::io, status);
-  status.abortOnError();
-
-  return 0;
-}
+#include <il/container/2d/Array2DView.h>

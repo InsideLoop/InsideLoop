@@ -19,8 +19,6 @@
 #ifndef IL_MEMORY_H
 #define IL_MEMORY_H
 
-#include <il/Array2D.h>
-
 namespace il {
 
 void escape(void* p) { asm volatile("" : : "g"(p) : "memory"); }

@@ -66,7 +66,7 @@ il::Type TomlParser::parseType(il::StringView string, il::io_t,
                                il::Status& status) {
   if (string[0] == '"' || string[0] == '\'') {
     status.setOk();
-    return il::Type::String;
+    return il::Type::TString;
   } else if (string.startsWithDigit() || string[0] == '-' || string[0] == '+') {
     il::int_t i = 0;
     if (string[0] == '-' || string[0] == '+') {
@@ -81,25 +81,25 @@ il::Type TomlParser::parseType(il::StringView string, il::io_t,
         ++i;
       }
       status.setOk();
-      return il::Type::Double;
+      return il::Type::TDouble;
     } else {
       status.setOk();
-      return il::Type::Integer;
+      return il::Type::TInteger;
     }
   } else if (string[0] == 't' || string[0] == 'f') {
     status.setOk();
-    return il::Type::Bool;
+    return il::Type::TBool;
   } else if (string[0] == '[') {
     status.setOk();
-    return il::Type::TypeArray;
+    return il::Type::TArray;
   } else if (string[0] == '{') {
     status.setOk();
-    return il::Type::TypeMapArray;
+    return il::Type::TMapArray;
   } else {
     status.setError(il::Error::ParseCanNotDetermineType);
     IL_SET_SOURCE(status);
     status.setInfo("line", line_number_);
-    return il::Type::Null;
+    return il::Type::TNull;
   }
 }
 
@@ -383,11 +383,11 @@ il::Dynamic TomlParser::parseArray(il::io_t, il::StringView& string,
   }
 
   switch (value_type) {
-    case il::Type::Null:
-    case il::Type::Bool:
-    case il::Type::Integer:
-    case il::Type::Double:
-    case il::Type::String: {
+    case il::Type::TNull:
+    case il::Type::TBool:
+    case il::Type::TInteger:
+    case il::Type::TDouble:
+    case il::Type::TString: {
       ans = parseValueArray(value_type, il::io, string, parse_status);
       if (!parse_status.ok()) {
         status = std::move(parse_status);
@@ -396,8 +396,8 @@ il::Dynamic TomlParser::parseArray(il::io_t, il::StringView& string,
       status.setOk();
       return ans;
     } break;
-    case il::Type::TypeArray: {
-      ans = parseObjectArray(il::Type::TypeArray, '[', il::io, string,
+    case il::Type::TArray: {
+      ans = parseObjectArray(il::Type::TArray, '[', il::io, string,
                              parse_status);
       if (!parse_status.ok()) {
         status = std::move(parse_status);
@@ -476,7 +476,7 @@ il::Dynamic TomlParser::parseObjectArray(il::Type object_type, char delimiter,
       return ans;
     }
 
-    if (object_type == il::Type::TypeArray) {
+    if (object_type == il::Type::TArray) {
       array.append(parseArray(il::io, string, parse_status));
       if (!parse_status.ok()) {
         status = std::move(parse_status);
@@ -695,20 +695,20 @@ il::Dynamic TomlParser::parseValue(il::io_t, il::StringView& string,
   }
 
   switch (type) {
-    case il::Type::Bool:
+    case il::Type::TBool:
       ans = parseBool(il::io, string, parse_status);
       break;
-    case il::Type::Integer:
-    case il::Type::Double:
+    case il::Type::TInteger:
+    case il::Type::TDouble:
       ans = parseNumber(il::io, string, parse_status);
       break;
-    case il::Type::String:
+    case il::Type::TString:
       ans = parseString(il::io, string, parse_status);
       break;
-    case il::Type::TypeArray:
+    case il::Type::TArray:
       ans = parseArray(il::io, string, parse_status);
       break;
-    case il::Type::TypeMapArray:
+    case il::Type::TMapArray:
       ans = parseInlineTable(il::io, string, parse_status);
       break;
     default:

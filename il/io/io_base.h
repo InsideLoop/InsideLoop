@@ -126,9 +126,26 @@ class SaveHelper {
                    il::Status& status);
 };
 
+template <typename T, typename U>
+class SaveHelperWithOptions {
+ public:
+  static void save(const T& x, const U& options, const il::String& filename,
+                   il::io_t, il::Status& status);
+};
+
 template <typename T>
 void SaveHelper<T>::save(const T& x, const il::String& filename, il::io_t,
                          il::Status& status) {
+  IL_UNUSED(x);
+  IL_UNUSED(filename);
+  status.setError(il::Error::Unimplemented);
+  IL_SET_SOURCE(status);
+}
+
+template <typename T, typename U>
+void SaveHelperWithOptions<T, U>::save(const T& x, const U& options,
+                                    const il::String& filename, il::io_t,
+                                    il::Status& status) {
   IL_UNUSED(x);
   IL_UNUSED(filename);
   status.setError(il::Error::Unimplemented);
@@ -158,9 +175,26 @@ class SaveHelperData {
                    il::Status& status);
 };
 
+template <typename T, typename U>
+class SaveHelperDataWithOptions {
+ public:
+  static void save(const T& x, const U& options, const il::String& filename,
+                   il::io_t, il::Status& status);
+};
+
 template <typename T>
 void SaveHelperData<T>::save(const T& x, const il::String& filename, il::io_t,
                              il::Status& status) {
+  IL_UNUSED(x);
+  IL_UNUSED(filename);
+  status.setError(il::Error::Unimplemented);
+  IL_SET_SOURCE(status);
+}
+
+template <typename T, typename U>
+void SaveHelperDataWithOptions<T, U>::save(const T& x, const U&,
+                                        const il::String& filename, il::io_t,
+                                        il::Status& status) {
   IL_UNUSED(x);
   IL_UNUSED(filename);
   status.setError(il::Error::Unimplemented);
@@ -203,6 +237,30 @@ void save(const T& x, const il::String& filename, il::io_t,
       break;
     default:
       il::SaveHelper<T>::save(x, filename, il::io, status);
+  }
+}
+
+template <typename T, typename U>
+void save(const T& x, const U& option, const il::String& filename, il::io_t,
+          il::Status& status) {
+  const il::FileType ft = il::fileType(filename, il::io, status);
+  if (!status.ok()) {
+    status.rearm();
+    return;
+  }
+  switch (ft) {
+    case il::FileType::Toml:
+      IL_UNREACHABLE;
+      break;
+    case il::FileType::Data:
+      il::SaveHelperDataWithOptions<T, U>::save(x, option, filename, il::io,
+                                             status);
+      break;
+    case il::FileType::Png:
+      IL_UNREACHABLE;
+      break;
+    default:
+      IL_UNREACHABLE;
   }
 }
 

@@ -514,7 +514,7 @@ set(BENCHMARK_FILES
     il/container/hash/_benchmark/Map_il_vs_std_benchmark.h
     il/container/string/_benchmark/String_benchmark.h
     il/container/string/_benchmark/String_il_vs_std_benchmark.h
-        il/linear_algebra/matrixFree/solver/Gmres.cpp il/linear_algebra/matrixFree/solver/Gmres.h)
+        il/linear_algebra/matrixFree/solver/Gmres.cpp il/linear_algebra/matrixFree/solver/Gmres.h il/File.h)
 
 # C++ feature checks
 # Determine the correct regular expression engine to use
