@@ -99,7 +99,7 @@ il::Type TomlParser::parseType(il::StringView string, il::io_t,
     status.setError(il::Error::ParseCanNotDetermineType);
     IL_SET_SOURCE(status);
     status.setInfo("line", line_number_);
-    return il::Type::TNull;
+    return il::Type::TUnknown;
   }
 }
 
@@ -383,7 +383,7 @@ il::Dynamic TomlParser::parseArray(il::io_t, il::StringView& string,
   }
 
   switch (value_type) {
-    case il::Type::TNull:
+    case il::Type::TUnknown:
     case il::Type::TBool:
     case il::Type::TInteger:
     case il::Type::TDouble:

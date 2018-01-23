@@ -16,13 +16,5 @@
 //
 //==============================================================================
 
-#include <iostream>
+#include <il/container/dynamic/Type.h>
 
-#include <il/String.h>
-#include <il/Dynamic.h>
-
-int main() {
-  il::Dynamic x = 2.3;
-
-  return 0;
-}

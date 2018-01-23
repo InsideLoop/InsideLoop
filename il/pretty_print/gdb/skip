@@ -1,0 +1,5 @@
+skip -file "il/container/string/String.h"
+skip -file "il/container/dynamic/Dynamic.h"
+skip -file "il/container/hash/Map.h"
+skip -file "il/container/hash/MapArray.h"
+skip -file "il/container/1d/Array.h"

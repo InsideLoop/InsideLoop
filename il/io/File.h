@@ -49,6 +49,8 @@ class File {
   File(const il::String& filename, il::FileMode mode, il::io_t,
        il::Status& status);
   ~File();
+  template <il::int_t nb_objects, typename T>
+  void read(il::io_t, T* p, il::Status& status);
   void read(il::int_t nb_objects, std::size_t nb_bytes, il::io_t, void* p,
             il::Status& status);
   void write(const void* p, il::int_t nb_objects, std::size_t nb_bytes,
@@ -79,7 +81,6 @@ inline File::File(const il::String& filename, il::FileMode mode,
   }
 #else  // Windows case
   il::UTF16String s_mode{};
-  il::String s_mode{};
   switch (mode) {
     case il::FileMode::Read:
       s_mode = L"rb";
@@ -113,43 +114,58 @@ inline File::File(const il::String& filename, il::FileMode mode, il::io_t,
 
 inline File::~File() { IL_EXPECT_MEDIUM(!opened_); }
 
+template <il::int_t nb_objects, typename T>
+inline void File::read(il::io_t, T* p, il::Status& status) {
+  IL_EXPECT_MEDIUM(opened_);
+  IL_EXPECT_MEDIUM(mode_ == il::FileMode::Read ||
+                   mode_ == il::FileMode::ReadWrite);
+  IL_EXPECT_MEDIUM(nb_objects >= 0);
+
+  const il::int_t nb_bytes_to_read =
+      nb_objects * static_cast<il::int_t>(sizeof(T));
+  if (next_ + nb_bytes_to_read <= end_buffer_) {
+    std::memcpy(p, buffer_.data() + next_, nb_bytes_to_read);
+    next_ += nb_bytes_to_read;
+    nb_bytes_read_ += nb_bytes_to_read;
+    status.setOk();
+  } else {
+    read(nb_objects, sizeof(T), il::io, p, status);
+  }
+};
+
 inline void File::read(il::int_t nb_objects, std::size_t nb_bytes, il::io_t,
                        void* p, il::Status& status) {
   IL_EXPECT_MEDIUM(opened_);
   IL_EXPECT_MEDIUM(mode_ == il::FileMode::Read ||
                    mode_ == il::FileMode::ReadWrite);
   IL_EXPECT_MEDIUM(nb_bytes > 0);
+  IL_EXPECT_MEDIUM(nb_objects >= 0);
 
-  const il::int_t nb_objects_from_buffer = il::min(
-      (end_buffer_ - next_) / nb_bytes, static_cast<std::size_t>(nb_objects));
-  const il::int_t nb_bytes_from_buffer = nb_objects_from_buffer * nb_bytes;
-  if (nb_objects_from_buffer > 0) {
+  const il::int_t nb_bytes_from_buffer = il::min(
+      end_buffer_ - next_, nb_objects * static_cast<il::int_t>(nb_bytes));
+  if (nb_bytes_from_buffer > 0) {
     std::memcpy(p, buffer_.data() + next_, nb_bytes_from_buffer);
     next_ += nb_bytes_from_buffer;
     nb_bytes_read_ += nb_bytes_from_buffer;
   }
-  const il::int_t nb_objects_to_read = nb_objects - nb_objects_from_buffer;
-  if (nb_objects_to_read > 0) {
-    const il::int_t nb_bytes_to_read = nb_objects_to_read * nb_bytes;
+  const il::int_t nb_bytes_to_read =
+      nb_objects * static_cast<il::int_t>(nb_bytes) - nb_bytes_from_buffer;
+  if (nb_bytes_to_read > 0) {
     if (nb_bytes_to_read > buffer_.size()) {
       // On the Windows platform (tested with Visual Studio 2015), reading 1
       // element of n bytes is faster than reading n elements of 1 byte. As a
       // consequence, I we try to do that first and if we fail because we are at
       // the end of the file, we try to read n elements of 1 byte.
-      const std::size_t nb_objects_read =
-          std::fread(p, nb_bytes, nb_objects_to_read, file_);
-      nb_bytes_read_ += nb_objects_read * nb_bytes;
-      if (nb_objects_read != nb_objects_to_read) {
+      const std::size_t nb_bytes_read =
+          std::fread(p, nb_bytes_to_read, 1, file_);
+      nb_bytes_read_ += nb_bytes_read;
+      if (nb_bytes_read != nb_bytes_to_read) {
         status.setError(il::Error::FilesystemFileNotLongEnough);
         return;
       }
     } else {
-      // Here, if we try to read a full line of buffer and if we fail, the
-      // cursor as advanced.
-      //
-      // We need to fseek accroding to stackoverflow
-      // How does fread really work?
-      //
+      // Here, if we try to read a full line of buffer. The cursor position has
+      // to be saved because if fread fails, its position is undefined.
       const long previous_position = std::ftell(file_);
       const std::size_t full_buffer_read = std::fread(
           buffer_.data(), static_cast<std::size_t>(buffer_.size()), 1, file_);
@@ -164,11 +180,11 @@ inline void File::read(il::int_t nb_objects, std::size_t nb_bytes, il::io_t,
         IL_EXPECT_MEDIUM(error == 0);
         next_ = 0;
         end_buffer_ = 0;
-        const std::size_t nb_objects_read =
+        const std::size_t chunk_read =
             std::fread(static_cast<unsigned char*>(p) + nb_bytes_from_buffer,
-                       nb_bytes, nb_objects_to_read, file_);
-        nb_bytes_read_ += nb_objects_read * nb_bytes;
-        if (nb_objects_read != nb_objects_to_read) {
+                       nb_bytes_to_read, 1, file_);
+        nb_bytes_read_ += nb_bytes_to_read;
+        if (chunk_read != 1) {
           status.setError(il::Error::FilesystemFileNotLongEnough);
           return;
         }
