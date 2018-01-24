@@ -329,8 +329,8 @@ TEST(Dynamic, copy_constructor_array_0) {
 
 TEST(Dynamic, copy_constructor_hashmaparray_0) {
   il::MapArray<il::String, il::Dynamic> map{};
-  map.insert(il::String{"Hello"}, il::Dynamic{5});
-  map.insert(il::String{"World!"}, il::Dynamic{6});
+  map.set(il::String{"Hello"}, il::Dynamic{5});
+  map.set(il::String{"World!"}, il::Dynamic{6});
 
   il::Dynamic b = map;
   il::Dynamic a{b};
@@ -338,8 +338,10 @@ TEST(Dynamic, copy_constructor_hashmaparray_0) {
   const bool ans =
       a.is<il::MapArray<il::String, il::Dynamic>>() &&
       a.as<il::MapArray<il::String, il::Dynamic>>().size() == 2 &&
-      a.as<il::MapArray<il::String, il::Dynamic>>().search("Hello") >= 0 &&
-      a.as<il::MapArray<il::String, il::Dynamic>>().search("World!") >= 0 &&
+      a.as<il::MapArray<il::String, il::Dynamic>>().search("Hello").isValid() &&
+      a.as<il::MapArray<il::String, il::Dynamic>>()
+          .search("World!")
+          .isValid() &&
       !a.is<void>() && !a.is<bool>() && !a.is<il::int_t>() && !a.is<double>() &&
       !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
       a.type() == il::Type::TMapArray;
@@ -442,8 +444,8 @@ TEST(Dynamic, move_constructor_array_0) {
 
 TEST(Dynamic, move_constructor_hashmaparray_0) {
   il::MapArray<il::String, il::Dynamic> map{};
-  map.insert(il::String{"Hello"}, il::Dynamic{5});
-  map.insert(il::String{"World!"}, il::Dynamic{6});
+  map.set(il::String{"Hello"}, il::Dynamic{5});
+  map.set(il::String{"World!"}, il::Dynamic{6});
 
   il::Dynamic b = map;
   il::Dynamic a = std::move(b);
@@ -451,8 +453,10 @@ TEST(Dynamic, move_constructor_hashmaparray_0) {
   const bool ans =
       a.is<il::MapArray<il::String, il::Dynamic>>() &&
       a.as<il::MapArray<il::String, il::Dynamic>>().size() == 2 &&
-      a.as<il::MapArray<il::String, il::Dynamic>>().search("Hello") >= 0 &&
-      a.as<il::MapArray<il::String, il::Dynamic>>().search("World!") >= 0 &&
+      a.as<il::MapArray<il::String, il::Dynamic>>().search("Hello").isValid() &&
+      a.as<il::MapArray<il::String, il::Dynamic>>()
+          .search("World!")
+          .isValid() &&
       !a.is<void>() && !a.is<bool>() && !a.is<il::int_t>() && !a.is<double>() &&
       !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
       a.type() == il::Type::TMapArray && b.is<void>();
@@ -562,8 +566,8 @@ TEST(Dynamic, copy_assignement_array_0) {
 
 TEST(Dynamic, copy_assignement_hashmaparray_0) {
   il::MapArray<il::String, il::Dynamic> map{};
-  map.insert(il::String{"Hello"}, il::Dynamic{5});
-  map.insert(il::String{"World!"}, il::Dynamic{6});
+  map.set(il::String{"Hello"}, il::Dynamic{5});
+  map.set(il::String{"World!"}, il::Dynamic{6});
 
   il::Dynamic b = map;
   il::Dynamic a{};
@@ -572,8 +576,10 @@ TEST(Dynamic, copy_assignement_hashmaparray_0) {
   const bool ans =
       a.is<il::MapArray<il::String, il::Dynamic>>() &&
       a.as<il::MapArray<il::String, il::Dynamic>>().size() == 2 &&
-      a.as<il::MapArray<il::String, il::Dynamic>>().search("Hello") >= 0 &&
-      a.as<il::MapArray<il::String, il::Dynamic>>().search("World!") >= 0 &&
+      a.as<il::MapArray<il::String, il::Dynamic>>().search("Hello").isValid() &&
+      a.as<il::MapArray<il::String, il::Dynamic>>()
+          .search("World!")
+          .isValid() &&
       !a.is<void>() && !a.is<bool>() && !a.is<il::int_t>() && !a.is<double>() &&
       !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
       a.type() == il::Type::TMapArray;
@@ -683,8 +689,8 @@ TEST(Dynamic, move_assignement_array_0) {
 
 TEST(Dynamic, move_assignement_hashmaparray_0) {
   il::MapArray<il::String, il::Dynamic> map{};
-  map.insert(il::String{"Hello"}, il::Dynamic{5});
-  map.insert(il::String{"World!"}, il::Dynamic{6});
+  map.set(il::String{"Hello"}, il::Dynamic{5});
+  map.set(il::String{"World!"}, il::Dynamic{6});
 
   il::Dynamic b = map;
   il::Dynamic a{};
@@ -693,8 +699,10 @@ TEST(Dynamic, move_assignement_hashmaparray_0) {
   const bool ans =
       a.is<il::MapArray<il::String, il::Dynamic>>() &&
       a.as<il::MapArray<il::String, il::Dynamic>>().size() == 2 &&
-      a.as<il::MapArray<il::String, il::Dynamic>>().search("Hello") >= 0 &&
-      a.as<il::MapArray<il::String, il::Dynamic>>().search("World!") >= 0 &&
+      a.as<il::MapArray<il::String, il::Dynamic>>().search("Hello").isValid() &&
+      a.as<il::MapArray<il::String, il::Dynamic>>()
+          .search("World!")
+          .isValid() &&
       !a.is<void>() && !a.is<bool>() && !a.is<il::int_t>() && !a.is<double>() &&
       !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
       a.type() == il::Type::TMapArray && b.is<void>();

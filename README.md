@@ -658,7 +658,7 @@ void addEuropeanCountry(il::Map<il::String, il::int_t>& population) {
   il::String country = "France";
   il::int_t n = 64806269;
   
-  il::int_t i = population.search(country);
+  il::Location i = population.search(country);
   if (!population.found(i)) {
     population.insert(country, n, il::io, i);
   }
@@ -686,7 +686,7 @@ display the population of a country with the previous hash table:
 void printPopulationCountry(
     const il::Map<il::String, il::int_t>& population,
     const il::String& country) {
-  il::int_t i = population.search(country);
+  il::Location i = population.search(country);
   if (population.found(i)) {
     std::printf("The population of %s is %td\n", country.asCString(),
         population.value(i));
@@ -826,7 +826,7 @@ int main() {
   
   // get the name
   il::String name{};
-  il::int_t i = config.search("name");
+  il::Location i = config.search("name");
   if (config.found(i) && config.value(i).is<il::String>()) {
     name = config.value(i).as<il::String>();
   }
@@ -846,7 +846,7 @@ int main() {
     const il::MapArray<il::String, il::Dynamic>& water =
         config.value(i).as<il::MapArray<il::String, il::Dynamic>>();
     
-    il::int_t j = water.search("density");
+    il::Location j = water.search("density");
     if (water.found(j) && water.value(j).is<double>()) {
       density = water.value(j).as<double>();
     }

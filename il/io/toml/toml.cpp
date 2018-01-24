@@ -230,7 +230,7 @@ il::Dynamic TomlParser::parseNumber(il::io_t, il::StringView& string,
       number.append(string[j]);
     }
   }
-  il::StringView view{il::StringType::Bytes, number.data(), i};
+  il::StringView view{il::StringType::Raw, number.data(), i};
 
   if (is_float) {
     status.setOk();
@@ -552,7 +552,7 @@ void TomlParser::parseKeyValue(il::io_t, il::StringView& string,
     return;
   }
 
-  il::int_t i = toml.search(key);
+  il::Location i = toml.search(key);
   if (toml.found(i)) {
     status.setError(il::Error::ParseDuplicateKey);
     IL_SET_SOURCE(status);
@@ -576,7 +576,7 @@ void TomlParser::parseKeyValue(il::io_t, il::StringView& string,
   }
 
   status.setOk();
-  toml.insert(key, value);
+  toml.set(key, value);
 }
 
 il::String TomlParser::parseKey(char end, il::io_t, il::StringView& string,
@@ -670,7 +670,7 @@ il::String TomlParser::parseKey(char end, il::io_t, il::StringView& string,
       }
     }
 
-    key = il::String{il::StringType::Bytes, key_string.data(), j};
+    key = il::String{il::StringType::Raw, key_string.data(), j};
     status.setOk();
     return key;
   }
@@ -775,7 +775,7 @@ void TomlParser::parseSingleTable(il::io_t, il::StringView& string,
     }
     full_table_name.append(table_name);
 
-    il::int_t i = toml->search(table_name);
+    il::Location i = toml->search(table_name);
     if (toml->found(i)) {
       if (toml->value(i).is<il::MapArray<il::String, il::Dynamic>>()) {
         toml = &(toml->value(i).as<il::MapArray<il::String, il::Dynamic>>());
@@ -803,9 +803,9 @@ void TomlParser::parseSingleTable(il::io_t, il::StringView& string,
       }
     } else {
       inserted = true;
-      toml->insert(table_name,
-                   il::Dynamic{il::MapArray<il::String, il::Dynamic>{}}, il::io,
-                   i);
+      toml->set(table_name,
+                il::Dynamic{il::MapArray<il::String, il::Dynamic>{}}, il::io,
+                i);
       toml = &(toml->value(i).as<il::MapArray<il::String, il::Dynamic>>());
     }
 
@@ -858,7 +858,7 @@ void TomlParser::parseTableArray(il::io_t, il::StringView& string,
     full_table_name.append(table_name);
 
     string = il::removeWhitespaceLeft(string);
-    il::int_t i = toml->search(table_name);
+    il::Location i = toml->search(table_name);
     if (toml->found(i)) {
       il::Dynamic& b = toml->value(i);
       if (!string.isEmpty() && string[0] == ']') {
@@ -874,17 +874,16 @@ void TomlParser::parseTableArray(il::io_t, il::StringView& string,
       }
     } else {
       if (!string.isEmpty() && string[0] == ']') {
-        toml->insert(table_name, il::Dynamic{il::Array<il::Dynamic>{}}, il::io,
-                     i);
+        toml->set(table_name, il::Dynamic{il::Array<il::Dynamic>{}}, il::io, i);
         toml->value(i).as<il::Array<il::Dynamic>>().append(
             il::Dynamic{il::MapArray<il::String, il::Dynamic>{}});
         toml = &(toml->value(i)
                      .as<il::Array<il::Dynamic>>()[0]
                      .as<il::MapArray<il::String, il::Dynamic>>());
       } else {
-        toml->insert(table_name,
-                     il::Dynamic{il::MapArray<il::String, il::Dynamic>{}},
-                     il::io, i);
+        toml->set(table_name,
+                  il::Dynamic{il::MapArray<il::String, il::Dynamic>{}}, il::io,
+                  i);
         toml = &(toml->value(i).as<il::MapArray<il::String, il::Dynamic>>());
       }
     }
@@ -938,7 +937,7 @@ il::MapArray<il::String, il::Dynamic> TomlParser::parse(
   while (std::fgets(buffer_line_, max_line_length_ + 1, file_) != nullptr) {
     ++line_number_;
 
-    il::StringView line{il::StringType::Bytes, buffer_line_,
+    il::StringView line{il::StringType::Raw, buffer_line_,
                         il::size(buffer_line_)};
     line = il::removeWhitespaceLeft(line);
 

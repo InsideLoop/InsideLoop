@@ -34,26 +34,26 @@ class MapArray {
   MapArray();
   MapArray(il::int_t n);
   MapArray(il::value_t, std::initializer_list<il::KeyValue<K, V>> list);
-  void insert(const K& key, const V& value);
-  void insert(const K& key, V&& value);
-  void insert(K&& key, const V& value);
-  void insert(K&& key, V&& value);
-  void insert(const K& key, const V& value, il::io_t, il::int_t& i);
-  void insert(const K& key, V&& value, il::io_t, il::int_t& i);
-  void insert(K&& key, const V& value, il::io_t, il::int_t& i);
-  void insert(K&& key, V&& value, il::io_t, il::int_t& i);
+  void set(const K& key, const V& value);
+  void set(const K& key, V&& value);
+  void set(K&& key, const V& value);
+  void set(K&& key, V&& value);
+  void set(const K& key, const V& value, il::io_t, il::Location& i);
+  void set(const K& key, V&& value, il::io_t, il::Location& i);
+  void set(K&& key, const V& value, il::io_t, il::Location& i);
+  void set(K&& key, V&& value, il::io_t, il::Location& i);
   il::int_t size() const;
   il::int_t capacity() const;
-  il::int_t search(const K& key) const;
+  il::Location search(const K& key) const;
   template <il::int_t m>
-  il::int_t searchCString(const char (&key)[m]) const;
-  bool found(il::int_t i) const;
-  const K& key(il::int_t i) const;
-  const V& value(il::int_t i) const;
-  V& value(il::int_t i);
-  il::int_t next(il::int_t i) const;
-  il::int_t first() const;
-  il::int_t sentinel() const;
+  il::Location searchCString(const char (&key)[m]) const;
+  bool found(il::Location i) const;
+  const K& key(il::Location i) const;
+  const V& value(il::Location i) const;
+  V& value(il::Location i);
+  il::Location next(il::Location i) const;
+  il::Location first() const;
+  il::Location sentinel() const;
   il::int_t nbElements() const;
 };
 
@@ -75,56 +75,56 @@ MapArray<K, V, F>::MapArray(il::value_t,
     for (il::int_t i = 0; i < n; ++i) {
       array_.append(il::emplace, (list.begin() + i)->key,
                     (list.begin() + i)->value);
-      map_.insert((list.begin() + i)->key, i);
+      map_.set((list.begin() + i)->key, i);
     }
   }
 };
 
 template <typename K, typename V, typename F>
-void MapArray<K, V, F>::insert(const K& key, const V& value) {
+void MapArray<K, V, F>::set(const K& key, const V& value) {
   const il::int_t i = array_.size();
   array_.append(il::emplace, key, value);
-  map_.insert(key, i);
+  map_.set(key, i);
 }
 
 template <typename K, typename V, typename F>
-void MapArray<K, V, F>::insert(const K& key, V&& value) {
+void MapArray<K, V, F>::set(const K& key, V&& value) {
   const il::int_t i = array_.size();
   array_.append(il::emplace, key, std::move(value));
-  map_.insert(key, i);
+  map_.set(key, i);
 }
 
 template <typename K, typename V, typename F>
-void MapArray<K, V, F>::insert(K&& key, V&& value) {
+void MapArray<K, V, F>::set(K&& key, V&& value) {
   const il::int_t i = array_.size();
   array_.append(il::emplace, key, std::move(value));
-  map_.insert(std::move(key), i);
+  map_.set(std::move(key), i);
 }
 
 template <typename K, typename V, typename F>
-void MapArray<K, V, F>::insert(const K& key, const V& value, il::io_t,
-                               il::int_t& i) {
+void MapArray<K, V, F>::set(const K& key, const V& value, il::io_t,
+                            il::Location& i) {
   const il::int_t j = array_.size();
   array_.append(il::emplace, key, value);
-  map_.insert(key, j, il::io, i);
-  i = j;
+  map_.set(key, j, il::io, i);
+  i.setIndex(j);
 }
 
 template <typename K, typename V, typename F>
-void MapArray<K, V, F>::insert(const K& key, V&& value, il::io_t,
-                               il::int_t& i) {
+void MapArray<K, V, F>::set(const K& key, V&& value, il::io_t,
+                            il::Location& i) {
   const il::int_t j = array_.size();
   array_.append(il::emplace, key, std::move(value));
-  map_.insert(key, j, il::io, i);
-  i = j;
+  map_.set(key, j, il::io, i);
+  i.setIndex(j);
 }
 
 template <typename K, typename V, typename F>
-void MapArray<K, V, F>::insert(K&& key, V&& value, il::io_t, il::int_t& i) {
+void MapArray<K, V, F>::set(K&& key, V&& value, il::io_t, il::Location& i) {
   const il::int_t j = array_.size();
   array_.append(il::emplace, key, std::move(value));
-  map_.insert(std::move(key), j, il::io, i);
-  i = j;
+  map_.set(std::move(key), j, il::io, i);
+  i.setIndex(j);
 }
 
 template <typename K, typename V, typename F>
@@ -138,51 +138,51 @@ il::int_t MapArray<K, V, F>::capacity() const {
 }
 
 template <typename K, typename V, typename F>
-il::int_t MapArray<K, V, F>::search(const K& key) const {
-  const il::int_t i = map_.search(key);
-  return map_.found(i) ? map_.value(i) : i;
+il::Location MapArray<K, V, F>::search(const K& key) const {
+  const il::Location i = map_.search(key);
+  return map_.found(i) ? il::Location{map_.value(i)} : i;
 }
 
 template <typename K, typename V, typename F>
 template <il::int_t m>
-il::int_t MapArray<K, V, F>::searchCString(const char (&key)[m]) const {
-  const il::int_t i = map_.search(key);
-  return map_.found(i) ? map_.value(i) : i;
+il::Location MapArray<K, V, F>::searchCString(const char (&key)[m]) const {
+  const il::Location i = map_.search(key);
+  return map_.found(i) ? il::Location{map_.value(i)} : i;
 };
 
 template <typename K, typename V, typename F>
-bool MapArray<K, V, F>::found(il::int_t i) const {
-  return i >= 0;
+bool MapArray<K, V, F>::found(il::Location i) const {
+  return i.index() >= 0;
 }
 
 template <typename K, typename V, typename F>
-const K& MapArray<K, V, F>::key(il::int_t i) const {
-  return array_[i].key;
+const K& MapArray<K, V, F>::key(il::Location i) const {
+  return array_[i.index()].key;
 }
 
 template <typename K, typename V, typename F>
-const V& MapArray<K, V, F>::value(il::int_t i) const {
-  return array_[i].value;
+const V& MapArray<K, V, F>::value(il::Location i) const {
+  return array_[i.index()].value;
 }
 
 template <typename K, typename V, typename F>
-V& MapArray<K, V, F>::value(il::int_t i) {
-  return array_[i].value;
+V& MapArray<K, V, F>::value(il::Location i) {
+  return array_[i.index()].value;
 }
 
 template <typename K, typename V, typename F>
-il::int_t MapArray<K, V, F>::next(il::int_t i) const {
-  return i + 1;
+il::Location MapArray<K, V, F>::next(il::Location i) const {
+  return il::Location{i.index() + 1};
 }
 
 template <typename K, typename V, typename F>
-il::int_t MapArray<K, V, F>::first() const {
-  return 0;
+il::Location MapArray<K, V, F>::first() const {
+  return il::Location{0};
 }
 
 template <typename K, typename V, typename F>
-il::int_t MapArray<K, V, F>::sentinel() const {
-  return array_.size();
+il::Location MapArray<K, V, F>::sentinel() const {
+  return il::Location{array_.size()};
 }
 
 template <typename K, typename V, typename F>

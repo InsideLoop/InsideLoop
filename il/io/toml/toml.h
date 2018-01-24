@@ -145,7 +145,7 @@ inline void save_aux(const M &toml, const il::String &name, il::io_t,
   int error = 0;
   // Add an object that sets the error on destruction
 
-  for (il::int_t i = toml.first(); i != toml.sentinel(); i = toml.next(i)) {
+  for (il::Location i = toml.first(); i != toml.sentinel(); i = toml.next(i)) {
     const il::Dynamic &value = toml.value(i);
     const il::Type type = value.type();
     if (type != il::Type::TMapArray && type != il::Type::TMap) {

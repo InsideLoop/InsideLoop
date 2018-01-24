@@ -28,7 +28,7 @@ NumpyInfo getNumpyInfo(il::io_t, std::FILE* fp, il::Status& status) {
 
   char first_buffer[11];
   first_buffer[10] = '\0';
-  il::StringView buffer{il::StringType::Bytes, first_buffer, 10};
+  il::StringView buffer{il::StringType::Raw, first_buffer, 10};
 
   // Read the first 10 bytes of the files. It should contain:
   // - The magic string "\x93NUMPY"
@@ -61,8 +61,8 @@ NumpyInfo getNumpyInfo(il::io_t, std::FILE* fp, il::Status& status) {
   // Read the header
   //
   il::Array<char> second_buffer{header_length + 1};
-  StringView header = StringView{il::StringType::Bytes, second_buffer.begin(),
-                                 header_length + 1};
+  StringView header =
+      StringView{il::StringType::Raw, second_buffer.begin(), header_length + 1};
   char* success = fgets(second_buffer.begin(), header_length + 1, fp);
   if (success == nullptr || !(header[header.size() - 2] == '\n')) {
     status.setError(il::Error::BinaryFileWrongFormat);
@@ -87,7 +87,7 @@ NumpyInfo getNumpyInfo(il::io_t, std::FILE* fp, il::Status& status) {
 
   StringView type_string = header.subview(i4 + 10, header.size());
   const il::int_t i5 = il::search("'", type_string);
-  numpy_info.type = il::String{il::StringType::Bytes, type_string.data(), i5};
+  numpy_info.type = il::String{il::StringType::Raw, type_string.data(), i5};
 
   // Read the ordering for multidimensional arrays
   //
@@ -174,7 +174,7 @@ void saveNumpyInfo(const NumpyInfo& numpy_info, il::io_t, std::FILE* fp,
   magic.append(static_cast<char>(0x00));
   // Size of the header
   unsigned short short_int = static_cast<unsigned short>(header.size());
-  magic.append(il::StringType::Bytes, reinterpret_cast<char*>(&short_int), 2);
+  magic.append(il::StringType::Raw, reinterpret_cast<char*>(&short_int), 2);
   magic.append(header);
 
   std::size_t written = std::fwrite(magic.asCString(), sizeof(char),

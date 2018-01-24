@@ -162,6 +162,33 @@ struct Range {
   il::int_t end;
 };
 
+class Location {
+ private:
+  il::int_t i_;
+
+ public:
+  Location(il::int_t i);
+  void setIndex(il::int_t i);
+  il::int_t index() const;
+  bool isValid() const;
+};
+
+inline Location::Location(il::int_t i) { i_ = i; }
+
+inline void Location::setIndex(il::int_t i) { i_ = i; }
+
+inline il::int_t Location::index() const { return i_; }
+
+inline bool Location::isValid() const { return i_ >= 0; }
+
+inline bool operator==(il::Location i0, il::Location i1) {
+  return i0.index() == i1.index();
+}
+
+inline bool operator!=(il::Location i0, il::Location i1) {
+  return i0.index() != i1.index();
+}
+
 template <typename T>
 T max(T a, T b) {
   return a >= b ? a : b;

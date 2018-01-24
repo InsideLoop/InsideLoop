@@ -72,37 +72,37 @@ class Map {
   ~Map();
 
   // All the insertions
-  void insert(const K& key, const V& value);
-  void insert(const K& key, V&& value);
-  void insert(K&& key, const V& value);
-  void insert(K&& key, V&& value);
+  void set(const K& key, const V& value);
+  void set(const K& key, V&& value);
+  void set(K&& key, const V& value);
+  void set(K&& key, V&& value);
   template <il::int_t m>
   void insertCString(const char (&key)[m], const V& value);
   template <il::int_t m>
   void insertCString(const char (&key)[m], V&& value);
 
   // Searching for a key
-  il::int_t search(const K& key) const;
+  il::Location search(const K& key) const;
   template <il::int_t m>
-  il::int_t searchCString(const char (&key)[m]) const;
-  il::int_t searchCString(const char* key, il::int_t n) const;
-  bool found(il::int_t i) const;
+  il::Location searchCString(const char (&key)[m]) const;
+  il::Location searchCString(const char* key, il::int_t n) const;
+  bool found(il::Location i) const;
 
   // Inserting a new (key, value)
-  void insert(const K& key, const V& value, il::io_t, il::int_t& i);
-  void insert(const K& key, V&& value, il::io_t, il::int_t& i);
-  void insert(K&& key, const V& value, il::io_t, il::int_t& i);
-  void insert(K&& key, V&& value, il::io_t, il::int_t& i);
+  void set(const K& key, const V& value, il::io_t, il::Location& i);
+  void set(const K& key, V&& value, il::io_t, il::Location& i);
+  void set(K&& key, const V& value, il::io_t, il::Location& i);
+  void set(K&& key, V&& value, il::io_t, il::Location& i);
   void insertCString(const char* key, const il::int_t n, const V& value,
-                     il::io_t, il::int_t& i);
+                     il::io_t, il::Location& i);
   template <il::int_t m>
   void insertCString(const char (&key)[m], const V& value, il::io_t,
-                     il::int_t& i);
+                     il::Location& i);
 
   // Getting the key and values for a given slot
-  const K& key(il::int_t i) const;
-  const V& value(il::int_t i) const;
-  V& value(il::int_t i);
+  const K& key(il::Location i) const;
+  const V& value(il::Location i) const;
+  V& value(il::Location i);
   const V& valueForKey(const K& key) const;
   const V& valueForKey(const K& key, const V& default_value) const;
   template <il::int_t m>
@@ -110,7 +110,7 @@ class Map {
   template <il::int_t m>
   const V& valueForCString(const char (&key)[m], const V& default_value) const;
 
-  void erase(il::int_t i);
+  void erase(il::Location i);
 
   // Changing the size
   void clear();
@@ -122,9 +122,9 @@ class Map {
   void rehash();
 
   // Looping over the map
-  il::int_t first() const;
-  il::int_t sentinel() const;
-  il::int_t next(il::int_t i) const;
+  il::Location first() const;
+  il::Location sentinel() const;
+  il::Location next(il::Location i) const;
 
  private:
   static int pForSlots(il::int_t n);
@@ -224,9 +224,9 @@ Map<K, V, F>::Map(il::value_t, std::initializer_list<il::KeyValue<K, V>> list) {
     nb_elements_ = 0;
     nb_tombstones_ = 0;
     for (il::int_t k = 0; k < n; ++k) {
-      il::int_t i = search((list.begin() + k)->key);
+      il::Location i = search((list.begin() + k)->key);
       IL_EXPECT_FAST(!found(i));
-      insert((list.begin() + k)->key, (list.begin() + k)->value, il::io, i);
+      set((list.begin() + k)->key, (list.begin() + k)->value, il::io, i);
     }
   }
 }
@@ -245,8 +245,8 @@ Map<K, V, F>::Map(const Map<K, V, F>& map) {
     for (il::int_t i = 0; i < m; ++i) {
       F::constructEmpty(il::io, reinterpret_cast<K*>(bucket_ + i));
     }
-    for (il::int_t i = map.first(); i < map.sentinel(); i = map.next(i)) {
-      insert(map.key(i), map.value(i));
+    for (il::Location i = map.first(); i != map.sentinel(); i = map.next(i)) {
+      set(map.key(i), map.value(i));
     }
   }
 }
@@ -356,80 +356,80 @@ Map<K, V, F>::~Map() {
 }
 
 template <typename K, typename V, typename F>
-void Map<K, V, F>::insert(const K& key, const V& value) {
-  il::int_t i = search(key);
+void Map<K, V, F>::set(const K& key, const V& value) {
+  il::Location i = search(key);
   if (!found(i)) {
-    insert(key, value, il::io, i);
+    set(key, value, il::io, i);
   } else {
-    (bucket_ + i)->value.~V();
-    new (&((bucket_ + i)->value)) V(value);
+    (bucket_ + i.index())->value.~V();
+    new (&((bucket_ + i.index())->value)) V(value);
   }
 }
 
 template <typename K, typename V, typename F>
-void Map<K, V, F>::insert(const K& key, V&& value) {
-  il::int_t i = search(key);
+void Map<K, V, F>::set(const K& key, V&& value) {
+  il::Location i = search(key);
   if (!found(i)) {
-    insert(key, std::move(value), il::io, i);
+    set(key, std::move(value), il::io, i);
   } else {
-    (bucket_ + i)->value.~V();
-    new (&((bucket_ + i)->value)) V(std::move(value));
+    (bucket_ + i.index())->value.~V();
+    new (&((bucket_ + i.index())->value)) V(std::move(value));
   }
 }
 
 template <typename K, typename V, typename F>
-void Map<K, V, F>::insert(K&& key, const V& value) {
-  il::int_t i = search(key);
+void Map<K, V, F>::set(K&& key, const V& value) {
+  il::Location i = search(key);
   if (!found(i)) {
-    insert(std::move(key), value, il::io, i);
+    set(std::move(key), value, il::io, i);
   } else {
-    (bucket_ + i)->value.~V();
-    new (&((bucket_ + i)->value)) V(std::move(value));
+    (bucket_ + i.index())->value.~V();
+    new (&((bucket_ + i.index())->value)) V(std::move(value));
   }
 }
 
 template <typename K, typename V, typename F>
-void Map<K, V, F>::insert(K&& key, V&& value) {
-  il::int_t i = search(key);
+void Map<K, V, F>::set(K&& key, V&& value) {
+  il::Location i = search(key);
   if (!found(i)) {
-    insert(std::move(key), std::move(value), il::io, i);
+    set(std::move(key), std::move(value), il::io, i);
   } else {
-    (bucket_ + i)->value.~V();
-    new (&((bucket_ + i)->value)) V(std::move(value));
+    (bucket_ + i.index())->value.~V();
+    new (&((bucket_ + i.index())->value)) V(std::move(value));
   }
 }
 
 template <typename K, typename V, typename F>
 template <il::int_t m>
 void Map<K, V, F>::insertCString(const char (&key)[m], const V& value) {
-  il::int_t i = searchCString(key);
+  il::Location i = searchCString(key);
   if (!found(i)) {
-    insert(key, value, il::io, i);
+    set(key, value, il::io, i);
   } else {
-    (bucket_ + i)->value.~V();
-    new (&((bucket_ + i)->value)) V(value);
+    (bucket_ + i.index())->value.~V();
+    new (&((bucket_ + i.index())->value)) V(value);
   }
 }
 
 template <typename K, typename V, typename F>
 template <il::int_t m>
 void Map<K, V, F>::insertCString(const char (&key)[m], V&& value) {
-  il::int_t i = searchCString(key);
+  il::Location i = searchCString(key);
   if (!found(i)) {
-    insert(key, value, il::io, i);
+    set(key, value, il::io, i);
   } else {
-    (bucket_ + i)->value.~V();
-    new (&((bucket_ + i)->value)) V(std::move(value));
+    (bucket_ + i.index())->value.~V();
+    new (&((bucket_ + i.index())->value)) V(std::move(value));
   }
 }
 
 template <typename K, typename V, typename F>
-il::int_t Map<K, V, F>::search(const K& key) const {
+il::Location Map<K, V, F>::search(const K& key) const {
   IL_EXPECT_MEDIUM(!F::isEmpty(key));
   IL_EXPECT_MEDIUM(!F::isTombstone(key));
 
   if (p_ == -1) {
-    return -1;
+    return il::Location{-1};
   }
 
   const std::size_t mask = (static_cast<std::size_t>(1) << p_) - 1;
@@ -438,9 +438,9 @@ il::int_t Map<K, V, F>::search(const K& key) const {
   std::size_t delta_i = 1;
   while (true) {
     if (F::isEmpty(bucket_[i].key)) {
-      return (i_tombstone == static_cast<std::size_t>(-1))
-                 ? -(1 + static_cast<il::int_t>(i))
-                 : -(1 + static_cast<il::int_t>(i_tombstone));
+      return il::Location{(i_tombstone == static_cast<std::size_t>(-1))
+                              ? -(1 + static_cast<il::int_t>(i))
+                              : -(1 + static_cast<il::int_t>(i_tombstone))};
     } else if (F::isTombstone(bucket_[i].key)) {
       i_tombstone = i;
     } else if (F::isEqual(bucket_[i].key, key)) {
@@ -454,12 +454,12 @@ il::int_t Map<K, V, F>::search(const K& key) const {
 
 template <typename K, typename V, typename F>
 template <il::int_t m>
-il::int_t Map<K, V, F>::searchCString(const char (&key)[m]) const {
+il::Location Map<K, V, F>::searchCString(const char (&key)[m]) const {
   IL_EXPECT_MEDIUM(!F::isEmpty(key));
   IL_EXPECT_MEDIUM(!F::isTombstone(key));
 
   if (p_ == -1) {
-    return -1;
+    return il::Location{-1};
   }
 
   const std::size_t mask = (static_cast<std::size_t>(1) << p_) - 1;
@@ -468,9 +468,9 @@ il::int_t Map<K, V, F>::searchCString(const char (&key)[m]) const {
   std::size_t delta_i = 1;
   while (true) {
     if (F::isEmpty(bucket_[i].key)) {
-      return (i_tombstone == static_cast<std::size_t>(-1))
-                 ? -(1 + static_cast<il::int_t>(i))
-                 : -(1 + static_cast<il::int_t>(i_tombstone));
+      return il::Location{(i_tombstone == static_cast<std::size_t>(-1))
+                              ? -(1 + static_cast<il::int_t>(i))
+                              : -(1 + static_cast<il::int_t>(i_tombstone))};
     } else if (F::isTombstone(bucket_[i].key)) {
       i_tombstone = i;
     } else if (F::isEqual(bucket_[i].key, key)) {
@@ -483,9 +483,9 @@ il::int_t Map<K, V, F>::searchCString(const char (&key)[m]) const {
 }
 
 template <typename K, typename V, typename F>
-il::int_t Map<K, V, F>::searchCString(const char* key, il::int_t n) const {
+il::Location Map<K, V, F>::searchCString(const char* key, il::int_t n) const {
   if (p_ == -1) {
-    return -1;
+    return il::Location{-1};
   }
 
   const std::size_t mask = (static_cast<std::size_t>(1) << p_) - 1;
@@ -494,9 +494,9 @@ il::int_t Map<K, V, F>::searchCString(const char* key, il::int_t n) const {
   std::size_t delta_i = 1;
   while (true) {
     if (F::isEmpty(bucket_[i].key)) {
-      return (i_tombstone == static_cast<std::size_t>(-1))
-                 ? -(1 + static_cast<il::int_t>(i))
-                 : -(1 + static_cast<il::int_t>(i_tombstone));
+      return il::Location{(i_tombstone == static_cast<std::size_t>(-1))
+                              ? -(1 + static_cast<il::int_t>(i))
+                              : -(1 + static_cast<il::int_t>(i_tombstone))};
     } else if (F::isTombstone(bucket_[i].key)) {
       i_tombstone = i;
     } else if (F::isEqual(bucket_[i].key, key, n)) {
@@ -509,16 +509,16 @@ il::int_t Map<K, V, F>::searchCString(const char* key, il::int_t n) const {
 }
 
 template <typename K, typename V, typename F>
-bool Map<K, V, F>::found(il::int_t i) const {
-  return i >= 0;
+bool Map<K, V, F>::found(il::Location i) const {
+  return i.index() >= 0;
 }
 
 template <typename K, typename V, typename F>
 void Map<K, V, F>::insertCString(const char* key, const il::int_t n,
-                                 const V& value, il::io_t, il::int_t& i) {
+                                 const V& value, il::io_t, il::Location& i) {
   IL_EXPECT_FAST(!found(i));
 
-  il::int_t i_local = -(1 + i);
+  il::int_t i_local = -(1 + i.index());
   const il::int_t nb_buckets = nbBuckets();
   if (4 * (static_cast<std::size_t>(nb_elements_) + 1) >
       3 * static_cast<std::size_t>(nb_buckets)) {
@@ -527,22 +527,22 @@ void Map<K, V, F>::insertCString(const char* key, const il::int_t n,
     } else {
       il::abort();
     }
-    il::int_t j = searchCString(key, n);
-    i_local = -(1 + j);
+    il::Location j = searchCString(key, n);
+    i_local = -(1 + j.index());
   }
   new (const_cast<K*>(&((bucket_ + i_local)->key))) K(key, n);
   new (&((bucket_ + i_local)->value)) V(value);
   ++nb_elements_;
-  i = i_local;
+  i.setIndex(i_local);
 }
 
 template <typename K, typename V, typename F>
 template <il::int_t m>
 void Map<K, V, F>::insertCString(const char (&key)[m], const V& value, il::io_t,
-                                 il::int_t& i) {
+                                 il::Location& i) {
   IL_EXPECT_FAST(!found(i));
 
-  il::int_t i_local = -(1 + i);
+  il::int_t i_local = -(1 + i.index());
   const il::int_t nb_buckets = nbBuckets();
   if (4 * (static_cast<std::size_t>(nb_elements_) + 1) >
       3 * static_cast<std::size_t>(nb_buckets)) {
@@ -551,21 +551,21 @@ void Map<K, V, F>::insertCString(const char (&key)[m], const V& value, il::io_t,
     } else {
       il::abort();
     }
-    il::int_t j = searchCString(key);
-    i_local = -(1 + j);
+    il::Location j = searchCString(key);
+    i_local = -(1 + j.index());
   }
   new (const_cast<K*>(&((bucket_ + i_local)->key))) K(key);
   new (&((bucket_ + i_local)->value)) V(value);
   ++nb_elements_;
-  i = i_local;
+  i.setIndex(i_local);
 }
 
 template <typename K, typename V, typename F>
-void Map<K, V, F>::insert(const K& key, const V& value, il::io_t,
-                          il::int_t& i) {
+void Map<K, V, F>::set(const K& key, const V& value, il::io_t,
+                       il::Location& i) {
   IL_EXPECT_FAST(!found(i));
 
-  il::int_t i_local = -(1 + i);
+  il::int_t i_local = -(1 + i.index());
   const il::int_t m = nbBuckets();
   if (4 * (static_cast<std::size_t>(nb_elements_) + 1) >
       3 * static_cast<std::size_t>(m)) {
@@ -574,20 +574,20 @@ void Map<K, V, F>::insert(const K& key, const V& value, il::io_t,
     } else {
       il::abort();
     }
-    il::int_t j = search(key);
-    i_local = -(1 + j);
+    il::Location j = search(key);
+    i_local = -(1 + j.index());
   }
   new (const_cast<K*>(&((bucket_ + i_local)->key))) K(key);
   new (&((bucket_ + i_local)->value)) V(value);
   ++nb_elements_;
-  i = i_local;
+  i.setIndex(i_local);
 }
 
 template <typename K, typename V, typename F>
-void Map<K, V, F>::insert(const K& key, V&& value, il::io_t, il::int_t& i) {
+void Map<K, V, F>::set(const K& key, V&& value, il::io_t, il::Location& i) {
   IL_EXPECT_FAST(!found(i));
 
-  il::int_t i_local = -(1 + i);
+  il::int_t i_local = -(1 + i.index());
   const il::int_t m = nbBuckets();
   if (4 * (static_cast<std::size_t>(nb_elements_) + 1) >
       3 * static_cast<std::size_t>(m)) {
@@ -596,20 +596,20 @@ void Map<K, V, F>::insert(const K& key, V&& value, il::io_t, il::int_t& i) {
     } else {
       il::abort();
     }
-    il::int_t j = search(key);
-    i_local = -(1 + j);
+    il::Location j = search(key);
+    i_local = -(1 + j.index());
   }
   new (const_cast<K*>(&((bucket_ + i_local)->key))) K(key);
   new (&((bucket_ + i_local)->value)) V(value);
   ++nb_elements_;
-  i = i_local;
+  i.setIndex(i_local);
 }
 
 template <typename K, typename V, typename F>
-void Map<K, V, F>::insert(K&& key, const V& value, il::io_t, il::int_t& i) {
+void Map<K, V, F>::set(K&& key, const V& value, il::io_t, il::Location& i) {
   IL_EXPECT_FAST(!found(i));
 
-  il::int_t i_local = -(1 + i);
+  il::int_t i_local = -(1 + i.index());
   const il::int_t m = nbBuckets();
   if (4 * (static_cast<std::size_t>(nb_elements_) + 1) >
       3 * static_cast<std::size_t>(m)) {
@@ -618,20 +618,20 @@ void Map<K, V, F>::insert(K&& key, const V& value, il::io_t, il::int_t& i) {
     } else {
       il::abort();
     }
-    il::int_t j = search(key);
-    i_local = -(1 + j);
+    il::Location j = search(key);
+    i_local = -(1 + j.index());
   }
   new (const_cast<K*>(&((bucket_ + i_local)->key))) K(std::move(key));
   new (&((bucket_ + i_local)->value)) V(value);
   ++nb_elements_;
-  i = i_local;
+  i.setIndex(i_local);
 }
 
 template <typename K, typename V, typename F>
-void Map<K, V, F>::insert(K&& key, V&& value, il::io_t, il::int_t& i) {
+void Map<K, V, F>::set(K&& key, V&& value, il::io_t, il::Location& i) {
   IL_EXPECT_FAST(!found(i));
 
-  il::int_t i_local = -(1 + i);
+  il::int_t i_local = -(1 + i.index());
   const il::int_t m = nbBuckets();
   if (4 * (static_cast<std::size_t>(nb_elements_) + 1) >
       3 * static_cast<std::size_t>(m)) {
@@ -640,22 +640,22 @@ void Map<K, V, F>::insert(K&& key, V&& value, il::io_t, il::int_t& i) {
     } else {
       il::abort();
     }
-    il::int_t j = search(key);
-    i_local = -(1 + j);
+    il::Location j = search(key);
+    i_local = -(1 + j.index());
   }
   new (const_cast<K*>(&((bucket_ + i_local)->key))) K(std::move(key));
   new (&((bucket_ + i_local)->value)) V(std::move(value));
   ++nb_elements_;
-  i = i_local;
+  i.setIndex(i_local);
 }
 
 template <typename K, typename V, typename F>
-void Map<K, V, F>::erase(il::int_t i) {
+void Map<K, V, F>::erase(il::Location i) {
   IL_EXPECT_FAST(found(i));
 
-  (&((bucket_ + i)->key))->~K();
-  F::constructTombstone(il::io, reinterpret_cast<K*>(bucket_ + i));
-  (&((bucket_ + i)->value))->~V();
+  (&((bucket_ + i.index())->key))->~K();
+  F::constructTombstone(il::io, reinterpret_cast<K*>(bucket_ + i.index()));
+  (&((bucket_ + i.index())->value))->~V();
   --nb_elements_;
   ++nb_tombstones_;
   const il::int_t m = nbBuckets();
@@ -667,32 +667,32 @@ void Map<K, V, F>::erase(il::int_t i) {
 }
 
 template <typename K, typename V, typename F>
-const K& Map<K, V, F>::key(il::int_t i) const {
-  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
+const K& Map<K, V, F>::key(il::Location i) const {
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i.index()) <
                    static_cast<std::size_t>((p_ >= 0) ? (1 << p_) : 0));
 
-  return bucket_[i].key;
+  return bucket_[i.index()].key;
 }
 
 template <typename K, typename V, typename F>
-const V& Map<K, V, F>::value(il::int_t i) const {
-  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
+const V& Map<K, V, F>::value(il::Location i) const {
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i.index()) <
                    static_cast<std::size_t>((p_ >= 0) ? (1 << p_) : 0));
 
-  return bucket_[i].value;
+  return bucket_[i.index()].value;
 }
 
 template <typename K, typename V, typename F>
-V& Map<K, V, F>::value(il::int_t i) {
-  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <
+V& Map<K, V, F>::value(il::Location i) {
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(i.index()) <
                    static_cast<std::size_t>((p_ >= 0) ? (1 << p_) : 0));
 
-  return bucket_[i].value;
+  return bucket_[i.index()].value;
 }
 
 template <typename K, typename V, typename F>
 const V& Map<K, V, F>::valueForKey(const K& key) const {
-  const il::int_t i = search(key);
+  const il::Location i = search(key);
   if (found(i)) {
     return value(i);
   } else {
@@ -702,7 +702,7 @@ const V& Map<K, V, F>::valueForKey(const K& key) const {
 
 template <typename K, typename V, typename F>
 const V& Map<K, V, F>::valueForKey(const K& key, const V& default_value) const {
-  const il::int_t i = search(key);
+  const il::Location i = search(key);
   if (found(i)) {
     return value(i);
   } else {
@@ -713,7 +713,7 @@ const V& Map<K, V, F>::valueForKey(const K& key, const V& default_value) const {
 template <typename K, typename V, typename F>
 template <il::int_t m>
 const V& Map<K, V, F>::valueForCString(const char (&key)[m]) const {
-  const il::int_t i = search(key);
+  const il::Location i = search(key);
   if (found(i)) {
     return value(i);
   } else {
@@ -725,7 +725,7 @@ template <typename K, typename V, typename F>
 template <il::int_t m>
 const V& Map<K, V, F>::valueForCString(const char (&key)[m],
                                        const V& default_value) const {
-  const il::int_t i = search(key);
+  const il::Location i = search(key);
   if (found(i)) {
     return value(i);
   } else {
@@ -826,7 +826,7 @@ void Map<K, V, F>::clear() {
 }
 
 template <typename K, typename V, typename F>
-il::int_t Map<K, V, F>::first() const {
+il::Location Map<K, V, F>::first() const {
   const il::int_t m = il::int_t{1} << p_;
 
   il::int_t i = 0;
@@ -834,24 +834,25 @@ il::int_t Map<K, V, F>::first() const {
          (F::isEmpty(bucket_[i].key) || F::isTombstone(bucket_[i].key))) {
     ++i;
   }
-  return i;
+  return il::Location{i};
 }
 
 template <typename K, typename V, typename F>
-il::int_t Map<K, V, F>::sentinel() const {
-  return il::int_t{1} << p_;
+il::Location Map<K, V, F>::sentinel() const {
+  return il::Location{il::int_t{1} << p_};
 }
 
 template <typename K, typename V, typename F>
-il::int_t Map<K, V, F>::next(il::int_t i) const {
+il::Location Map<K, V, F>::next(il::Location i) const {
   const il::int_t m = il::int_t{1} << p_;
 
-  ++i;
-  while (i < m &&
-         (F::isEmpty(bucket_[i].key) || F::isTombstone(bucket_[i].key))) {
-    ++i;
+  il::int_t i_local = i.index();
+  ++i_local;
+  while (i_local < m && (F::isEmpty(bucket_[i_local].key) ||
+                         F::isTombstone(bucket_[i_local].key))) {
+    ++i_local;
   }
-  return i;
+  return il::Location{i_local};
 }
 
 template <typename K, typename V, typename F>
@@ -875,9 +876,9 @@ void Map<K, V, F>::reserveWithP(int p) {
     for (il::int_t i = 0; i < old_m; ++i) {
       if (!F::isEmpty(old_bucket_[i].key) &&
           !F::isTombstone(old_bucket_[i].key)) {
-        il::int_t new_i = search(old_bucket_[i].key);
-        insert(std::move(old_bucket_[i].key), std::move(old_bucket_[i].value),
-               il::io, new_i);
+        il::Location new_i = search(old_bucket_[i].key);
+        set(std::move(old_bucket_[i].key), std::move(old_bucket_[i].value),
+            il::io, new_i);
         (&((old_bucket_ + i)->key))->~K();
         (&((old_bucket_ + i)->value))->~V();
       }

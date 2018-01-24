@@ -114,7 +114,7 @@ T load(const il::String& filename, il::io_t, il::Status& status) {
 
 template <typename T>
 T load(const std::string& filename, il::io_t, il::Status& status) {
-  il::String il_filename{il::StringType::Bytes, filename.c_str(),
+  il::String il_filename{il::StringType::Raw, filename.c_str(),
                          il::size(filename.c_str())};
   return il::LoadHelper<T>::load(il_filename, il::io, status);
 }

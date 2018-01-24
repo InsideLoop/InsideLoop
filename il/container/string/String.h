@@ -55,7 +55,7 @@ enum class StringType : unsigned char {
   Ascii = 0x00_uchar,
   Utf8 = 0x20_uchar,
   Wtf8 = 0x40_uchar,
-  Bytes = 0x60_uchar
+  Raw = 0x60_uchar
 };
 
 StringType joinType(StringType s0, StringType s1);
@@ -1043,11 +1043,11 @@ inline String::String(il::unsafe_t, il::int_t n) {
   IL_EXPECT_FAST(n >= 0);
 
   if (n <= max_small_size_) {
-    setSmall(il::StringType::Bytes, n);
+    setSmall(il::StringType::Raw, n);
   } else {
     const il::int_t r = nextCapacity(n);
     large_.data = il::allocateArray<char>(r + 1);
-    setLarge(il::StringType::Bytes, n, r);
+    setLarge(il::StringType::Raw, n, r);
   }
 }
 
@@ -1062,9 +1062,9 @@ inline void String::grow(il::unsafe_t, il::int_t n_to_copy, il::int_t n) {
     if (!old_is_small) {
       std::memcpy(small_, old_data, n_to_copy);
     }
-    setSmall(il::StringType::Bytes, n);
+    setSmall(il::StringType::Raw, n);
   } else if (n <= old_capacity) {
-    setLarge(il::StringType::Bytes, n, old_capacity);
+    setLarge(il::StringType::Raw, n, old_capacity);
   } else {
     const il::int_t r = nextCapacity(n);
     char* p = il::allocateArray<char>(r + 1);
@@ -1073,7 +1073,7 @@ inline void String::grow(il::unsafe_t, il::int_t n_to_copy, il::int_t n) {
     if (!old_is_small) {
       il::deallocate(old_data);
     }
-    setLarge(il::StringType::Bytes, n, r);
+    setLarge(il::StringType::Raw, n, r);
   }
 }
 
@@ -1583,12 +1583,12 @@ inline bool operator!=(const il::String& s0, const char* s1) {
 }
 
 inline il::String toString(const std::string& s) {
-  return il::String{il::StringType::Bytes, s.c_str(),
+  return il::String{il::StringType::Raw, s.c_str(),
                     static_cast<il::int_t>(s.size())};
 }
 
 inline il::String toString(const char* s) {
-  return il::String{il::StringType::Bytes, s, il::size(s)};
+  return il::String{il::StringType::Raw, s, il::size(s)};
 }
 
 inline std::ostream& operator<<(std::ostream& os, const String& s) {

@@ -21,7 +21,6 @@
 #include <il/Dynamic.h>
 #include <il/String.h>
 
-
 int main() {
   const int a = 3;
 
