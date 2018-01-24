@@ -145,6 +145,6 @@ inline il::Array<double> linearSolve(il::TriDiagonal<double> A,
 }
 
 #endif
-}
+}  // namespace il
 
 #endif  // IL_LINEAR_SOLVE_H

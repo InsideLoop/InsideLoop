@@ -1463,16 +1463,16 @@ AssertionResult CmpHelperOpFailure(const char* expr1, const char* expr2,
          << " vs " << FormatForComparisonFailureMessage(val2, val1);
 }
 
-  // A macro for implementing the helper functions needed to implement
-  // ASSERT_?? and EXPECT_??.  It is here just to avoid copy-and-paste
-  // of similar code.
-  //
-  // For each templatized helper function, we also define an overloaded
-  // version for BiggestInt in order to reduce code bloat and allow
-  // anonymous enums to be used with {ASSERT|EXPECT}_?? when compiled
-  // with gcc 4.
-  //
-  // INTERNAL IMPLEMENTATION - DO NOT USE IN A USER PROGRAM.
+// A macro for implementing the helper functions needed to implement
+// ASSERT_?? and EXPECT_??.  It is here just to avoid copy-and-paste
+// of similar code.
+//
+// For each templatized helper function, we also define an overloaded
+// version for BiggestInt in order to reduce code bloat and allow
+// anonymous enums to be used with {ASSERT|EXPECT}_?? when compiled
+// with gcc 4.
+//
+// INTERNAL IMPLEMENTATION - DO NOT USE IN A USER PROGRAM.
 
 #define GTEST_IMPL_CMP_HELPER_(op_name, op)                                \
   template <typename T1, typename T2>                                      \
@@ -2148,31 +2148,31 @@ bool StaticAssertTypeEq() {
 #define TEST(test_case_name, test_name) GTEST_TEST(test_case_name, test_name)
 #endif
 
-  // Defines a test that uses a test fixture.
-  //
-  // The first parameter is the name of the test fixture class, which
-  // also doubles as the test case name.  The second parameter is the
-  // name of the test within the test case.
-  //
-  // A test fixture class must be declared earlier.  The user should put
-  // his test code between braces after using this macro.  Example:
-  //
-  //   class FooTest : public testing::Test {
-  //    protected:
-  //     virtual void SetUp() { b_.AddElement(3); }
-  //
-  //     Foo a_;
-  //     Foo b_;
-  //   };
-  //
-  //   TEST_F(FooTest, InitializesCorrectly) {
-  //     EXPECT_TRUE(a_.StatusIsOK());
-  //   }
-  //
-  //   TEST_F(FooTest, ReturnsElementCountCorrectly) {
-  //     EXPECT_EQ(0, a_.size());
-  //     EXPECT_EQ(1, b_.size());
-  //   }
+// Defines a test that uses a test fixture.
+//
+// The first parameter is the name of the test fixture class, which
+// also doubles as the test case name.  The second parameter is the
+// name of the test within the test case.
+//
+// A test fixture class must be declared earlier.  The user should put
+// his test code between braces after using this macro.  Example:
+//
+//   class FooTest : public testing::Test {
+//    protected:
+//     virtual void SetUp() { b_.AddElement(3); }
+//
+//     Foo a_;
+//     Foo b_;
+//   };
+//
+//   TEST_F(FooTest, InitializesCorrectly) {
+//     EXPECT_TRUE(a_.StatusIsOK());
+//   }
+//
+//   TEST_F(FooTest, ReturnsElementCountCorrectly) {
+//     EXPECT_EQ(0, a_.size());
+//     EXPECT_EQ(1, b_.size());
+//   }
 
 #define TEST_F(test_fixture, test_name)              \
   GTEST_TEST_(test_fixture, test_name, test_fixture, \

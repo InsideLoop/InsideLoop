@@ -98,7 +98,7 @@ inline void save_array(const il::Array<il::Dynamic> &array, il::io_t,
     }
     switch (array[j].type()) {
       case il::Type::TBool: {
-        if (array[j].toBool()) {
+        if (array[j].as<bool>()) {
           const int error2 = std::fputs("true", file);
           IL_UNUSED(error2);
         } else {
@@ -107,23 +107,24 @@ inline void save_array(const il::Array<il::Dynamic> &array, il::io_t,
         }
       } break;
       case il::Type::TInteger: {
-        const int error2 = std::fprintf(file, "%td", array[j].toInteger());
+        const int error2 = std::fprintf(file, "%td", array[j].as<il::int_t>());
         IL_UNUSED(error2);
       } break;
       case il::Type::TDouble: {
-        const int error2 = std::fprintf(file, "%e", array[j].toDouble());
+        const int error2 = std::fprintf(file, "%e", array[j].as<double>());
         IL_UNUSED(error2);
       } break;
       case il::Type::TString: {
         const int error2 = std::fputs("\"", file);
-        const int error3 = std::fputs(array[j].asString().asCString(), file);
+        const int error3 =
+            std::fputs(array[j].as<il::String>().asCString(), file);
         const int error4 = std::fputs("\"", file);
         IL_UNUSED(error2);
         IL_UNUSED(error3);
         IL_UNUSED(error4);
       } break;
       case il::Type::TArray: {
-        save_array(array[j].asArray(), il::io, file, status);
+        save_array(array[j].as<il::Array<il::Dynamic>>(), il::io, file, status);
         if (!status.ok()) {
           status.rearm();
           return;
@@ -154,7 +155,7 @@ inline void save_aux(const M &toml, const il::String &name, il::io_t,
       if (error == EOF) return;
       switch (type) {
         case il::Type::TBool:
-          if (value.toBool()) {
+          if (value.as<bool>()) {
             error = std::fputs("true", file);
           } else {
             error = std::fputs("false", file);
@@ -162,23 +163,23 @@ inline void save_aux(const M &toml, const il::String &name, il::io_t,
           if (error == EOF) return;
           break;
         case il::Type::TInteger:
-          error = std::fprintf(file, "%td", value.toInteger());
+          error = std::fprintf(file, "%td", value.as<il::int_t>());
           if (error == EOF) return;
           break;
         case il::Type::TDouble:
-          error = std::fprintf(file, "%e", value.toDouble());
+          error = std::fprintf(file, "%e", value.as<double>());
           if (error == EOF) return;
           break;
         case il::Type::TString:
           error = std::fputs("\"", file);
           if (error == EOF) return;
-          error = std::fputs(value.asString().asCString(), file);
+          error = std::fputs(value.as<il::String>().asCString(), file);
           if (error == EOF) return;
           error = std::fputs("\"", file);
           if (error == EOF) return;
           break;
         case il::Type::TArrayOfDouble: {
-          const il::Array<double> &v = value.asArrayOfDouble();
+          const il::Array<double> &v = value.as<il::Array<double>>();
           error = std::fputs("[ ", file);
           if (error == EOF) return;
           for (il::int_t i = 0; i < v.size(); ++i) {
@@ -191,8 +192,8 @@ inline void save_aux(const M &toml, const il::String &name, il::io_t,
           error = std::fputs(" ]", file);
           if (error == EOF) return;
         } break;
-        case il::Type::TArray2dOfDouble: {
-          const il::Array2D<double> &v = value.asArray2dOfDouble();
+        case il::Type::TArray2DOfDouble: {
+          const il::Array2D<double> &v = value.as<il::Array2D<double>>();
           error = std::fputs("[ ", file);
           if (error == EOF) return;
           for (il::int_t i = 0; i < v.size(0); ++i) {
@@ -216,7 +217,7 @@ inline void save_aux(const M &toml, const il::String &name, il::io_t,
           if (error == EOF) return;
         } break;
         case il::Type::TArray: {
-          save_array(value.asArray(), il::io, file, status);
+          save_array(value.as<il::Array<il::Dynamic>>(), il::io, file, status);
           status.abortOnError();
         } break;
         default:
@@ -237,7 +238,8 @@ inline void save_aux(const M &toml, const il::String &name, il::io_t,
       if (error == EOF) return;
       error = std::fputs("]\n", file);
       if (error == EOF) return;
-      save_aux(value.asMapArray(), toml.key(i), il::io, file, status);
+      save_aux(value.as<il::MapArray<il::String, il::Dynamic>>(), toml.key(i),
+               il::io, file, status);
       if (!status.ok()) {
         status.rearm();
         return;
@@ -255,7 +257,8 @@ inline void save_aux(const M &toml, const il::String &name, il::io_t,
       if (error == EOF) return;
       error = std::fputs("]\n", file);
       if (error == EOF) return;
-      save_aux(value.asMap(), toml.key(i), il::io, file, status);
+      save_aux(value.as<il::Map<il::String, il::Dynamic>>(), toml.key(i),
+               il::io, file, status);
       if (!status.ok()) {
         status.rearm();
         return;

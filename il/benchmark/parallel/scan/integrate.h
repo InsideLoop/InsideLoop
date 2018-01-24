@@ -106,6 +106,6 @@ void integrate() {
     std::printf("\n");
   }
 }
-}
+}  // namespace il
 
 #endif  // IL_INTEGRATE_H

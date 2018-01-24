@@ -37,26 +37,32 @@ TEST(Toml, array_empty) {
     ans = false;
   } else {
     const il::int_t i0 = config.search("thevoid");
-    if (!(config.found(i0) && config.value(i0).isArray())) {
+    if (!(config.found(i0) && config.value(i0).is<il::Array<il::Dynamic>>())) {
       ans = false;
     } else {
-      const il::Array<il::Dynamic> &array1 = config.value(i0).asArray();
-      if (array1.size() != 1 || !(array1[0].isArray())) {
+      const il::Array<il::Dynamic> &array1 =
+          config.value(i0).as<il::Array<il::Dynamic>>();
+      if (array1.size() != 1 || !(array1[0].is<il::Array<il::Dynamic>>())) {
         ans = false;
       } else {
-        const il::Array<il::Dynamic> &array2 = array1[0].asArray();
-        if (array2.size() != 1 || !(array2[0].isArray())) {
+        const il::Array<il::Dynamic> &array2 =
+            array1[0].as<il::Array<il::Dynamic>>();
+        if (array2.size() != 1 || !(array2[0].is<il::Array<il::Dynamic>>())) {
           ans = false;
         } else {
-          const il::Array<il::Dynamic> &array3 = array2[0].asArray();
-          if (array3.size() != 1 || !(array3[0].isArray())) {
+          const il::Array<il::Dynamic> &array3 =
+              array2[0].as<il::Array<il::Dynamic>>();
+          if (array3.size() != 1 || !(array3[0].is<il::Array<il::Dynamic>>())) {
             ans = false;
           } else {
-            const il::Array<il::Dynamic> &array4 = array3[0].asArray();
-            if (array4.size() != 1 || !(array4[0].isArray())) {
+            const il::Array<il::Dynamic> &array4 =
+                array3[0].as<il::Array<il::Dynamic>>();
+            if (array4.size() != 1 ||
+                !(array4[0].is<il::Array<il::Dynamic>>())) {
               ans = false;
             } else {
-              const il::Array<il::Dynamic> &array5 = array4[0].asArray();
+              const il::Array<il::Dynamic> &array5 =
+                  array4[0].as<il::Array<il::Dynamic>>();
               if (array5.size() != 0) {
                 ans = false;
               }
@@ -83,14 +89,15 @@ TEST(Toml, array_nospaces) {
     ans = false;
   } else {
     const il::int_t i = config.search("ints");
-    if (!(config.found(i) && config.value(i).isArray())) {
+    if (!(config.found(i) && config.value(i).is<il::Array<il::Dynamic>>())) {
       ans = false;
     } else {
-      const il::Array<il::Dynamic> &array = config.value(i).asArray();
-      if (array.size() != 3 || !array[0].isInteger() ||
-          array[0].toInteger() != 1 || !array[1].isInteger() ||
-          array[1].toInteger() != 2 || !array[2].isInteger() ||
-          array[2].toInteger() != 3) {
+      const il::Array<il::Dynamic> &array =
+          config.value(i).as<il::Array<il::Dynamic>>();
+      if (array.size() != 3 || !array[0].is<il::int_t>() ||
+          array[0].as<il::int_t>() != 1 || !array[1].is<il::int_t>() ||
+          array[1].as<il::int_t>() != 2 || !array[2].is<il::int_t>() ||
+          array[2].as<il::int_t>() != 3) {
         ans = false;
       }
     }
@@ -112,28 +119,39 @@ TEST(Toml, arrays_heterogeneous) {
     ans = false;
   } else {
     const il::int_t i = config.search("mixed");
-    if (!(config.found(i) && config.value(i).isArray() &&
-          config.value(i).asArray().size() == 3)) {
+    if (!(config.found(i) && config.value(i).is<il::Array<il::Dynamic>>() &&
+          config.value(i).as<il::Array<il::Dynamic>>().size() == 3)) {
       ans = false;
     } else {
-      const il::Array<il::Dynamic> &array = config.value(i).asArray();
+      const il::Array<il::Dynamic> &array =
+          config.value(i).as<il::Array<il::Dynamic>>();
 
-      if (!(array[0].isArray() && array[0].asArray().size() == 2)) {
+      if (!(array[0].is<il::Array<il::Dynamic>>() &&
+            array[0].as<il::Array<il::Dynamic>>().size() == 2)) {
         ans = false;
       } else {
-        const il::Array<il::Dynamic> &subarray0 = array[0].asArray();
-        if (!(subarray0[0].isInteger() && subarray0[0].toInteger() == 1 &&
-              subarray0[1].isInteger() && subarray0[1].toInteger() == 2)) {
+        const il::Array<il::Dynamic> &subarray0 =
+            array[0].as<il::Array<il::Dynamic>>();
+        if (!(subarray0[0].is<il::int_t>() &&
+              subarray0[0].as<il::int_t>() == 1 &&
+              subarray0[1].is<il::int_t>() &&
+              subarray0[1].as<il::int_t>() == 2)) {
           ans = false;
         } else {
-          const il::Array<il::Dynamic> &subarray1 = array[1].asArray();
-          if (!(subarray1[0].isString() && subarray1[0].asString() == "a" &&
-                subarray1[1].isString() && subarray1[1].asString() == "b")) {
+          const il::Array<il::Dynamic> &subarray1 =
+              array[1].as<il::Array<il::Dynamic>>();
+          if (!(subarray1[0].is<il::String>() &&
+                subarray1[0].as<il::String>() == "a" &&
+                subarray1[1].is<il::String>() &&
+                subarray1[1].as<il::String>() == "b")) {
             ans = false;
           } else {
-            const il::Array<il::Dynamic> &subarray2 = array[2].asArray();
-            if (!(subarray2[0].isDouble() && subarray2[0].toDouble() == 1.1 &&
-                  subarray2[1].isDouble() && subarray2[1].toDouble() == 2.1)) {
+            const il::Array<il::Dynamic> &subarray2 =
+                array[2].as<il::Array<il::Dynamic>>();
+            if (!(subarray2[0].is<double>() &&
+                  subarray2[0].as<double>() == 1.1 &&
+                  subarray2[1].is<double>() &&
+                  subarray2[1].as<double>() == 2.1)) {
               ans = false;
             }
           }
@@ -158,22 +176,29 @@ TEST(Toml, arrays_nested) {
     ans = false;
   } else {
     const il::int_t i = config.search("nest");
-    if (!(config.found(i) && config.value(i).isArray() &&
-          config.value(i).asArray().size() == 2)) {
+    if (!(config.found(i) && config.value(i).is<il::Array<il::Dynamic>>() &&
+          config.value(i).as<il::Array<il::Dynamic>>().size() == 2)) {
       ans = false;
     } else {
-      const il::Array<il::Dynamic> &array = config.value(i).asArray();
+      const il::Array<il::Dynamic> &array =
+          config.value(i).as<il::Array<il::Dynamic>>();
 
-      if (!(array[0].isArray() && array[0].asArray().size() == 1 &&
-            array[1].isArray() && array[1].asArray().size() == 1)) {
+      if (!(array[0].is<il::Array<il::Dynamic>>() &&
+            array[0].as<il::Array<il::Dynamic>>().size() == 1 &&
+            array[1].is<il::Array<il::Dynamic>>() &&
+            array[1].as<il::Array<il::Dynamic>>().size() == 1)) {
         ans = false;
       } else {
-        const il::Array<il::Dynamic> &subarray0 = array[0].asArray();
-        if (!(subarray0[0].isString() && subarray0[0].asString() == "a")) {
+        const il::Array<il::Dynamic> &subarray0 =
+            array[0].as<il::Array<il::Dynamic>>();
+        if (!(subarray0[0].is<il::String>() &&
+              subarray0[0].as<il::String>() == "a")) {
           ans = false;
         } else {
-          const il::Array<il::Dynamic> &subarray1 = array[1].asArray();
-          if (!(subarray1[0].isString() && subarray1[0].asString() == "b")) {
+          const il::Array<il::Dynamic> &subarray1 =
+              array[1].as<il::Array<il::Dynamic>>();
+          if (!(subarray1[0].is<il::String>() &&
+                subarray1[0].as<il::String>() == "b")) {
             ans = false;
           }
         }
@@ -197,13 +222,13 @@ TEST(Toml, bool) {
     ans = false;
   } else {
     const il::int_t i = config.search("t");
-    if (!(config.found(i) && config.value(i).isBool() &&
-          config.value(i).toBool())) {
+    if (!(config.found(i) && config.value(i).is<bool>() &&
+          config.value(i).as<bool>())) {
       ans = false;
     } else {
       const il::int_t i = config.search("f");
-      if (!(config.found(i) && config.value(i).isBool() &&
-            config.value(i).toBool() == false)) {
+      if (!(config.found(i) && config.value(i).is<bool>() &&
+            config.value(i).as<bool>() == false)) {
         ans = false;
       }
     }
@@ -225,22 +250,25 @@ TEST(Toml, comments_everywhere) {
     ans = false;
   } else {
     const il::int_t i = config.search("group");
-    if (!(config.found(i) && config.value(i).isMapArray())) {
+    if (!(config.found(i) &&
+          config.value(i).is<il::MapArray<il::String, il::Dynamic>>())) {
       ans = false;
     } else {
       il::MapArray<il::String, il::Dynamic> &group =
-          config.value(i).asMapArray();
+          config.value(i).as<il::MapArray<il::String, il::Dynamic>>();
       il::int_t j0 = group.search("answer");
       il::int_t j1 = group.search("more");
       if (!(group.size() == 2 && group.found(j0) &&
-            group.value(j0).isInteger() && group.value(j0).toInteger() == 42 &&
-            group.found(j1) && group.value(j1).isArray())) {
+            group.value(j0).is<il::int_t>() &&
+            group.value(j0).as<il::int_t>() == 42 && group.found(j1) &&
+            group.value(j1).is<il::Array<il::Dynamic>>())) {
         ans = false;
       } else {
-        il::Array<il::Dynamic> &array = group.value(j1).asArray();
-        if (!(array.size() == 2 && array[0].isInteger() &&
-              array[0].toInteger() == 42 && array[1].isInteger() &&
-              array[1].toInteger() == 42)) {
+        il::Array<il::Dynamic> &array =
+            group.value(j1).as<il::Array<il::Dynamic>>();
+        if (!(array.size() == 2 && array[0].is<il::int_t>() &&
+              array[0].as<il::int_t>() == 42 && array[1].is<il::int_t>() &&
+              array[1].as<il::int_t>() == 42)) {
           ans = false;
         }
       }
@@ -280,10 +308,10 @@ TEST(Toml, double) {
   } else {
     il::int_t i0 = config.search("pi");
     il::int_t i1 = config.search("negpi");
-    if (!(config.found(i0) && config.value(i0).isDouble() &&
-          config.value(i0).toDouble() == 3.14 && config.found(i1) &&
-          config.value(i1).isDouble() &&
-          config.value(i1).toDouble() == -3.14)) {
+    if (!(config.found(i0) && config.value(i0).is<double>() &&
+          config.value(i0).as<double>() == 3.14 && config.found(i1) &&
+          config.value(i1).is<double>() &&
+          config.value(i1).as<double>() == -3.14)) {
       ans = false;
     }
   }
@@ -304,29 +332,31 @@ TEST(Toml, implicit_and_explicit_after) {
     ans = false;
   } else {
     il::int_t i = config.search("a");
-    if (!(config.found(i) && config.value(i).isMapArray())) {
+    if (!(config.found(i) &&
+          config.value(i).is<il::MapArray<il::String, il::Dynamic>>())) {
       ans = false;
     } else {
       const il::MapArray<il::String, il::Dynamic> &a =
-          config.value(i).asMapArray();
+          config.value(i).as<il::MapArray<il::String, il::Dynamic>>();
       il::int_t i0 = a.search("better");
       il::int_t i1 = a.search("b");
-      if (!(a.size() == 2 && a.found(i0) && a.value(i0).isInteger() &&
-            a.value(i0).toInteger() == 43 && a.found(i1) &&
-            a.value(i1).isMapArray())) {
+      if (!(a.size() == 2 && a.found(i0) && a.value(i0).is<il::int_t>() &&
+            a.value(i0).as<il::int_t>() == 43 && a.found(i1) &&
+            a.value(i1).is<il::MapArray<il::String, il::Dynamic>>())) {
         ans = false;
       } else {
         const il::MapArray<il::String, il::Dynamic> &b =
-            a.value(i1).asMapArray();
+            a.value(i1).as<il::MapArray<il::String, il::Dynamic>>();
         il::int_t j = b.search("c");
-        if (!(b.size() == 1 && b.found(j) && b.value(j).isMapArray())) {
+        if (!(b.size() == 1 && b.found(j) &&
+              b.value(j).is<il::MapArray<il::String, il::Dynamic>>())) {
           ans = false;
         } else {
           const il::MapArray<il::String, il::Dynamic> &c =
-              b.value(j).asMapArray();
+              b.value(j).as<il::MapArray<il::String, il::Dynamic>>();
           il::int_t j0 = c.search("answer");
-          if (!(c.size() == 1 && c.found(j0) && c.value(j0).isInteger() &&
-                c.value(j0).toInteger() == 42)) {
+          if (!(c.size() == 1 && c.found(j0) && c.value(j0).is<il::int_t>() &&
+                c.value(j0).as<il::int_t>() == 42)) {
             ans = false;
           }
         }
@@ -350,29 +380,31 @@ TEST(Toml, implicit_and_explicit_before) {
     ans = false;
   } else {
     il::int_t i = config.search("a");
-    if (!(config.found(i) && config.value(i).isMapArray())) {
+    if (!(config.found(i) &&
+          config.value(i).is<il::MapArray<il::String, il::Dynamic>>())) {
       ans = false;
     } else {
       const il::MapArray<il::String, il::Dynamic> &a =
-          config.value(i).asMapArray();
+          config.value(i).as<il::MapArray<il::String, il::Dynamic>>();
       il::int_t i0 = a.search("better");
       il::int_t i1 = a.search("b");
-      if (!(a.size() == 2 && a.found(i0) && a.value(i0).isInteger() &&
-            a.value(i0).toInteger() == 43 && a.found(i1) &&
-            a.value(i1).isMapArray())) {
+      if (!(a.size() == 2 && a.found(i0) && a.value(i0).is<il::int_t>() &&
+            a.value(i0).as<il::int_t>() == 43 && a.found(i1) &&
+            a.value(i1).is<il::MapArray<il::String, il::Dynamic>>())) {
         ans = false;
       } else {
         const il::MapArray<il::String, il::Dynamic> &b =
-            a.value(i1).asMapArray();
+            a.value(i1).as<il::MapArray<il::String, il::Dynamic>>();
         il::int_t j = b.search("c");
-        if (!(b.size() == 1 && b.found(j) && b.value(j).isMapArray())) {
+        if (!(b.size() == 1 && b.found(j) &&
+              b.value(j).is<il::MapArray<il::String, il::Dynamic>>())) {
           ans = false;
         } else {
           const il::MapArray<il::String, il::Dynamic> &c =
-              b.value(j).asMapArray();
+              b.value(j).as<il::MapArray<il::String, il::Dynamic>>();
           il::int_t j0 = c.search("answer");
-          if (!(c.size() == 1 && c.found(j0) && c.value(j0).isInteger() &&
-                c.value(j0).toInteger() == 42)) {
+          if (!(c.size() == 1 && c.found(j0) && c.value(j0).is<il::int_t>() &&
+                c.value(j0).as<il::int_t>() == 42)) {
             ans = false;
           }
         }
@@ -396,26 +428,29 @@ TEST(Toml, implicit_groups) {
     ans = false;
   } else {
     il::int_t i = config.search("a");
-    if (!(config.found(i) && config.value(i).isMapArray())) {
+    if (!(config.found(i) &&
+          config.value(i).is<il::MapArray<il::String, il::Dynamic>>())) {
       ans = false;
     } else {
       const il::MapArray<il::String, il::Dynamic> &a =
-          config.value(i).asMapArray();
+          config.value(i).as<il::MapArray<il::String, il::Dynamic>>();
       il::int_t i1 = a.search("b");
-      if (!(a.size() == 1 && a.found(i1) && a.value(i1).isMapArray())) {
+      if (!(a.size() == 1 && a.found(i1) &&
+            a.value(i1).is<il::MapArray<il::String, il::Dynamic>>())) {
         ans = false;
       } else {
         const il::MapArray<il::String, il::Dynamic> &b =
-            a.value(i1).asMapArray();
+            a.value(i1).as<il::MapArray<il::String, il::Dynamic>>();
         il::int_t j = b.search("c");
-        if (!(b.size() == 1 && b.found(j) && b.value(j).isMapArray())) {
+        if (!(b.size() == 1 && b.found(j) &&
+              b.value(j).is<il::MapArray<il::String, il::Dynamic>>())) {
           ans = false;
         } else {
           const il::MapArray<il::String, il::Dynamic> &c =
-              b.value(j).asMapArray();
+              b.value(j).as<il::MapArray<il::String, il::Dynamic>>();
           il::int_t j0 = c.search("answer");
-          if (!(c.size() == 1 && c.found(j0) && c.value(j0).isInteger() &&
-                c.value(j0).toInteger() == 42)) {
+          if (!(c.size() == 1 && c.found(j0) && c.value(j0).is<il::int_t>() &&
+                c.value(j0).as<il::int_t>() == 42)) {
             ans = false;
           }
         }
@@ -440,10 +475,10 @@ TEST(Toml, integer) {
   } else {
     il::int_t i0 = config.search("answer");
     il::int_t i1 = config.search("neganswer");
-    if (!(config.found(i0) && config.value(i0).isInteger() &&
-          config.value(i0).toInteger() == 42 && config.found(i1) &&
-          config.value(i1).isInteger() &&
-          config.value(i1).toInteger() == -42)) {
+    if (!(config.found(i0) && config.value(i0).is<il::int_t>() &&
+          config.value(i0).as<il::int_t>() == 42 && config.found(i1) &&
+          config.value(i1).is<il::int_t>() &&
+          config.value(i1).as<il::int_t>() == -42)) {
       ans = false;
     }
   }
@@ -464,8 +499,8 @@ TEST(Toml, key_equals_nospace) {
     ans = false;
   } else {
     il::int_t i = config.search("answer");
-    if (!(config.found(i) && config.value(i).isInteger() &&
-          config.value(i).toInteger() == 42)) {
+    if (!(config.found(i) && config.value(i).is<il::int_t>() &&
+          config.value(i).as<il::int_t>() == 42)) {
       ans = false;
     }
   }
@@ -486,8 +521,8 @@ TEST(Toml, key_space) {
     ans = false;
   } else {
     il::int_t i = config.search("a b");
-    if (!(config.found(i) && config.value(i).isInteger() &&
-          config.value(i).toInteger() == 1)) {
+    if (!(config.found(i) && config.value(i).is<il::int_t>() &&
+          config.value(i).as<il::int_t>() == 1)) {
       ans = false;
     }
   }
@@ -508,8 +543,8 @@ TEST(Toml, key_special_chars) {
     ans = false;
   } else {
     il::int_t i = config.search("~!@$^&*()_+-`1234567890[]|/?><.,;:'");
-    if (!(config.found(i) && config.value(i).isInteger() &&
-          config.value(i).toInteger() == 1)) {
+    if (!(config.found(i) && config.value(i).is<il::int_t>() &&
+          config.value(i).as<il::int_t>() == 1)) {
       ans = false;
     }
   }
@@ -531,10 +566,10 @@ TEST(Toml, long_floating_point) {
   } else {
     il::int_t i0 = config.search("longpi");
     il::int_t i1 = config.search("neglongpi");
-    if (!(config.found(i0) && config.value(i0).isDouble() &&
-          config.value(i0).toDouble() == 3.141592653589793 &&
-          config.found(i1) && config.value(i1).isDouble() &&
-          config.value(i1).toDouble() == -3.141592653589793)) {
+    if (!(config.found(i0) && config.value(i0).is<double>() &&
+          config.value(i0).as<double>() == 3.141592653589793 &&
+          config.found(i1) && config.value(i1).is<double>() &&
+          config.value(i1).as<double>() == -3.141592653589793)) {
       ans = false;
     }
   }
@@ -556,10 +591,10 @@ TEST(Toml, long_integer) {
   } else {
     il::int_t i0 = config.search("answer");
     il::int_t i1 = config.search("neganswer");
-    if (!(config.found(i0) && config.value(i0).isInteger() &&
-          config.value(i0).toInteger() == 9223372036854775807 &&
-          config.found(i1) && config.value(i1).isInteger() &&
-          config.value(i1).toInteger() == (-9223372036854775807 - 1))) {
+    if (!(config.found(i0) && config.value(i0).is<il::int_t>() &&
+          config.value(i0).as<il::int_t>() == 9223372036854775807 &&
+          config.found(i1) && config.value(i1).is<il::int_t>() &&
+          config.value(i1).as<il::int_t>() == (-9223372036854775807 - 1))) {
       ans = false;
     }
   }
@@ -581,9 +616,10 @@ TEST(Toml, windows_lines) {
   } else {
     il::int_t i0 = config.search("input_directory");
     il::int_t i1 = config.search("Young_modulus");
-    if (!(config.found(i0) && config.value(i0).isString() &&
-          config.value(i0).asString() == "Mesh_Files" && config.found(i1) &&
-          config.value(i1).isDouble() && config.value(i1).toDouble() == 1.0)) {
+    if (!(config.found(i0) && config.value(i0).is<il::String>() &&
+          config.value(i0).as<il::String>() == "Mesh_Files" &&
+          config.found(i1) && config.value(i1).is<double>() &&
+          config.value(i1).as<double>() == 1.0)) {
       ans = false;
     }
   }
@@ -605,9 +641,10 @@ TEST(Toml, zero) {
   } else {
     il::int_t i0 = config.search("a");
     il::int_t i1 = config.search("b");
-    if (!(config.found(i0) && config.value(i0).isDouble() &&
-          config.value(i0).toDouble() == 0.0 && config.found(i1) &&
-          config.value(i1).isInteger() && config.value(i1).toInteger() == 0)) {
+    if (!(config.found(i0) && config.value(i0).is<double>() &&
+          config.value(i0).as<double>() == 0.0 && config.found(i1) &&
+          config.value(i1).is<il::int_t>() &&
+          config.value(i1).as<il::int_t>() == 0)) {
       ans = false;
     }
   }

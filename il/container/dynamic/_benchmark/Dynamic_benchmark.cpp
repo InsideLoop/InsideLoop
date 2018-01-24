@@ -59,7 +59,7 @@ void integer_boxed() {
   il::int_t sum_boxed = 0;
   for (il::int_t k = 0; k < nb_times; ++k) {
     for (il::int_t i = 0; i < n; ++i) {
-      sum_boxed += w[i].toInteger();
+      sum_boxed += w[i].as<il::int_t>();
     }
     sum_boxed *= 2;
   }
@@ -102,7 +102,7 @@ void floating_point_boxed() {
   double sum_boxed = 0.0;
   for (il::int_t k = 0; k < nb_times; ++k) {
     for (il::int_t i = 0; i < n; ++i) {
-      sum_boxed += w[i].toDouble();
+      sum_boxed += w[i].as<double>();
     }
     sum_boxed *= 0.5;
   }

@@ -117,6 +117,6 @@ void partial_sum() {
     std::printf("\n");
   }
 }
-}
+}  // namespace il
 
 #endif  // IL_PARTIAL_SUM_H

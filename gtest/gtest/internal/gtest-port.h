@@ -1448,8 +1448,8 @@ inline void SleepMilliseconds(int n) {
 #endif  // GTEST_HAS_PTHREAD
 
 #if GTEST_HAS_NOTIFICATION_
-  // Notification has already been imported into the namespace.
-  // Nothing to do here.
+// Notification has already been imported into the namespace.
+// Nothing to do here.
 
 #elif GTEST_HAS_PTHREAD
 // Allows a controller thread to pause execution of newly created
@@ -2336,9 +2336,9 @@ inline const char* StrNCpy(char* dest, const char* src, size_t n) {
   return strncpy(dest, src, n);
 }
 
-  // ChDir(), FReopen(), FDOpen(), Read(), Write(), Close(), and
-  // StrError() aren't needed on Windows CE at this time and thus not
-  // defined there.
+// ChDir(), FReopen(), FDOpen(), Read(), Write(), Close(), and
+// StrError() aren't needed on Windows CE at this time and thus not
+// defined there.
 
 #if !GTEST_OS_WINDOWS_MOBILE && !GTEST_OS_WINDOWS_PHONE && !GTEST_OS_WINDOWS_RT
 inline int ChDir(const char* dir) { return chdir(dir); }

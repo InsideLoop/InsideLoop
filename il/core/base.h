@@ -47,7 +47,7 @@
 #if _WIN64
 #define IL_64_BIT
 #else
-#define IL -32_BIT
+#define IL_32_BIT
 #endif
 #endif
 
@@ -196,16 +196,23 @@ T min(T a, T b) {
 // For arrays
 ////////////////////////////////////////////////////////////////////////////////
 
+struct dummy_t {};
+
 struct io_t {};
 const io_t io{};
+
 struct value_t {};
 const value_t value{};
+
 struct unsafe_t {};
 const unsafe_t unsafe{};
+
 struct safe_t {};
 const safe_t safe{};
+
 struct emplace_t {};
 const emplace_t emplace{};
+
 struct align_t {};
 const align_t align{};
 

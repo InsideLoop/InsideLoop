@@ -331,7 +331,7 @@ inline uint32_t clzll(uint64_t x) {
   return 63 - r;
 }
 #define FMT_BUILTIN_CLZLL(n) fmt::internal::clzll(n)
-}
+}  // namespace internal
 }  // namespace fmt
 #endif
 

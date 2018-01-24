@@ -19,30 +19,31 @@
 #ifndef IL_TYPE_H
 #define IL_TYPE_H
 
-#include <il/String.h>
 #include <il/Array.h>
-#include <il/Array2D.h>
 #include <il/Array2C.h>
+#include <il/Array2D.h>
 #include <il/Map.h>
 #include <il/MapArray.h>
+#include <il/String.h>
 
 namespace il {
 
 enum class Type : unsigned char {
+  TVoid = 12,
   TBool = 0,
-  TUint8 = 1,
+  TUInt8 = 1,
   TInt8 = 2,
-  TUchar = 1,   // C type (unsigned char)
-  TSchar = 2,   // C type (signed char, not char)
-  TUint16 = 3,
+  TUChar = 1,  // C type (unsigned char)
+  TSChar = 2,  // C type (signed char, not char)
+  TUInt16 = 3,
   TInt16 = 4,
   TUShort = 3,  // C type (unsigned short)
   TShort = 4,   // C type (shor)
-  TUint32 = 5,
+  TUInt32 = 5,
   TInt32 = 6,
-  TUint = 5,    // C type (unsigned int)
-  TInt = 6,     // C type (int)
-  TUint64 = 7,
+  TUInt = 5,  // C type (unsigned int)
+  TInt = 6,   // C type (int)
+  TUInt64 = 7,
   TInt64 = 8,
 #ifdef IL_64_BIT
   TUInteger = 7,  // C++ type (il::uint_t aka std::size_t)
@@ -52,25 +53,26 @@ enum class Type : unsigned char {
   TInteger = 6,   // C++ type (il::int_t aka std:ptrdiff_t)
 #endif
   // TFp16 = 9,
-      TFp32 = 10,
+  TFp32 = 10,
   TFp64 = 11,
-  TFloat = 10,    // C type (float)
-  TDouble = 11,   // C type (double)
+  TFloat = 10,   // C type (float)
+  TDouble = 11,  // C type (double)
   TFloatingPoint = 11,
-  TString = 12,
-  TArray = 13,
-  TMap = 14,
-  TMapArray = 15,
+  TString = 13,
+  TArray = 14,
+  TMap = 15,
+  TMapArray = 16,
+
   TArrayOfBool = 20,
-  TArrayOfUint8 = 21,
+  TArrayOfUInt8 = 21,
   TArrayOfInt8 = 22,
-  TArrayOfUint16 = 23,
+  TArrayOfUInt16 = 23,
   TArrayOfInt16 = 24,
-  TArrayOfUint32 = 25,
+  TArrayOfUInt32 = 25,
   TArrayOfInt32 = 26,
-  TArrayOfUint = 25,
+  TArrayOfUInt = 25,
   TArrayOfInt = 26,
-  TArrayOfUint64 = 27,
+  TArrayOfUInt64 = 27,
   TArrayOfInt64 = 28,
 #ifdef IL_64_BIT
   TArrayOfUInteger = 27,
@@ -79,239 +81,314 @@ enum class Type : unsigned char {
   TArrayOfUInteger = 25,
   TArrayOfInteger = 26,
 #endif
-  // TArrayOfFp16 = 29,
-      TArrayOfFp32 = 30,
+  TArrayOfFp32 = 30,
   TArrayOfFp64 = 31,
   TArrayOfFloat = 30,
   TArrayOfDouble = 31,
   TArrayOfFloatingPoint = 31,
   TArrayOfString = 32,
 
-  TArray2dOfBool = 40,
-  TArray2dOfUint8 = 41,
-  TArray2dOfInt8 = 42,
-  TArray2dOfUint16 = 43,
-  TArray2dOfInt16 = 44,
-  TArray2dOfUint32 = 45,
-  TArray2dOfInt32 = 46,
-  TArray2dOfUint = 45,
-  TArray2dOfInt = 46,
-  TArray2dOfUint64 = 47,
-  TArray2dOfInt64 = 48,
+  TArrayViewOfBool = 20,
+  TArrayViewOfUInt8 = 21,
+  TArrayViewOfInt8 = 22,
+  TArrayViewOfUInt16 = 23,
+  TArrayViewOfInt16 = 24,
+  TArrayViewOfUInt32 = 25,
+  TArrayViewOfInt32 = 26,
+  TArrayViewOfUInt = 25,
+  TArrayViewOfInt = 26,
+  TArrayViewOfUInt64 = 27,
+  TArrayViewOfInt64 = 28,
 #ifdef IL_64_BIT
-  TArray2dOfUInteger = 47,
-  TArray2dOfInteger = 48,
+  TArrayViewOfUInteger = 27,
+  TArrayViewOfInteger = 28,
 #else
-  TArray2dOfUInteger = 45,
-  TArray2dOfInteger = 46,
+  TArrayViewOfUInteger = 25,
+  TArrayViewOfInteger = 26,
 #endif
-  // TArray2dOfFp16 = 49,
-      TArray2dOfFp32 = 50,
-  TArray2dOfFp64 = 51,
-  TArray2dOfFloat = 50,
-  TArray2dOfDouble = 51,
-  TArray2dOfFloatingPoint = 51,
-  TArray2dOfString = 52,
+  TArrayViewOfFp32 = 30,
+  TArrayViewOfFp64 = 31,
+  TArrayViewOfFloat = 30,
+  TArrayViewOfDouble = 31,
+  TArrayViewOfFloatingPoint = 31,
+  TArrayViewOfString = 32,
 
-  TArray2cOfBool = 60,
-  TArray2cOfUint8 = 61,
-  TArray2cOfInt8 = 62,
-  TArray2cOfUint16 = 63,
-  TArray2cOfInt16 = 64,
-  TArray2cOfUint32 = 65,
-  TArray2cOfInt32 = 66,
-  TArray2cOfUint = 65,
-  TArray2cOfInt = 66,
-  TArray2cOfUint64 = 67,
-  TArray2cOfInt64 = 68,
+  TArrayEditOfBool = 20,
+  TArrayEditOfUInt8 = 21,
+  TArrayEditOfInt8 = 22,
+  TArrayEditOfUInt16 = 23,
+  TArrayEditOfInt16 = 24,
+  TArrayEditOfUInt32 = 25,
+  TArrayEditOfInt32 = 26,
+  TArrayEditOfUInt = 25,
+  TArrayEditOfInt = 26,
+  TArrayEditOfUInt64 = 27,
+  TArrayEditOfInt64 = 28,
 #ifdef IL_64_BIT
-  TArray2cOfUInteger = 67,
-  TArray2cOfInteger = 68,
+  TArrayEditOfUInteger = 27,
+  TArrayEditOfInteger = 28,
 #else
-  TArray2cOfUInteger = 65,
-  TArray2cOfInteger = 66,
+  TArrayEditOfUInteger = 25,
+  TArrayEditOfInteger = 26,
 #endif
-  // TArray2cOfFp16 = 69,
-      TArray2cOfFp32 = 70,
-  TArray2cOfFp64 = 71,
-  TArray2cOfFloat = 70,
-  TArray2cOfDouble = 71,
-  TArray2cOfFloatingPoint = 71,
-  TArray2cOfString = 72,
+  TArrayEditOfFp32 = 30,
+  TArrayEditOfFp64 = 31,
+  TArrayEditOfFloat = 30,
+  TArrayEditOfDouble = 31,
+  TArrayEditOfFloatingPoint = 31,
+  TArrayEditOfString = 32,
 
-  TUnknown = 255
+  TArray2DOfBool = 40,
+  TArray2DOfUInt8 = 41,
+  TArray2DOfInt8 = 42,
+  TArray2DOfUInt16 = 43,
+  TArray2DOfInt16 = 44,
+  TArray2DOfUInt32 = 45,
+  TArray2DOfInt32 = 46,
+  TArray2DOfUInt = 45,
+  TArray2DOfInt = 46,
+  TArray2DOfUInt64 = 47,
+  TArray2DOfInt64 = 48,
+#ifdef IL_64_BIT
+  TArray2DOfUInteger = 47,
+  TArray2DOfInteger = 48,
+#else
+  TArray2DOfUInteger = 45,
+  TArray2DOfInteger = 46,
+#endif
+  // TArray2DOfFp16 = 49,
+  TArray2DOfFp32 = 50,
+  TArray2DOfFp64 = 51,
+  TArray2DOfFloat = 50,
+  TArray2DOfDouble = 51,
+  TArray2DOfFloatingPoint = 51,
+  TArray2DOfString = 52,
+
+  TArray2COfBool = 60,
+  TArray2COfUInt8 = 61,
+  TArray2COfInt8 = 62,
+  TArray2COfUInt16 = 63,
+  TArray2COfInt16 = 64,
+  TArray2COfUInt32 = 65,
+  TArray2COfInt32 = 66,
+  TArray2COfUInt = 65,
+  TArray2COfInt = 66,
+  TArray2COfUInt64 = 67,
+  TArray2COfInt64 = 68,
+#ifdef IL_64_BIT
+  TArray2COfUInteger = 67,
+  TArray2COfInteger = 68,
+#else
+  TArray2COfUInteger = 65,
+  TArray2COfInteger = 66,
+#endif
+  // TArray2COfFp16 = 69,
+  TArray2COfFp32 = 70,
+  TArray2COfFp64 = 71,
+  TArray2COfFloat = 70,
+  TArray2COfDouble = 71,
+  TArray2COfFloatingPoint = 71,
+  TArray2COfString = 72,
+
 };
 
-template<typename T>
+class Dynamic;
+
+template <typename T>
 il::Type typeId() {
-  return il::Type::TUnknown;
+  return il::Type::TVoid;
 }
 
-template<>
+template <>
 inline il::Type typeId<bool>() {
   return il::Type::TBool;
 }
 
-template<>
+template <>
+inline il::Type typeId<int>() {
+  return il::Type::TInt;
+}
+
+template <>
+inline il::Type typeId<il::int_t>() {
+  return il::Type::TInteger;
+}
+
+template <>
 inline il::Type typeId<float>() {
   return il::Type::TFloat;
 }
 
-template<>
+template <>
 inline il::Type typeId<double>() {
   return il::Type::TDouble;
 }
 
-template<>
+template <>
 inline il::Type typeId<il::String>() {
   return il::Type::TString;
 }
 
-template<>
-inline il::Type typeId<il::Array<unsigned char>>() {
-  return il::Type::TArrayOfUint8;
+template <>
+inline il::Type typeId<il::Array<il::Dynamic>>() {
+  return il::Type::TArray;
 }
 
-template<>
+template <>
+inline il::Type typeId<il::Map<il::String, il::Dynamic>>() {
+  return il::Type::TMap;
+}
+
+template <>
+inline il::Type typeId<il::MapArray<il::String, il::Dynamic>>() {
+  return il::Type::TMapArray;
+}
+
+template <>
+inline il::Type typeId<il::Array<unsigned char>>() {
+  return il::Type::TArrayOfUInt8;
+}
+
+template <>
 inline il::Type typeId<il::Array<signed char>>() {
   return il::Type::TArrayOfInt8;
 }
 
-template<>
+template <>
 inline il::Type typeId<il::Array<unsigned short>>() {
-  return il::Type::TArrayOfUint16;
+  return il::Type::TArrayOfUInt16;
 }
 
-template<>
+template <>
 inline il::Type typeId<il::Array<short>>() {
   return il::Type::TArrayOfInt16;
 }
 
-template<>
+template <>
 inline il::Type typeId<il::Array<unsigned int>>() {
-  return il::Type::TArrayOfUint32;
+  return il::Type::TArrayOfUInt32;
 }
 
-template<>
+template <>
 inline il::Type typeId<il::Array<int>>() {
   return il::Type::TArrayOfInt32;
 }
 
-template<>
+template <>
 inline il::Type typeId<il::Array<std::size_t>>() {
-  return il::Type::TArrayOfUint64;
+  return il::Type::TArrayOfUInt64;
 }
 
-template<>
+template <>
 inline il::Type typeId<il::Array<il::int_t>>() {
   return il::Type::TArrayOfInt64;
 }
 
-template<>
+template <>
 inline il::Type typeId<il::Array<float>>() {
   return il::Type::TArrayOfFloat;
 }
 
-template<>
+template <>
 inline il::Type typeId<il::Array<double>>() {
   return il::Type::TArrayOfDouble;
 }
 
-template<>
+template <>
 inline il::Type typeId<il::Array2D<unsigned char>>() {
-  return il::Type::TArray2dOfUint8;
+  return il::Type::TArray2DOfUInt8;
 }
 
-template<>
+template <>
 inline il::Type typeId<il::Array2D<signed char>>() {
-  return il::Type::TArray2dOfInt8;
+  return il::Type::TArray2DOfInt8;
 }
 
-template<>
+template <>
 inline il::Type typeId<il::Array2D<unsigned short>>() {
-  return il::Type::TArray2dOfUint16;
+  return il::Type::TArray2DOfUInt16;
 }
 
-template<>
+template <>
 inline il::Type typeId<il::Array2D<short>>() {
-  return il::Type::TArray2dOfInt16;
+  return il::Type::TArray2DOfInt16;
 }
 
-template<>
+template <>
 inline il::Type typeId<il::Array2D<unsigned int>>() {
-  return il::Type::TArray2dOfUint32;
+  return il::Type::TArray2DOfUInt32;
 }
 
-template<>
+template <>
 inline il::Type typeId<il::Array2D<int>>() {
-  return il::Type::TArray2dOfInt32;
+  return il::Type::TArray2DOfInt32;
 }
 
-template<>
+template <>
 inline il::Type typeId<il::Array2D<std::size_t>>() {
-  return il::Type::TArray2dOfUint64;
+  return il::Type::TArray2DOfUInt64;
 }
 
-template<>
+template <>
 inline il::Type typeId<il::Array2D<il::int_t>>() {
-  return il::Type::TArray2dOfInt64;
+  return il::Type::TArray2DOfInt64;
 }
 
-template<>
+template <>
 inline il::Type typeId<il::Array2D<float>>() {
-  return il::Type::TArray2dOfFloat;
+  return il::Type::TArray2DOfFloat;
 }
 
-template<>
+template <>
 inline il::Type typeId<il::Array2D<double>>() {
-  return il::Type::TArray2dOfDouble;
+  return il::Type::TArray2DOfDouble;
 }
 
-template<>
+template <>
 inline il::Type typeId<il::Array2C<signed char>>() {
-  return il::Type::TArray2cOfInt8;
+  return il::Type::TArray2COfInt8;
 }
 
-template<>
+template <>
 inline il::Type typeId<il::Array2C<unsigned short>>() {
-  return il::Type::TArray2cOfUint16;
+  return il::Type::TArray2COfUInt16;
 }
 
-template<>
+template <>
 inline il::Type typeId<il::Array2C<short>>() {
-  return il::Type::TArray2cOfInt16;
+  return il::Type::TArray2COfInt16;
 }
 
-template<>
+template <>
 inline il::Type typeId<il::Array2C<unsigned int>>() {
-  return il::Type::TArray2cOfUint32;
+  return il::Type::TArray2COfUInt32;
 }
 
-template<>
+template <>
 inline il::Type typeId<il::Array2C<int>>() {
-  return il::Type::TArray2cOfInt32;
+  return il::Type::TArray2COfInt32;
 }
 
-template<>
+template <>
 inline il::Type typeId<il::Array2C<std::size_t>>() {
-  return il::Type::TArray2cOfUint64;
+  return il::Type::TArray2COfUInt64;
 }
 
-template<>
+template <>
 inline il::Type typeId<il::Array2C<il::int_t>>() {
-  return il::Type::TArray2cOfInt64;
+  return il::Type::TArray2COfInt64;
 }
 
-template<>
+template <>
 inline il::Type typeId<il::Array2C<float>>() {
-  return il::Type::TArray2cOfFloat;
+  return il::Type::TArray2COfFloat;
 }
 
-template<>
+template <>
 inline il::Type typeId<il::Array2C<double>>() {
-  return il::Type::TArray2cOfDouble;
+  return il::Type::TArray2COfDouble;
 }
 
-}
+}  // namespace il
 
-#endif // IL_TYPE_H
+#endif  // IL_TYPE_H

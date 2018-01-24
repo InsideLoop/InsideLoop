@@ -74,9 +74,6 @@ void Gmres::solve(const ArrayFunctor<double>& a, const ArrayFunctor<double>& b,
 
   int itercount = 0;
   MKL_INT RCI_request;
-  const char l_char = 'L';
-  const char n_char = 'N';
-  const char u_char = 'U';
   const int one_int = 1;
   const double minus_one_double = -1.0;
 

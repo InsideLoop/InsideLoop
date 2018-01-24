@@ -135,7 +135,7 @@ inline void auxLoad(il::int_t n, il::io_t,
         k += sizeof(double) * size;
         config.insert(std::move(string), il::Dynamic{std::move(v)});
       } break;
-      case il::Type::TArray2dOfUint8: {
+      case il::Type::TArray2DOfUInt8: {
         il::int_t size0 = 0;
         il::int_t size1 = 0;
         std::fread(&size0, sizeof(il::int_t), 1, file);
@@ -146,7 +146,7 @@ inline void auxLoad(il::int_t n, il::io_t,
         k += sizeof(unsigned char) * size0 * size1;
         config.insert(std::move(string), il::Dynamic{std::move(A)});
       } break;
-      case il::Type::TArray2dOfDouble: {
+      case il::Type::TArray2DOfDouble: {
         il::int_t size0 = 0;
         il::int_t size1 = 0;
         std::fread(&size0, sizeof(il::int_t), 1, file);
@@ -182,7 +182,7 @@ inline void auxLoad(il::int_t n, il::io_t,
           switch (type[i]) {
             case il::Type::TDouble: {
               array[i] = il::Dynamic{il::Type::TArrayOfDouble};
-              il::Array<double>& ref = array[i].asArrayOfDouble();
+              il::Array<double>& ref = array[i].as<il::Array<double>>();
               ref.resize(n);
             } break;
             case il::Type::TInteger: {
@@ -199,7 +199,7 @@ inline void auxLoad(il::int_t n, il::io_t,
           for (il::int_t i = 0; i < nb_types; ++i) {
             switch (type[i]) {
               case il::Type::TDouble: {
-                il::Array<double>& ref = array[i].asArrayOfDouble();
+                il::Array<double>& ref = array[i].as<il::Array<double>>();
                 double value = 0.0;
                 std::fread(&value, sizeof(double), 1, file);
                 ref[j] = value;
@@ -229,7 +229,7 @@ inline void auxLoad(il::int_t n, il::io_t,
           // Hello
         }
         il::Map<il::String, il::Dynamic>& config_inner =
-            config.value(i).asMap();
+            config.value(i).as<il::Map<il::String, il::Dynamic>>();
         auxLoad(size, il::io, config_inner, file);
         k += size;
       } break;
@@ -301,7 +301,7 @@ inline void auxLoad(il::int_t n, il::io_t,
         k += sizeof(double) * size;
         config.insert(std::move(string), il::Dynamic{std::move(v)});
       } break;
-      case il::Type::TArray2dOfUint8: {
+      case il::Type::TArray2DOfUInt8: {
         il::int_t size0 = 0;
         il::int_t size1 = 0;
         std::fread(&size0, sizeof(il::int_t), 1, file);
@@ -312,7 +312,7 @@ inline void auxLoad(il::int_t n, il::io_t,
         k += sizeof(unsigned char) * size0 * size1;
         config.insert(std::move(string), il::Dynamic{std::move(A)});
       } break;
-      case il::Type::TArray2dOfDouble: {
+      case il::Type::TArray2DOfDouble: {
         il::int_t size0 = 0;
         il::int_t size1 = 0;
         std::fread(&size0, sizeof(il::int_t), 1, file);
@@ -351,7 +351,7 @@ inline void auxLoad(il::int_t n, il::io_t,
             switch (type[i]) {
               case il::Type::TDouble: {
                 array[i] = il::Dynamic{il::Type::TArrayOfDouble};
-                il::Array<double>& ref = array[i].asArrayOfDouble();
+                il::Array<double>& ref = array[i].as<il::Array<double>>();
                 ref.resize(n);
               } break;
               case il::Type::TInteger: {
@@ -368,7 +368,7 @@ inline void auxLoad(il::int_t n, il::io_t,
             for (il::int_t i = 0; i < nb_types; ++i) {
               switch (type[i]) {
                 case il::Type::TDouble: {
-                  il::Array<double>& ref = array[i].asArrayOfDouble();
+                  il::Array<double>& ref = array[i].as<il::Array<double>>();
                   double value = 0.0;
                   const std::size_t error =
                       std::fread(&value, sizeof(double), 1, file);
@@ -398,7 +398,7 @@ inline void auxLoad(il::int_t n, il::io_t,
           if (!config.found(i)) {
           }
           il::MapArray<il::String, il::Dynamic>& config_inner =
-              config.value(i).asMapArray();
+              config.value(i).as<il::MapArray<il::String, il::Dynamic>>();
           auxLoad(size, il::io, config_inner, file);
           k += size;
         }
@@ -415,7 +415,7 @@ inline void auxLoad(il::int_t n, il::io_t,
            il::Dynamic>{n}}, il::io, i); if (!config.found(i)) {
                 }
                 il::MapArray<il::String, il::Dynamic>& config_inner =
-                    config.value(i).asMapArray();
+                    config.value(i).as<il::MapArray<il::String, il::Dynamic>>();
                 auxLoad(size, il::io, config_inner, file);
                 k += size;
               } break;
@@ -521,12 +521,12 @@ inline void auxSave(const il::MapArray<il::String, il::Dynamic>& data,
 
     switch (data.value(i).type()) {
       case il::Type::TBool: {
-        const bool value = data.value(i).toBool();
+        const bool value = data.value(i).as<bool>();
         std::fwrite(&value, sizeof(bool), 1, file);
         n += sizeof(bool);
       } break;
       case il::Type::TInteger: {
-        writeVarint(data.value(i).toInteger(), il::io, n, file);
+        writeVarint(data.value(i).as<il::int_t>(), il::io, n, file);
       } break;
       case il::Type::TFloat: {
         const float value = data.value(i).toFloat();
@@ -534,26 +534,26 @@ inline void auxSave(const il::MapArray<il::String, il::Dynamic>& data,
         n += sizeof(float);
       } break;
       case il::Type::TDouble: {
-        const double value = data.value(i).toDouble();
+        const double value = data.value(i).as<double>();
         std::fwrite(&value, sizeof(double), 1, file);
         n += sizeof(double);
       } break;
       case il::Type::TString: {
-        const il::int_t size = data.value(i).asString().size();
+        const il::int_t size = data.value(i).as<il::String>().size();
         std::fwrite(&size, sizeof(il::int_t), 1, file);
-        std::fwrite(data.value(i).asString().asCString(), sizeof(char),
+        std::fwrite(data.value(i).as<il::String>().asCString(), sizeof(char),
                     size + 1, file);
         n += sizeof(il::int_t) + size + 1;
       } break;
       case il::Type::TArrayOfDouble: {
-        const il::int_t size = data.value(i).asArrayOfDouble().size();
+        const il::int_t size = data.value(i).as<il::Array<double>>().size();
         std::fwrite(&size, sizeof(il::int_t), 1, file);
-        std::fwrite(data.value(i).asArrayOfDouble().data(), sizeof(double),
-                    size, file);
+        std::fwrite(data.value(i).as<il::Array<double>>().data(),
+                    sizeof(double), size, file);
         n += sizeof(il::int_t) + sizeof(double) * size;
       } break;
-      case il::Type::TArray2dOfUint8: {
-        const il::Array2D<unsigned char>& A = data.value(i).asArray2dOfUint8();
+      case il::Type::TArray2DOfUInt8: {
+        const il::Array2D<unsigned char>& A = data.value(i).asArray2DOfUInt8();
         const il::int_t size0 = A.size(0);
         const il::int_t size1 = A.size(1);
         std::fwrite(&size0, sizeof(il::int_t), 1, file);
@@ -564,8 +564,8 @@ inline void auxSave(const il::MapArray<il::String, il::Dynamic>& data,
         }
         n += 2 * sizeof(il::int_t) + sizeof(unsigned char) * size0 * size1;
       } break;
-      case il::Type::TArray2dOfDouble: {
-        const il::Array2D<double>& A = data.value(i).asArray2dOfDouble();
+      case il::Type::TArray2DOfDouble: {
+        const il::Array2D<double>& A = data.value(i).as<il::Array2D<double>>();
         const il::int_t size0 = A.size(0);
         const il::int_t size1 = A.size(1);
         std::fwrite(&size0, sizeof(il::int_t), 1, file);
@@ -581,7 +581,7 @@ inline void auxSave(const il::MapArray<il::String, il::Dynamic>& data,
             (option.size() == 1 && option[0] == data.key(i));
         if (save_as_array_of_struct) {
           const il::MapArray<il::String, il::Dynamic>& my_data =
-              data.value(i).asMapArray();
+              data.value(i).as<il::MapArray<il::String, il::Dynamic>>();
           il::int_t k = 0;
 
           const il::int_t population_struct = my_data.nbElements();
@@ -599,7 +599,7 @@ inline void auxSave(const il::MapArray<il::String, il::Dynamic>& data,
               case il::Type::TArrayOfDouble: {
                 if (!size_of_array_is_known) {
                   const il::Array<double>& ref =
-                      my_data.value(i).asArrayOfDouble();
+                      my_data.value(i).as<il::Array<double>>();
                   n = ref.size();
                   size_of_array_is_known = true;
                 }
@@ -628,7 +628,7 @@ inline void auxSave(const il::MapArray<il::String, il::Dynamic>& data,
               switch (type) {
                 case il::Type::TArrayOfDouble: {
                   const il::Array<double>& ref =
-                      my_data.value(i).asArrayOfDouble();
+                      my_data.value(i).as<il::Array<double>>();
                   const double value = ref[j];
                   std::fwrite(&value, sizeof(double), 1, file);
                 } break;
@@ -644,14 +644,17 @@ inline void auxSave(const il::MapArray<il::String, il::Dynamic>& data,
         } else {
           il::int_t n_map = 0;
           //        std::fwrite(&n_map, sizeof(il::int_t), 1, file);
-          writeVarint(data.value(i).asMapArray().size(), il::io, n_map, file);
+          writeVarint(
+              data.value(i).as<il::MapArray<il::String, il::Dynamic>>().size(),
+              il::io, n_map, file);
           il::ArrayView<il::String> new_option{};
           if (option.size() > 0 && option[0] == data.key(i)) {
             new_option = option.view(il::Range{1, option.size()});
           }
-          auxSave(data.value(i).asMapArray(), new_option, il::io, n_map, file);
+          auxSave(data.value(i).as<il::MapArray<il::String, il::Dynamic>>(),
+                  new_option, il::io, n_map, file);
           //        std::fseek(file, -(n_map + sizeof(il::int_t)),
-//          SEEK_CUR);
+          //          SEEK_CUR);
           //        std::fwrite(&n_map, sizeof(il::int_t), 1, file);
           //        std::fseek(file, n_map, SEEK_CUR);
         }

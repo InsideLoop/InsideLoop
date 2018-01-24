@@ -18,11 +18,12 @@
 
 #include <iostream>
 
-#include <il/String.h>
 #include <il/Dynamic.h>
+#include <il/String.h>
+
 
 int main() {
-  il::Dynamic x = 2.3;
+  const int a = 3;
 
   return 0;
 }

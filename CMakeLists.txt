@@ -36,7 +36,7 @@ set(IL_MKL 1)
 set(IL_OPENBLAS 0)
 set(IL_PNG 0)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++17")
 
 # We want all possible warnings and treat them as errors
 if (UNIX)
@@ -160,9 +160,11 @@ endif()
 
 set(SOURCE_FILES
     il/algorithmArray.h
+    il/algorithmArray2D.h
     il/Array.h
     il/Array2D.h
     il/Array2C.h
+    il/Array2DView.h
     il/Array3C.h
     il/Array3D.h
     il/Array4D.h
@@ -194,6 +196,7 @@ set(SOURCE_FILES
     il/String.h
     il/string_util.h
     il/Timer.h
+    il/Type.h
     il/toml.h
     il/TriDiagonal.h
     il/UTF16String.h
@@ -234,6 +237,7 @@ set(SOURCE_FILES
     il/container/string/unicode.h
     il/container/string/view_string.h
     il/container/string/algorithm_string.h
+    il/container/dynamic/Type.h
     il/container/dynamic/Dynamic.h
     il/container/info/Info.h
     il/container/info/Status.h

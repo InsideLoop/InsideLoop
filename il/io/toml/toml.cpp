@@ -99,7 +99,7 @@ il::Type TomlParser::parseType(il::StringView string, il::io_t,
     status.setError(il::Error::ParseCanNotDetermineType);
     IL_SET_SOURCE(status);
     status.setInfo("line", line_number_);
-    return il::Type::TUnknown;
+    return il::Type::TVoid;
   }
 }
 
@@ -383,7 +383,7 @@ il::Dynamic TomlParser::parseArray(il::io_t, il::StringView& string,
   }
 
   switch (value_type) {
-    case il::Type::TUnknown:
+    case il::Type::TVoid:
     case il::Type::TBool:
     case il::Type::TInteger:
     case il::Type::TDouble:
@@ -397,8 +397,8 @@ il::Dynamic TomlParser::parseArray(il::io_t, il::StringView& string,
       return ans;
     } break;
     case il::Type::TArray: {
-      ans = parseObjectArray(il::Type::TArray, '[', il::io, string,
-                             parse_status);
+      ans =
+          parseObjectArray(il::Type::TArray, '[', il::io, string, parse_status);
       if (!parse_status.ok()) {
         status = std::move(parse_status);
         return ans;
@@ -416,7 +416,7 @@ il::Dynamic TomlParser::parseValueArray(il::Type value_type, il::io_t,
                                         il::StringView& string,
                                         il::Status& status) {
   il::Dynamic ans{il::Array<il::Dynamic>{}};
-  il::Array<il::Dynamic>& array = ans.asArray();
+  il::Array<il::Dynamic>& array = ans.as<il::Array<il::Dynamic>>();
   il::Status parse_status{};
 
   while (!string.isEmpty() && (string[0] != ']')) {
@@ -465,7 +465,7 @@ il::Dynamic TomlParser::parseObjectArray(il::Type object_type, char delimiter,
                                          il::io_t, il::StringView& string,
                                          il::Status& status) {
   il::Dynamic ans{il::Array<il::Dynamic>{}};
-  il::Array<il::Dynamic>& array = ans.asArray();
+  il::Array<il::Dynamic>& array = ans.as<il::Array<il::Dynamic>>();
   il::Status parse_status{};
 
   while (!string.isEmpty() && (string[0] != ']')) {
@@ -518,7 +518,9 @@ il::Dynamic TomlParser::parseInlineTable(il::io_t, il::StringView& string,
     }
     string = il::removeWhitespaceLeft(string);
     il::Status parse_status{};
-    parseKeyValue(il::io, string, ans.asMapArray(), parse_status);
+    parseKeyValue(il::io, string,
+                  ans.as<il::MapArray<il::String, il::Dynamic>>(),
+                  parse_status);
     if (!parse_status.ok()) {
       status = std::move(parse_status);
       return ans;
@@ -775,12 +777,18 @@ void TomlParser::parseSingleTable(il::io_t, il::StringView& string,
 
     il::int_t i = toml->search(table_name);
     if (toml->found(i)) {
-      if (toml->value(i).isMapArray()) {
-        toml = &(toml->value(i).asMapArray());
-      } else if (toml->value(i).isArray()) {
-        if (toml->value(i).asArray().size() > 0 &&
-            toml->value(i).asArray().back().isMapArray()) {
-          toml = &(toml->value(i).asArray().back().asMapArray());
+      if (toml->value(i).is<il::MapArray<il::String, il::Dynamic>>()) {
+        toml = &(toml->value(i).as<il::MapArray<il::String, il::Dynamic>>());
+      } else if (toml->value(i).is<il::Array<il::Dynamic>>()) {
+        if (toml->value(i).as<il::Array<il::Dynamic>>().size() > 0 &&
+            toml->value(i)
+                .as<il::Array<il::Dynamic>>()
+                .back()
+                .is<il::MapArray<il::String, il::Dynamic>>()) {
+          toml = &(toml->value(i)
+                       .as<il::Array<il::Dynamic>>()
+                       .back()
+                       .as<il::MapArray<il::String, il::Dynamic>>());
         } else {
           status.setError(il::Error::ParseDuplicateKey);
           IL_SET_SOURCE(status);
@@ -798,7 +806,7 @@ void TomlParser::parseSingleTable(il::io_t, il::StringView& string,
       toml->insert(table_name,
                    il::Dynamic{il::MapArray<il::String, il::Dynamic>{}}, il::io,
                    i);
-      toml = &(toml->value(i).asMapArray());
+      toml = &(toml->value(i).as<il::MapArray<il::String, il::Dynamic>>());
     }
 
     string = il::removeWhitespaceLeft(string);
@@ -854,28 +862,30 @@ void TomlParser::parseTableArray(il::io_t, il::StringView& string,
     if (toml->found(i)) {
       il::Dynamic& b = toml->value(i);
       if (!string.isEmpty() && string[0] == ']') {
-        if (!b.isArray()) {
+        if (!b.is<il::Array<il::Dynamic>>()) {
           status.setError(il::Error::ParseTable);
           IL_SET_SOURCE(status);
           status.setInfo("line", line_number_);
           return;
         }
-        il::Array<il::Dynamic>& v = b.asArray();
+        il::Array<il::Dynamic>& v = b.as<il::Array<il::Dynamic>>();
         v.append(il::Dynamic{il::MapArray<il::String, il::Dynamic>{}});
-        toml = &(v.back().asMapArray());
+        toml = &(v.back().as<il::MapArray<il::String, il::Dynamic>>());
       }
     } else {
       if (!string.isEmpty() && string[0] == ']') {
         toml->insert(table_name, il::Dynamic{il::Array<il::Dynamic>{}}, il::io,
                      i);
-        toml->value(i).asArray().append(
+        toml->value(i).as<il::Array<il::Dynamic>>().append(
             il::Dynamic{il::MapArray<il::String, il::Dynamic>{}});
-        toml = &(toml->value(i).asArray()[0].asMapArray());
+        toml = &(toml->value(i)
+                     .as<il::Array<il::Dynamic>>()[0]
+                     .as<il::MapArray<il::String, il::Dynamic>>());
       } else {
         toml->insert(table_name,
                      il::Dynamic{il::MapArray<il::String, il::Dynamic>{}},
                      il::io, i);
-        toml = &(toml->value(i).asMapArray());
+        toml = &(toml->value(i).as<il::MapArray<il::String, il::Dynamic>>());
       }
     }
   }

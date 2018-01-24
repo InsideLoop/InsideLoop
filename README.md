@@ -769,11 +769,11 @@ a numeric type:
 
 ```cpp
 void f(const il::Dynamic& a) {
-  if (a.isInteger()) {
-    il::int_t i = a.toInteger();
+  if (a.is<il::int_t>()) {
+    il::int_t i = a.as<il::int_t>();
     std::cout << i << std::endl;
-  } else if (a.isDouble()) {
-    double x = a.toDouble();
+  } else if (a.is<double>()) {
+    double x = a.as<double>();
     std::cout << x << std::endl;
   }
 }
@@ -783,8 +783,8 @@ This function append the integer 3 to `a` if it represents an array
  
 ```cpp
 void f(il::io_t, il::Dynamic& a) {
-  if (a.isArray()) {
-    il::Array<il::Dynamic>& array = a.asArray();
+  if (a.is<il::Array<il::Dynamic>>()) {
+    il::Array<il::Dynamic>& array = a.as<il::Array<il::Dynamic>>();
     array.append(3);
   }
 }
@@ -827,33 +827,33 @@ int main() {
   // get the name
   il::String name{};
   il::int_t i = config.search("name");
-  if (config.found(i) && config.value(i).isString()) {
-    name = config.value(i).asString();
+  if (config.found(i) && config.value(i).is<il::String>()) {
+    name = config.value(i).as<il::String>();
   }
   
   // get the number of cells
   il::int_t nb_cells;
   i = config.search("nb_cells");
-  if (config.found(i) && config.value(i).isInteger()) {
-    nb_cells = config.value(i).toInteger();
+  if (config.found(i) && config.value(i).is<il::int_t>()) {
+    nb_cells = config.value(i).as<il::int_t>();
   }
   
   // get the property of the water
   double density;
   double compressibility;
   i = config.search("water");
-  if (config.found(i) && config.value(i).isMapArray()) {
+  if (config.found(i) && config.value(i).is<il::MapArray<il::String, il::Dynamic>>()) {
     const il::MapArray<il::String, il::Dynamic>& water =
-        config.value(i).asMapArray();
+        config.value(i).as<il::MapArray<il::String, il::Dynamic>>();
     
     il::int_t j = water.search("density");
-    if (water.found(j) && water.value(j).isDouble()) {
-      density = water.value(j).toDouble();
+    if (water.found(j) && water.value(j).is<double>()) {
+      density = water.value(j).as<double>();
     }
     
     j = water.search("compressibility");
-    if (water.found(j) && water.value(j).isDouble()) {
-      compressibility = water.value(j).toDouble();
+    if (water.found(j) && water.value(j).is<double>()) {
+      compressibility = water.value(j).as<double>();
     }
   }
 }
