@@ -34,7 +34,7 @@ set(IL_OPENMP 0)
 set(IL_BLAS 1)
 set(IL_MKL 1)
 set(IL_OPENBLAS 0)
-set(IL_PNG 0)
+set(IL_PNG 1)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++17")
 
@@ -251,7 +251,7 @@ set(SOURCE_FILES
     il/io/toml/toml.h
     il/io/toml/toml.cpp
     il/io/png/png.h
-    #il/io/png.cpp
+    il/io/png/png.cpp
     il/io/filepack/filepack.h
     il/io/format/format.cc
     il/linear_algebra/dense/blas/blas.h

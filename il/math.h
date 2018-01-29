@@ -60,6 +60,10 @@ T min(T a, T b, T c, T d) {
 //  return max(max(a, b), max(c, d));
 //}
 
+inline il::int_t floor(double x) {
+  return static_cast<il::int_t>(std::floor(x));
+}
+
 template <typename T>
 T abs(T x) {
   return x >= 0 ? x : -x;
@@ -116,7 +120,7 @@ static T ipow(T x) {
 }
 
 template <typename T>
-double ipow(T x, il::int_t n) {
+T ipow(T x, il::int_t n) {
   IL_EXPECT_FAST(n >= 0);
   T ans = 1;
   while (n != 0) {

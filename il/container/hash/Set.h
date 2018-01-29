@@ -20,6 +20,7 @@
 #define IL_SET_H
 
 #include <il/container/hash/HashFunction.h>
+#include <il/container/hash/Location.h>
 
 namespace il {
 
