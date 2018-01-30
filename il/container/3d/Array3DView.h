@@ -19,7 +19,7 @@
 #ifndef IL_ARRAY3DVIEW_H
 #define IL_ARRAY3DVIEW_H
 
-#include <il/base.h>
+#include <il/core.h>
 
 namespace il {
 
@@ -133,7 +133,7 @@ const T& ConstArray3DView<T>::operator()(il::int_t i, il::int_t j,
                  static_cast<std::size_t>(size(1)));
   IL_EXPECT_FAST(static_cast<std::size_t>(k) <
                  static_cast<std::size_t>(size(2)));
-  return data_[(i * stride(0) + j) * stride(1) + k];
+  return data_[(k * stride(1) + j) * stride(0) + i];
 }
 
 template <typename T>
@@ -202,7 +202,7 @@ T& Array3DView<T>::operator()(il::int_t i, il::int_t j, il::int_t k) {
                  static_cast<std::size_t>(this->size(1)));
   IL_EXPECT_FAST(static_cast<std::size_t>(k) <
                  static_cast<std::size_t>(this->size(2)));
-  return this->data_[(i * this->stride(0) + j) * this->stride(1) + k];
+  return data_[(k * this->stride(1) + j) * this->stride(0) + i];
 }
 
 template <typename T>

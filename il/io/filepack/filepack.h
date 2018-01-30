@@ -523,7 +523,7 @@ inline void auxSave(const il::MapArray<il::String, il::Dynamic>& data,
         n += sizeof(bool);
       } break;
       case il::Type::TInteger: {
-        writeVarint(data.value(i).as<il::int_t>(), il::io, n, file);
+        writeVarint(data.value(i).to<il::int_t>(), il::io, n, file);
       } break;
       case il::Type::TFloat: {
         const float value = data.value(i).toFloat();
@@ -531,7 +531,7 @@ inline void auxSave(const il::MapArray<il::String, il::Dynamic>& data,
         n += sizeof(float);
       } break;
       case il::Type::TDouble: {
-        const double value = data.value(i).as<double>();
+        const double value = data.value(i).to<double>();
         std::fwrite(&value, sizeof(double), 1, file);
         n += sizeof(double);
       } break;

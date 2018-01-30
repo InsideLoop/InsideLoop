@@ -105,6 +105,8 @@ class Dynamic {
   template <typename T>
   const T &as() const;
   template <typename T>
+  T to() const;
+  template <typename T>
   T &as();
 
  private:
@@ -520,12 +522,21 @@ bool Dynamic::is() const {
 template <typename T>
 const T &Dynamic::as() const {
   IL_EXPECT_MEDIUM(type_ == il::typeId<T>());
+  IL_EXPECT_MEDIUM(static_cast<unsigned char>(type_) >= 13);
 
   if (isStackAllocated()) {
     return *reinterpret_cast<const T *>(&data_);
   } else {
     return *reinterpret_cast<const T *>(data_);
   }
+}
+
+template <typename T>
+T Dynamic::to() const {
+  IL_EXPECT_MEDIUM(type_ == il::typeId<T>());
+  IL_EXPECT_MEDIUM(static_cast<unsigned char>(type_) <= 11);
+
+  return *reinterpret_cast<const T *>(&data_);
 }
 
 template <typename T>
@@ -596,6 +607,7 @@ inline void Dynamic::copyData(il::Type type, void *p) {
       *reinterpret_cast<il::Array<int> **>(&data_) =
           new il::Array<int>{*reinterpret_cast<il::Array<int> *>(p)};
       break;
+#ifdef IL_64_BIT
     case il::Type::TArrayOfUInteger:
       *reinterpret_cast<il::Array<std::size_t> **>(&data_) =
           new il::Array<std::size_t>{
@@ -606,6 +618,7 @@ inline void Dynamic::copyData(il::Type type, void *p) {
           new il::Array<il::int_t>{
               *reinterpret_cast<il::Array<il::int_t> *>(p)};
       break;
+#endif
     case il::Type::TArrayOfFloat:
       *reinterpret_cast<il::Array<float> **>(&data_) =
           new il::Array<float>{*reinterpret_cast<il::Array<float> *>(p)};
@@ -659,12 +672,14 @@ inline void Dynamic::releaseMemory() {
     case il::Type::TArrayOfInt32:
       delete reinterpret_cast<il::Array<int> *>(data_);
       break;
+#ifdef IL_64_BIT
     case il::Type::TArrayOfUInteger:
       delete reinterpret_cast<il::Array<std::size_t> *>(data_);
       break;
     case il::Type::TArrayOfInteger:
       delete reinterpret_cast<il::Array<il::int_t> *>(data_);
       break;
+#endif
     case il::Type::TArrayOfFloat:
       delete reinterpret_cast<il::Array<float> *>(data_);
       break;
@@ -673,6 +688,9 @@ inline void Dynamic::releaseMemory() {
       break;
     case il::Type::TArrayOfString:
       delete reinterpret_cast<il::Array<il::String> *>(data_);
+      break;
+    case il::Type::TArray2DOfDouble:
+      delete reinterpret_cast<il::Array2D<double> *>(data_);
       break;
     default:
       IL_UNREACHABLE;

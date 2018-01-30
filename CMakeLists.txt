@@ -34,7 +34,7 @@ set(IL_OPENMP 0)
 set(IL_BLAS 1)
 set(IL_MKL 1)
 set(IL_OPENBLAS 0)
-set(IL_PNG 1)
+set(IL_PNG 0)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++17")
 
@@ -171,7 +171,7 @@ set(SOURCE_FILES
     il/Array4C.h
     il/ArrayView.h
     il/BandArray2C.h
-    il/base.h
+        il/core.h
     il/CudaArray2D.h
     il/data.h
     il/Dynamic.h
@@ -241,7 +241,7 @@ set(SOURCE_FILES
     il/container/dynamic/Dynamic.h
     il/container/info/Info.h
     il/container/info/Status.h
-    il/core/base.h
+        il/core/core.h
     il/core/math/safe_arithmetic.h
     il/core/memory/allocate.h
     il/io/io_base.h
@@ -251,7 +251,7 @@ set(SOURCE_FILES
     il/io/toml/toml.h
     il/io/toml/toml.cpp
     il/io/png/png.h
-    il/io/png/png.cpp
+#    il/io/png/png.cpp
     il/io/filepack/filepack.h
     il/io/format/format.cc
     il/linear_algebra/dense/blas/blas.h
@@ -269,7 +269,7 @@ set(SOURCE_FILES
     il/linear_algebra/sparse/blas/sparse_linear_algebra.h
     il/linear_algebra/sparse/blas/SparseMatrixBlas.h
     il/linear_algebra/cuda/dense/blas/cuda_blas.h
-    il/linear_algebra/matrixFree/solver/Gmres.cpp
+#    il/linear_algebra/matrixFree/solver/Gmres.cpp
     il/unit/time.h
     il/random/sobol.h)
 

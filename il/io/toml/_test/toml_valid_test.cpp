@@ -95,9 +95,9 @@ TEST(Toml, array_nospaces) {
       const il::Array<il::Dynamic> &array =
           config.value(i).as<il::Array<il::Dynamic>>();
       if (array.size() != 3 || !array[0].is<il::int_t>() ||
-          array[0].as<il::int_t>() != 1 || !array[1].is<il::int_t>() ||
-          array[1].as<il::int_t>() != 2 || !array[2].is<il::int_t>() ||
-          array[2].as<il::int_t>() != 3) {
+          array[0].to<il::int_t>() != 1 || !array[1].is<il::int_t>() ||
+          array[1].to<il::int_t>() != 2 || !array[2].is<il::int_t>() ||
+          array[2].to<il::int_t>() != 3) {
         ans = false;
       }
     }
@@ -133,9 +133,9 @@ TEST(Toml, arrays_heterogeneous) {
         const il::Array<il::Dynamic> &subarray0 =
             array[0].as<il::Array<il::Dynamic>>();
         if (!(subarray0[0].is<il::int_t>() &&
-              subarray0[0].as<il::int_t>() == 1 &&
+              subarray0[0].to<il::int_t>() == 1 &&
               subarray0[1].is<il::int_t>() &&
-              subarray0[1].as<il::int_t>() == 2)) {
+              subarray0[1].to<il::int_t>() == 2)) {
           ans = false;
         } else {
           const il::Array<il::Dynamic> &subarray1 =
@@ -149,9 +149,9 @@ TEST(Toml, arrays_heterogeneous) {
             const il::Array<il::Dynamic> &subarray2 =
                 array[2].as<il::Array<il::Dynamic>>();
             if (!(subarray2[0].is<double>() &&
-                  subarray2[0].as<double>() == 1.1 &&
+                  subarray2[0].to<double>() == 1.1 &&
                   subarray2[1].is<double>() &&
-                  subarray2[1].as<double>() == 2.1)) {
+                  subarray2[1].to<double>() == 2.1)) {
               ans = false;
             }
           }
@@ -260,15 +260,15 @@ TEST(Toml, comments_everywhere) {
       il::Location j1 = group.search("more");
       if (!(group.size() == 2 && group.found(j0) &&
             group.value(j0).is<il::int_t>() &&
-            group.value(j0).as<il::int_t>() == 42 && group.found(j1) &&
+            group.value(j0).to<il::int_t>() == 42 && group.found(j1) &&
             group.value(j1).is<il::Array<il::Dynamic>>())) {
         ans = false;
       } else {
         il::Array<il::Dynamic> &array =
             group.value(j1).as<il::Array<il::Dynamic>>();
         if (!(array.size() == 2 && array[0].is<il::int_t>() &&
-              array[0].as<il::int_t>() == 42 && array[1].is<il::int_t>() &&
-              array[1].as<il::int_t>() == 42)) {
+              array[0].to<il::int_t>() == 42 && array[1].is<il::int_t>() &&
+              array[1].to<il::int_t>() == 42)) {
           ans = false;
         }
       }
@@ -309,9 +309,9 @@ TEST(Toml, double) {
     il::Location i0 = config.search("pi");
     il::Location i1 = config.search("negpi");
     if (!(config.found(i0) && config.value(i0).is<double>() &&
-          config.value(i0).as<double>() == 3.14 && config.found(i1) &&
+          config.value(i0).to<double>() == 3.14 && config.found(i1) &&
           config.value(i1).is<double>() &&
-          config.value(i1).as<double>() == -3.14)) {
+          config.value(i1).to<double>() == -3.14)) {
       ans = false;
     }
   }
@@ -341,7 +341,7 @@ TEST(Toml, implicit_and_explicit_after) {
       il::Location i0 = a.search("better");
       il::Location i1 = a.search("b");
       if (!(a.size() == 2 && a.found(i0) && a.value(i0).is<il::int_t>() &&
-            a.value(i0).as<il::int_t>() == 43 && a.found(i1) &&
+            a.value(i0).to<il::int_t>() == 43 && a.found(i1) &&
             a.value(i1).is<il::MapArray<il::String, il::Dynamic>>())) {
         ans = false;
       } else {
@@ -356,7 +356,7 @@ TEST(Toml, implicit_and_explicit_after) {
               b.value(j).as<il::MapArray<il::String, il::Dynamic>>();
           il::Location j0 = c.search("answer");
           if (!(c.size() == 1 && c.found(j0) && c.value(j0).is<il::int_t>() &&
-                c.value(j0).as<il::int_t>() == 42)) {
+                c.value(j0).to<il::int_t>() == 42)) {
             ans = false;
           }
         }
@@ -389,7 +389,7 @@ TEST(Toml, implicit_and_explicit_before) {
       il::Location i0 = a.search("better");
       il::Location i1 = a.search("b");
       if (!(a.size() == 2 && a.found(i0) && a.value(i0).is<il::int_t>() &&
-            a.value(i0).as<il::int_t>() == 43 && a.found(i1) &&
+            a.value(i0).to<il::int_t>() == 43 && a.found(i1) &&
             a.value(i1).is<il::MapArray<il::String, il::Dynamic>>())) {
         ans = false;
       } else {
@@ -404,7 +404,7 @@ TEST(Toml, implicit_and_explicit_before) {
               b.value(j).as<il::MapArray<il::String, il::Dynamic>>();
           il::Location j0 = c.search("answer");
           if (!(c.size() == 1 && c.found(j0) && c.value(j0).is<il::int_t>() &&
-                c.value(j0).as<il::int_t>() == 42)) {
+                c.value(j0).to<il::int_t>() == 42)) {
             ans = false;
           }
         }
@@ -450,7 +450,7 @@ TEST(Toml, implicit_groups) {
               b.value(j).as<il::MapArray<il::String, il::Dynamic>>();
           il::Location j0 = c.search("answer");
           if (!(c.size() == 1 && c.found(j0) && c.value(j0).is<il::int_t>() &&
-                c.value(j0).as<il::int_t>() == 42)) {
+                c.value(j0).to<il::int_t>() == 42)) {
             ans = false;
           }
         }
@@ -476,9 +476,9 @@ TEST(Toml, integer) {
     il::Location i0 = config.search("answer");
     il::Location i1 = config.search("neganswer");
     if (!(config.found(i0) && config.value(i0).is<il::int_t>() &&
-          config.value(i0).as<il::int_t>() == 42 && config.found(i1) &&
+          config.value(i0).to<il::int_t>() == 42 && config.found(i1) &&
           config.value(i1).is<il::int_t>() &&
-          config.value(i1).as<il::int_t>() == -42)) {
+          config.value(i1).to<il::int_t>() == -42)) {
       ans = false;
     }
   }
@@ -500,7 +500,7 @@ TEST(Toml, key_equals_nospace) {
   } else {
     il::Location i = config.search("answer");
     if (!(config.found(i) && config.value(i).is<il::int_t>() &&
-          config.value(i).as<il::int_t>() == 42)) {
+          config.value(i).to<il::int_t>() == 42)) {
       ans = false;
     }
   }
@@ -522,7 +522,7 @@ TEST(Toml, key_space) {
   } else {
     il::Location i = config.search("a b");
     if (!(config.found(i) && config.value(i).is<il::int_t>() &&
-          config.value(i).as<il::int_t>() == 1)) {
+          config.value(i).to<il::int_t>() == 1)) {
       ans = false;
     }
   }
@@ -544,7 +544,7 @@ TEST(Toml, key_special_chars) {
   } else {
     il::Location i = config.search("~!@$^&*()_+-`1234567890[]|/?><.,;:'");
     if (!(config.found(i) && config.value(i).is<il::int_t>() &&
-          config.value(i).as<il::int_t>() == 1)) {
+          config.value(i).to<il::int_t>() == 1)) {
       ans = false;
     }
   }
@@ -567,9 +567,9 @@ TEST(Toml, long_floating_point) {
     il::Location i0 = config.search("longpi");
     il::Location i1 = config.search("neglongpi");
     if (!(config.found(i0) && config.value(i0).is<double>() &&
-          config.value(i0).as<double>() == 3.141592653589793 &&
+          config.value(i0).to<double>() == 3.141592653589793 &&
           config.found(i1) && config.value(i1).is<double>() &&
-          config.value(i1).as<double>() == -3.141592653589793)) {
+          config.value(i1).to<double>() == -3.141592653589793)) {
       ans = false;
     }
   }
@@ -592,9 +592,9 @@ TEST(Toml, long_integer) {
     il::Location i0 = config.search("answer");
     il::Location i1 = config.search("neganswer");
     if (!(config.found(i0) && config.value(i0).is<il::int_t>() &&
-          config.value(i0).as<il::int_t>() == 9223372036854775807 &&
+          config.value(i0).to<il::int_t>() == 9223372036854775807 &&
           config.found(i1) && config.value(i1).is<il::int_t>() &&
-          config.value(i1).as<il::int_t>() == (-9223372036854775807 - 1))) {
+          config.value(i1).to<il::int_t>() == (-9223372036854775807 - 1))) {
       ans = false;
     }
   }
@@ -619,7 +619,7 @@ TEST(Toml, windows_lines) {
     if (!(config.found(i0) && config.value(i0).is<il::String>() &&
           config.value(i0).as<il::String>() == "Mesh_Files" &&
           config.found(i1) && config.value(i1).is<double>() &&
-          config.value(i1).as<double>() == 1.0)) {
+          config.value(i1).to<double>() == 1.0)) {
       ans = false;
     }
   }
@@ -642,9 +642,9 @@ TEST(Toml, zero) {
     il::Location i0 = config.search("a");
     il::Location i1 = config.search("b");
     if (!(config.found(i0) && config.value(i0).is<double>() &&
-          config.value(i0).as<double>() == 0.0 && config.found(i1) &&
+          config.value(i0).to<double>() == 0.0 && config.found(i1) &&
           config.value(i1).is<il::int_t>() &&
-          config.value(i1).as<il::int_t>() == 0)) {
+          config.value(i1).to<il::int_t>() == 0)) {
       ans = false;
     }
   }

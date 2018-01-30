@@ -22,7 +22,7 @@
 #include <limits>
 
 #include <il/String.h>
-#include <il/base.h>
+#include <il/core.h>
 
 namespace il {
 

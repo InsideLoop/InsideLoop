@@ -87,6 +87,7 @@ enum class Type : unsigned char {
   TArrayOfDouble = 31,
   TArrayOfFloatingPoint = 31,
   TArrayOfString = 32,
+  TArrayOfStruct = 33,
 
   TArrayViewOfBool = 20,
   TArrayViewOfUInt8 = 21,
@@ -209,10 +210,12 @@ inline il::Type typeId<int>() {
   return il::Type::TInt;
 }
 
+#ifdef IL_64_BIT
 template <>
 inline il::Type typeId<il::int_t>() {
   return il::Type::TInteger;
 }
+#endif
 
 template <>
 inline il::Type typeId<float>() {
@@ -274,6 +277,7 @@ inline il::Type typeId<il::Array<int>>() {
   return il::Type::TArrayOfInt32;
 }
 
+#ifdef IL_64_BIT
 template <>
 inline il::Type typeId<il::Array<std::size_t>>() {
   return il::Type::TArrayOfUInt64;
@@ -283,6 +287,7 @@ template <>
 inline il::Type typeId<il::Array<il::int_t>>() {
   return il::Type::TArrayOfInt64;
 }
+#endif
 
 template <>
 inline il::Type typeId<il::Array<float>>() {
@@ -324,6 +329,7 @@ inline il::Type typeId<il::Array2D<int>>() {
   return il::Type::TArray2DOfInt32;
 }
 
+#ifdef IL_64_BIT
 template <>
 inline il::Type typeId<il::Array2D<std::size_t>>() {
   return il::Type::TArray2DOfUInt64;
@@ -333,6 +339,7 @@ template <>
 inline il::Type typeId<il::Array2D<il::int_t>>() {
   return il::Type::TArray2DOfInt64;
 }
+#endif
 
 template <>
 inline il::Type typeId<il::Array2D<float>>() {
@@ -369,6 +376,7 @@ inline il::Type typeId<il::Array2C<int>>() {
   return il::Type::TArray2COfInt32;
 }
 
+#ifdef IL_64_BIT
 template <>
 inline il::Type typeId<il::Array2C<std::size_t>>() {
   return il::Type::TArray2COfUInt64;
@@ -378,6 +386,7 @@ template <>
 inline il::Type typeId<il::Array2C<il::int_t>>() {
   return il::Type::TArray2COfInt64;
 }
+#endif
 
 template <>
 inline il::Type typeId<il::Array2C<float>>() {

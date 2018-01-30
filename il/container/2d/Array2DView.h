@@ -19,7 +19,7 @@
 #ifndef IL_ARRAY2DVIEW_H
 #define IL_ARRAY2DVIEW_H
 
-#include <il/base.h>
+#include <il/core.h>
 
 namespace il {
 

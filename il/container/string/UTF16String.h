@@ -22,7 +22,7 @@
 // <cstring> is needed for memcpy
 #include <cstring>
 
-#include <il/base.h>
+#include <il/core.h>
 #include <il/core/memory/allocate.h>
 
 namespace il {

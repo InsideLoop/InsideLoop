@@ -19,7 +19,7 @@
 #ifndef IL_INFO_H
 #define IL_INFO_H
 
-#include <il/base.h>
+#include <il/core.h>
 #include <cstring>
 
 namespace il {

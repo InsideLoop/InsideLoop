@@ -28,7 +28,7 @@
 // <utility> is needed for std::move
 #include <utility>
 
-#include <il/base.h>
+#include <il/core.h>
 #include <il/core/memory/allocate.h>
 
 namespace il {

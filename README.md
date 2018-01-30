@@ -165,11 +165,7 @@ makes vectorization impossible for the compiler in many situations. It has to
 be taken care either by working directly with pointers and using the `restrict`
 keyword or by using OpenMP 4 pragmas such as `#pragma omp simd`. InsideLoop
 library allows to get access to the underlying structure of the containers
-when such manual optimization is needed. Moreover, for efficient vectorization,
-it is sometimes useful to align memory to the vector width which is 32 bytes
-on AVX processors. This can be easily done with the constructor
-`il::Array<double> v(n, il::align, 32)`. You can even misalign arrays
-on AVX for teaching purposes with `il::Array<double> w(n, il::align, 16, 16, 32)`.
+when such manual optimization is needed.
   
 ## Allocation on the stack for static and small arrays
 
@@ -223,21 +219,7 @@ for (il::int_t j = 0; A.size(1); ++j) {
 
 Most operations available on `il::Array<T>` are also available for
 `il::Array2D<T>`. For instance, it is possible to `resize` the object and
-`reserve` memory for it. It is also possible to align a multidimensional array.
-The object will include some padding at the end of each column so the first
-element of each column is aligned.
-
-```cpp
-#include <il/Array2D.h>
-
-const il::int_t n = 63;
-il::Array2D<double> A(n, n, il::align, 32);
-for (il::int_t j = 0; A.size(1); ++j) {
-  for (il::int_t i = 0; A.size(0); ++i) {
-    A(i, j) = 1.0 / (2 + i + j);
-  }
-}
-```
+`reserve` memory for it.
 
 For those who want a 2-dimensional array with C ordering, `il::Array2C<T>`
 provides such an object. We also provide `il::Array3D<T>` and `il::Array4D<T>`
@@ -749,31 +731,29 @@ il::Dynamic d = 3.14159;
 il::Dynamic e = "Hello world!";
 
 // The dynamic object f contains an empty il::Array<il::Dynamic>
-il::Dynamic f{il::Type::kArray};
+il::Dynamic f{il::Type::TArray};
 
 
 // The dynamic object g contains an empty il::Map<il::String, il::Dynamic>
-il::Dynamic f{il::Type::kMap};
+il::Dynamic f{il::Type::TMap};
 ```
 
 At runtime, one can query the type of an `il::Dynamic` object `a` with the
 method `type()` which returns an `il::Type`. One can also check if `a` is
-of a given type with the methods `isNull()`, `isBool()`, `isInteger()`,
-`isDouble()`, `isString()`, `isArray()` and `isMap()`. Once
+of a given type with the methods `is<T>()`. Once
 you know the type, you can extract the value from a dynamic object with the
-methods `toBool()`, `toInteger()`, `toDouble()`, `asString()`,
-`asArray`, `asMap()`. The methods starting with `to` returns a value
-whereas the methods starting with `as` returns a reference. For instance, here
+methods `to<T>()` for C types and, `as<T>()` for objects. The method `to` returns a value
+whereas the method `as` returns a reference. For instance, here
 is a function that takes a dynamic object and and prints its value if it holds
 a numeric type:
 
 ```cpp
 void f(const il::Dynamic& a) {
   if (a.is<il::int_t>()) {
-    il::int_t i = a.as<il::int_t>();
+    il::int_t i = a.to<il::int_t>();
     std::cout << i << std::endl;
   } else if (a.is<double>()) {
-    double x = a.as<double>();
+    double x = a.to<double>();
     std::cout << x << std::endl;
   }
 }
@@ -835,7 +815,7 @@ int main() {
   il::int_t nb_cells;
   i = config.search("nb_cells");
   if (config.found(i) && config.value(i).is<il::int_t>()) {
-    nb_cells = config.value(i).as<il::int_t>();
+    nb_cells = config.value(i).to<il::int_t>();
   }
   
   // get the property of the water
@@ -848,12 +828,12 @@ int main() {
     
     il::Location j = water.search("density");
     if (water.found(j) && water.value(j).is<double>()) {
-      density = water.value(j).as<double>();
+      density = water.value(j).to<double>();
     }
     
     j = water.search("compressibility");
     if (water.found(j) && water.value(j).is<double>()) {
-      compressibility = water.value(j).as<double>();
+      compressibility = water.value(j).to<double>();
     }
   }
 }

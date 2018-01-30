@@ -22,7 +22,7 @@
 // <initializer_list> is needed for std::initializer_list<T>
 #include <initializer_list>
 
-#include <il/base.h>
+#include <il/core.h>
 
 namespace il {
 

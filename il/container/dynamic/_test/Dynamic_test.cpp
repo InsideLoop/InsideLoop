@@ -65,7 +65,7 @@ TEST(Dynamic, bool_constructor_1) {
 TEST(Dynamic, integer_constructor_0) {
   il::Dynamic a = 3;
 
-  const bool ans = a.is<il::int_t>() && a.as<il::int_t>() == 3 &&
+  const bool ans = a.is<il::int_t>() && a.to<il::int_t>() == 3 &&
                    !a.is<void>() && !a.is<bool>() && !a.is<double>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
@@ -76,7 +76,7 @@ TEST(Dynamic, integer_constructor_0) {
 TEST(Dynamic, integer_constructor_1) {
   il::Dynamic a = -3;
 
-  const bool ans = a.is<il::int_t>() && a.as<il::int_t>() == -3 &&
+  const bool ans = a.is<il::int_t>() && a.to<il::int_t>() == -3 &&
                    !a.is<void>() && !a.is<bool>() && !a.is<double>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
@@ -88,7 +88,7 @@ TEST(Dynamic, integer_constructor_2) {
   const il::int_t n = (il::int_t{1} << 47) - 1;
   il::Dynamic a = n;
 
-  const bool ans = a.is<il::int_t>() && a.as<il::int_t>() == n &&
+  const bool ans = a.is<il::int_t>() && a.to<il::int_t>() == n &&
                    !a.is<void>() && !a.is<bool>() && !a.is<double>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
@@ -100,7 +100,7 @@ TEST(Dynamic, integer_constructor_3) {
   const il::int_t n = -(il::int_t{1} << 47);
   il::Dynamic a = n;
 
-  const bool ans = a.is<il::int_t>() && a.as<il::int_t>() == n &&
+  const bool ans = a.is<il::int_t>() && a.to<il::int_t>() == n &&
                    !a.is<void>() && !a.is<bool>() && !a.is<double>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
@@ -115,7 +115,7 @@ TEST(Dynamic, double_constructor_0) {
   bool b0 = a.is<double>();
   IL_UNUSED(b0);
 
-  const bool ans = a.is<double>() && a.as<double>() == x && !a.is<void>() &&
+  const bool ans = a.is<double>() && a.to<double>() == x && !a.is<void>() &&
                    !a.is<bool>() && !a.is<il::int_t>() && !a.is<il::String>() &&
                    !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
@@ -127,7 +127,7 @@ TEST(Dynamic, double_constructor_1) {
   const double x = 0.0 / 0.0;
   il::Dynamic a = x;
 
-  const bool ans = a.is<double>() && std::isnan(a.as<double>()) &&
+  const bool ans = a.is<double>() && std::isnan(a.to<double>()) &&
                    !a.is<void>() && !a.is<bool>() && !a.is<il::int_t>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
@@ -139,7 +139,7 @@ TEST(Dynamic, double_constructor_2) {
   const double x = std::numeric_limits<double>::quiet_NaN();
   il::Dynamic a = x;
 
-  const bool ans = a.is<double>() && std::isnan(a.as<double>()) &&
+  const bool ans = a.is<double>() && std::isnan(a.to<double>()) &&
                    !a.is<void>() && !a.is<bool>() && !a.is<il::int_t>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
@@ -151,7 +151,7 @@ TEST(Dynamic, double_constructor_3) {
   const double x = std::numeric_limits<double>::signaling_NaN();
   il::Dynamic a = x;
 
-  const bool ans = a.is<double>() && std::isnan(a.as<double>()) &&
+  const bool ans = a.is<double>() && std::isnan(a.to<double>()) &&
                    !a.is<void>() && !a.is<bool>() && !a.is<il::int_t>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
@@ -164,7 +164,7 @@ TEST(Dynamic, double_constructor_4) {
   x += 1.0;
   il::Dynamic a = x;
 
-  const bool ans = a.is<double>() && std::isnan(a.as<double>()) &&
+  const bool ans = a.is<double>() && std::isnan(a.to<double>()) &&
                    !a.is<void>() && !a.is<bool>() && !a.is<il::int_t>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
@@ -176,7 +176,7 @@ TEST(Dynamic, double_constructor_5) {
   const double x = std::numeric_limits<double>::infinity();
   il::Dynamic a = x;
 
-  const bool ans = a.is<double>() && a.as<double>() == x && !a.is<void>() &&
+  const bool ans = a.is<double>() && a.to<double>() == x && !a.is<void>() &&
                    !a.is<bool>() && !a.is<il::int_t>() && !a.is<il::String>() &&
                    !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
@@ -188,7 +188,7 @@ TEST(Dynamic, double_constructor_6) {
   const double x = -std::numeric_limits<double>::infinity();
   il::Dynamic a = x;
 
-  const bool ans = a.is<double>() && a.as<double>() == x && !a.is<void>() &&
+  const bool ans = a.is<double>() && a.to<double>() == x && !a.is<void>() &&
                    !a.is<bool>() && !a.is<il::int_t>() && !a.is<il::String>() &&
                    !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
@@ -274,7 +274,7 @@ TEST(Dynamic, copy_constructor_integer_0) {
   il::Dynamic b = n;
   il::Dynamic a{b};
 
-  const bool ans = a.is<il::int_t>() && a.as<il::int_t>() == 3 &&
+  const bool ans = a.is<il::int_t>() && a.to<il::int_t>() == 3 &&
                    !a.is<void>() && !a.is<bool>() && !a.is<double>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
@@ -287,7 +287,7 @@ TEST(Dynamic, copy_constructor_floating_point_0) {
   il::Dynamic b = x;
   il::Dynamic a{b};
 
-  const bool ans = a.is<double>() && a.as<double>() == x && !a.is<void>() &&
+  const bool ans = a.is<double>() && a.to<double>() == x && !a.is<void>() &&
                    !a.is<bool>() && !a.is<il::int_t>() && !a.is<il::String>() &&
                    !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
@@ -389,7 +389,7 @@ TEST(Dynamic, move_constructor_integer_0) {
   il::Dynamic b = n;
   il::Dynamic a = std::move(b);
 
-  const bool ans = a.is<il::int_t>() && a.as<il::int_t>() == 3 &&
+  const bool ans = a.is<il::int_t>() && a.to<il::int_t>() == 3 &&
                    !a.is<void>() && !a.is<bool>() && !a.is<double>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
@@ -402,7 +402,7 @@ TEST(Dynamic, move_constructor_floating_point_0) {
   il::Dynamic b = x;
   il::Dynamic a = std::move(b);
 
-  const bool ans = a.is<double>() && a.as<double>() == x && !a.is<void>() &&
+  const bool ans = a.is<double>() && a.to<double>() == x && !a.is<void>() &&
                    !a.is<bool>() && !a.is<il::int_t>() && !a.is<il::String>() &&
                    !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
@@ -508,7 +508,7 @@ TEST(Dynamic, copy_assignement_integer_0) {
   il::Dynamic a{};
   a = b;
 
-  const bool ans = a.is<il::int_t>() && a.as<il::int_t>() == 3 &&
+  const bool ans = a.is<il::int_t>() && a.to<il::int_t>() == 3 &&
                    !a.is<void>() && !a.is<bool>() && !a.is<double>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
@@ -522,7 +522,7 @@ TEST(Dynamic, copy_assignement_floating_point_0) {
   il::Dynamic a{};
   a = b;
 
-  const bool ans = a.is<double>() && a.as<double>() == x && !a.is<void>() &&
+  const bool ans = a.is<double>() && a.to<double>() == x && !a.is<void>() &&
                    !a.is<bool>() && !a.is<il::int_t>() && !a.is<il::String>() &&
                    !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
@@ -631,7 +631,7 @@ TEST(Dynamic, move_assignement_integer_0) {
   il::Dynamic a{};
   a = std::move(b);
 
-  const bool ans = a.is<il::int_t>() && a.as<il::int_t>() == 3 &&
+  const bool ans = a.is<il::int_t>() && a.to<il::int_t>() == 3 &&
                    !a.is<void>() && !a.is<bool>() && !a.is<double>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
@@ -645,7 +645,7 @@ TEST(Dynamic, move_assignement_floating_point_0) {
   il::Dynamic a{};
   a = std::move(b);
 
-  const bool ans = a.is<double>() && a.as<double>() == x && !a.is<void>() &&
+  const bool ans = a.is<double>() && a.to<double>() == x && !a.is<void>() &&
                    !a.is<bool>() && !a.is<il::int_t>() && !a.is<il::String>() &&
                    !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&

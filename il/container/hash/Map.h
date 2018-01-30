@@ -130,6 +130,11 @@ class Map {
   il::Location sentinel() const;
   il::Location next(il::Location i) const;
 
+  // To remove: Ugly hack for MapArray
+#ifdef IL_DEBUG_CLASS
+  std::size_t hash() const;
+#endif
+
  private:
   static int pForSlots(il::int_t n);
   static il::int_t nbBuckets(int p);
@@ -419,7 +424,7 @@ void Map<K, V, F>::set(const K& key, V&& value) {
     new (&((bucket_ + i.index())->value)) V(std::move(value));
   }
 #ifdef IL_DEBUG_CLASS
-  hash_ += F::hash(key(i), p_);
+  hash_ += F::hash(this->key(i), p_);
 #endif
 }
 
@@ -447,7 +452,7 @@ void Map<K, V, F>::set(K&& key, V&& value) {
     new (&((bucket_ + i.index())->value)) V(std::move(value));
   }
 #ifdef IL_DEBUG_CLASS
-  hash_ += F::hash(key(i), p_);
+  hash_ += F::hash(this->key(i), p_);
 #endif
 }
 
@@ -462,7 +467,7 @@ void Map<K, V, F>::insertCString(const char (&key)[m], const V& value) {
     new (&((bucket_ + i.index())->value)) V(value);
   }
 #ifdef IL_DEBUG_CLASS
-  hash_ += F::hash(key(i), p_);
+  hash_ += F::hash(this->key(i), p_);
 #endif
 }
 
@@ -477,7 +482,7 @@ void Map<K, V, F>::insertCString(const char (&key)[m], V&& value) {
     new (&((bucket_ + i.index())->value)) V(std::move(value));
   }
 #ifdef IL_DEBUG_CLASS
-  hash_ += F::hash(key(i), p_);
+  hash_ += F::hash(this->key(i), p_);
 #endif
 }
 
@@ -1039,6 +1044,13 @@ il::Location Map<K, V, F>::next(il::Location i) const {
   return il::Location{i_local};
 #endif
 }
+
+#ifdef IL_DEBUG_CLASS
+template <typename K, typename V, typename F>
+std::size_t Map<K, V, F>::hash() const {
+  return hash_;
+};
+#endif
 
 template <typename K, typename V, typename F>
 void Map<K, V, F>::reserveWithP(int p) {

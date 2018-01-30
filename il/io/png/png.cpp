@@ -18,7 +18,7 @@
 
 #include <il/io/png/png.h>
 
-#include <png.h>
+#include "png.h"
 
 namespace il {
 

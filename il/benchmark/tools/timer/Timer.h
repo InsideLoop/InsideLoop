@@ -26,7 +26,7 @@
 #include <limits>
 #include <thread>
 
-#include <il/core/base.h>
+#include <il/core/core.h>
 
 namespace il {
 

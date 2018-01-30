@@ -26,7 +26,7 @@
 
 #include <iostream>
 
-#include <il/base.h>
+#include <il/core.h>
 #include <il/core/memory/allocate.h>
 
 namespace il {

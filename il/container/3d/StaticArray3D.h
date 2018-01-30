@@ -26,7 +26,7 @@
 // <type_traits> is needed for std::is_pod
 #include <type_traits>
 
-#include <il/base.h>
+#include <il/core.h>
 
 namespace il {
 

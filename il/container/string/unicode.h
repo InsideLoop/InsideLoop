@@ -19,8 +19,8 @@
 #ifndef IL_UNICODE_H
 #define IL_UNICODE_H
 
-#include <il/base.h>
 #include <il/container/string/String.h>
+#include <il/core.h>
 #include <iostream>
 //#include <il/container/string/StringView.h>
 #include <il/container/string/UTF16String.h>

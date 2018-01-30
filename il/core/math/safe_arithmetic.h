@@ -19,7 +19,7 @@
 #ifndef IL_SAFE_ARITHMETIC_H
 #define IL_SAFE_ARITHMETIC_H
 
-#include <il/base.h>
+#include <il/core.h>
 
 namespace il {
 

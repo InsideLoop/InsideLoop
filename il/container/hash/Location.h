@@ -19,7 +19,7 @@
 #ifndef IL_LOCATION_H
 #define IL_LOCATION_H
 
-#include <il/base.h>
+#include <il/core.h>
 
 namespace il {
 

@@ -21,7 +21,7 @@
 
 #include <il/Dynamic.h>
 #include <il/Status.h>
-#include <il/base.h>
+#include <il/core.h>
 
 #include <il/io/io_base.h>
 
@@ -107,11 +107,11 @@ inline void save_array(const il::Array<il::Dynamic> &array, il::io_t,
         }
       } break;
       case il::Type::TInteger: {
-        const int error2 = std::fprintf(file, "%td", array[j].as<il::int_t>());
+        const int error2 = std::fprintf(file, "%td", array[j].to<il::int_t>());
         IL_UNUSED(error2);
       } break;
       case il::Type::TDouble: {
-        const int error2 = std::fprintf(file, "%e", array[j].as<double>());
+        const int error2 = std::fprintf(file, "%e", array[j].to<double>());
         IL_UNUSED(error2);
       } break;
       case il::Type::TString: {
@@ -163,11 +163,11 @@ inline void save_aux(const M &toml, const il::String &name, il::io_t,
           if (error == EOF) return;
           break;
         case il::Type::TInteger:
-          error = std::fprintf(file, "%td", value.as<il::int_t>());
+          error = std::fprintf(file, "%td", value.to<il::int_t>());
           if (error == EOF) return;
           break;
         case il::Type::TDouble:
-          error = std::fprintf(file, "%e", value.as<double>());
+          error = std::fprintf(file, "%e", value.to<double>());
           if (error == EOF) return;
           break;
         case il::Type::TString:

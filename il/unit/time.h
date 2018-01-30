@@ -21,7 +21,7 @@
 
 #include <string>
 
-#include <il/base.h>
+#include <il/core.h>
 
 namespace il {
 
