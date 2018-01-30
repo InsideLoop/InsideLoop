@@ -44,9 +44,9 @@ class TriDiagonal {
     return data_[size_ * (k + 1) + i];
   }
   il::int_t size() const { return size_; }
-  T* lowerData() { return data_.data() + 1; }
-  T* diagonalData() { return data_.data() + size_; }
-  T* upperData() { return data_.data() + 2 * size_; }
+  T* LowerData() { return data_.Data() + 1; }
+  T* DiagonalData() { return data_.Data() + size_; }
+  T* UpperData() { return data_.Data() + 2 * size_; }
 };
 
 }  // namespace il

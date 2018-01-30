@@ -32,10 +32,10 @@ TEST(Pardiso, base) {
   il::Array<double> y{il::value, {3.0, 7.0}};
 
   il::Array<il::StaticArray<il::int_t, 2>> position{};
-  position.append(il::StaticArray<il::int_t, 2>{il::value, {0, 0}});
-  position.append(il::StaticArray<il::int_t, 2>{il::value, {0, 1}});
-  position.append(il::StaticArray<il::int_t, 2>{il::value, {1, 0}});
-  position.append(il::StaticArray<il::int_t, 2>{il::value, {1, 1}});
+  position.Append(il::StaticArray<il::int_t, 2>{il::value, {0, 0}});
+  position.Append(il::StaticArray<il::int_t, 2>{il::value, {0, 1}});
+  position.Append(il::StaticArray<il::int_t, 2>{il::value, {1, 0}});
+  position.Append(il::StaticArray<il::int_t, 2>{il::value, {1, 1}});
 
   il::Array<il::int_t> index{};
   il::SparseMatrixCSR<il::int_t, double> A{2, position, il::io, index};
@@ -45,10 +45,10 @@ TEST(Pardiso, base) {
   A[index[3]] = 4.0;
 
   il::Pardiso solver{};
-  solver.symbolicFactorization(A);
-  solver.numericalFactorization(A);
+  solver.SymbolicFactorization(A);
+  solver.NumericalFactorization(A);
 
-  il::Array<double> x = solver.solve(A, y);
+  il::Array<double> x = solver.Solve(A, y);
 
   ASSERT_TRUE(il::abs(x[0] - 1.0) <= epsilon && il::abs(x[1] - 1.0) <= epsilon);
 }
@@ -62,9 +62,9 @@ TEST(Pardiso, heat) {
   il::blas(1.0, A, x_theory, 0.0, il::io, y);
 
   il::Pardiso solver{};
-  solver.symbolicFactorization(A);
-  solver.numericalFactorization(A);
-  il::Array<double> x = solver.solve(A, y);
+  solver.SymbolicFactorization(A);
+  solver.NumericalFactorization(A);
+  il::Array<double> x = solver.Solve(A, y);
 
   double max_err = 0.0;
   for (il::int_t i = 0; i < n; ++i) {
@@ -84,9 +84,9 @@ TEST(Pardiso, heat2D) {
   il::blas(1.0, A, x_theory, 0.0, il::io, y);
 
   il::Pardiso solver{};
-  solver.symbolicFactorization(A);
-  solver.numericalFactorization(A);
-  il::Array<double> x = solver.solve(A, y);
+  solver.SymbolicFactorization(A);
+  solver.NumericalFactorization(A);
+  il::Array<double> x = solver.Solve(A, y);
 
   double max_err = 0.0;
   for (il::int_t i = 0; i < x.size(); ++i) {
@@ -106,9 +106,9 @@ TEST(Pardiso, heat3D) {
   il::blas(1.0, A, x_theory, 0.0, il::io, y);
 
   il::Pardiso solver{};
-  solver.symbolicFactorization(A);
-  solver.numericalFactorization(A);
-  il::Array<double> x = solver.solve(A, y);
+  solver.SymbolicFactorization(A);
+  solver.NumericalFactorization(A);
+  il::Array<double> x = solver.Solve(A, y);
 
   double max_err = 0.0;
   for (il::int_t i = 0; i < x.size(); ++i) {

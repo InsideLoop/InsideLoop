@@ -95,7 +95,7 @@ inline void GmresIlu0::computePreconditionner(
   IL_EXPECT_FAST(A.size(0) == A.size(1));
 
   const int n = static_cast<int>(A.size(0));
-  bilu0_.resize(A.nbNonZeros());
+  bilu0_.Resize(A.nbNonZeros());
   convertCToFortran(il::io, A);
   // In this example, specific for DCSRILU0 entries are set in turn:
   // ipar_[30]: Specifies how the routine operates when a zero diagonal
@@ -111,7 +111,7 @@ inline void GmresIlu0::computePreconditionner(
   // dpar_[31]: See dpar_[30]
   dpar_[31] = zero_diagonal_replacement_;
   int ierr = 0;
-  dcsrilu0(&n, A.elementData(), A.rowData(), A.columnData(), bilu0_.data(),
+  dcsrilu0(&n, A.elementData(), A.rowData(), A.columnData(), bilu0_.Data(),
            ipar_.data(), dpar_.data(), &ierr);
   IL_EXPECT_FAST(ierr == 0);
   preconditionner_computed_ = true;
@@ -149,8 +149,8 @@ inline il::Array<double> il::GmresIlu0::solve(
   const int one_int = 1;
   const double minus_one_double = -1.0;
 
-  dfgmres_init(&n, x.data(), yloc.data(), &RCI_request, ipar_.data(),
-               dpar_.data(), tmp.data());
+  dfgmres_init(&n, x.data(), yloc.data(), &RCI_request, ipar_.Data(),
+               dpar_.Data(), tmp.Data());
   IL_EXPECT_FAST(RCI_request == 0);
 
   // ipar_[0]: The size of the matrix
@@ -200,15 +200,15 @@ inline il::Array<double> il::GmresIlu0::solve(
   dpar_[30] = zero_diagonal_threshold_;
   dpar_[31] = zero_diagonal_replacement_;
 
-  dfgmres_check(&n, x.data(), yloc.data(), &RCI_request, ipar_.data(),
-                dpar_.data(), tmp.data());
+  dfgmres_check(&n, x.data(), yloc.data(), &RCI_request, ipar_.Data(),
+                dpar_.Data(), tmp.Data());
   IL_EXPECT_FAST(RCI_request == 0);
   bool stop_iteration = false;
   double y_norm = dnrm2(&n, yloc.data(), &one_int);
   while (!stop_iteration) {
     // The beginning of the iteration
-    dfgmres(&n, x.data(), yloc.data(), &RCI_request, ipar_.data(), dpar_.data(),
-            tmp.data());
+    dfgmres(&n, x.Data(), yloc.Data(), &RCI_request, ipar_.Data(), dpar_.Data(),
+            tmp.Data());
     switch (RCI_request) {
       case 0:
         // In that case, the solution has been found with the right precision.
@@ -223,16 +223,16 @@ inline il::Array<double> il::GmresIlu0::solve(
       case 2:
         ipar_[12] = 1;
         // Retrieve iteration number AND update sol
-        dfgmres_get(&n, x.data(), ycopy.data(), &RCI_request, ipar_.data(),
-                    dpar_.data(), tmp.data(), &itercount);
+        dfgmres_get(&n, x.Data(), ycopy.Data(), &RCI_request, ipar_.Data(),
+                    dpar_.Data(), tmp.Data(), &itercount);
         // Compute the current true residual via MKL (Sparse) BLAS
         // routines. It multiplies the matrix A with yCopy and
         // store the result in residual.
         mkl_dcsrgemv(&n_char, &n, A.elementData(), A.rowData(), A.columnData(),
-                     ycopy.data(), residual.data());
+                     ycopy.data(), residual.Data());
         // Compute: residual = A.(current x) - y
         // Note that A.(current x) is stored in residual before this operation
-        daxpy(&n, &minus_one_double, yloc.data(), &one_int, residual.data(),
+        daxpy(&n, &minus_one_double, yloc.data(), &one_int, residual.Data(),
               &one_int);
         // This number plays a critical role in the precision of the method
         if (dnrm2(&n, residual.data(), &one_int) <=
@@ -247,7 +247,7 @@ inline il::Array<double> il::GmresIlu0::solve(
         // result produced by ILUT routine via standard MKL Sparse
         // Blas solver rout'ine mkl_dcsrtrsv
         mkl_dcsrtrsv(&l_char, &n_char, &u_char, &n, bilu0_.data(), A.rowData(),
-                     A.columnData(), &tmp[ipar_[21] - 1], trvec.data());
+                     A.columnData(), &tmp[ipar_[21] - 1], trvec.Data());
         mkl_dcsrtrsv(&u_char, &n_char, &n_char, &n, bilu0_.data(), A.rowData(),
                      A.columnData(), trvec.data(), &tmp[ipar_[22] - 1]);
         break;
@@ -266,8 +266,8 @@ inline il::Array<double> il::GmresIlu0::solve(
     }
   }
   ipar_[12] = 0;
-  dfgmres_get(&n, x.data(), yloc.data(), &RCI_request, ipar_.data(),
-              dpar_.data(), tmp.data(), &itercount);
+  dfgmres_get(&n, x.Data(), yloc.Data(), &RCI_request, ipar_.data(),
+              dpar_.data(), tmp.Data(), &itercount);
 
   nb_iteration_ = itercount;
 
@@ -281,11 +281,11 @@ inline il::int_t il::GmresIlu0::nbIterations() const { return nb_iteration_; }
 inline void GmresIlu0::convertCToFortran(il::io_t,
                                          il::SparseMatrixCSR<int, double> &A) {
   int n = static_cast<int>(A.size(0));
-  int *row = A.rowData();
+  int *row = A.RowData();
   for (int i = 0; i < n + 1; ++i) {
     row[i] += 1;
   }
-  int *column = A.columnData();
+  int *column = A.ColumnData();
   for (int k = 0; k < A.nbNonZeros(); ++k) {
     column[k] += 1;
   }
@@ -294,11 +294,11 @@ inline void GmresIlu0::convertCToFortran(il::io_t,
 inline void GmresIlu0::convertFortranToC(il::io_t,
                                          il::SparseMatrixCSR<int, double> &A) {
   int n = static_cast<int>(A.size(0));
-  int *row = A.rowData();
+  int *row = A.RowData();
   for (int i = 0; i < n + 1; ++i) {
     row[i] -= 1;
   }
-  int *column = A.columnData();
+  int *column = A.ColumnData();
   for (int k = 0; k < A.nbNonZeros(); ++k) {
     column[k] -= 1;
   }

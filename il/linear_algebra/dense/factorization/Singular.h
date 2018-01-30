@@ -45,8 +45,8 @@ il::StaticArray<double, n> singularValues(il::StaticArray2D<double, n, n> A,
   const int layout = LAPACK_COL_MAJOR;
   const lapack_int lapack_n = static_cast<lapack_int>(n);
   const lapack_int lapack_error_0 =
-      LAPACKE_dgebrd(layout, lapack_n, lapack_n, A.data(), lapack_n, d.data(),
-                     e.data(), tauq.data(), taup.data());
+      LAPACKE_dgebrd(layout, lapack_n, lapack_n, A.Data(), lapack_n, d.Data(),
+                     e.Data(), tauq.Data(), taup.Data());
   IL_EXPECT_FAST(lapack_error_0 >= 0);
 
   const char uplo = 'U';
@@ -60,14 +60,14 @@ il::StaticArray<double, n> singularValues(il::StaticArray2D<double, n, n> A,
   il::StaticArray<double, ldu * n> u{};
   il::StaticArray<double, 1> c{};
   const lapack_int lapack_error_1 =
-      LAPACKE_dbdsqr(layout, uplo, lapack_n, ncvt, nru, ncc, d.data(), e.data(),
-                     vt.data(), ldvt, u.data(), ldu, c.data(), ldc);
+      LAPACKE_dbdsqr(layout, uplo, lapack_n, ncvt, nru, ncc, d.Data(), e.Data(),
+                     vt.Data(), ldvt, u.Data(), ldu, c.Data(), ldc);
   IL_EXPECT_FAST(lapack_error_1 >= 0);
 
   if (lapack_error_0 == 0 && lapack_error_1 == 0) {
-    status.setOk();
+    status.SetOk();
   } else {
-    status.setError(il::Error::Undefined);
+    status.SetError(il::Error::Undefined);
   }
   return d;
 }
@@ -122,10 +122,10 @@ Singular<il::StaticArray2D<double, n, n>>::Singular(
 
   IL_EXPECT_FAST(lapack_error >= 0);
   if (lapack_error == 0) {
-    status.setOk();
+    status.SetOk();
     singular_value_ = std::move(d);
   } else {
-    status.setError(il::Error::Undefined);
+    status.SetError(il::Error::Undefined);
   }
 }
 
@@ -156,8 +156,8 @@ Singular<il::Array2D<double>>::Singular(il::Array2D<double> A, il::io_t,
   il::Array<double> tauq{min_mn};
   il::Array<double> taup{min_mn};
   lapack_int lapack_error =
-      LAPACKE_dgebrd(layout, m, n, A.data(), lda, d.data(), e.data(),
-                     tauq.data(), taup.data());
+      LAPACKE_dgebrd(layout, m, n, A.Data(), lda, d.Data(), e.Data(),
+                     tauq.Data(), taup.Data());
   IL_EXPECT_FAST(lapack_error >= 0);
 
   const char uplo = (m >= n) ? 'U' : 'L';
@@ -171,15 +171,15 @@ Singular<il::Array2D<double>>::Singular(il::Array2D<double> A, il::io_t,
   il::Array<double> u{ldu * n};
   il::Array<double> c{1};  // Should be useless
   lapack_error =
-      LAPACKE_dbdsqr(layout, uplo, n, ncvt, nru, ncc, d.data(), e.data(),
-                     vt.data(), ldvt, u.data(), ldu, c.data(), ldc);
+      LAPACKE_dbdsqr(layout, uplo, n, ncvt, nru, ncc, d.Data(), e.Data(),
+                     vt.Data(), ldvt, u.Data(), ldu, c.Data(), ldc);
 
   IL_EXPECT_FAST(lapack_error >= 0);
   if (lapack_error == 0) {
-    status.setOk();
+    status.SetOk();
     singular_value_ = std::move(d);
   } else {
-    status.setError(il::Error::Undefined);
+    status.SetError(il::Error::Undefined);
   }
 }
 }  // namespace il

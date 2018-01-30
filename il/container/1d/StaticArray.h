@@ -95,7 +95,7 @@ class StaticArray {
   /* \brief Accessor on the last element
   // \details This method does not compile for empty vectors
   */
-  T& back();
+  T& Back();
 
   /* \brief Get the size of the il::StaticArray<T, n>
   //
@@ -110,9 +110,9 @@ class StaticArray {
 
   il::ArrayView<T> view(il::Range range) const;
 
-  il::ArrayEdit<T> edit();
+  il::ArrayEdit<T> Edit();
 
-  il::ArrayEdit<T> edit(il::Range range);
+  il::ArrayEdit<T> Edit(il::Range range);
 
   /* \brief Get a pointer to the first element of the array for a const
   // object
@@ -123,7 +123,7 @@ class StaticArray {
   /* \brief Get a pointer to the first element of the array
   // \details One should use this method only when using C-style API
   */
-  T* data();
+  T* Data();
 
   /* \brief Returns a pointer to const to the first element of the array
    */
@@ -131,7 +131,7 @@ class StaticArray {
 
   /* \brief Returns a pointer to the first element of the array
    */
-  T* begin();
+  T* Begin();
 
   /* \brief Returns a pointer to const to the one after the last element of
   //  the array
@@ -140,7 +140,7 @@ class StaticArray {
 
   /* \brief Returns a pointer to the one after the last element of the array
    */
-  T* end();
+  T* End();
 };
 
 template <typename T, il::int_t n>
@@ -194,7 +194,7 @@ const T& StaticArray<T, n>::back() const {
 }
 
 template <typename T, il::int_t n>
-T& StaticArray<T, n>::back() {
+T& StaticArray<T, n>::Back() {
   static_assert(n > 0,
                 "il::StaticArray<T, n>: n must be positive to call back()");
   return data_[n - 1];
@@ -221,12 +221,12 @@ il::ArrayView<T> StaticArray<T, n>::view(il::Range range) const {
 };
 
 template <typename T, il::int_t n>
-il::ArrayEdit<T> StaticArray<T, n>::edit() {
+il::ArrayEdit<T> StaticArray<T, n>::Edit() {
   return il::ArrayEdit<T>{data_, n};
 };
 
 template <typename T, il::int_t n>
-il::ArrayEdit<T> StaticArray<T, n>::edit(il::Range range) {
+il::ArrayEdit<T> StaticArray<T, n>::Edit(il::Range range) {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(range.begin) <
                    static_cast<std::size_t>(n));
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(range.end) <=
@@ -241,7 +241,7 @@ const T* StaticArray<T, n>::data() const {
 }
 
 template <typename T, il::int_t n>
-T* StaticArray<T, n>::data() {
+T* StaticArray<T, n>::Data() {
   return data_;
 }
 
@@ -251,7 +251,7 @@ const T* StaticArray<T, n>::begin() const {
 }
 
 template <typename T, il::int_t n>
-T* StaticArray<T, n>::begin() {
+T* StaticArray<T, n>::Begin() {
   return data_;
 }
 
@@ -261,7 +261,7 @@ const T* StaticArray<T, n>::end() const {
 }
 
 template <typename T, il::int_t n>
-T* StaticArray<T, n>::end() {
+T* StaticArray<T, n>::End() {
   return data_ + n;
 }
 }  // namespace il

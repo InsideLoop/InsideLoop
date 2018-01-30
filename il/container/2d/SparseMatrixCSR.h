@@ -60,11 +60,11 @@ class SparseMatrixCSR {
   il::int_t size(il::int_t d) const;
   il::int_t nbNonZeros() const;
   const T *elementData() const;
-  T *elementData();
+  T *ElementData();
   const Index *rowData() const;
-  Index *rowData();
+  Index *RowData();
   const Index *columnData() const;
-  Index *columnData();
+  Index *ColumnData();
 };
 
 template <typename Index, typename T>
@@ -109,8 +109,8 @@ SparseMatrixCSR<Index, T>::SparseMatrixCSR(
     nb_nonzero += column[i].size();
   }
 
-  element_.resize(nb_nonzero);
-  column_.resize(nb_nonzero);
+  element_.Resize(nb_nonzero);
+  column_.Resize(nb_nonzero);
   row_[0] = 0;
   for (Index i = 0; i < column.size(); ++i) {
     for (Index k = 0; k < column[i].size(); ++k) {
@@ -134,7 +134,7 @@ SparseMatrixCSR<Index, T>::SparseMatrixCSR(
   n1_ = n;
 
   const Index nb_entries = static_cast<Index>(position.size());
-  index.resize(nb_entries);
+  index.Resize(nb_entries);
 
   // Compute the numbers of entries per Row. After this section, the
   // array nb_entries_per_Row will contains the numbers of entries in
@@ -216,13 +216,13 @@ SparseMatrixCSR<Index, T>::SparseMatrixCSR(
   }
 
   // We then fill column_, row_
-  element_.resize(nb_elements);
+  element_.Resize(nb_elements);
   for (Index k = 0; k < element_.size(); ++k) {
     element_[k] = 0;
   }
 
-  column_.resize(nb_elements);
-  row_.resize(n + 1);
+  column_.Resize(nb_elements);
+  row_.Resize(n + 1);
   row_[0] = 0;
   Index k = -1;
   for (Index i = 0; i < n; ++i) {
@@ -282,8 +282,8 @@ const T *SparseMatrixCSR<Index, T>::elementData() const {
 }
 
 template <typename Index, typename T>
-T *SparseMatrixCSR<Index, T>::elementData() {
-  return element_.data();
+T *SparseMatrixCSR<Index, T>::ElementData() {
+  return element_.Data();
 }
 
 template <typename Index, typename T>
@@ -292,8 +292,8 @@ const Index *SparseMatrixCSR<Index, T>::rowData() const {
 }
 
 template <typename Index, typename T>
-Index *SparseMatrixCSR<Index, T>::rowData() {
-  return row_.data();
+Index *SparseMatrixCSR<Index, T>::RowData() {
+  return row_.Data();
 }
 
 template <typename Index, typename T>
@@ -302,8 +302,8 @@ const Index *SparseMatrixCSR<Index, T>::columnData() const {
 }
 
 template <typename Index, typename T>
-Index *SparseMatrixCSR<Index, T>::columnData() {
-  return column_.data();
+Index *SparseMatrixCSR<Index, T>::ColumnData() {
+  return column_.Data();
 }
 
 template <typename Index, typename T>

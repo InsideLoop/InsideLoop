@@ -16,6 +16,8 @@
 //
 //==============================================================================
 
+#include <il/SparseMatrixCSR.h>
+
 template <typename T>
 double norm(const il::SparseArray2D<T> &A, Norm norm_type,
             const il::Array<T> &beta, const il::Array<T> &alpha) {

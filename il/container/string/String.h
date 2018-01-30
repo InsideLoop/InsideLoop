@@ -112,31 +112,31 @@ class String {
   bool isSmall() const;
   bool isEmpty() const;
   il::int_t capacity() const;
-  void reserve(il::int_t r);
+  void Reserve(il::int_t r);
   il::StringType type() const;
   bool isUtf8() const;
   bool isAscii() const;
   bool isRuneBoundary(il::int_t i) const;
-  void append(char c);
-  void append(int rune);
-  void append(il::int_t n, char c);
-  void append(il::int_t n, int rune);
+  void Append(char c);
+  void Append(int rune);
+  void Append(il::int_t n, char c);
+  void Append(il::int_t n, int rune);
   template <il::int_t m>
-  void append(const char (&data)[m]);
+  void Append(const char (&data)[m]);
   template <il::int_t m>
-  void append(il::StringType type, const char (&data)[m]);
-  void append(il::StringType type, const char* data, il::int_t n);
-  void append(const StringView& s0);
-  void append(const StringView& s0, const StringView& s1);
-  void append(const StringView& s0, const StringView& s1, const StringView& s2);
-  void insert(il::int_t i, char c);
-  //  void insert(il::int_t i, int rune);
-  void insert(il::int_t i, il::int_t n, char c);
-  //  void insert(il::int_t i, il::int_t n, int rune);
+  void Append(il::StringType type, const char (&data)[m]);
+  void Append(il::StringType type, const char* data, il::int_t n);
+  void Append(const StringView& s0);
+  void Append(const StringView& s0, const StringView& s1);
+  void Append(const StringView& s0, const StringView& s1, const StringView& s2);
+  void Insert(il::int_t i, char c);
+  //  void Insert(il::int_t i, int rune);
+  void Insert(il::int_t i, il::int_t n, char c);
+  //  void Insert(il::int_t i, il::int_t n, int rune);
   template <il::int_t m>
-  void insert(il::int_t i, const char (&s)[m]);
-  void insert(il::int_t i, il::StringType t, const char* s, il::int_t n);
-  void insert(il::int_t i, const StringView& s0);
+  void Insert(il::int_t i, const char (&s)[m]);
+  void Insert(il::int_t i, il::StringType t, const char* s, il::int_t n);
+  void Insert(il::int_t i, const StringView& s0);
   il::int_t count(char c) const;
   //  il::int_t count(int rune);
   //  il::int_t count(const StringView& s);
@@ -145,7 +145,7 @@ class String {
   //  void replace(const StringView& s_sold, const StringView& s_new);
   il::String substring(il::int_t i0, il::int_t i1) const;
   il::StringView subview(il::int_t i0, il::int_t i1) const;
-  void clear();
+  void Clear();
   bool startsWith(const StringView& s) const;
   bool endsWith(const StringView& s) const;
 
@@ -153,15 +153,15 @@ class String {
   bool isEqual(const char* s) const;
   bool isEqual(const char* s, il::int_t n) const;
   const char* data() const;
-  char* data();
+  char* Data();
   const char* begin() const;
-  char* begin();
+  char* Begin();
   const char* end() const;
-  char* end();
+  char* End();
 
   explicit String(il::unsafe_t, il::int_t n);
-  void grow(il::unsafe_t, il::int_t n_to_copy, il::int_t n);
-  void setInvariant(il::unsafe_t, il::StringType type, il::int_t n);
+  void Grow(il::unsafe_t, il::int_t n_to_copy, il::int_t n);
+  void SetInvariant(il::unsafe_t, il::StringType type, il::int_t n);
 
  private:
   il::int_t smallSize() const;
@@ -483,7 +483,7 @@ inline il::int_t String::capacity() const {
   }
 }
 
-inline void String::reserve(il::int_t r) {
+inline void String::Reserve(il::int_t r) {
   IL_EXPECT_FAST(r >= 0);
 
   const il::int_t old_capacity = capacity();
@@ -527,49 +527,49 @@ inline bool String::isRuneBoundary(il::int_t i) const {
   return c < 0x80_uchar || ((c & 0xC0_uchar) != 0x80_uchar);
 }
 
-inline void String::append(char c) {
+inline void String::Append(char c) {
   IL_EXPECT_MEDIUM(static_cast<unsigned char>(c) < 128);
 
   const il::int_t old_n = size();
   const il::StringType t = type();
-  grow(il::unsafe, old_n, old_n + 1);
-  char* p = data();
+  Grow(il::unsafe, old_n, old_n + 1);
+  char* p = Data();
   p[old_n] = c;
   p[old_n + 1] = '\0';
-  setInvariant(il::unsafe, t, old_n + 1);
+  SetInvariant(il::unsafe, t, old_n + 1);
 }
 
-inline void String::append(int rune) {
+inline void String::Append(int rune) {
   IL_EXPECT_MEDIUM(isRune(rune));
 
   const unsigned int urune = static_cast<unsigned int>(rune);
   const il::int_t old_n = size();
   const il::StringType t = type();
   if (urune < 0x00000080u) {
-    grow(il::unsafe, old_n, old_n + 1);
-    char* p = data();
+    Grow(il::unsafe, old_n, old_n + 1);
+    char* p = Data();
     p[old_n] = static_cast<char>(rune);
     p[old_n + 1] = '\0';
-    setInvariant(il::unsafe, t, old_n + 1);
+    SetInvariant(il::unsafe, t, old_n + 1);
   } else if (urune < 0x00000800u) {
-    grow(il::unsafe, old_n, old_n + 2);
-    char* p = data();
+    Grow(il::unsafe, old_n, old_n + 2);
+    char* p = Data();
     p[old_n] = static_cast<char>((urune >> 6) | 0x000000C0u);
     p[old_n + 1] = static_cast<char>((urune & 0x0000003Fu) | 0x00000080u);
     p[old_n + 2] = '\0';
-    setInvariant(il::unsafe, il::joinType(t, il::StringType::Utf8), old_n + 2);
+    SetInvariant(il::unsafe, il::joinType(t, il::StringType::Utf8), old_n + 2);
   } else if (urune < 0x00010000u) {
-    grow(il::unsafe, old_n, old_n + 3);
-    char* p = data();
+    Grow(il::unsafe, old_n, old_n + 3);
+    char* p = Data();
     p[old_n] = static_cast<char>((urune >> 12) | 0x000000E0u);
     p[old_n + 1] =
         static_cast<char>(((urune >> 6) & 0x0000003Fu) | 0x00000080u);
     p[old_n + 2] = static_cast<char>((urune & 0x0000003Fu) | 0x00000080u);
     p[old_n + 3] = '\0';
-    setInvariant(il::unsafe, il::joinType(t, il::StringType::Utf8), old_n + 3);
+    SetInvariant(il::unsafe, il::joinType(t, il::StringType::Utf8), old_n + 3);
   } else {
-    grow(il::unsafe, old_n, old_n + 4);
-    char* p = data();
+    Grow(il::unsafe, old_n, old_n + 4);
+    char* p = Data();
     p[old_n] = static_cast<unsigned char>((urune >> 18) | 0x000000F0u);
     p[old_n + 1] =
         static_cast<unsigned char>(((urune >> 12) & 0x0000003Fu) | 0x00000080u);
@@ -578,25 +578,25 @@ inline void String::append(int rune) {
     p[old_n + 3] =
         static_cast<unsigned char>((urune & 0x0000003Fu) | 0x00000080u);
     p[old_n + 4] = '\0';
-    setInvariant(il::unsafe, il::joinType(t, il::StringType::Utf8), old_n + 4);
+    SetInvariant(il::unsafe, il::joinType(t, il::StringType::Utf8), old_n + 4);
   }
 }
 
-inline void String::append(il::int_t n, char c) {
+inline void String::Append(il::int_t n, char c) {
   IL_EXPECT_FAST(static_cast<unsigned char>(c) < 128);
 
   const il::int_t old_n = size();
   const il::StringType t = type();
-  grow(il::unsafe, old_n, old_n + n);
-  char* p = data();
+  Grow(il::unsafe, old_n, old_n + n);
+  char* p = Data();
   for (il::int_t k = 0; k < n; ++k) {
     p[old_n + k] = c;
   }
   p[old_n + n] = '\0';
-  setInvariant(il::unsafe, t, old_n + n);
+  SetInvariant(il::unsafe, t, old_n + n);
 }
 
-inline void String::append(il::int_t n, int rune) {
+inline void String::Append(il::int_t n, int rune) {
   IL_EXPECT_FAST(n >= 0);
   IL_EXPECT_FAST(isRune(rune));
 
@@ -604,27 +604,27 @@ inline void String::append(il::int_t n, int rune) {
   const il::int_t old_n = size();
   const il::StringType t = type();
   if (urune < 0x00000080u) {
-    grow(il::unsafe, old_n, old_n + n);
-    char* p = data();
+    Grow(il::unsafe, old_n, old_n + n);
+    char* p = Data();
     for (il::int_t k = 0; k < n; ++k) {
       p[old_n + k] = static_cast<char>(rune);
     }
     p[old_n + n] = '\0';
-    setInvariant(il::unsafe, t, old_n + 1);
+    SetInvariant(il::unsafe, t, old_n + 1);
   } else if (urune < 0x00000800u) {
-    grow(il::unsafe, old_n, old_n + 2 * n);
-    char* p = data();
+    Grow(il::unsafe, old_n, old_n + 2 * n);
+    char* p = Data();
     for (il::int_t k = 0; k < n; ++k) {
       p[old_n + 2 * k] = static_cast<char>((urune >> 6) | 0x000000C0u);
       p[old_n + 2 * k + 1] =
           static_cast<char>((urune & 0x0000003Fu) | 0x00000080u);
     }
     p[old_n + 2 * n] = '\0';
-    setInvariant(il::unsafe, il::joinType(t, il::StringType::Utf8),
+    SetInvariant(il::unsafe, il::joinType(t, il::StringType::Utf8),
                  old_n + 2 * n);
   } else if (urune < 0x00010000u) {
-    grow(il::unsafe, old_n, old_n + 3);
-    char* p = data();
+    Grow(il::unsafe, old_n, old_n + 3);
+    char* p = Data();
     for (il::int_t k = 0; k < n; ++k) {
       p[old_n + 3 * k] = static_cast<char>((urune >> 12) | 0x000000E0u);
       p[old_n + 3 * k + 1] =
@@ -633,11 +633,11 @@ inline void String::append(il::int_t n, int rune) {
           static_cast<char>((urune & 0x0000003Fu) | 0x00000080u);
     }
     p[old_n + 3 * n] = '\0';
-    setInvariant(il::unsafe, il::joinType(t, il::StringType::Utf8),
+    SetInvariant(il::unsafe, il::joinType(t, il::StringType::Utf8),
                  old_n + 3 * n);
   } else {
-    grow(il::unsafe, old_n, old_n + 4 * n);
-    char* p = data();
+    Grow(il::unsafe, old_n, old_n + 4 * n);
+    char* p = Data();
     for (il::int_t k = 0; k < n; ++k) {
       p[old_n + 4 * k] =
           static_cast<unsigned char>((urune >> 18) | 0x000000F0u);
@@ -649,89 +649,89 @@ inline void String::append(il::int_t n, int rune) {
           static_cast<unsigned char>((urune & 0x0000003Fu) | 0x00000080u);
     }
     p[old_n + 4 * n] = '\0';
-    setInvariant(il::unsafe, il::joinType(t, il::StringType::Utf8),
+    SetInvariant(il::unsafe, il::joinType(t, il::StringType::Utf8),
                  old_n + 4 * n);
   }
 }
 
 template <il::int_t m>
-inline void String::append(const char (&s0)[m]) {
+inline void String::Append(const char (&s0)[m]) {
   const il::int_t old_n = size();
   const il::int_t n0 = m - 1;
   const il::StringType t = joinType(type(), il::StringType::Utf8);
-  grow(il::unsafe, old_n, old_n + n0);
-  char* p = data();
+  Grow(il::unsafe, old_n, old_n + n0);
+  char* p = Data();
   std::memcpy(p + old_n, s0, n0);
   p[old_n + n0] = '\0';
-  setInvariant(il::unsafe, t, old_n + n0);
+  SetInvariant(il::unsafe, t, old_n + n0);
 }
 
 template <il::int_t m>
-inline void String::append(il::StringType t0, const char (&s0)[m]) {
+inline void String::Append(il::StringType t0, const char (&s0)[m]) {
   const il::int_t old_n = size();
   const il::int_t n0 = m - 1;
   const il::StringType t = joinType(type(), t0);
-  grow(il::unsafe, old_n, old_n + n0);
-  char* p = data();
+  Grow(il::unsafe, old_n, old_n + n0);
+  char* p = Data();
   std::memcpy(p + old_n, s0, n0);
   p[old_n + n0] = '\0';
-  setInvariant(il::unsafe, t, old_n + n0);
+  SetInvariant(il::unsafe, t, old_n + n0);
 }
 
-inline void String::append(il::StringType t0, const char* data, il::int_t n) {
+inline void String::Append(il::StringType t0, const char* data, il::int_t n) {
   IL_EXPECT_FAST(n >= 0);
   IL_EXPECT_AXIOM("data must point to an array of length at least n");
 
   const il::int_t old_n = size();
   const il::StringType t = joinType(type(), t0);
-  grow(il::unsafe, old_n, old_n + n);
-  char* p = this->data();
+  Grow(il::unsafe, old_n, old_n + n);
+  char* p = this->Data();
   std::memcpy(p + old_n, data, old_n + n);
   p[old_n + n] = '\0';
-  setInvariant(il::unsafe, t, old_n + n);
+  SetInvariant(il::unsafe, t, old_n + n);
 }
 
-inline void String::append(const StringView& s0) {
+inline void String::Append(const StringView& s0) {
   const il::int_t old_n = size();
   const il::int_t n0 = s0.size();
   const il::StringType t = joinType(type(), s0.type());
-  grow(il::unsafe, old_n, old_n + n0);
-  char* p = data();
+  Grow(il::unsafe, old_n, old_n + n0);
+  char* p = Data();
   std::memcpy(p + old_n, s0.data(), n0);
   p[old_n + n0] = '\0';
-  setInvariant(il::unsafe, t, old_n + n0);
+  SetInvariant(il::unsafe, t, old_n + n0);
 }
 
-inline void String::append(const StringView& s0, const StringView& s1) {
+inline void String::Append(const StringView& s0, const StringView& s1) {
   const il::int_t old_n = size();
   const il::int_t n0 = s0.size();
   const il::int_t n1 = s1.size();
   const il::StringType t = joinType(type(), s0.type(), s1.type());
-  grow(il::unsafe, old_n, old_n + n0 + n1);
-  char* p = data();
+  Grow(il::unsafe, old_n, old_n + n0 + n1);
+  char* p = Data();
   std::memcpy(p + old_n, s0.data(), n0);
   std::memcpy(p + old_n + n0, s1.data(), n1);
   p[old_n + n0 + n1] = '\0';
-  setInvariant(il::unsafe, t, old_n + n0 + n1);
+  SetInvariant(il::unsafe, t, old_n + n0 + n1);
 }
 
-inline void String::append(const StringView& s0, const StringView& s1,
+inline void String::Append(const StringView& s0, const StringView& s1,
                            const StringView& s2) {
   const il::int_t old_n = size();
   const il::int_t n0 = s0.size();
   const il::int_t n1 = s1.size();
   const il::int_t n2 = s2.size();
   const il::StringType t = joinType(type(), s0.type(), s1.type(), s2.type());
-  grow(il::unsafe, old_n, old_n + n0 + n1 + n2);
-  char* p = data();
+  Grow(il::unsafe, old_n, old_n + n0 + n1 + n2);
+  char* p = Data();
   std::memcpy(p + old_n, s0.data(), n0);
   std::memcpy(p + old_n + n0, s1.data(), n1);
   std::memcpy(p + old_n + n0 + n1, s2.data(), n2);
   p[old_n + n0 + n1 + n2] = '\0';
-  setInvariant(il::unsafe, t, old_n + n0 + n1 + n2);
+  SetInvariant(il::unsafe, t, old_n + n0 + n1 + n2);
 }
 
-inline void String::insert(il::int_t i, char c) {
+inline void String::Insert(il::int_t i, char c) {
   IL_EXPECT_MEDIUM(static_cast<unsigned char>(c) < 128);
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <=
                    static_cast<std::size_t>(size()));
@@ -742,7 +742,7 @@ inline void String::insert(il::int_t i, char c) {
   const il::int_t old_size = size();
   const il::int_t old_capacity = capacity();
   const bool old_is_small = isSmall();
-  char* p = data();
+  char* p = Data();
   if (old_size + 1 <= old_capacity) {
     for (il::int_t k = old_size; k >= i + 1; k--) {
       p[k] = p[k - 1];
@@ -764,9 +764,9 @@ inline void String::insert(il::int_t i, char c) {
   }
 }
 
-// inline void String::insert(il::int_t i, int rune) {}
+// inline void String::Insert(il::int_t i, int rune) {}
 
-inline void String::insert(il::int_t i, il::int_t n, char c) {
+inline void String::Insert(il::int_t i, il::int_t n, char c) {
   IL_EXPECT_FAST(static_cast<unsigned char>(c) < 128);
   IL_EXPECT_FAST(static_cast<std::size_t>(i) <= static_cast<std::size_t>(n));
   if (type() == il::StringType::Utf8) {
@@ -776,7 +776,7 @@ inline void String::insert(il::int_t i, il::int_t n, char c) {
   const il::int_t old_size = size();
   const il::int_t old_capacity = capacity();
   const bool old_is_small = isSmall();
-  char* p = data();
+  char* p = Data();
   if (old_size + n <= old_capacity) {
     for (il::int_t k = old_size + (n - 1); k >= i + n; k--) {
       p[k] = p[k - n];
@@ -802,10 +802,10 @@ inline void String::insert(il::int_t i, il::int_t n, char c) {
   }
 }
 
-// inline void String::insert(il::int_t i, il::int_t n, int rune) {}
+// inline void String::Insert(il::int_t i, il::int_t n, int rune) {}
 
 template <il::int_t m>
-inline void String::insert(il::int_t i, const char (&s)[m]) {
+inline void String::Insert(il::int_t i, const char (&s)[m]) {
   IL_EXPECT_FAST(static_cast<std::size_t>(i) <=
                  static_cast<std::size_t>(size()));
   if (type() == il::StringType::Utf8) {
@@ -816,7 +816,7 @@ inline void String::insert(il::int_t i, const char (&s)[m]) {
   const il::int_t old_size = size();
   const il::int_t old_capacity = capacity();
   const bool old_is_small = isSmall();
-  char* p = data();
+  char* p = Data();
   if (old_size + n <= old_capacity) {
     for (il::int_t k = old_size + (n - 1); k >= i + n; k--) {
       p[k] = p[k - n];
@@ -838,7 +838,7 @@ inline void String::insert(il::int_t i, const char (&s)[m]) {
   }
 }
 
-inline void String::insert(il::int_t i, il::StringType t, const char* s,
+inline void String::Insert(il::int_t i, il::StringType t, const char* s,
                            il::int_t n) {
   IL_EXPECT_FAST(static_cast<std::size_t>(i) <= static_cast<std::size_t>(n));
   if (type() == il::StringType::Utf8) {
@@ -849,7 +849,7 @@ inline void String::insert(il::int_t i, il::StringType t, const char* s,
   const il::int_t old_capacity = capacity();
   const bool old_is_small = isSmall();
   const il::StringType t_new = il::joinType(type(), t);
-  char* p = data();
+  char* p = Data();
   if (old_size + n <= old_capacity) {
     for (il::int_t k = old_size + (n - 1); k >= i + n; k--) {
       p[k] = p[k - n];
@@ -871,8 +871,8 @@ inline void String::insert(il::int_t i, il::StringType t, const char* s,
   }
 }
 
-inline void String::insert(il::int_t i, const StringView& s0) {
-  insert(i, s0.type(), s0.data(), s0.size());
+inline void String::Insert(il::int_t i, const StringView& s0) {
+  Insert(i, s0.type(), s0.data(), s0.size());
 }
 
 inline il::int_t String::count(char c) const {
@@ -941,7 +941,7 @@ inline il::StringView String::subview(il::int_t i0, il::int_t i1) const {
   return il::StringView{type(), small_ + i0, i1 - i0};
 }
 
-inline void String::clear() {
+inline void String::Clear() {
   if (isSmall()) {
     small_[0] = '\0';
     setSmall(il::StringType::Ascii, 0);
@@ -1023,19 +1023,19 @@ inline const char* String::data() const {
   return isSmall() ? small_ : large_.data;
 }
 
-inline char* String::data() { return isSmall() ? small_ : large_.data; }
+inline char* String::Data() { return isSmall() ? small_ : large_.data; }
 
 inline const char* String::begin() const {
   return isSmall() ? small_ : large_.data;
 }
 
-inline char* String::begin() { return isSmall() ? small_ : large_.data; }
+inline char* String::Begin() { return isSmall() ? small_ : large_.data; }
 
 inline const char* String::end() const {
   return (isSmall() ? small_ : large_.data) + size();
 }
 
-inline char* String::end() {
+inline char* String::End() {
   return (isSmall() ? small_ : large_.data) + size();
 }
 
@@ -1051,12 +1051,12 @@ inline String::String(il::unsafe_t, il::int_t n) {
   }
 }
 
-inline void String::grow(il::unsafe_t, il::int_t n_to_copy, il::int_t n) {
+inline void String::Grow(il::unsafe_t, il::int_t n_to_copy, il::int_t n) {
   IL_EXPECT_FAST(n_to_copy >= 0);
   IL_EXPECT_FAST(n_to_copy <= n);
 
   const bool old_is_small = isSmall();
-  char* old_data = data();
+  char* old_data = Data();
   const il::int_t old_capacity = capacity();
   if (n <= max_small_size_) {
     if (!old_is_small) {
@@ -1077,7 +1077,7 @@ inline void String::grow(il::unsafe_t, il::int_t n_to_copy, il::int_t n) {
   }
 }
 
-inline void String::setInvariant(il::unsafe_t, il::StringType type,
+inline void String::SetInvariant(il::unsafe_t, il::StringType type,
                                  il::int_t n) {
   if (isSmall()) {
     setSmall(type, n);
@@ -1437,11 +1437,11 @@ inline il::String join(const il::StringView& s0, const il::StringView& s1) {
   const il::int_t n1 = s1.size();
   const il::StringType t = il::joinType(s0.type(), s1.type());
   il::String ans{il::unsafe, n0 + n1};
-  char* p = ans.data();
+  char* p = ans.Data();
   std::memcpy(p, s0.data(), n0);
   std::memcpy(p + n0, s1.data(), n1);
   p[n0 + n1] = '\0';
-  ans.setInvariant(il::unsafe, t, n0 + n1);
+  ans.SetInvariant(il::unsafe, t, n0 + n1);
   return ans;
 }
 
@@ -1452,12 +1452,12 @@ inline il::String join(const il::StringView& s0, const il::StringView& s1,
   const il::int_t n2 = s2.size();
   const il::StringType t = il::joinType(s0.type(), s1.type(), s2.type());
   il::String ans{il::unsafe, n0 + n1 + n2};
-  char* p = ans.data();
+  char* p = ans.Data();
   std::memcpy(p, s0.data(), n0);
   std::memcpy(p + n0, s1.data(), n1);
   std::memcpy(p + n0 + n1, s2.data(), n2);
   p[n0 + n1 + n2] = '\0';
-  ans.setInvariant(il::unsafe, t, n0 + n1 + n2);
+  ans.SetInvariant(il::unsafe, t, n0 + n1 + n2);
   return ans;
 }
 
@@ -1470,13 +1470,13 @@ inline il::String join(const il::StringView& s0, const il::StringView& s1,
   const il::StringType t =
       il::joinType(s0.type(), s1.type(), s2.type(), s3.type());
   il::String ans{il::unsafe, n0 + n1 + n2 + n3};
-  char* p = ans.data();
+  char* p = ans.Data();
   std::memcpy(p, s0.data(), n0);
   std::memcpy(p + n0, s1.data(), n1);
   std::memcpy(p + n0 + n1, s2.data(), n2);
   std::memcpy(p + n0 + n1 + n2, s3.data(), n3);
   p[n0 + n1 + n2 + n3] = '\0';
-  ans.setInvariant(il::unsafe, t, n0 + n1 + n2 + n3);
+  ans.SetInvariant(il::unsafe, t, n0 + n1 + n2 + n3);
   return ans;
 }
 
@@ -1491,14 +1491,14 @@ inline il::String join(const il::StringView& s0, const il::StringView& s1,
   const il::StringType t =
       il::joinType(s0.type(), s1.type(), s2.type(), s3.type(), s4.type());
   il::String ans{il::unsafe, n0 + n1 + n2 + n3 + n4};
-  char* p = ans.data();
+  char* p = ans.Data();
   std::memcpy(p, s0.data(), n0);
   std::memcpy(p + n0, s1.data(), n1);
   std::memcpy(p + n0 + n1, s2.data(), n2);
   std::memcpy(p + n0 + n1 + n2, s3.data(), n3);
   std::memcpy(p + n0 + n1 + n2 + n3, s4.data(), n4);
   p[n0 + n1 + n2 + n3 + n4] = '\0';
-  ans.setInvariant(il::unsafe, t, n0 + n1 + n2 + n3 + n4);
+  ans.SetInvariant(il::unsafe, t, n0 + n1 + n2 + n3 + n4);
   return ans;
 }
 
@@ -1514,7 +1514,7 @@ inline il::String join(const il::StringView& s0, const il::StringView& s1,
   const il::StringType t = il::joinType(s0.type(), s1.type(), s2.type(),
                                         s3.type(), s4.type(), s5.type());
   il::String ans{il::unsafe, n0 + n1 + n2 + n3 + n4 + n5};
-  char* p = ans.data();
+  char* p = ans.Data();
   std::memcpy(p, s0.data(), n0);
   std::memcpy(p + n0, s1.data(), n1);
   std::memcpy(p + n0 + n1, s2.data(), n2);
@@ -1522,7 +1522,7 @@ inline il::String join(const il::StringView& s0, const il::StringView& s1,
   std::memcpy(p + n0 + n1 + n2 + n3, s4.data(), n4);
   std::memcpy(p + n0 + n1 + n2 + n3 + n4, s5.data(), n5);
   p[n0 + n1 + n2 + n3 + n4 + n5] = '\0';
-  ans.setInvariant(il::unsafe, t, n0 + n1 + n2 + n3 + n4 + n5);
+  ans.SetInvariant(il::unsafe, t, n0 + n1 + n2 + n3 + n4 + n5);
   return ans;
 }
 

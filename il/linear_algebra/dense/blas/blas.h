@@ -66,7 +66,7 @@ inline void blas(double alpha, const il::Array<double> &x, il::io_t,
   const IL_CBLAS_INT n{static_cast<IL_CBLAS_INT>(x.size())};
   const IL_CBLAS_INT incx{1};
   const IL_CBLAS_INT incy{1};
-  cblas_daxpy(n, alpha, x.data(), incx, y.data(), incy);
+  cblas_daxpy(n, alpha, x.data(), incx, y.Data(), incy);
 }
 
 // x, y are vectors
@@ -78,7 +78,7 @@ inline void blas(float alpha, const il::Array<float> &x, float beta, il::io_t,
   const IL_CBLAS_INT n{static_cast<IL_CBLAS_INT>(x.size())};
   const IL_CBLAS_INT incx{1};
   const IL_CBLAS_INT incy{1};
-  cblas_saxpby(n, alpha, x.data(), incx, beta, y.data(), incy);
+  cblas_saxpby(n, alpha, x.data(), incx, beta, y.Data(), incy);
 }
 
 // x, y are vectors
@@ -90,7 +90,7 @@ inline void blas(double alpha, const il::Array<double> &x, double beta,
   const IL_CBLAS_INT n{static_cast<IL_CBLAS_INT>(x.size())};
   const IL_CBLAS_INT incx{1};
   const IL_CBLAS_INT incy{1};
-  cblas_daxpby(n, alpha, x.data(), incx, beta, y.data(), incy);
+  cblas_daxpby(n, alpha, x.data(), incx, beta, y.Data(), incy);
 }
 
 inline void blas(double alpha, const il::Array2D<double> &a, double beta,
@@ -129,7 +129,7 @@ inline void blas(float alpha, const il::Array2D<float> &A,
   const IL_CBLAS_INT incy{1};
 
   cblas_sgemv(layout, transa, m, n, alpha, A.data(), lda, x.data(), incx, beta,
-              y.data(), incy);
+              y.Data(), incy);
 }
 
 // A is a matrix, x, y are vectors
@@ -150,7 +150,7 @@ inline void blas(double alpha, const il::Array2D<double> &A,
   const IL_CBLAS_INT incy{1};
 
   cblas_dgemv(layout, transa, m, n, alpha, A.data(), lda, x.data(), incx, beta,
-              y.data(), incy);
+              y.Data(), incy);
 }
 
 // A is a matrix, x, y are vectors
@@ -170,7 +170,7 @@ inline void blas(double alpha, const il::Array2DView<double> &A,
   const IL_CBLAS_INT incy = 1;
 
   cblas_dgemv(layout, transa, m, n, alpha, A.data(), lda, x.data(), incx, beta,
-              y.data(), incy);
+              y.Data(), incy);
 }
 
 // A is a matrix, x, y are vectors
@@ -191,7 +191,7 @@ inline void blas(double alpha, const il::Array2C<double> &A,
   const IL_CBLAS_INT incy{1};
 
   cblas_dgemv(layout, transa, m, n, alpha, A.data(), lda, x.data(), incx, beta,
-              y.data(), incy);
+              y.Data(), incy);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -219,7 +219,7 @@ inline void blas(float alpha, const il::Array2D<float> &A,
   const IL_CBLAS_INT ldb{static_cast<IL_CBLAS_INT>(B.stride(1))};
   const IL_CBLAS_INT ldc{static_cast<IL_CBLAS_INT>(C.stride(1))};
   cblas_sgemm(layout, transa, transb, m, n, k, alpha, A.data(), lda, B.data(),
-              ldb, beta, C.data(), ldc);
+              ldb, beta, C.Data(), ldc);
 }
 
 // A is a matrix, x, y are vectors
@@ -237,7 +237,7 @@ void blas(double alpha, const il::StaticArray2D<double, n, n> &A,
   const IL_CBLAS_INT lapack_n = static_cast<IL_CBLAS_INT>(n);
 
   cblas_dgemm(layout, transa, transb, lapack_n, lapack_n, lapack_n, alpha,
-              A.data(), lapack_n, B.data(), lapack_n, beta, C.data(), lapack_n);
+              A.data(), lapack_n, B.data(), lapack_n, beta, C.Data(), lapack_n);
 }
 
 // A, B, C are matrices
@@ -261,7 +261,7 @@ inline void blas(double alpha, const il::Array2D<double> &A,
   const IL_CBLAS_INT ldb{static_cast<IL_CBLAS_INT>(B.stride(1))};
   const IL_CBLAS_INT ldc{static_cast<IL_CBLAS_INT>(C.stride(1))};
   cblas_dgemm(layout, transa, transb, m, n, k, alpha, A.data(), lda, B.data(),
-              ldb, beta, C.data(), ldc);
+              ldb, beta, C.Data(), ldc);
 }
 
 inline void blas(double alpha, const il::Array2DView<double> &A,
@@ -280,7 +280,7 @@ inline void blas(double alpha, const il::Array2DView<double> &A,
   const IL_CBLAS_INT ldb = static_cast<IL_CBLAS_INT>(B.stride(1));
   const IL_CBLAS_INT ldc = static_cast<IL_CBLAS_INT>(C.stride(1));
   cblas_dgemm(layout, trans, trans, m, n, k, alpha, A.data(), lda, B.data(),
-              ldb, beta, C.data(), ldc);
+              ldb, beta, C.Data(), ldc);
 }
 
 inline void blas(double alpha, const il::Array2DView<double> &A,
@@ -301,7 +301,7 @@ inline void blas(double alpha, const il::Array2DView<double> &A,
   const IL_CBLAS_INT ldb = static_cast<IL_CBLAS_INT>(B.stride(1));
   const IL_CBLAS_INT ldc = static_cast<IL_CBLAS_INT>(C.stride(1));
   cblas_dgemm(layout, transa, transb, m, n, k, alpha, A.data(), lda, B.data(),
-              ldb, beta, C.data(), ldc);
+              ldb, beta, C.Data(), ldc);
 }
 
 inline void blas(double alpha, const il::Array2DView<double> &A,
@@ -322,7 +322,7 @@ inline void blas(double alpha, const il::Array2DView<double> &A,
   const IL_CBLAS_INT ldb = static_cast<IL_CBLAS_INT>(B.stride(1));
   const IL_CBLAS_INT ldc = static_cast<IL_CBLAS_INT>(C.stride(1));
   cblas_dgemm(layout, transa, transb, m, n, k, alpha, A.data(), lda, B.data(),
-              ldb, beta, C.data(), ldc);
+              ldb, beta, C.Data(), ldc);
 }
 
 inline void blas(double alpha, const il::Array2D<double> &A, Blas info_a,
@@ -348,7 +348,7 @@ inline void blas(double alpha, const il::Array2D<double> &A, Blas info_a,
     const CBLAS_SIDE side{CblasLeft};
     const CBLAS_UPLO uplo{CblasUpper};
     cblas_dsymm(layout, side, uplo, m, n, alpha, A.data(), lda, B.data(), ldb,
-                beta, C.data(), ldc);
+                beta, C.Data(), ldc);
   } else {
     (void)transa;
     (void)transb;
@@ -378,7 +378,7 @@ inline void blas(float alpha, const il::Array2C<float> &A,
   const IL_CBLAS_INT ldb{static_cast<IL_CBLAS_INT>(B.stride(0))};
   const IL_CBLAS_INT ldc{static_cast<IL_CBLAS_INT>(C.stride(0))};
   cblas_sgemm(layout, transa, transb, m, n, k, alpha, A.data(), lda, B.data(),
-              ldb, beta, C.data(), ldc);
+              ldb, beta, C.Data(), ldc);
 }
 
 // A, B, C are matrices
@@ -402,7 +402,7 @@ inline void blas(double alpha, const il::Array2C<double> &A,
   const IL_CBLAS_INT ldb{static_cast<IL_CBLAS_INT>(B.stride(0))};
   const IL_CBLAS_INT ldc{static_cast<IL_CBLAS_INT>(C.stride(0))};
   cblas_dgemm(layout, transa, transb, m, n, k, alpha, A.data(), lda, B.data(),
-              ldb, beta, C.data(), ldc);
+              ldb, beta, C.Data(), ldc);
 }
 
 inline void blas(double alpha, const il::Array2C<double> &A, Blas info_a,
@@ -428,7 +428,7 @@ inline void blas(double alpha, const il::Array2C<double> &A, Blas info_a,
     const CBLAS_SIDE side{CblasLeft};
     const CBLAS_UPLO uplo{CblasUpper};
     cblas_dsymm(layout, side, uplo, m, n, alpha, A.data(), lda, B.data(), ldb,
-                beta, C.data(), ldc);
+                beta, C.Data(), ldc);
   } else {
     (void)transa;
     (void)transb;

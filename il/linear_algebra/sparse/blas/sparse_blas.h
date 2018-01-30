@@ -94,7 +94,7 @@ inline void blas(float alpha, il::SparseMatrixBlas<int, float>& A_optimized,
   descr.type = SPARSE_MATRIX_TYPE_GENERAL;
 
   sparse_status_t status =
-      mkl_sparse_s_mv(operation, alpha, A, descr, x.data(), beta, y.data());
+      mkl_sparse_s_mv(operation, alpha, A, descr, x.data(), beta, y.Data());
   IL_EXPECT_FAST(status == SPARSE_STATUS_SUCCESS);
 }
 
@@ -107,7 +107,7 @@ inline void blas(double alpha, il::SparseMatrixBlas<int, double>& A_optimized,
   descr.type = SPARSE_MATRIX_TYPE_GENERAL;
 
   sparse_status_t status =
-      mkl_sparse_d_mv(operation, alpha, A, descr, x.data(), beta, y.data());
+      mkl_sparse_d_mv(operation, alpha, A, descr, x.data(), beta, y.Data());
   IL_EXPECT_FAST(status == SPARSE_STATUS_SUCCESS);
 }
 

@@ -133,7 +133,7 @@ double time_mandelbrot_serial_serial(float x_left, float x_right,
       v(kx, ky) = count;
     }
   }
-  timer.stop();
+  timer.Stop();
   il::escape(v.data());
 
   return timer.elapsed();
@@ -174,7 +174,7 @@ double time_mandelbrot_openmp_serial(float x_left, float x_right,
       v(kx, ky) = count;
     }
   }
-  timer.stop();
+  timer.Stop();
   il::escape(v.data());
 
   return timer.elapsed();
@@ -216,7 +216,7 @@ double time_mandelbrot_openmp_openmp(float x_left, float x_right,
       v(kx, ky) = count;
     }
   }
-  timer.stop();
+  timer.Stop();
   il::escape(v.data());
 
   return timer.elapsed();
@@ -260,7 +260,7 @@ double time_mandelbrot_tbb_serial(float x_left, float x_right, float y_bottom,
                         }
                       }
                     });
-  timer.stop();
+  timer.Stop();
   il::escape(v.data());
 
   return timer.elapsed();
@@ -306,7 +306,7 @@ double time_mandelbrot_tbb_openmp(float x_left, float x_right, float y_bottom,
                         }
                       }
                     });
-  timer.stop();
+  timer.Stop();
   il::escape(v.data());
 
   return timer.elapsed();
@@ -347,7 +347,7 @@ double time_mandelbrot_cilk_serial(float x_left, float x_right, float y_bottom,
       v(kx, ky) = count;
     }
   }
-  timer.stop();
+  timer.Stop();
   il::escape(v.data());
 
   return timer.elapsed();
@@ -389,7 +389,7 @@ double time_mandelbrot_cilk_openmp(float x_left, float x_right, float y_bottom,
       v(kx, ky) = count;
     }
   }
-  timer.stop();
+  timer.Stop();
   il::escape(v.data());
 
   return timer.elapsed();
@@ -433,7 +433,7 @@ double time_mandelbrot_cilk_cilk(float x_left, float x_right, float y_bottom,
     }
     y -= dy;
   }
-  timer.stop();
+  timer.Stop();
   il::escape(v.data());
 
   return timer.elapsed();

@@ -24,7 +24,7 @@
 static void IlArray_Append(benchmark::State& state) {
   while (state.KeepRunning()) {
     il::Array<double> v{};
-    v.append(0.0);
+    v.Append(0.0);
     benchmark::DoNotOptimize(v.data());
   }
 }

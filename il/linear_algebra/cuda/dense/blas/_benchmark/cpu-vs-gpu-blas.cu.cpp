@@ -40,19 +40,19 @@ int main() {
 
     il::Timer timer_product_host{};
     il::blas(1.0, A, A, 0.0, il::io, C);
-    timer_product_host.stop();
+    timer_product_host.Stop();
 
     il::copy(A, il::io, A_d);
     il::Timer timer_copy1{};
     il::copy(A, il::io, B_d);
     il::copy(C, il::io, C_d);
-    timer_copy1.stop();
+    timer_copy1.Stop();
     il::Timer timer_product{};
     il::blas(1.0, A_d, B_d, 0.0, il::io, C_d);
-    timer_product.stop();
+    timer_product.Stop();
     il::Timer timer_copy2{};
     il::copy(C_d, il::io, C);
-    timer_copy2.stop();
+    timer_copy2.Stop();
 
     const il::int_t ln = n;
     std::printf("=== For double ===\n");
@@ -85,19 +85,19 @@ int main() {
 
     il::Timer timer_product_host{};
     il::blas(1.0, A, A, 0.0, il::io, C);
-    timer_product_host.stop();
+    timer_product_host.Stop();
 
     il::copy(A, il::io, A_d);
     il::Timer timer_copy1{};
     il::copy(A, il::io, B_d);
     il::copy(C, il::io, C_d);
-    timer_copy1.stop();
+    timer_copy1.Stop();
     il::Timer timer_product{};
     il::blas(1.0, A_d, B_d, 0.0, il::io, C_d);
-    timer_product.stop();
+    timer_product.Stop();
     il::Timer timer_copy2{};
     il::copy(C_d, il::io, C);
-    timer_copy2.stop();
+    timer_copy2.Stop();
 
     const il::int_t ln = n;
     std::printf("=== For float ===\n");

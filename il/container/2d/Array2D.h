@@ -175,7 +175,7 @@ class Array2D {
   // unchanged. When one of the sizes is > than the the capacity, reallocation
   // is done and the array gets the same capacity as its size.
   */
-  void resize(il::int_t n0, il::int_t n1);
+  void Resize(il::int_t n0, il::int_t n1);
 
   /* \brief Get the capacity of the il::Array2D<T>
   // \details capacity(0) gives the capacity in terms of rows and capacity(1)
@@ -188,7 +188,7 @@ class Array2D {
   // nothing is done. Otherwise, reallocation is done and the new capacity is
   // set to r and s.
   */
-  void reserve(il::int_t r0, il::int_t r1);
+  void Reserve(il::int_t r0, il::int_t r1);
 
   /* \brief Get the alignment of the pointer returned by data()
    */
@@ -198,9 +198,9 @@ class Array2D {
 
   il::Array2DView<T> view(il::Range range0, il::Range range1) const;
 
-  il::Array2DEdit<T> edit();
+  il::Array2DEdit<T> Edit();
 
-  il::Array2DEdit<T> edit(il::Range range0, il::Range range1);
+  il::Array2DEdit<T> Edit(il::Range range0, il::Range range1);
 
   /* \brief Get a pointer to const to the first element of the array
   // \details One should use this method only when using C-style API
@@ -210,7 +210,7 @@ class Array2D {
   /* \brief Get a pointer to the first element of the array
   // \details One should use this method only when using C-style API
   */
-  T* data();
+  T* Data();
 
   /* \brief Get a pointer to the first element of the column
   // \details One should use this method only when using C-style API
@@ -220,7 +220,7 @@ class Array2D {
   /* \brief Get a pointer to the first element of the column
   // \details One should use this method only when using C-style API
   */
-  T* data(il::int_t i1);
+  T* Data(il::int_t i1);
 
   /* \brief The memory position of A(i0, i1) is
   // data() + i1 * stride(1) + i0
@@ -804,7 +804,7 @@ il::int_t Array2D<T>::size(il::int_t d) const {
 }
 
 template <typename T>
-void Array2D<T>::resize(il::int_t n0, il::int_t n1) {
+void Array2D<T>::Resize(il::int_t n0, il::int_t n1) {
   IL_EXPECT_FAST(n0 >= 0);
   IL_EXPECT_FAST(n1 >= 0);
 
@@ -926,7 +926,7 @@ il::int_t Array2D<T>::capacity(il::int_t d) const {
 }
 
 template <typename T>
-void Array2D<T>::reserve(il::int_t r0, il::int_t r1) {
+void Array2D<T>::Reserve(il::int_t r0, il::int_t r1) {
   IL_EXPECT_FAST(r0 >= 0);
   IL_EXPECT_FAST(r1 >= 0);
 
@@ -1019,12 +1019,12 @@ il::Array2DView<T> Array2D<T>::view(il::Range range0, il::Range range1) const {
 }
 
 template <typename T>
-il::Array2DEdit<T> Array2D<T>::edit() {
+il::Array2DEdit<T> Array2D<T>::Edit() {
   return il::Array2DEdit<T>{data(), size(0), size(1), stride(1), 0, 0};
 }
 
 template <typename T>
-il::Array2DEdit<T> Array2D<T>::edit(il::Range range0, il::Range range1) {
+il::Array2DEdit<T> Array2D<T>::Edit(il::Range range0, il::Range range1) {
   IL_EXPECT_FAST(static_cast<std::size_t>(range0.begin) <
                  static_cast<std::size_t>(size(0)));
   IL_EXPECT_FAST(static_cast<std::size_t>(range0.end) <=
@@ -1049,7 +1049,7 @@ const T* Array2D<T>::data() const {
 }
 
 template <typename T>
-T* Array2D<T>::data() {
+T* Array2D<T>::Data() {
   return data_;
 }
 
@@ -1062,7 +1062,7 @@ const T* Array2D<T>::data(il::int_t i1) const {
 }
 
 template <typename T>
-T* Array2D<T>::data(il::int_t i1) {
+T* Array2D<T>::Data(il::int_t i1) {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(i1) <
                    static_cast<std::size_t>(size(1)));
 

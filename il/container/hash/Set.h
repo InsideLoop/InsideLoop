@@ -41,12 +41,12 @@ class Set {
   ~Set();
 
   il::Location search(const T& x) const;
-  void add(const T& x, il::io_t, il::Location i);
-  void add(const T& x);
+  void Add(const T& x, il::io_t, il::Location i);
+  void Add(const T& x);
   bool found(il::Location i) const;
   bool contains(const T& x) const;
-  void clear();
-  const T& operator[](il::int_t i) const;
+  void Clear();
+  const T& element(il::Location i) const;
   il::Location first() const;
   il::Location sentinel() const;
   il::Location next(il::Location i) const;
@@ -55,7 +55,7 @@ class Set {
  private:
   il::int_t nbBuckets() const;
   il::int_t nbBuckets(int p) const;
-  void reserveWithP(int p);
+  void ReserveWithP(int p);
 };
 
 template <typename T, typename F>
@@ -77,8 +77,8 @@ Set<T, F>::Set(const Set<T, F>& set) {
     for (il::int_t i = 0; i < m; ++i) {
       F::constructEmpty(il::io, bucket_ + i);
     }
-    for (il::int_t i = set.first(); i < set.sentinel(); i = set.next(i)) {
-      add(set[i]);
+    for (il::Location i = set.first(); i != set.sentinel(); i = set.next(i)) {
+      Add(set.element(i));
     }
   }
 }
@@ -184,13 +184,24 @@ il::Location Set<T, F>::search(const T& x) const {
   std::size_t delta_i = 1;
   while (true) {
     if (F::isEmpty(bucket_[i])) {
+#ifdef IL_DEBUG_CLASS
+      return il::Location{(i_tombstone == static_cast<std::size_t>(-1))
+                              ? -(1 + static_cast<il::int_t>(i))
+                              : -(1 + static_cast<il::int_t>(i_tombstone)),
+                          0};
+#else
       return il::Location{(i_tombstone == static_cast<std::size_t>(-1))
                               ? -(1 + static_cast<il::int_t>(i))
                               : -(1 + static_cast<il::int_t>(i_tombstone))};
+#endif
     } else if (F::isTombstone(bucket_[i])) {
       i_tombstone = i;
     } else if (F::isEqual(bucket_[i], x)) {
-      return static_cast<il::int_t>(i);
+#ifdef IL_DEBUG_CLASS
+      return il::Location{static_cast<il::int_t>(i), 0};
+#else
+      return il::Location{static_cast<il::int_t>(i)};
+#endif
     }
     i += delta_i;
     i &= mask;
@@ -199,7 +210,7 @@ il::Location Set<T, F>::search(const T& x) const {
 }
 
 template <typename T, typename F>
-void Set<T, F>::add(const T& x, il::io_t, il::Location& i) {
+void Set<T, F>::Add(const T& x, il::io_t, il::Location& i) {
   IL_EXPECT_FAST(!found(i));
 
   il::int_t i_local = -(1 + i.index());
@@ -207,7 +218,7 @@ void Set<T, F>::add(const T& x, il::io_t, il::Location& i) {
   if (4 * (static_cast<std::size_t>(nb_elements_) + 1) >
       3 * static_cast<std::size_t>(m)) {
     if (p_ + 1 <= static_cast<int>(sizeof(std::size_t) * 8 - 2)) {
-      reserveWithP(p_ == -1 ? 1 : p_ + 1);
+      ReserveWithP(p_ == -1 ? 1 : p_ + 1);
     } else {
       il::abort();
     }
@@ -216,14 +227,18 @@ void Set<T, F>::add(const T& x, il::io_t, il::Location& i) {
   }
   new (bucket_ + i_local) T(x);
   ++nb_elements_;
-  i.setIndex(i_local);
+#ifdef IL_DEBUG_CLASS
+  i.SetIndex(i_local, 0);
+#else
+  i.SetIndex(i_local);
+#endif
 }
 
 template <typename T, typename F>
-void Set<T, F>::add(const T& x) {
+void Set<T, F>::Add(const T& x) {
   il::Location i = search(x);
   if (!found(i)) {
-    add(x, il::io, i);
+    Add(x, il::io, i);
   }
 }
 
@@ -239,7 +254,7 @@ bool Set<T, F>::contains(const T& x) const {
 }
 
 template <typename T, typename F>
-void Set<T, F>::clear() {
+void Set<T, F>::Clear() {
   if (p_ >= 0) {
     const il::int_t m = nbBuckets();
     for (il::int_t i = 0; i < m; ++i) {
@@ -252,7 +267,7 @@ void Set<T, F>::clear() {
 }
 
 template <typename T, typename F>
-const T& Set<T, F>::operator[](il::Location i) const {
+const T& Set<T, F>::element(il::Location i) const {
   return bucket_[i.index()];
 }
 
@@ -269,8 +284,13 @@ il::Location Set<T, F>::first() const {
 
 template <typename T, typename F>
 il::Location Set<T, F>::sentinel() const {
+#ifdef IL_DEBUG_CLASS
+  return il::Location{static_cast<il::int_t>(static_cast<std::size_t>(1) << p_),
+                      0};
+#else
   return il::Location{
       static_cast<il::int_t>(static_cast<std::size_t>(1) << p_)};
+#endif
 }
 
 template <typename T, typename F>
@@ -283,7 +303,11 @@ il::Location Set<T, F>::next(il::Location i) const {
          (F::isEmpty(bucket_[i_local]) || F::isTombstone(bucket_[i_local]))) {
     ++i_local;
   }
-  return i_local;
+#ifdef IL_DEBUG_CLASS
+  return il::Location{i_local, 0};
+#else
+  return il::Location{i_local};
+#endif
 }
 
 template <typename T, typename F>
@@ -304,7 +328,7 @@ il::int_t Set<T, F>::nbBuckets(int p) const {
 }
 
 template <typename T, typename F>
-void Set<T, F>::reserveWithP(int p) {
+void Set<T, F>::ReserveWithP(int p) {
   T* old_bucket_ = bucket_;
   const il::int_t old_m = nbBuckets(p_);
   const il::int_t m = nbBuckets(p);
@@ -321,7 +345,7 @@ void Set<T, F>::reserveWithP(int p) {
     for (il::int_t i = 0; i < old_m; ++i) {
       if (!F::isEmpty(old_bucket_[i]) && !F::isTombstone(old_bucket_[i])) {
         il::Location new_i = search(old_bucket_[i]);
-        add(std::move(old_bucket_[i]), il::io, new_i);
+        Add(std::move(old_bucket_[i]), il::io, new_i);
         (old_bucket_ + i)->~T();
       }
     }

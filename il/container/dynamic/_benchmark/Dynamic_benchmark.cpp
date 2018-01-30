@@ -44,18 +44,18 @@ void integer_boxed() {
 
   il::int_t sum_native = 0;
   il::Timer timer{};
-  timer.start();
+  timer.Start();
   for (il::int_t k = 0; k < nb_times; ++k) {
     for (il::int_t i = 0; i < n; ++i) {
       sum_native += v[i];
     }
     sum_native *= 2;
   }
-  timer.stop();
+  timer.Stop();
   const double time_native = timer.elapsed();
 
-  timer.reset();
-  timer.start();
+  timer.Reset();
+  timer.Start();
   il::int_t sum_boxed = 0;
   for (il::int_t k = 0; k < nb_times; ++k) {
     for (il::int_t i = 0; i < n; ++i) {
@@ -63,7 +63,7 @@ void integer_boxed() {
     }
     sum_boxed *= 2;
   }
-  timer.stop();
+  timer.Stop();
   const double time_boxed = timer.elapsed();
 
   std::cout << "Native: " << sum_native << " , Time: " << time_native
@@ -87,18 +87,18 @@ void floating_point_boxed() {
 
   double sum_native = 0.0;
   il::Timer timer{};
-  timer.start();
+  timer.Start();
   for (il::int_t k = 0; k < nb_times; ++k) {
     for (il::int_t i = 0; i < n; ++i) {
       sum_native += v[i];
     }
     sum_native *= 0.5;
   }
-  timer.stop();
+  timer.Stop();
   const double time_native = timer.elapsed();
 
-  timer.reset();
-  timer.start();
+  timer.Reset();
+  timer.Start();
   double sum_boxed = 0.0;
   for (il::int_t k = 0; k < nb_times; ++k) {
     for (il::int_t i = 0; i < n; ++i) {
@@ -106,7 +106,7 @@ void floating_point_boxed() {
     }
     sum_boxed *= 0.5;
   }
-  timer.stop();
+  timer.Stop();
   const double time_boxed = timer.elapsed();
 
   std::cout << "Native: " << sum_native << " , Time: " << time_native

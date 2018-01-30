@@ -88,7 +88,7 @@ inline il::Array2D<float> dot(const il::Array2D<float>& A,
   const IL_CBLAS_INT ldb = static_cast<IL_CBLAS_INT>(B.stride(1));
   const IL_CBLAS_INT ldc = static_cast<IL_CBLAS_INT>(C.stride(1));
   cblas_sgemm(layout, transpose, transpose, m, n, k, alpha, A.data(), lda,
-              B.data(), ldb, beta, C.data(), ldc);
+              B.data(), ldb, beta, C.Data(), ldc);
 
   return C;
 }
@@ -109,7 +109,7 @@ inline il::Array2D<double> dot(const il::Array2D<double>& A,
   const IL_CBLAS_INT ldb = static_cast<IL_CBLAS_INT>(B.stride(1));
   const IL_CBLAS_INT ldc = static_cast<IL_CBLAS_INT>(C.stride(1));
   cblas_dgemm(layout, transpose, transpose, m, n, k, alpha, A.data(), lda,
-              B.data(), ldb, beta, C.data(), ldc);
+              B.data(), ldb, beta, C.Data(), ldc);
 
   return C;
 }
@@ -130,7 +130,7 @@ inline il::Array2C<double> dot(const il::Array2C<double>& A,
   const IL_CBLAS_INT ldb = static_cast<IL_CBLAS_INT>(B.stride(0));
   const IL_CBLAS_INT ldc = static_cast<IL_CBLAS_INT>(C.stride(0));
   cblas_dgemm(layout, transpose, transpose, m, n, k, alpha, A.data(), lda,
-              B.data(), ldb, beta, C.data(), ldc);
+              B.data(), ldb, beta, C.Data(), ldc);
 
   return C;
 }

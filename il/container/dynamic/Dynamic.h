@@ -107,12 +107,12 @@ class Dynamic {
   template <typename T>
   T to() const;
   template <typename T>
-  T &as();
+  T &As();
 
  private:
   bool isStackAllocated() const;
-  void copyData(il::Type type, void *p);
-  void releaseMemory();
+  void CopyData(il::Type type, void *p);
+  void ReleaseMemory();
 };
 
 inline Dynamic::Dynamic() { type_ = il::Type::TVoid; }
@@ -360,13 +360,13 @@ inline Dynamic::Dynamic(il::Type value) {
 
 inline Dynamic::~Dynamic() {
   if (!isStackAllocated()) {
-    releaseMemory();
+    ReleaseMemory();
   }
 }
 
 inline il::Dynamic &Dynamic::operator=(bool value) {
   if (!isStackAllocated()) {
-    releaseMemory();
+    ReleaseMemory();
   }
   type_ = il::Type::TBool;
   *reinterpret_cast<bool *>(&data_) = value;
@@ -375,7 +375,7 @@ inline il::Dynamic &Dynamic::operator=(bool value) {
 
 inline il::Dynamic &Dynamic::operator=(unsigned char value) {
   if (!isStackAllocated()) {
-    releaseMemory();
+    ReleaseMemory();
   }
   type_ = il::Type::TUInt8;
   *reinterpret_cast<unsigned char *>(&data_) = value;
@@ -384,7 +384,7 @@ inline il::Dynamic &Dynamic::operator=(unsigned char value) {
 
 inline il::Dynamic &Dynamic::operator=(signed char value) {
   if (!isStackAllocated()) {
-    releaseMemory();
+    ReleaseMemory();
   }
   type_ = il::Type::TInt8;
   *reinterpret_cast<signed char *>(&data_) = value;
@@ -393,7 +393,7 @@ inline il::Dynamic &Dynamic::operator=(signed char value) {
 
 inline il::Dynamic &Dynamic::operator=(unsigned short value) {
   if (!isStackAllocated()) {
-    releaseMemory();
+    ReleaseMemory();
   }
   type_ = il::Type::TUInt16;
   *reinterpret_cast<unsigned short *>(&data_) = value;
@@ -402,7 +402,7 @@ inline il::Dynamic &Dynamic::operator=(unsigned short value) {
 
 inline il::Dynamic &Dynamic::operator=(short value) {
   if (!isStackAllocated()) {
-    releaseMemory();
+    ReleaseMemory();
   }
   type_ = il::Type::TInt16;
   *reinterpret_cast<short *>(&data_) = value;
@@ -412,7 +412,7 @@ inline il::Dynamic &Dynamic::operator=(short value) {
 #ifdef IL_64_BIT
 inline il::Dynamic &Dynamic::operator=(int value) {
   if (!isStackAllocated()) {
-    releaseMemory();
+    ReleaseMemory();
   }
   type_ = il::Type::TInt64;
   *reinterpret_cast<il::int_t *>(&data_) = static_cast<il::int_t>(value);
@@ -421,7 +421,7 @@ inline il::Dynamic &Dynamic::operator=(int value) {
 
 inline il::Dynamic &Dynamic::operator=(il::int_t value) {
   if (!isStackAllocated()) {
-    releaseMemory();
+    ReleaseMemory();
   }
   type_ = il::Type::TInt64;
   *reinterpret_cast<il::int_t *>(&data_) = value;
@@ -430,7 +430,7 @@ inline il::Dynamic &Dynamic::operator=(il::int_t value) {
 #else
 inline il::Dynamic &Dynamic::operator=(int value) {
   if (!isStackAllocated()) {
-    releaseMemory();
+    ReleaseMemory();
   }
   type_ = il::Type::TInt32;
   *reinterpret_cast<int *>(&data_) = value;
@@ -440,7 +440,7 @@ inline il::Dynamic &Dynamic::operator=(int value) {
 
 inline il::Dynamic &Dynamic::operator=(float value) {
   if (!isStackAllocated()) {
-    releaseMemory();
+    ReleaseMemory();
   }
   type_ = il::Type::TFp32;
   *reinterpret_cast<float *>(&data_) = value;
@@ -449,7 +449,7 @@ inline il::Dynamic &Dynamic::operator=(float value) {
 
 inline il::Dynamic &Dynamic::operator=(double value) {
   if (!isStackAllocated()) {
-    releaseMemory();
+    ReleaseMemory();
   }
   type_ = il::Type::TFp64;
   *reinterpret_cast<double *>(&data_) = value;
@@ -458,7 +458,7 @@ inline il::Dynamic &Dynamic::operator=(double value) {
 
 inline il::Dynamic &Dynamic::operator=(const il::String &value) {
   if (!isStackAllocated()) {
-    releaseMemory();
+    ReleaseMemory();
   }
   type_ = il::Type::TString;
   *reinterpret_cast<il::String **>(&data_) = new il::String{value};
@@ -467,7 +467,7 @@ inline il::Dynamic &Dynamic::operator=(const il::String &value) {
 
 inline il::Dynamic &Dynamic::operator=(il::String &&value) {
   if (!isStackAllocated()) {
-    releaseMemory();
+    ReleaseMemory();
   }
   type_ = il::Type::TString;
   *reinterpret_cast<il::String **>(&data_) = new il::String{std::move(value)};
@@ -479,7 +479,7 @@ inline Dynamic::Dynamic(const il::Dynamic &other) {
   if (isStackAllocated()) {
     data_ = other.data_;
   } else {
-    copyData(type_, reinterpret_cast<void *>(other.data_));
+    CopyData(type_, reinterpret_cast<void *>(other.data_));
   }
 }
 
@@ -491,20 +491,20 @@ inline Dynamic::Dynamic(il::Dynamic &&other) {
 
 inline il::Dynamic &Dynamic::operator=(const il::Dynamic &other) {
   if (!isStackAllocated()) {
-    releaseMemory();
+    ReleaseMemory();
   }
   type_ = other.type_;
   if (isStackAllocated()) {
     data_ = other.data_;
   } else {
-    copyData(type_, reinterpret_cast<void *>(other.data_));
+    CopyData(type_, reinterpret_cast<void *>(other.data_));
   }
   return *this;
 }
 
 inline il::Dynamic &Dynamic::operator=(il::Dynamic &&other) {
   if (!isStackAllocated()) {
-    releaseMemory();
+    ReleaseMemory();
   }
   type_ = other.type_;
   data_ = other.data_;
@@ -540,7 +540,7 @@ T Dynamic::to() const {
 }
 
 template <typename T>
-T &Dynamic::as() {
+T &Dynamic::As() {
   IL_EXPECT_MEDIUM(type_ == il::typeId<T>());
 
   if (isStackAllocated()) {
@@ -554,7 +554,7 @@ inline bool Dynamic::isStackAllocated() const {
   return static_cast<unsigned char>(type_) < 13;
 }
 
-inline void Dynamic::copyData(il::Type type, void *p) {
+inline void Dynamic::CopyData(il::Type type, void *p) {
   switch (type) {
     case il::Type::TString:
       *reinterpret_cast<il::String **>(&data_) =
@@ -637,7 +637,7 @@ inline void Dynamic::copyData(il::Type type, void *p) {
   }
 }
 
-inline void Dynamic::releaseMemory() {
+inline void Dynamic::ReleaseMemory() {
   switch (type_) {
     case il::Type::TString:
       delete reinterpret_cast<il::String *>(data_);

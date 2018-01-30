@@ -315,7 +315,7 @@ FMT_FUNC internal::UTF8ToUTF16::UTF8ToUTF16(StringRef s) {
       CP_UTF8, MB_ERR_INVALID_CHARS, s.data(), s_size, FMT_NULL, 0);
   if (length == 0)
     FMT_THROW(WindowsError(GetLastError(), ERROR_MSG));
-  buffer_.resize(length + 1);
+  buffer_.Resize(length + 1);
   length = MultiByteToWideChar(
     CP_UTF8, MB_ERR_INVALID_CHARS, s.data(), s_size, &buffer_[0], length);
   if (length == 0)
@@ -338,7 +338,7 @@ FMT_FUNC int internal::UTF16ToUTF8::convert(WStringRef s) {
     CP_UTF8, 0, s.data(), s_size, FMT_NULL, 0, FMT_NULL, FMT_NULL);
   if (length == 0)
     return GetLastError();
-  buffer_.resize(length + 1);
+  buffer_.Resize(length + 1);
   length = WideCharToMultiByte(
     CP_UTF8, 0, s.data(), s_size, &buffer_[0], length, FMT_NULL, FMT_NULL);
   if (length == 0)
@@ -360,7 +360,7 @@ FMT_FUNC void internal::format_windows_error(
     Writer &out, int error_code, StringRef message) FMT_NOEXCEPT {
   FMT_TRY {
     MemoryBuffer<wchar_t, INLINE_BUFFER_SIZE> buffer;
-    buffer.resize(INLINE_BUFFER_SIZE);
+    buffer.Resize(INLINE_BUFFER_SIZE);
     for (;;) {
       wchar_t *system_message = &buffer[0];
       int result = FormatMessageW(
@@ -377,7 +377,7 @@ FMT_FUNC void internal::format_windows_error(
       }
       if (GetLastError() != ERROR_INSUFFICIENT_BUFFER)
         break;  // Can't get error message, report error code instead.
-      buffer.resize(buffer.size() * 2);
+      buffer.Resize(buffer.size() * 2);
     }
   } FMT_CATCH(...) {}
   fmt::format_error_code(out, error_code, message);  // 'fmt::' is for bcc32.
@@ -389,7 +389,7 @@ FMT_FUNC void format_system_error(
     Writer &out, int error_code, StringRef message) FMT_NOEXCEPT {
   FMT_TRY {
     internal::MemoryBuffer<char, internal::INLINE_BUFFER_SIZE> buffer;
-    buffer.resize(internal::INLINE_BUFFER_SIZE);
+    buffer.Resize(internal::INLINE_BUFFER_SIZE);
     for (;;) {
       char *system_message = &buffer[0];
       int result = safe_strerror(error_code, system_message, buffer.size());
@@ -399,7 +399,7 @@ FMT_FUNC void format_system_error(
       }
       if (result != ERANGE)
         break;  // Can't get error message, report error code instead.
-      buffer.resize(buffer.size() * 2);
+      buffer.Resize(buffer.size() * 2);
     }
   } FMT_CATCH(...) {}
   fmt::format_error_code(out, error_code, message);  // 'fmt::' is for bcc32.

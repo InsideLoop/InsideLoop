@@ -146,7 +146,7 @@ class SmallArray {
   // \details In debug mode, calling this method on an array of size 0 aborts
   // the program. In release mode, it will lead to undefined behavior.
   */
-  T& back();
+  T& Back();
 
   /* \brief Get the size of the array
   //
@@ -163,7 +163,7 @@ class SmallArray {
   // the current capacity, reallocation is done and the array gets the same
   // capacity as its size.
   */
-  void resize(il::int_t n);
+  void Resize(il::int_t n);
 
   /* \brief Get the capacity of the array
    */
@@ -173,28 +173,28 @@ class SmallArray {
   // \details If the capacity is >= to p, nothing is done. Otherwise,
   // reallocation is done and the new capacity is set to p.
   */
-  void reserve(il::int_t p);
+  void Reserve(il::int_t p);
 
   /* \brief Add an element at the end of the array
   // \details Reallocation is done only if it is needed. In case reallocation
   // happens, then new capacity is roughly (3/2) the previous capacity.
   */
-  void append(const T& x);
+  void Append(const T& x);
 
   /* \brief Construct an element at the end of the array
   // \details Reallocation is done only if it is needed. In case reallocation
   // happens, then new capacity is roughly (3/2) the previous capacity.
   */
   template <typename... Args>
-  void append(Args&&... args);
+  void Append(Args&&... args);
 
   il::ArrayView<T> view() const;
 
   il::ArrayView<T> view(il::Range range) const;
 
-  il::ArrayEdit<T> edit();
+  il::ArrayEdit<T> Edit();
 
-  il::ArrayEdit<T> edit(il::Range range);
+  il::ArrayEdit<T> Edit(il::Range range);
 
   /* \brief Get a pointer to const to the first element of the array
   // \details One should use this method only when using C-style API
@@ -204,7 +204,7 @@ class SmallArray {
   /* \brief Get a pointer to the first element of the array
   // \details One should use this method only when using C-style API
   */
-  T* data();
+  T* Data();
 
   /* \brief Returns a pointer to const to the first element of the array
    */
@@ -222,7 +222,7 @@ class SmallArray {
 
   /* \brief Used internally to increase the capacity of the array
    */
-  void increaseCapacity(il::int_t r);
+  void IncreaseCapacity(il::int_t r);
 
   /* \brief Used internally in debug mode to check the invariance of the object
    */
@@ -466,7 +466,7 @@ const T& SmallArray<T, small_size>::back() const {
 }
 
 template <typename T, il::int_t small_size>
-T& SmallArray<T, small_size>::back() {
+T& SmallArray<T, small_size>::Back() {
   IL_EXPECT_MEDIUM(size() > 0);
   return size_[-1];
 }
@@ -477,7 +477,7 @@ il::int_t SmallArray<T, small_size>::size() const {
 }
 
 template <typename T, il::int_t small_size>
-void SmallArray<T, small_size>::resize(il::int_t n) {
+void SmallArray<T, small_size>::Resize(il::int_t n) {
   IL_EXPECT_FAST(n >= 0);
 
   if (n <= capacity()) {
@@ -497,7 +497,7 @@ void SmallArray<T, small_size>::resize(il::int_t n) {
     }
   } else {
     const il::int_t n_old = size();
-    increaseCapacity(n);
+    IncreaseCapacity(n);
     if (il::isTrivial<T>::value) {
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t i = n_old; i < n; ++i) {
@@ -519,16 +519,16 @@ il::int_t SmallArray<T, small_size>::capacity() const {
 }
 
 template <typename T, il::int_t small_size>
-void SmallArray<T, small_size>::reserve(il::int_t r) {
+void SmallArray<T, small_size>::Reserve(il::int_t r) {
   IL_EXPECT_FAST(r >= 0);
 
   if (r > capacity()) {
-    increaseCapacity(r);
+    IncreaseCapacity(r);
   }
 }
 
 template <typename T, il::int_t small_size>
-void SmallArray<T, small_size>::append(const T& x) {
+void SmallArray<T, small_size>::Append(const T& x) {
   if (size_ == capacity_) {
     const il::int_t n = size();
     bool error = false;
@@ -539,7 +539,7 @@ void SmallArray<T, small_size>::append(const T& x) {
       il::abort();
     }
     T x_copy = x;
-    increaseCapacity(new_capacity);
+    IncreaseCapacity(new_capacity);
     new (size_) T(std::move(x_copy));
   } else {
     new (size_) T(x);
@@ -549,7 +549,7 @@ void SmallArray<T, small_size>::append(const T& x) {
 
 template <typename T, il::int_t small_size>
 template <typename... Args>
-void SmallArray<T, small_size>::append(Args&&... args) {
+void SmallArray<T, small_size>::Append(Args&&... args) {
   if (size_ == capacity_) {
     const il::int_t n = size();
     bool error = false;
@@ -559,14 +559,14 @@ void SmallArray<T, small_size>::append(Args&&... args) {
     if (error) {
       il::abort();
     }
-    increaseCapacity(new_capacity);
+    IncreaseCapacity(new_capacity);
   };
   new (size_) T(args...);
   ++size_;
 }
 
 template <typename T, il::int_t small_size>
-T* SmallArray<T, small_size>::data() {
+T* SmallArray<T, small_size>::Data() {
   return data_;
 }
 
@@ -586,12 +586,12 @@ il::ArrayView<T> SmallArray<T, small_size>::view(il::Range range) const {
 };
 
 template <typename T, il::int_t small_size>
-il::ArrayEdit<T> SmallArray<T, small_size>::edit() {
+il::ArrayEdit<T> SmallArray<T, small_size>::Edit() {
   return il::ArrayEdit<T>{data_, size()};
 };
 
 template <typename T, il::int_t small_size>
-il::ArrayEdit<T> SmallArray<T, small_size>::edit(il::Range range) {
+il::ArrayEdit<T> SmallArray<T, small_size>::Edit(il::Range range) {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(range.begin) <
                    static_cast<std::size_t>(size()));
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(range.end) <=
@@ -621,7 +621,7 @@ bool SmallArray<T, small_size>::smallDataUsed() const {
 }
 
 template <typename T, il::int_t small_size>
-void SmallArray<T, small_size>::increaseCapacity(il::int_t r) {
+void SmallArray<T, small_size>::IncreaseCapacity(il::int_t r) {
   IL_EXPECT_FAST(size() <= r);
 
   const il::int_t n = size();

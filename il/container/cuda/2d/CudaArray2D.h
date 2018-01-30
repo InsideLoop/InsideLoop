@@ -55,7 +55,7 @@ class CudaArray2D {
 
   /* \brief Get a pointer to the first element of the array
    */
-  T *data();
+  T *Data();
 };
 
 template <typename T>
@@ -86,7 +86,7 @@ const T *CudaArray2D<T>::data() const {
 }
 
 template <typename T>
-T *CudaArray2D<T>::data() {
+T *CudaArray2D<T>::Data() {
   return data_;
 }
 

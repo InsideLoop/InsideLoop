@@ -45,7 +45,7 @@ class MatrixFreeGmres {
   MatrixFreeGmres();
   MatrixFreeGmres(double relative_precision, int max_nb_iteration,
                   int restart_iteration);
-  il::Array<double> solve(const M& m, const il::Array<double>& y);
+  il::Array<double> Solve(const M& m, const il::Array<double>& y);
   il::int_t nbIterations() const;
 };
 
@@ -62,7 +62,7 @@ MatrixFreeGmres<M>::MatrixFreeGmres(double relative_precision,
 }
 
 template <typename M>
-il::Array<double> il::MatrixFreeGmres<M>::solve(const M& m,
+il::Array<double> il::MatrixFreeGmres<M>::Solve(const M& m,
                                                 const il::Array<double>& y) {
   IL_EXPECT_FAST(m.size(0) == y.size());
 
@@ -174,7 +174,7 @@ il::Array<double> il::MatrixFreeGmres<M>::solve(const M& m,
         // store the result in residual.
         //--------------- To Change
         il::ArrayView<double> my_x = ycopy.view();
-        il::ArrayEdit<double> my_y = residual.edit();
+        il::ArrayEdit<double> my_y = residual.Edit();
         for (il::int_t i = 0; i < n; ++i) {
           my_y[i] = 0.0;
         }

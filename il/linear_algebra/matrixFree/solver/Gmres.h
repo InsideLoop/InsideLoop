@@ -47,7 +47,7 @@ class Gmres {
   Gmres();
   Gmres(double relative_precision, il::int_t max_nb_iterations,
         il::int_t restart_iteration);
-  void solve(const ArrayFunctor<double>& a, const ArrayFunctor<double>& b,
+  void Solve(const ArrayFunctor<double>& a, const ArrayFunctor<double>& b,
              il::ArrayView<double> y, bool use_preconditionner,
              bool use_x_as_initial_value, il::io_t, il::ArrayEdit<double> x);
   il::int_t nbIterations() const;

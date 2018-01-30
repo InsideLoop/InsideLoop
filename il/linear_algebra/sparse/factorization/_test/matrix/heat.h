@@ -30,15 +30,15 @@ namespace il {
 template <typename Index>
 il::SparseMatrixCSR<Index, double> heat_1d(Index n) {
   il::Array<il::StaticArray<Index, 2>> position{};
-  position.append(il::StaticArray<Index, 2>{il::value, {0, 0}});
-  position.append(il::StaticArray<Index, 2>{il::value, {0, 1}});
+  position.Append(il::StaticArray<Index, 2>{il::value, {0, 0}});
+  position.Append(il::StaticArray<Index, 2>{il::value, {0, 1}});
   for (Index i = 1; i < n - 1; ++i) {
-    position.append(il::StaticArray<Index, 2>{il::value, {i, i - 1}});
-    position.append(il::StaticArray<Index, 2>{il::value, {i, i}});
-    position.append(il::StaticArray<Index, 2>{il::value, {i, i + 1}});
+    position.Append(il::StaticArray<Index, 2>{il::value, {i, i - 1}});
+    position.Append(il::StaticArray<Index, 2>{il::value, {i, i}});
+    position.Append(il::StaticArray<Index, 2>{il::value, {i, i + 1}});
   }
-  position.append(il::StaticArray<Index, 2>{il::value, {n - 1, n - 2}});
-  position.append(il::StaticArray<Index, 2>{il::value, {n - 1, n - 1}});
+  position.Append(il::StaticArray<Index, 2>{il::value, {n - 1, n - 2}});
+  position.Append(il::StaticArray<Index, 2>{il::value, {n - 1, n - 1}});
 
   il::Array<Index> index{};
   il::SparseMatrixCSR<Index, double> A{n, position, il::io, index};
@@ -65,20 +65,20 @@ il::SparseMatrixCSR<Index, double> heat_2d(Index n) {
     for (Index j = 0; j < n; ++j) {
       const Index idx = i * n + j;
       if (i >= 1) {
-        position.append(
+        position.Append(
             il::StaticArray<Index, 2>{il::value, {idx, (i - 1) * n + j}});
       }
       if (j >= 1) {
-        position.append(
+        position.Append(
             il::StaticArray<Index, 2>{il::value, {idx, i * n + (j - 1)}});
       }
-      position.append(il::StaticArray<Index, 2>{il::value, {idx, idx}});
+      position.Append(il::StaticArray<Index, 2>{il::value, {idx, idx}});
       if (j < n - 1) {
-        position.append(
+        position.Append(
             il::StaticArray<Index, 2>{il::value, {idx, i * n + (j + 1)}});
       }
       if (i < n - 1) {
-        position.append(
+        position.Append(
             il::StaticArray<Index, 2>{il::value, {idx, (i + 1) * n + j}});
       }
     }
@@ -113,7 +113,7 @@ il::SparseMatrixCSR<Index, double> heat_2d(Index n) {
 template <typename Index, typename T>
 il::SparseMatrixCSR<Index, T> heat3d(Index n) {
   il::Array<il::StaticArray<Index, 2>> position{};
-  position.resize(7 * n * n * n);
+  position.Resize(7 * n * n * n);
   Index ii = 0;
   for (Index k = 0; k < n; ++k) {
     for (Index j = 0; j < n; ++j) {
@@ -155,7 +155,7 @@ il::SparseMatrixCSR<Index, T> heat3d(Index n) {
       }
     }
   }
-  position.resize(ii);
+  position.Resize(ii);
 
   il::Array<Index> index{};
   il::SparseMatrixCSR<Index, T> A{n * n * n, position, il::io, index};

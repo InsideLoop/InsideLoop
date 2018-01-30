@@ -31,19 +31,19 @@ enum class FileType { Npy, Toml, Data, Png };
 inline il::FileType fileType(const il::String& file, il::io_t,
                              il::Status& status) {
   if (file.endsWith(".npy")) {
-    status.setOk();
+    status.SetOk();
     return il::FileType::Npy;
   } else if (file.endsWith(".toml")) {
-    status.setOk();
+    status.SetOk();
     return il::FileType::Toml;
   } else if (file.endsWith(".data")) {
-    status.setOk();
+    status.SetOk();
     return il::FileType::Data;
   } else if (file.endsWith(".png")) {
-    status.setOk();
+    status.SetOk();
     return il::FileType::Png;
   } else {
-    status.setError(il::Error::Undefined);
+    status.SetError(il::Error::Undefined);
     return il::FileType::Npy;
   }
 }
@@ -58,7 +58,7 @@ template <typename T>
 T LoadHelper<T>::load(const il::String& filename, il::io_t,
                       il::Status& status) {
   IL_UNUSED(filename);
-  status.setError(il::Error::Unimplemented);
+  status.SetError(il::Error::Unimplemented);
   IL_SET_SOURCE(status);
   return T{};
 }
@@ -73,7 +73,7 @@ template <typename T>
 T LoadHelperToml<T>::load(const il::String& filename, il::io_t,
                           il::Status& status) {
   IL_UNUSED(filename);
-  status.setError(il::Error::Unimplemented);
+  status.SetError(il::Error::Unimplemented);
   IL_SET_SOURCE(status);
   return T{};
 }
@@ -88,7 +88,7 @@ template <typename T>
 T LoadHelperData<T>::load(const il::String& filename, il::io_t,
                           il::Status& status) {
   IL_UNUSED(filename);
-  status.setError(il::Error::Unimplemented);
+  status.SetError(il::Error::Unimplemented);
   IL_SET_SOURCE(status);
   return T{};
 }
@@ -96,8 +96,8 @@ T LoadHelperData<T>::load(const il::String& filename, il::io_t,
 template <typename T>
 T load(const il::String& filename, il::io_t, il::Status& status) {
   const il::FileType ft = il::fileType(filename, il::io, status);
-  if (!status.ok()) {
-    status.rearm();
+  if (!status.Ok()) {
+    status.Rearm();
     return T{};
   }
   switch (ft) {
@@ -138,7 +138,7 @@ void SaveHelper<T>::save(const T& x, const il::String& filename, il::io_t,
                          il::Status& status) {
   IL_UNUSED(x);
   IL_UNUSED(filename);
-  status.setError(il::Error::Unimplemented);
+  status.SetError(il::Error::Unimplemented);
   IL_SET_SOURCE(status);
 }
 
@@ -149,7 +149,7 @@ void SaveHelperWithOptions<T, U>::save(const T& x, const U& options,
   IL_UNUSED(x);
   IL_UNUSED(filename);
   IL_UNUSED(options);
-  status.setError(il::Error::Unimplemented);
+  status.SetError(il::Error::Unimplemented);
   IL_SET_SOURCE(status);
 }
 
@@ -165,7 +165,7 @@ void SaveHelperToml<T>::save(const T& x, const il::String& filename, il::io_t,
                              il::Status& status) {
   IL_UNUSED(x);
   IL_UNUSED(filename);
-  status.setError(il::Error::Unimplemented);
+  status.SetError(il::Error::Unimplemented);
   IL_SET_SOURCE(status);
 }
 
@@ -188,7 +188,7 @@ void SaveHelperData<T>::save(const T& x, const il::String& filename, il::io_t,
                              il::Status& status) {
   IL_UNUSED(x);
   IL_UNUSED(filename);
-  status.setError(il::Error::Unimplemented);
+  status.SetError(il::Error::Unimplemented);
   IL_SET_SOURCE(status);
 }
 
@@ -198,7 +198,7 @@ void SaveHelperDataWithOptions<T, U>::save(const T& x, const U&,
                                            il::Status& status) {
   IL_UNUSED(x);
   IL_UNUSED(filename);
-  status.setError(il::Error::Unimplemented);
+  status.SetError(il::Error::Unimplemented);
   IL_SET_SOURCE(status);
 }
 
@@ -214,7 +214,7 @@ void SaveHelperPng<T>::save(const T& x, const il::String& filename, il::io_t,
                             il::Status& status) {
   IL_UNUSED(x);
   IL_UNUSED(filename);
-  status.setError(il::Error::Unimplemented);
+  status.SetError(il::Error::Unimplemented);
   IL_SET_SOURCE(status);
 }
 
@@ -222,8 +222,8 @@ template <typename T>
 void save(const T& x, const il::String& filename, il::io_t,
           il::Status& status) {
   const il::FileType ft = il::fileType(filename, il::io, status);
-  if (!status.ok()) {
-    status.rearm();
+  if (!status.Ok()) {
+    status.Rearm();
     return;
   }
   switch (ft) {
@@ -245,8 +245,8 @@ template <typename T, typename U>
 void save(const T& x, const U& option, const il::String& filename, il::io_t,
           il::Status& status) {
   const il::FileType ft = il::fileType(filename, il::io, status);
-  if (!status.ok()) {
-    status.rearm();
+  if (!status.Ok()) {
+    status.Rearm();
     return;
   }
   switch (ft) {

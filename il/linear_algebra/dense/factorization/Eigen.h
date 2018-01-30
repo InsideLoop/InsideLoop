@@ -67,7 +67,7 @@ Eigen<il::Array2D<double>>::Eigen(il::Array2D<double> A, il::io_t,
   const lapack_int lda = static_cast<lapack_int>(A.capacity(0));
   il::Array<double> tau{n > 1 ? (n - 1) : 1};
   lapack_int lapack_error =
-      LAPACKE_dgehrd(layout, n, ilo, ihi, A.data(), lda, tau.data());
+      LAPACKE_dgehrd(layout, n, ilo, ihi, A.Data(), lda, tau.Data());
   IL_EXPECT_FAST(lapack_error == 0);
 
   const char job = 'E';
@@ -77,17 +77,17 @@ Eigen<il::Array2D<double>>::Eigen(il::Array2D<double> A, il::io_t,
   il::Array<double> w{n};
   il::Array<double> wr{n};
   il::Array<double> wi{n};
-  lapack_error = LAPACKE_dhseqr(layout, job, compz, n, ilo, ihi, A.data(), lda,
-                                wr.data(), wi.data(), z.data(), ldz);
+  lapack_error = LAPACKE_dhseqr(layout, job, compz, n, ilo, ihi, A.Data(), lda,
+                                wr.Data(), wi.Data(), z.Data(), ldz);
 
   IL_EXPECT_FAST(lapack_error >= 0);
   if (lapack_error == 0) {
-    status.setOk();
+    status.SetOk();
     eigen_value_ = std::move(w);
     eigen_value_r_ = std::move(wr);
     eigen_value_i_ = std::move(wi);
   } else {
-    status.setError(il::Error::MatrixEigenValueNoConvergence);
+    status.SetError(il::Error::MatrixEigenValueNoConvergence);
     IL_SET_SOURCE(status);
   }
 }

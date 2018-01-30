@@ -51,13 +51,13 @@ class Info {
   bool isEmpty() const;
   void clear();
 
-  void set(const char* key, bool value);
-  void set(const char* key, int value);
+  void Set(const char* key, bool value);
+  void Set(const char* key, int value);
 #ifdef IL_64_BIT
-  void set(const char* key, il::int_t value);
+  void Set(const char* key, il::int_t value);
 #endif
-  void set(const char* key, double value);
-  void set(const char* key, const char* value);
+  void Set(const char* key, double value);
+  void Set(const char* key, const char* value);
 
   bool toBool(const char* key) const;
   il::int_t toInteger(const char* key) const;
@@ -82,35 +82,35 @@ class Info {
   il::int_t capacity() const;
   const unsigned char* data() const;
   unsigned char* data();
-  void resize(il::int_t n);
+  void Resize(il::int_t n);
 
   bool isSmall() const;
-  void setSmallSize(il::int_t n);
-  void setLargeCapacity(il::int_t r);
+  void SetSmallSize(il::int_t n);
+  void SetLargeCapacity(il::int_t r);
   il::int_t largeCapacity() const;
 
-  void set(int value, unsigned char* data);
+  void Set(int value, unsigned char* data);
 #ifdef IL_64_BIT
-  void set(il::int_t value, unsigned char* data);
+  void Set(il::int_t value, unsigned char* data);
 #endif
-  void set(double value, unsigned char* data);
+  void Set(double value, unsigned char* data);
 
   int get_int(il::int_t i) const;
   il::int_t getInteger(il::int_t i) const;
 };
 
-inline Info::Info() { setSmallSize(0); }
+inline Info::Info() { SetSmallSize(0); }
 
 inline Info::Info(const Info& other) {
   const il::int_t size = other.size();
   if (size <= max_small_size_) {
     std::memcpy(small_, other.data(), size);
-    setSmallSize(size);
+    SetSmallSize(size);
   } else {
     large_.data = new unsigned char[size];
     std::memcpy(large_.data, other.data(), size);
     large_.size = size;
-    setLargeCapacity(size);
+    SetLargeCapacity(size);
   }
 }
 
@@ -118,10 +118,10 @@ inline Info::Info(Info&& other) {
   const il::int_t size = other.size();
   if (size <= max_small_size_) {
     std::memcpy(small_, other.data(), size);
-    setSmallSize(size);
+    SetSmallSize(size);
   } else {
     large_ = other.large_;
-    other.setSmallSize(0);
+    other.SetSmallSize(0);
   }
 }
 
@@ -132,7 +132,7 @@ inline Info& Info::operator=(const Info& other) {
       delete[] large_.data;
     }
     std::memcpy(small_, other.data(), size);
-    setSmallSize(size);
+    SetSmallSize(size);
   } else {
     if (size <= capacity()) {
       std::memcpy(large_.data, other.data(), size);
@@ -144,7 +144,7 @@ inline Info& Info::operator=(const Info& other) {
       large_.data = new unsigned char[size];
       std::memcpy(large_.data, other.data(), size);
       large_.size = size;
-      setLargeCapacity(size);
+      SetLargeCapacity(size);
     }
   }
   return *this;
@@ -158,24 +158,24 @@ inline Info& Info::operator=(Info&& other) {
         delete[] large_.data;
       }
       std::memcpy(small_, other.data(), size);
-      setSmallSize(size);
+      SetSmallSize(size);
     } else {
       large_ = other.large_;
-      other.setSmallSize(0);
+      other.SetSmallSize(0);
     }
   }
   return *this;
 }
 
-inline void Info::set(const char* key, int value) {
+inline void Info::Set(const char* key, int value) {
   const int key_length = static_cast<int>(strlen(key));
   const int n = key_length + 2 + 2 * static_cast<int>(sizeof(int));
   il::int_t i = size();
-  resize(i + n);
+  Resize(i + n);
 
   unsigned char* p = data();
 
-  set(n, p + i);
+  Set(n, p + i);
   i += sizeof(int);
 
   for (il::int_t j = 0; j < key_length + 1; ++j) {
@@ -186,20 +186,20 @@ inline void Info::set(const char* key, int value) {
   p[i] = 3;
   ++i;
 
-  set(value, p + i);
+  Set(value, p + i);
 }
 
 #ifdef IL_64_BIT
-inline void Info::set(const char* key, il::int_t value) {
+inline void Info::Set(const char* key, il::int_t value) {
   const int key_length = static_cast<int>(strlen(key));
   const int n =
       key_length + 2 + static_cast<int>(sizeof(int) + sizeof(il::int_t));
   il::int_t i = size();
-  resize(i + n);
+  Resize(i + n);
 
   unsigned char* p = data();
 
-  set(n, p + i);
+  Set(n, p + i);
   i += sizeof(int);
 
   for (il::int_t j = 0; j < key_length + 1; ++j) {
@@ -210,19 +210,19 @@ inline void Info::set(const char* key, il::int_t value) {
   p[i] = 0;
   ++i;
 
-  set(value, p + i);
+  Set(value, p + i);
 }
 #endif
 
-inline void Info::set(const char* key, double value) {
+inline void Info::Set(const char* key, double value) {
   const int key_length = static_cast<int>(strlen(key));
   const int n = key_length + 2 + static_cast<int>(sizeof(int) + sizeof(double));
   il::int_t i = size();
-  resize(i + n);
+  Resize(i + n);
 
   unsigned char* p = data();
 
-  set(n, p + i);
+  Set(n, p + i);
   i += sizeof(int);
 
   for (il::int_t j = 0; j < key_length + 1; ++j) {
@@ -233,19 +233,19 @@ inline void Info::set(const char* key, double value) {
   p[i] = 1;
   ++i;
 
-  set(value, p + i);
+  Set(value, p + i);
 }
 
-inline void Info::set(const char* key, const char* value) {
+inline void Info::Set(const char* key, const char* value) {
   const int key_length = static_cast<int>(strlen(key));
   const int value_length = static_cast<int>(strlen(value));
   const int n = key_length + value_length + 3 + static_cast<int>(sizeof(int));
   il::int_t i = size();
-  resize(i + n);
+  Resize(i + n);
 
   unsigned char* p = data();
 
-  set(n, p + i);
+  Set(n, p + i);
   i += sizeof(int);
 
   for (il::int_t j = 0; j < key_length + 1; ++j) {
@@ -348,7 +348,7 @@ inline const char* Info::asCString(const char* key) const {
   return asCString(i);
 }
 
-inline void Info::set(int value, unsigned char* data) {
+inline void Info::Set(int value, unsigned char* data) {
   const il::int_t n = static_cast<il::int_t>(sizeof(int));
   union {
     int local_value;
@@ -361,7 +361,7 @@ inline void Info::set(int value, unsigned char* data) {
 }
 
 #ifdef IL_64_BIT
-inline void Info::set(il::int_t value, unsigned char* data) {
+inline void Info::Set(il::int_t value, unsigned char* data) {
   const il::int_t n = static_cast<il::int_t>(sizeof(il::int_t));
   union {
     il::int_t local_value;
@@ -374,7 +374,7 @@ inline void Info::set(il::int_t value, unsigned char* data) {
 }
 #endif
 
-inline void Info::set(double value, unsigned char* data) {
+inline void Info::Set(double value, unsigned char* data) {
   const il::int_t n = static_cast<il::int_t>(sizeof(double));
   union {
     double local_value;
@@ -424,14 +424,14 @@ inline bool Info::isSmall() const {
   return (small_[max_small_size_] & category_extract_mask_) == 0;
 }
 
-inline void Info::setSmallSize(il::int_t n) {
+inline void Info::SetSmallSize(il::int_t n) {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(n) <=
                    static_cast<std::size_t>(max_small_size_));
 
   small_[max_small_size_] = static_cast<unsigned char>(n);
 }
 
-inline void Info::setLargeCapacity(il::int_t r) {
+inline void Info::SetLargeCapacity(il::int_t r) {
   large_.capacity =
       static_cast<std::size_t>(r) |
       (static_cast<std::size_t>(0x80) << ((sizeof(std::size_t) - 1) * 8));
@@ -449,19 +449,19 @@ inline unsigned char* Info::data() { return isSmall() ? small_ : large_.data; }
 
 inline bool Info::isEmpty() const { return size() == 0; }
 
-inline void Info::resize(il::int_t n) {
+inline void Info::Resize(il::int_t n) {
   IL_EXPECT_FAST(n >= 0);
 
   const il::int_t old_size = size();
   if (isSmall()) {
     if (n <= max_small_size_) {
-      setSmallSize(n);
+      SetSmallSize(n);
     } else {
       unsigned char* new_data = new unsigned char[n];
       std::memcpy(new_data, small_, old_size);
       large_.data = new_data;
       large_.size = n;
-      setLargeCapacity(n);
+      SetLargeCapacity(n);
     }
   } else {
     if (n <= capacity()) {
@@ -472,7 +472,7 @@ inline void Info::resize(il::int_t n) {
       delete[] large_.data;
       large_.data = new_data;
       large_.size = n;
-      setLargeCapacity(n);
+      SetLargeCapacity(n);
     }
   }
 }
@@ -481,7 +481,7 @@ inline void Info::clear() {
   if (!isSmall()) {
     delete[] large_.data;
   }
-  setSmallSize(0);
+  SetSmallSize(0);
 }
 
 }  // namespace il

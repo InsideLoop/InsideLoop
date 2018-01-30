@@ -24,7 +24,7 @@ TEST(Info, integer) {
   const il::int_t value = 34;
 
   il::Info info{};
-  info.set("line", value);
+  info.Set("line", value);
 
   il::int_t line = value + 1;
   const il::int_t i = info.search("line");
@@ -39,7 +39,7 @@ TEST(Info, double) {
   const double value = 3.14159;
 
   il::Info info{};
-  info.set("pi", value);
+  info.Set("pi", value);
 
   double pi = value + 1.0;
   const il::int_t i = info.search("pi");

@@ -43,7 +43,7 @@ class BandArray2C {
   il::int_t widthLeft() const;
   il::int_t widthRight() const;
   il::int_t capacityRight() const;
-  T* data();
+  T* Data();
 };
 
 template <typename T>
@@ -110,8 +110,8 @@ il::int_t BandArray2C<T>::capacityRight() const {
 }
 
 template <typename T>
-T* BandArray2C<T>::data() {
-  return element_.data();
+T* BandArray2C<T>::Data() {
+  return element_.Data();
 }
 }  // namespace il
 

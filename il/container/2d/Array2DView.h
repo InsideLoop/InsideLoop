@@ -113,12 +113,12 @@ class Array2DEdit : public Array2DView<T> {
   */
   T& operator()(il::int_t i0, il::int_t i1);
 
-  Array2DEdit<T> edit(il::Range r0, il::Range r1);
+  Array2DEdit<T> Edit(il::Range r0, il::Range r1);
 
   /* \brief Get a pointer to const to the first element of the array
   // \details One should use this method only when using C-style API
   */
-  T* data();
+  T* Data();
 };
 
 template <typename T>
@@ -218,7 +218,7 @@ T& Array2DEdit<T>::operator()(il::int_t i0, il::int_t i1) {
 }
 
 template <typename T>
-Array2DEdit<T> Array2DEdit<T>::edit(il::Range r0, il::Range r1) {
+Array2DEdit<T> Array2DEdit<T>::Edit(il::Range r0, il::Range r1) {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(r0.begin) <
                    static_cast<std::size_t>(this->size(0)));
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(r0.end) <=
@@ -229,7 +229,7 @@ Array2DEdit<T> Array2DEdit<T>::edit(il::Range r0, il::Range r1) {
                    static_cast<std::size_t>(this->size(1)));
 
   const il::int_t my_stride = this->stride(1);
-  return il::Array2DEdit<T>{data() + r0.begin + r1.begin * my_stride,
+  return il::Array2DEdit<T>{Data() + r0.begin + r1.begin * my_stride,
                             r0.end - r0.begin,
                             r1.end - r1.begin,
                             my_stride,
@@ -238,7 +238,7 @@ Array2DEdit<T> Array2DEdit<T>::edit(il::Range r0, il::Range r1) {
 }
 
 template <typename T>
-T* Array2DEdit<T>::data() {
+T* Array2DEdit<T>::Data() {
   return this->data_;
 }
 

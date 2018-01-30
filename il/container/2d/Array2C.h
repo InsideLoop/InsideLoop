@@ -175,7 +175,7 @@ class Array2C {
   // unchanged. When one of the sizes is > than the the capacity, reallocation
   // is done and the array gets the same capacity as its size.
   */
-  void resize(il::int_t n0, il::int_t n1);
+  void Resize(il::int_t n0, il::int_t n1);
 
   /* \brief Get the capacity of the il::Array2C<T>
   // \details capacity(0) gives the capacity in terms of rows and capacity(1)
@@ -188,7 +188,7 @@ class Array2C {
   // nothing is done. Otherwise, reallocation is done and the new capacity is
   // set to r and s.
   */
-  void reserve(il::int_t r0, il::int_t r1);
+  void Reserve(il::int_t r0, il::int_t r1);
 
   /* \brief Get the alignment of the pointer returned by data()
    */
@@ -202,13 +202,13 @@ class Array2C {
   /* \brief Get a pointer to the first element of the array
   // \details One should use this method only when using C-style API
   */
-  T* data();
+  T* Data();
 
   /* \brief Get a pointer to the first element of the (row/column)
   // \details One should use this method only when using C-style API
   */
   const T* data(il::int_t i0) const;
-  T* data(il::int_t i0);
+  T* Data(il::int_t i0);
 
   /* \brief Memory distance (in sizeof(T)) in between A(i, j) and A(i + 1, j)
    */
@@ -791,7 +791,7 @@ il::int_t Array2C<T>::size(il::int_t d) const {
 }
 
 template <typename T>
-void Array2C<T>::resize(il::int_t n0, il::int_t n1) {
+void Array2C<T>::Resize(il::int_t n0, il::int_t n1) {
   IL_EXPECT_FAST(n0 >= 0);
   IL_EXPECT_FAST(n1 >= 0);
 
@@ -913,7 +913,7 @@ il::int_t Array2C<T>::capacity(il::int_t d) const {
 }
 
 template <typename T>
-void Array2C<T>::reserve(il::int_t r0, il::int_t r1) {
+void Array2C<T>::Reserve(il::int_t r0, il::int_t r1) {
   IL_EXPECT_FAST(r0 >= 0);
   IL_EXPECT_FAST(r1 >= 0);
   r0 = r0 > capacity(0) ? r0 : capacity(0);
@@ -985,7 +985,7 @@ const T* Array2C<T>::data() const {
 }
 
 template <typename T>
-T* Array2C<T>::data() {
+T* Array2C<T>::Data() {
   return data_;
 }
 
@@ -998,7 +998,7 @@ const T* Array2C<T>::data(il::int_t i0) const {
 }
 
 template <typename T>
-T* Array2C<T>::data(il::int_t i0) {
+T* Array2C<T>::Data(il::int_t i0) {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(i0) <
                    static_cast<std::size_t>(size(0)));
 

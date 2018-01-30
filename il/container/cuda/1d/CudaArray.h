@@ -57,7 +57,7 @@ class CudaArray {
 
   /* \brief Get a pointer to the first element of the array
    */
-  T* data();
+  T* Data();
 };
 
 template <typename T>
@@ -111,7 +111,7 @@ const T* CudaArray<T>::data() const {
 }
 
 template <typename T>
-T* CudaArray<T>::data() {
+T* CudaArray<T>::Data() {
   return data_;
 }
 }  // namespace il

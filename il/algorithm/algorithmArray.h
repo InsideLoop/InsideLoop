@@ -313,7 +313,7 @@ void sort(il::io_t, il::Array<T>& v) {
 
 template <typename T, il::int_t n>
 void sort(il::io_t, il::StaticArray<T, n>& v) {
-  std::sort(v.data(), v.data() + n);
+  std::sort(v.Data(), v.Data() + n);
 }
 
 template <typename T>

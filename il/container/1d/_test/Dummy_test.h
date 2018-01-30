@@ -32,7 +32,7 @@ class Dummy {
  public:
   static void reset() {
     current = 0;
-    destroyed.resize(0);
+    destroyed.Resize(0);
   }
 
  public:
@@ -54,7 +54,7 @@ class Dummy {
     other.id_ = -(1001 + other.id_);
     return *this;
   }
-  ~Dummy() { destroyed.append(id_); }
+  ~Dummy() { destroyed.Append(id_); }
   il::int_t id() { return id_; };
 };
 

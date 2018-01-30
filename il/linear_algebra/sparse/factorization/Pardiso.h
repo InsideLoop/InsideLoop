@@ -116,16 +116,16 @@ class Pardiso {
  public:
   Pardiso();
   ~Pardiso();
-  void symbolicFactorization(const il::SparseMatrixCSR<il::int_t, double> &A);
-  void numericalFactorization(const il::SparseMatrixCSR<il::int_t, double> &A);
-  il::Array<double> solve(const il::SparseMatrixCSR<il::int_t, double> &A,
+  void SymbolicFactorization(const il::SparseMatrixCSR<il::int_t, double> &A);
+  void NumericalFactorization(const il::SparseMatrixCSR<il::int_t, double> &A);
+  il::Array<double> Solve(const il::SparseMatrixCSR<il::int_t, double> &A,
                           const il::Array<double> &y);
-  il::Array<double> solveIterative(
+  il::Array<double> SolveIterative(
       const il::SparseMatrixCSR<il::int_t, double> &A,
       const il::Array<double> &y);
 
  private:
-  void release();
+  void Release();
 };
 
 inline Pardiso::Pardiso() {
@@ -290,9 +290,9 @@ inline Pardiso::Pardiso() {
   matrix_element_ = nullptr;
 }
 
-inline Pardiso::~Pardiso() { release(); }
+inline Pardiso::~Pardiso() { Release(); }
 
-void Pardiso::symbolicFactorization(
+void Pardiso::SymbolicFactorization(
     const il::SparseMatrixCSR<il::int_t, double> &A) {
   IL_EXPECT_FAST(A.size(0) == A.size(1));
   n_ = A.size(0);
@@ -302,7 +302,7 @@ void Pardiso::symbolicFactorization(
   il::int_t i_dummy;
 
   if (is_numerical_factorization_) {
-    release();
+    Release();
   }
   PardisoSizeIntSelector<il::int_t>::pardiso_int_t(
       pardiso_pt_, &pardiso_max_fact_, &pardiso_mnum_, &pardiso_mtype_, &phase,
@@ -315,7 +315,7 @@ void Pardiso::symbolicFactorization(
   matrix_element_ = A.elementData();
 }
 
-void Pardiso::numericalFactorization(
+void Pardiso::NumericalFactorization(
     const il::SparseMatrixCSR<il::int_t, double> &A) {
   IL_EXPECT_FAST(matrix_element_ = A.elementData());
   IL_EXPECT_FAST(is_symbolic_factorization_);
@@ -336,7 +336,7 @@ void Pardiso::numericalFactorization(
   is_numerical_factorization_ = true;
 }
 
-inline il::Array<double> Pardiso::solve(
+inline il::Array<double> Pardiso::Solve(
     const il::SparseMatrixCSR<il::int_t, double> &A,
     const il::Array<double> &y) {
   IL_EXPECT_FAST(matrix_element_ = A.elementData());
@@ -353,14 +353,14 @@ inline il::Array<double> Pardiso::solve(
       pardiso_pt_, &pardiso_max_fact_, &pardiso_mnum_, &pardiso_mtype_, &phase,
       &n_, A.elementData(), A.rowData(), A.columnData(), &i_dummy,
       &pardiso_nrhs_, pardiso_iparm_, &pardiso_msglvl_,
-      const_cast<double *>(y.data()), x.data(), &error);
+      const_cast<double *>(y.data()), x.Data(), &error);
 
   IL_EXPECT_FAST(error == 0);
 
   return x;
 }
 
-inline il::Array<double> Pardiso::solveIterative(
+inline il::Array<double> Pardiso::SolveIterative(
     const il::SparseMatrixCSR<il::int_t, double> &A,
     const il::Array<double> &y) {
   IL_EXPECT_FAST(matrix_element_ = A.elementData());
@@ -381,7 +381,7 @@ inline il::Array<double> Pardiso::solveIterative(
       pardiso_pt_, &pardiso_max_fact_, &pardiso_mnum_, &pardiso_mtype_, &phase,
       &n_, A.elementData(), A.rowData(), A.columnData(), &i_dummy,
       &pardiso_nrhs_, pardiso_iparm_, &pardiso_msglvl_,
-      const_cast<double *>(y.data()), x.data(), &error);
+      const_cast<double *>(y.data()), x.Data(), &error);
   IL_EXPECT_FAST(error == 0);
 
   pardiso_iparm_[3] = old_solver;
@@ -389,7 +389,7 @@ inline il::Array<double> Pardiso::solveIterative(
   return x;
 }
 
-inline void Pardiso::release() {
+inline void Pardiso::Release() {
   const il::int_t phase = -1;
   il::int_t error = 0;
   il::int_t i_dummy;

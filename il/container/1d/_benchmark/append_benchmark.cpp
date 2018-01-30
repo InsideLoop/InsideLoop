@@ -37,7 +37,7 @@ void Append_1_Std(benchmark::State& state) {
 void Append_1_Il(benchmark::State& state) {
   while (state.KeepRunning()) {
     il::Array<double> v{};
-    v.append(0.0);
+    v.Append(0.0);
   }
 }
 
@@ -52,8 +52,8 @@ static void Append_2_Std(benchmark::State& state) {
 static void Append_2_Il(benchmark::State& state) {
   while (state.KeepRunning()) {
     il::Array<double> v{};
-    v.append(0.0);
-    v.append(0.0);
+    v.Append(0.0);
+    v.Append(0.0);
   }
 }
 
@@ -71,11 +71,11 @@ static void Append_5_Std(benchmark::State& state) {
 static void Append_5_Il(benchmark::State& state) {
   while (state.KeepRunning()) {
     il::Array<double> v{};
-    v.append(0.0);
-    v.append(0.0);
-    v.append(0.0);
-    v.append(0.0);
-    v.append(0.0);
+    v.Append(0.0);
+    v.Append(0.0);
+    v.Append(0.0);
+    v.Append(0.0);
+    v.Append(0.0);
   }
 }
 
@@ -94,7 +94,7 @@ static void Append_10_Il(benchmark::State& state) {
     const il::int_t n = 10;
     il::Array<double> v{};
     for (il::int_t i = 0; i < n; ++i) {
-      v.append(0.0);
+      v.Append(0.0);
     }
   }
 }
@@ -114,7 +114,7 @@ static void Append_100_Il(benchmark::State& state) {
     const il::int_t n = 100;
     il::Array<double> v{};
     for (il::int_t i = 0; i < n; ++i) {
-      v.append(0.0);
+      v.Append(0.0);
     }
   }
 }
@@ -134,7 +134,7 @@ static void Append_1000_Il(benchmark::State& state) {
     const il::int_t n = 1000;
     il::Array<double> v{};
     for (il::int_t i = 0; i < n; ++i) {
-      v.append(0.0);
+      v.Append(0.0);
     }
   }
 }
@@ -154,7 +154,7 @@ static void Append_10000_Il(benchmark::State& state) {
     const il::int_t n = 10000;
     il::Array<double> v{};
     for (il::int_t i = 0; i < n; ++i) {
-      v.append(0.0);
+      v.Append(0.0);
     }
   }
 }
@@ -169,7 +169,7 @@ void Append_1_int_Std(benchmark::State& state) {
 void Append_1_int_Il(benchmark::State& state) {
   while (state.KeepRunning()) {
     il::Array<int> v{};
-    v.append(0);
+    v.Append(0);
   }
 }
 
@@ -184,8 +184,8 @@ static void Append_2_int_Std(benchmark::State& state) {
 static void Append_2_int_Il(benchmark::State& state) {
   while (state.KeepRunning()) {
     il::Array<int> v{};
-    v.append(0);
-    v.append(0);
+    v.Append(0);
+    v.Append(0);
   }
 }
 
@@ -203,11 +203,11 @@ static void Append_5_int_Std(benchmark::State& state) {
 static void Append_5_int_Il(benchmark::State& state) {
   while (state.KeepRunning()) {
     il::Array<int> v{};
-    v.append(0);
-    v.append(0);
-    v.append(0);
-    v.append(0);
-    v.append(0);
+    v.Append(0);
+    v.Append(0);
+    v.Append(0);
+    v.Append(0);
+    v.Append(0);
   }
 }
 
@@ -226,7 +226,7 @@ static void Append_10_int_Il(benchmark::State& state) {
     const il::int_t n = 10;
     il::Array<int> v{};
     for (il::int_t i = 0; i < n; ++i) {
-      v.append(0);
+      v.Append(0);
     }
   }
 }
@@ -246,7 +246,7 @@ static void Append_100_int_Il(benchmark::State& state) {
     const il::int_t n = 100;
     il::Array<int> v{};
     for (il::int_t i = 0; i < n; ++i) {
-      v.append(0);
+      v.Append(0);
     }
   }
 }
@@ -266,7 +266,7 @@ static void Append_1000_int_Il(benchmark::State& state) {
     const il::int_t n = 1000;
     il::Array<int> v{};
     for (il::int_t i = 0; i < n; ++i) {
-      v.append(0);
+      v.Append(0);
     }
   }
 }
@@ -286,7 +286,7 @@ static void Append_10000_int_Il(benchmark::State& state) {
     const il::int_t n = 10000;
     il::Array<int> v{};
     for (il::int_t i = 0; i < n; ++i) {
-      v.append(0);
+      v.Append(0);
     }
   }
 }
@@ -301,7 +301,7 @@ void Append_1_long_long_int_Std(benchmark::State& state) {
 void Append_1_long_long_int_Il(benchmark::State& state) {
   while (state.KeepRunning()) {
     il::Array<long long int> v{};
-    v.append(0);
+    v.Append(0);
   }
 }
 
@@ -316,8 +316,8 @@ static void Append_2_long_long_int_Std(benchmark::State& state) {
 static void Append_2_long_long_int_Il(benchmark::State& state) {
   while (state.KeepRunning()) {
     il::Array<long long int> v{};
-    v.append(0);
-    v.append(0);
+    v.Append(0);
+    v.Append(0);
   }
 }
 
@@ -335,11 +335,11 @@ static void Append_5_long_long_int_Std(benchmark::State& state) {
 static void Append_5_long_long_int_Il(benchmark::State& state) {
   while (state.KeepRunning()) {
     il::Array<long long int> v{};
-    v.append(0);
-    v.append(0);
-    v.append(0);
-    v.append(0);
-    v.append(0);
+    v.Append(0);
+    v.Append(0);
+    v.Append(0);
+    v.Append(0);
+    v.Append(0);
   }
 }
 
@@ -358,7 +358,7 @@ static void Append_10_long_long_int_Il(benchmark::State& state) {
     const il::int_t n = 10;
     il::Array<long long int> v{};
     for (il::int_t i = 0; i < n; ++i) {
-      v.append(0);
+      v.Append(0);
     }
   }
 }
@@ -378,7 +378,7 @@ static void Append_100_long_long_int_Il(benchmark::State& state) {
     const il::int_t n = 100;
     il::Array<long long int> v{};
     for (il::int_t i = 0; i < n; ++i) {
-      v.append(0);
+      v.Append(0);
     }
   }
 }
@@ -398,7 +398,7 @@ static void Append_1000_long_long_int_Il(benchmark::State& state) {
     const il::int_t n = 1000;
     il::Array<long long int> v{};
     for (il::int_t i = 0; i < n; ++i) {
-      v.append(0);
+      v.Append(0);
     }
   }
 }
@@ -418,7 +418,7 @@ static void Append_10000_long_long_int_Il(benchmark::State& state) {
     const il::int_t n = 10000;
     il::Array<long long int> v{};
     for (il::int_t i = 0; i < n; ++i) {
-      v.append(0);
+      v.Append(0);
     }
   }
 }

@@ -38,7 +38,7 @@ static void StringAppend_0(benchmark::State& state) {
   while (state.KeepRunning()) {
     il::String s0 = "hello";
     il::String s1 = "world!";
-    s0.append(s1);
+    s0.Append(s1);
     benchmark::DoNotOptimize(s0.data());
     benchmark::DoNotOptimize(s1.data());
   }
@@ -47,7 +47,7 @@ static void StringAppend_0(benchmark::State& state) {
 static void StringAppend_1(benchmark::State& state) {
   while (state.KeepRunning()) {
     il::String s0 = "hello";
-    s0.append("world!");
+    s0.Append("world!");
     benchmark::DoNotOptimize(s0.data());
   }
 }

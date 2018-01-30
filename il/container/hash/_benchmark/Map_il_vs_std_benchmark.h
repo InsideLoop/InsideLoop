@@ -37,7 +37,7 @@ static void IlMapInt_Set(benchmark::State& state) {
   while (state.KeepRunning()) {
     il::Map<int, int> map{n};
     for (il::int_t i = 0; i < n; ++i) {
-      map.set(v[i], 0);
+      map.Set(v[i], 0);
     }
   }
 }
@@ -72,7 +72,7 @@ static void IlMapString_Set(benchmark::State& state) {
   while (state.KeepRunning()) {
     il::Map<il::String, int> map{n};
     for (il::int_t i = 0; i < n; ++i) {
-      map.set(v[i], 0);
+      map.Set(v[i], 0);
     }
   }
 }
@@ -105,7 +105,7 @@ static void IlMapString_Search(benchmark::State& state) {
   }
   il::Map<il::String, int> map{n};
   for (il::int_t i = 0; i < n; ++i) {
-    map.set(v[i], 0);
+    map.Set(v[i], 0);
   }
 
   while (state.KeepRunning()) {

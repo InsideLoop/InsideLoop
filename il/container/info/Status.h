@@ -103,22 +103,22 @@ class Status {
   Status& operator=(const Status& other) = delete;
   Status& operator=(Status&& other);
   ~Status();
-  void setOk();
-  void setError(il::Error error);
-  void setInfo(const char* key, int value);
+  void SetOk();
+  void SetError(il::Error error);
+  void SetInfo(const char* key, int value);
 #ifdef IL_64_BIT
-  void setInfo(const char* key, il::int_t value);
+  void SetInfo(const char* key, il::int_t value);
 #endif
-  void setInfo(const char* key, double value);
-  void setInfo(const char* key, const char* value);
+  void SetInfo(const char* key, double value);
+  void SetInfo(const char* key, const char* value);
   void setSource(const char* file, il::int_t line);
   il::int_t toInteger(const char* key) const;
   double toDouble(const char* key) const;
   const char* asCString(const char* key) const;
-  void rearm();
-  bool ok();
-  void abortOnError();
-  void ignoreError();
+  void Rearm();
+  bool Ok();
+  void AbortOnError();
+  void IgnoreError();
   il::Error error() const;
   il::ErrorDomain domain() const;
 };
@@ -153,7 +153,7 @@ inline Status& Status::operator=(Status&& other) {
 
 inline Status::~Status() { IL_EXPECT_MEDIUM(!to_check_); }
 
-inline void Status::setError(il::Error error) {
+inline void Status::SetError(il::Error error) {
   IL_EXPECT_MEDIUM(!to_check_);
 
   ok_ = false;
@@ -162,39 +162,39 @@ inline void Status::setError(il::Error error) {
   info_.clear();
 }
 
-inline void Status::setInfo(const char* key, int value) {
+inline void Status::SetInfo(const char* key, int value) {
   IL_EXPECT_MEDIUM(to_check_);
   IL_EXPECT_MEDIUM(!ok_);
 
-  info_.set(key, value);
+  info_.Set(key, value);
 }
 
 #ifdef IL_64_BIT
-inline void Status::setInfo(const char* key, il::int_t value) {
+inline void Status::SetInfo(const char* key, il::int_t value) {
   IL_EXPECT_MEDIUM(to_check_);
   IL_EXPECT_MEDIUM(!ok_);
 
-  info_.set(key, value);
+  info_.Set(key, value);
 }
 #endif
 
-inline void Status::setInfo(const char* key, double value) {
+inline void Status::SetInfo(const char* key, double value) {
   IL_EXPECT_MEDIUM(to_check_);
   IL_EXPECT_MEDIUM(!ok_);
 
-  info_.set(key, value);
+  info_.Set(key, value);
 }
 
-inline void Status::setInfo(const char* key, const char* value) {
+inline void Status::SetInfo(const char* key, const char* value) {
   IL_EXPECT_MEDIUM(to_check_);
   IL_EXPECT_MEDIUM(!ok_);
 
-  info_.set(key, value);
+  info_.Set(key, value);
 }
 
 inline void Status::setSource(const char* file, il::int_t line) {
-  setInfo("source_file", file);
-  setInfo("source_line", line);
+  SetInfo("source_file", file);
+  SetInfo("source_line", line);
 }
 
 inline il::int_t Status::toInteger(const char* key) const {
@@ -215,27 +215,27 @@ inline const char* Status::asCString(const char* key) const {
   return info_.asCString(key);
 }
 
-inline void Status::setOk() {
+inline void Status::SetOk() {
   IL_EXPECT_MEDIUM(!to_check_);
 
   ok_ = true;
   to_check_ = true;
 }
 
-inline void Status::rearm() {
+inline void Status::Rearm() {
   IL_EXPECT_MEDIUM(!to_check_);
 
   to_check_ = true;
 }
 
-inline bool Status::ok() {
+inline bool Status::Ok() {
   IL_EXPECT_MEDIUM(to_check_);
 
   to_check_ = false;
   return ok_;
 }
 
-inline void Status::abortOnError() {
+inline void Status::AbortOnError() {
   IL_EXPECT_MEDIUM(to_check_);
 
   to_check_ = false;
@@ -244,7 +244,7 @@ inline void Status::abortOnError() {
   }
 }
 
-inline void Status::ignoreError() {
+inline void Status::IgnoreError() {
   IL_EXPECT_MEDIUM(to_check_);
 
   to_check_ = false;

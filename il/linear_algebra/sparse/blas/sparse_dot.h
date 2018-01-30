@@ -75,8 +75,8 @@ inline il::SparseMatrixCSR<int, double> dot(
                   &nzmax, &info);
   IL_EXPECT_FAST(info == 0);
 
-  element.resize(row[m] - 1);
-  column.resize(row[m] - 1);
+  element.Resize(row[m] - 1);
+  column.Resize(row[m] - 1);
   request = 2;
   mkl_dcsrmultcsr(&trans, &request, &sort, &m, &n, &k, A.elementData(),
                   A.columnData(), A.rowData(), B.elementData(), B.columnData(),

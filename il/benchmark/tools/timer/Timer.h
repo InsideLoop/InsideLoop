@@ -38,9 +38,9 @@ class Timer {
 
  public:
   Timer();
-  void start();
-  void stop();
-  void reset();
+  void Start();
+  void Stop();
+  void Reset();
   double time() const;
   void sleepUntil(double time) const;
 };
@@ -50,13 +50,13 @@ inline Timer::Timer() : point_begin_{} {
   launched_ = false;
 }
 
-inline void Timer::start() {
+inline void Timer::Start() {
   IL_EXPECT_FAST(!launched_);
   launched_ = true;
   point_begin_ = std::chrono::high_resolution_clock::now();
 }
 
-inline void Timer::stop() {
+inline void Timer::Stop() {
   std::chrono::time_point<std::chrono::high_resolution_clock> point_end =
       std::chrono::high_resolution_clock::now();
   IL_EXPECT_FAST(launched_);
@@ -66,7 +66,7 @@ inline void Timer::stop() {
                         .count();
 }
 
-inline void Timer::reset() {
+inline void Timer::Reset() {
   time_ = 0.0;
   launched_ = false;
 }
@@ -93,7 +93,7 @@ class TimerCycles {
 
  public:
   TimerCycles();
-  void stop();
+  void Stop();
   long int cycles() const;
 };
 
@@ -107,7 +107,7 @@ inline TimerCycles::TimerCycles() {
 #endif
 }
 
-inline void TimerCycles::stop() {
+inline void TimerCycles::Stop() {
 #ifdef IL_UNIX
   unsigned int low;
   unsigned int high;

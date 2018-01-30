@@ -188,7 +188,7 @@ il::Array<il::SmallArray<double, 5>> A{n};
 for (il::int_t i = 0; i < n; ++i) {
   LOOP {
     const il::int_t column = ...;
-    A[i].append(column);
+    A[i].Append(column);
   }
 }
 ```
@@ -309,7 +309,7 @@ il::Array<double> y(n);
 
 il::Status status;
 il::LU<il::Array2D<double>> lu_decomposition(A, il::io, status);
-if (!status.ok()) {
+if (!status.Ok()) {
   // The matrix is singular to the machine precision. You should deal with the error.
 }
 
@@ -357,7 +357,7 @@ il::Array<double> y(n);
 
 il::Status status;
 il::LU<il::Array2D<double>> lu_decomposition(std::move(A), il::io, status);
-if (!status.ok()) {
+if (!status.Ok()) {
   // The matrix is singular to the machine precision. You should deal with the error.
 }
 
@@ -441,9 +441,9 @@ int main() {
   il::Array<double> y{n, 1.0};
   
   il::Pardiso solver{};
-  solver.symbolicFactorization(A_bis);
-  solver.numericalFactorization(A_bis);
-  il::Array<double> x = solver.solve(A_bis, y);
+  solver.SymbolicFactorization(A_bis);
+  solver.NumericalFactorization(A_bis);
+  il::Array<double> x = solver.Solve(A_bis, y);
 
   return 0;
 }
@@ -589,7 +589,7 @@ any well-formed UTF-8 string:
 
 int main() {
   il::String name = u8"François ";
-  name.append(il::CodePoint::kGrinningFaceWithSmilingEyes);
+  name.Append(il::CodePoint::kGrinningFaceWithSmilingEyes);
   
   std::cout << name.asCString() << std::endl;
 
@@ -642,14 +642,14 @@ void addEuropeanCountry(il::Map<il::String, il::int_t>& population) {
   
   il::Location i = population.search(country);
   if (!population.found(i)) {
-    population.insert(country, n, il::io, i);
+    population.Set(country, n, il::io, i);
   }
   
   country = "Germany";
   n = 80219695;
   i = population.search(country);
   if (!population.found(i)) {
-    population.insert(country, n, il::io, i);
+    population.Set(country, n, il::io, i);
   }
   
   ...
@@ -765,7 +765,7 @@ This function append the integer 3 to `a` if it represents an array
 void f(il::io_t, il::Dynamic& a) {
   if (a.is<il::Array<il::Dynamic>>()) {
     il::Array<il::Dynamic>& array = a.as<il::Array<il::Dynamic>>();
-    array.append(3);
+    array.Append(3);
   }
 }
 ```

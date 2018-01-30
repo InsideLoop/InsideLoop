@@ -50,7 +50,7 @@ class StaticArray4D {
   T& operator()(il::int_t i0, il::int_t i1, il::int_t i2, il::int_t i3);
   il::int_t size(il::int_t d) const;
   const T* data() const;
-  T* data();
+  T* Data();
 };
 
 template <typename T, il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3>
@@ -108,7 +108,7 @@ const T* StaticArray4D<T, n0, n1, n2, n3>::data() const {
 }
 
 template <typename T, il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3>
-T* StaticArray4D<T, n0, n1, n2, n3>::data() {
+T* StaticArray4D<T, n0, n1, n2, n3>::Data() {
   return data_;
 }
 }  // namespace il

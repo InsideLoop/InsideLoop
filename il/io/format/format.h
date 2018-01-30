@@ -685,7 +685,7 @@ class Buffer {
   /**
     Resizes the buffer. If T is a POD type new elements may not be initialized.
    */
-  void resize(std::size_t new_size) {
+  void Resize(std::size_t new_size) {
     if (new_size > capacity_) grow(new_size);
     size_ = new_size;
   }
@@ -695,7 +695,7 @@ class Buffer {
     Reserves space to store at least *capacity* elements.
     \endrst
    */
-  void reserve(std::size_t capacity) {
+  void Reserve(std::size_t capacity) {
     if (capacity > capacity_) grow(capacity);
   }
 
@@ -708,7 +708,7 @@ class Buffer {
 
   /** Appends data to the end of the buffer. */
   template <typename U>
-  void append(const U *begin, const U *end);
+  void Append(const U *begin, const U *end);
 
   T &operator[](std::size_t index) { return ptr_[index]; }
   const T &operator[](std::size_t index) const { return ptr_[index]; }
@@ -716,7 +716,7 @@ class Buffer {
 
 template <typename T>
 template <typename U>
-void Buffer<T>::append(const U *begin, const U *end) {
+void Buffer<T>::Append(const U *begin, const U *end) {
   std::size_t new_size = size_ + internal::to_unsigned(end - begin);
   if (new_size > capacity_) grow(new_size);
   std::uninitialized_copy(begin, end,
@@ -2513,7 +2513,7 @@ class BasicWriter {
   // allocated area.
   CharPtr grow_buffer(std::size_t n) {
     std::size_t size = buffer_.size();
-    buffer_.resize(size + n);
+    buffer_.Resize(size + n);
     return internal::make_ptr(&buffer_[size], n);
   }
 
@@ -2622,7 +2622,7 @@ class BasicWriter {
    */
   const Char *c_str() const {
     std::size_t size = buffer_.size();
-    buffer_.reserve(size + 1);
+    buffer_.Reserve(size + 1);
     buffer_[size] = '\0';
     return &buffer_[0];
   }
@@ -2731,14 +2731,14 @@ class BasicWriter {
    */
   BasicWriter &operator<<(fmt::BasicStringRef<Char> value) {
     const Char *str = value.data();
-    buffer_.append(str, str + value.size());
+    buffer_.Append(str, str + value.size());
     return *this;
   }
 
   BasicWriter &operator<<(
       typename internal::WCharHelper<StringRef, Char>::Supported value) {
     const char *str = value.data();
-    buffer_.append(str, str + value.size());
+    buffer_.Append(str, str + value.size());
     return *this;
   }
 
@@ -2836,7 +2836,7 @@ typename BasicWriter<Char>::CharPtr BasicWriter<Char>::prepare_int_buffer(
     AlignSpec subspec(number_size, '0', ALIGN_NUMERIC);
     if (number_size >= width)
       return prepare_int_buffer(num_digits, subspec, prefix, prefix_size);
-    buffer_.reserve(width);
+    buffer_.Reserve(width);
     unsigned fill_size = width - number_size;
     if (align != ALIGN_LEFT) {
       CharPtr p = grow_buffer(fill_size);
@@ -3048,7 +3048,7 @@ void BasicWriter<Char>::write_double(T value, const Spec &spec) {
   std::size_t offset = buffer_.size();
   unsigned width = spec.width();
   if (sign) {
-    buffer_.reserve(buffer_.size() + (width > 1u ? width : 1u));
+    buffer_.Reserve(buffer_.size() + (width > 1u ? width : 1u));
     if (width > 0) --width;
     ++offset;
   }
@@ -3086,7 +3086,7 @@ void BasicWriter<Char>::write_double(T value, const Spec &spec) {
     // space for at least one extra character to make the size non-zero.
     // Note that the buffer's capacity will increase by more than 1.
     if (buffer_size == 0) {
-      buffer_.reserve(offset + 1);
+      buffer_.Reserve(offset + 1);
       buffer_size = buffer_.capacity() - offset;
     }
 #endif
@@ -3097,11 +3097,11 @@ void BasicWriter<Char>::write_double(T value, const Spec &spec) {
       n = internal::to_unsigned(result);
       if (offset + n < buffer_.capacity())
         break;  // The buffer is large enough - continue with formatting.
-      buffer_.reserve(offset + n + 1);
+      buffer_.Reserve(offset + n + 1);
     } else {
       // If result is negative we ask to increase the capacity by at least 1,
       // but as std::vector, the buffer grows exponentially.
-      buffer_.reserve(buffer_.capacity() + 1);
+      buffer_.Reserve(buffer_.capacity() + 1);
     }
   }
   if (sign) {

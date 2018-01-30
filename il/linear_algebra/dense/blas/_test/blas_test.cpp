@@ -50,9 +50,9 @@ TEST(Blas, Array2DDoubleArray2DDouble_1) {
   const double alpha = 2.0;
   const double beta = 3.0;
   il::Array2D<double> C{il::value, {{9.0}, {10.0}, {11.0}}};
-  A.reserve(A.size(0) + 3, A.size(1) + 4);
-  B.reserve(B.size(0) + 5, B.size(1) + 6);
-  C.reserve(C.size(0) + 7, C.size(1) + 8);
+  A.Reserve(A.size(0) + 3, A.size(1) + 4);
+  B.Reserve(B.size(0) + 5, B.size(1) + 6);
+  C.Reserve(C.size(0) + 7, C.size(1) + 8);
 
   il::blas(alpha, A, B, beta, il::io, C);
 

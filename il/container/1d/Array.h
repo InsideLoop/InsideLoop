@@ -168,7 +168,7 @@ class Array {
   // \details In debug mode, calling this method on an array of size 0 aborts
   // the program. In release mode, it will lead to undefined behavior.
   */
-  T& back();
+  T& Back();
 
   /* \brief Get the size of the il::Array<T>
   // \details The library has been designed in a way that any compiler can prove
@@ -190,9 +190,9 @@ class Array {
   // the current capacity, reallocation is done and the array gets the same
   // capacity as its size.
   */
-  void resize(il::int_t n);
+  void Resize(il::int_t n);
 
-  void resize(il::int_t n, const T& x);
+  void Resize(il::int_t n, const T& x);
 
   /* \brief Get the capacity of the il::Array<T>
    */
@@ -202,26 +202,26 @@ class Array {
   // \details If the capacity is >= to p, nothing is done. Otherwise,
   // reallocation is done and the new capacity is set to p.
   */
-  void reserve(il::int_t r);
+  void Reserve(il::int_t r);
 
   /* \brief Add an element at the end of the array
   // \details Reallocation is done only if it is needed. In case reallocation
   // happens, then new capacity is roughly (3/2) the previous capacity.
   */
-  void append(const T& x);
+  void Append(const T& x);
 
   /* \brief Add an element at the end of the array
   // \details Reallocation is done only if it is needed. In case reallocation
   // happens, then new capacity is roughly (3/2) the previous capacity.
   */
-  void append(T&& x);
+  void Append(T&& x);
 
   /* \brief Construct an element at the end of the array
   // \details Reallocation is done only if it is needed. In case reallocation
   // happens, then new capacity is roughly (3/2) the previous capacity.
   */
   template <typename... Args>
-  void append(il::emplace_t, Args&&... args);
+  void Append(il::emplace_t, Args&&... args);
 
   /* \brief Get the alignment of the pointer returned by data()
    */
@@ -231,9 +231,9 @@ class Array {
 
   il::ArrayView<T> view(il::Range range) const;
 
-  il::ArrayEdit<T> edit();
+  il::ArrayEdit<T> Edit();
 
-  il::ArrayEdit<T> edit(il::Range range);
+  il::ArrayEdit<T> Edit(il::Range range);
 
   /* \brief Get a pointer to const to the first element of the array
   // \details One should use this method only when using C-style API
@@ -243,7 +243,7 @@ class Array {
   /* \brief Get a pointer to the first element of the array
   // \details One should use this method only when using C-style API
   */
-  T* data();
+  T* Data();
 
   /* \brief Returns a pointer to const to the first element of the array
    */
@@ -251,7 +251,7 @@ class Array {
 
   /* \brief Returns a pointer to const to the first element of the array
    */
-  T* begin();
+  T* Begin();
 
   /* \brief Returns a pointer to const to the one after the last element of
   //  the array
@@ -261,12 +261,12 @@ class Array {
   /* \brief Returns a pointer to const to the one after the last element of
   //  the array
   */
-  T* end();
+  T* End();
 
  private:
   /* \brief Used internally to increase the capacity of the array
    */
-  void increaseCapacity(il::int_t r);
+  void IncreaseCapacity(il::int_t r);
 
   /* \brief Used internally in debug mode to check the invariance of the object
    */
@@ -648,7 +648,7 @@ const T& Array<T>::back() const {
 }
 
 template <typename T>
-T& Array<T>::back() {
+T& Array<T>::Back() {
   IL_EXPECT_MEDIUM(size() > 0);
 
   return size_[-1];
@@ -660,7 +660,7 @@ il::int_t Array<T>::size() const {
 }
 
 template <typename T>
-void Array<T>::resize(il::int_t n) {
+void Array<T>::Resize(il::int_t n) {
   IL_EXPECT_FAST(n >= 0);
 
   if (n <= capacity()) {
@@ -680,7 +680,7 @@ void Array<T>::resize(il::int_t n) {
     }
   } else {
     const il::int_t n_old = size();
-    increaseCapacity(n);
+    IncreaseCapacity(n);
     if (il::isTrivial<T>::value) {
 #ifdef IL_DEFAULT_VALUE
       for (il::int_t i = n_old; i < n; ++i) {
@@ -697,7 +697,7 @@ void Array<T>::resize(il::int_t n) {
 }
 
 template <typename T>
-void Array<T>::resize(il::int_t n, const T& x) {
+void Array<T>::Resize(il::int_t n, const T& x) {
   IL_EXPECT_FAST(n >= 0);
 
   if (n <= capacity()) {
@@ -715,7 +715,7 @@ void Array<T>::resize(il::int_t n, const T& x) {
     }
   } else {
     const il::int_t n_old = size();
-    increaseCapacity(n);
+    IncreaseCapacity(n);
     if (il::isTrivial<T>::value) {
       for (il::int_t i = n_old; i < n; ++i) {
         data_[i] = x;
@@ -735,16 +735,16 @@ il::int_t Array<T>::capacity() const {
 }
 
 template <typename T>
-void Array<T>::reserve(il::int_t r) {
+void Array<T>::Reserve(il::int_t r) {
   IL_EXPECT_FAST(r >= 0);
 
   if (r > capacity()) {
-    increaseCapacity(r);
+    IncreaseCapacity(r);
   }
 }
 
 template <typename T>
-void Array<T>::append(const T& x) {
+void Array<T>::Append(const T& x) {
   if (size_ == capacity_) {
     const il::int_t n = size();
     bool error = false;
@@ -755,7 +755,7 @@ void Array<T>::append(const T& x) {
       il::abort();
     }
     T x_copy = x;
-    increaseCapacity(new_capacity);
+    IncreaseCapacity(new_capacity);
     new (size_) T(std::move(x_copy));
   } else {
     new (size_) T(x);
@@ -764,7 +764,7 @@ void Array<T>::append(const T& x) {
 }
 
 template <typename T>
-void Array<T>::append(T&& x) {
+void Array<T>::Append(T&& x) {
   if (size_ == capacity_) {
     const il::int_t n = size();
     bool error = false;
@@ -774,7 +774,7 @@ void Array<T>::append(T&& x) {
     if (error) {
       il::abort();
     }
-    increaseCapacity(new_capacity);
+    IncreaseCapacity(new_capacity);
   }
   //  if (il::isTrivial<T>::value) {
   //    *size_ = std::move(x);
@@ -786,7 +786,7 @@ void Array<T>::append(T&& x) {
 
 template <typename T>
 template <typename... Args>
-void Array<T>::append(il::emplace_t, Args&&... args) {
+void Array<T>::Append(il::emplace_t, Args&&... args) {
   if (size_ == capacity_) {
     const il::int_t n = size();
     bool error = false;
@@ -796,7 +796,7 @@ void Array<T>::append(il::emplace_t, Args&&... args) {
     if (error) {
       il::abort();
     }
-    increaseCapacity(new_capacity);
+    IncreaseCapacity(new_capacity);
   };
   new (size_) T(std::forward<Args>(args)...);
   ++size_;
@@ -823,12 +823,12 @@ il::ArrayView<T> Array<T>::view(il::Range range) const {
 };
 
 template <typename T>
-il::ArrayEdit<T> Array<T>::edit() {
+il::ArrayEdit<T> Array<T>::Edit() {
   return il::ArrayEdit<T>{data_, size()};
 };
 
 template <typename T>
-il::ArrayEdit<T> Array<T>::edit(il::Range range) {
+il::ArrayEdit<T> Array<T>::Edit(il::Range range) {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(range.begin) <
                    static_cast<std::size_t>(size()));
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(range.end) <=
@@ -843,7 +843,7 @@ const T* Array<T>::data() const {
 }
 
 template <typename T>
-T* Array<T>::data() {
+T* Array<T>::Data() {
   return data_;
 }
 
@@ -853,7 +853,7 @@ const T* Array<T>::begin() const {
 }
 
 template <typename T>
-T* Array<T>::begin() {
+T* Array<T>::Begin() {
   return data_;
 }
 
@@ -863,12 +863,12 @@ const T* Array<T>::end() const {
 }
 
 template <typename T>
-T* Array<T>::end() {
+T* Array<T>::End() {
   return size_;
 }
 
 template <typename T>
-void Array<T>::increaseCapacity(il::int_t r) {
+void Array<T>::IncreaseCapacity(il::int_t r) {
   IL_EXPECT_FAST(capacity() < r);
 
   const il::int_t n = size();

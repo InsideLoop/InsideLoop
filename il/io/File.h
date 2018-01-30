@@ -76,7 +76,7 @@ inline File::File(const il::String& filename, il::FileMode mode,
   }
   file_ = std::fopen(filename.asCString(), s_mode.asCString());
   if (file_ == nullptr) {
-    status.setError(il::Error::FilesystemFileNotFound);
+    status.SetError(il::Error::FilesystemFileNotFound);
     return;
   }
 #else  // Windows case
@@ -95,7 +95,7 @@ inline File::File(const il::String& filename, il::FileMode mode,
   errno_t error_nb =
       _wfopen_s(&file_, filename_utf16.asWString(), s_mode.asWString());
   if (error_nb != 0) {
-    status.setError(il::Error::FilesystemFileNotFound);
+    status.SetError(il::Error::FilesystemFileNotFound);
     return;
   }
 #endif
@@ -105,7 +105,7 @@ inline File::File(const il::String& filename, il::FileMode mode,
   end_buffer_ = 0;
   nb_bytes_read_ = 0;
   opened_ = true;
-  status.setOk();
+  status.SetOk();
 }
 
 inline File::File(const il::String& filename, il::FileMode mode, il::io_t,
@@ -127,7 +127,7 @@ inline void File::read(il::io_t, T* p, il::Status& status) {
     std::memcpy(p, buffer_.data() + next_, nb_bytes_to_read);
     next_ += nb_bytes_to_read;
     nb_bytes_read_ += nb_bytes_to_read;
-    status.setOk();
+    status.SetOk();
   } else {
     read(nb_objects, sizeof(T), il::io, p, status);
   }
@@ -160,7 +160,7 @@ inline void File::read(il::int_t nb_objects, std::size_t nb_bytes, il::io_t,
           std::fread(p, nb_bytes_to_read, 1, file_);
       nb_bytes_read_ += nb_bytes_read;
       if (nb_bytes_read != nb_bytes_to_read) {
-        status.setError(il::Error::FilesystemFileNotLongEnough);
+        status.SetError(il::Error::FilesystemFileNotLongEnough);
         return;
       }
     } else {
@@ -185,14 +185,14 @@ inline void File::read(il::int_t nb_objects, std::size_t nb_bytes, il::io_t,
                        nb_bytes_to_read, 1, file_);
         nb_bytes_read_ += nb_bytes_to_read;
         if (chunk_read != 1) {
-          status.setError(il::Error::FilesystemFileNotLongEnough);
+          status.SetError(il::Error::FilesystemFileNotLongEnough);
           return;
         }
       }
     }
   }
 
-  status.setOk();
+  status.SetOk();
 }
 
 inline void File::skip(std::size_t nb_bytes, il::io_t, il::Status& status) {
@@ -210,12 +210,12 @@ inline void File::skip(std::size_t nb_bytes, il::io_t, il::Status& status) {
     end_buffer_ = 0;
     nb_bytes_read_ += nb_bytes_to_read;
     if (error != 0) {
-      status.setError(il::Error::FilesystemFileNotLongEnough);
+      status.SetError(il::Error::FilesystemFileNotLongEnough);
       return;
     }
   }
 
-  status.setOk();
+  status.SetOk();
   return;
 }
 
@@ -229,11 +229,11 @@ inline void File::write(const void* p, il::int_t nb_objects,
   const il::int_t nb_objects_written =
       std::fwrite(p, nb_bytes, static_cast<std::size_t>(nb_objects), file_);
   if (nb_objects_written != nb_objects) {
-    status.setError(il::Error::Undefined);
+    status.SetError(il::Error::Undefined);
     return;
   }
 
-  status.setOk();
+  status.SetOk();
 }
 
 inline void File::close(il::io_t, il::Status& status) {
@@ -241,12 +241,12 @@ inline void File::close(il::io_t, il::Status& status) {
 
   const int error = std::fclose(file_);
   if (error != 0) {
-    status.setError(il::Error::FilesystemCanNotCloseFile);
+    status.SetError(il::Error::FilesystemCanNotCloseFile);
     return;
   }
 
   opened_ = false;
-  status.setOk();
+  status.SetOk();
 }
 
 }  // namespace il

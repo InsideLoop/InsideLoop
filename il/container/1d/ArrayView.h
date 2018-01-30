@@ -129,29 +129,29 @@ class ArrayEdit : public ArrayView<T> {
   // \details In debug mode, calling this method on an array of size 0 aborts
   // the program. In release mode, it will lead to undefined behavior.
   */
-  T& back();
+  T& Back();
 
   il::ArrayView<T> view() const;
 
   il::ArrayView<T> view(il::Range range) const;
 
-  il::ArrayEdit<T> edit();
+  il::ArrayEdit<T> Edit();
 
-  il::ArrayEdit<T> edit(il::Range range);
+  il::ArrayEdit<T> Edit(il::Range range);
 
   /* \brief Get a pointer to the first element of the array view
   // \details One should use this method only when using C-style API
   */
-  T* data();
+  T* Data();
 
   /* \brief Returns a pointer to the first element of the array view
    */
-  T* begin();
+  T* Begin();
 
   /* \brief Returns a pointer to the one after the last element of the array
   // view
   */
-  T* end();
+  T* End();
 };
 
 template <typename T>
@@ -259,18 +259,18 @@ T& ArrayEdit<T>::operator[](il::int_t i) {
 }
 
 template <typename T>
-T& ArrayEdit<T>::back() {
+T& ArrayEdit<T>::Back() {
   IL_EXPECT_FAST(this->size() > 0);
   return this->size_[-1];
 }
 
 template <typename T>
-il::ArrayEdit<T> ArrayEdit<T>::edit() {
+il::ArrayEdit<T> ArrayEdit<T>::Edit() {
   return il::ArrayEdit<T>{this->data_, this->size()};
 };
 
 template <typename T>
-il::ArrayEdit<T> ArrayEdit<T>::edit(il::Range range) {
+il::ArrayEdit<T> ArrayEdit<T>::Edit(il::Range range) {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(range.begin) <
                    static_cast<std::size_t>(this->size()));
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(range.end) <=
@@ -280,17 +280,17 @@ il::ArrayEdit<T> ArrayEdit<T>::edit(il::Range range) {
 };
 
 template <typename T>
-T* ArrayEdit<T>::data() {
+T* ArrayEdit<T>::Data() {
   return this->data_;
 }
 
 template <typename T>
-T* ArrayEdit<T>::begin() {
+T* ArrayEdit<T>::Begin() {
   return this->data_;
 }
 
 template <typename T>
-T* ArrayEdit<T>::end() {
+T* ArrayEdit<T>::End() {
   return this->size_;
 }
 

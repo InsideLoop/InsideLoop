@@ -48,14 +48,14 @@ inline il::Array<double> linearSolve(il::Array2D<double> A, il::Array<double> y,
   const lapack_int nrhs = 1;
   const lapack_int lda{static_cast<lapack_int>(A.stride(1))};
   const lapack_int ldx{n};
-  const lapack_int lapack_error{LAPACKE_dgesv(layout, n, nrhs, A.data(), lda,
-                                              ipiv.data(), y.data(), ldx)};
+  const lapack_int lapack_error{LAPACKE_dgesv(layout, n, nrhs, A.Data(), lda,
+                                              ipiv.Data(), y.Data(), ldx)};
 
   IL_EXPECT_FAST(lapack_error >= 0);
   if (lapack_error == 0) {
-    status.setOk();
+    status.SetOk();
   } else {
-    status.setError(il::Error::MatrixSingular);
+    status.SetError(il::Error::MatrixSingular);
     IL_SET_SOURCE(status);
   }
 
@@ -74,14 +74,14 @@ inline il::Array<double> linearSolve(il::Array2C<double> A, il::Array<double> y,
   const lapack_int nrhs = 1;
   const lapack_int lda{static_cast<lapack_int>(A.stride(0))};
   const lapack_int ldx = 1;
-  const lapack_int lapack_error{LAPACKE_dgesv(layout, n, nrhs, A.data(), lda,
-                                              ipiv.data(), y.data(), ldx)};
+  const lapack_int lapack_error{LAPACKE_dgesv(layout, n, nrhs, A.Data(), lda,
+                                              ipiv.Data(), y.Data(), ldx)};
 
   IL_EXPECT_FAST(lapack_error >= 0);
   if (lapack_error == 0) {
-    status.setOk();
+    status.SetOk();
   } else {
-    status.setError(il::Error::MatrixSingular);
+    status.SetError(il::Error::MatrixSingular);
     IL_SET_SOURCE(status);
   }
 
@@ -106,15 +106,15 @@ inline il::Array<double> linearSolve(il::BandArray2C<double> A,
       static_cast<lapack_int>(A.widthLeft() + 1 + A.capacityRight())};
   const lapack_int ldb = 1;
   const lapack_int lapack_error{LAPACKE_dgbsv(
-      layout, n, kl, ku, nrhs, A.data(), ldab, ipiv.data(), y.data(), ldb)};
+      layout, n, kl, ku, nrhs, A.Data(), ldab, ipiv.Data(), y.Data(), ldb)};
 
   IL_EXPECT_FAST(lapack_error >= 0);
   if (lapack_error == 0) {
-    status.setOk();
+    status.SetOk();
   } else {
-    status.setError(il::Error::MatrixSingular);
+    status.SetError(il::Error::MatrixSingular);
     IL_SET_SOURCE(status);
-    status.setInfo("rank", il::int_t{lapack_error - 1});
+    status.SetInfo("rank", il::int_t{lapack_error - 1});
   }
 
   return y;
@@ -129,15 +129,15 @@ inline il::Array<double> linearSolve(il::TriDiagonal<double> A,
   const lapack_int n{static_cast<lapack_int>(A.size())};
   const lapack_int nrhs = 1;
   const lapack_int ldb = 1;
-  const lapack_int lapack_error{LAPACKE_dgtsv(layout, n, nrhs, A.lowerData(),
-                                              A.diagonalData(), A.upperData(),
-                                              y.data(), ldb)};
+  const lapack_int lapack_error{LAPACKE_dgtsv(layout, n, nrhs, A.LowerData(),
+                                              A.DiagonalData(), A.UpperData(),
+                                              y.Data(), ldb)};
 
   IL_EXPECT_FAST(lapack_error >= 0);
   if (lapack_error == 0) {
-    status.setOk();
+    status.SetOk();
   } else {
-    status.setError(il::Error::MatrixSingular);
+    status.SetError(il::Error::MatrixSingular);
     IL_SET_SOURCE(status);
   }
 

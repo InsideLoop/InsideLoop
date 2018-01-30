@@ -33,10 +33,10 @@ enum class FloatStyle { Percent, Fixed, Exponent };
 void write_double(double value, int precision, il::FloatStyle style, il::io_t,
                   std::string& stream) {
   if (std::isnan(value)) {
-    stream.append("NaN");
+    stream.Append("NaN");
     return;
   } else if (std::isinf(value)) {
-    stream.append("Inf");
+    stream.Append("Inf");
     return;
   }
 
@@ -56,9 +56,9 @@ void write_double(double value, int precision, il::FloatStyle style, il::io_t,
   }
 
   std::string spec{};
-  spec.append("%.");
-  spec.append(std::to_string(precision));
-  spec.append(std::string(1, c_letter));
+  spec.Append("%.");
+  spec.Append(std::to_string(precision));
+  spec.Append(std::string(1, c_letter));
 
   if (style == FloatStyle::Percent) {
     value *= 100;
@@ -69,9 +69,9 @@ void write_double(double value, int precision, il::FloatStyle style, il::io_t,
   if (style == FloatStyle::Percent) {
     ++length;
   }
-  stream.append(buffer);
+  stream.Append(buffer);
   if (style == FloatStyle::Percent) {
-    stream.append("%");
+    stream.Append("%");
   }
 }
 
@@ -122,10 +122,10 @@ class FormatProvider<int> {
                      std::string& stream) {
     switch (style[0]) {
       case 'Y':
-        value ? stream.append("YES") : stream.append("NO");
+        value ? stream.Append("YES") : stream.Append("NO");
         break;
       case 'y':
-        value ? stream.append("yes") : stream.append("no");
+        value ? stream.Append("yes") : stream.Append("no");
         break;
       default:
         IL_EXPECT_FAST(false);
@@ -145,26 +145,26 @@ void format_align(const T& value, il::AlignStyle align_style, il::int_t amount,
   std::string item{};
   il::FormatProvider<T>::format(value, style, il::io, item);
   if (amount <= static_cast<int>(item.size())) {
-    stream.append(std::string(amount, '*'));
+    stream.Append(std::string(amount, '*'));
     return;
   }
 
   std::size_t pad_amount = static_cast<std::size_t>(amount) - item.size();
   switch (align_style) {
     case il::AlignStyle::left:
-      stream.append(item);
-      stream.append(std::string(pad_amount, ' '));
+      stream.Append(item);
+      stream.Append(std::string(pad_amount, ' '));
       break;
     case il::AlignStyle::center: {
       std::size_t half_pad_amount = pad_amount / 2;
-      stream.append(std::string(pad_amount - half_pad_amount, ' '));
-      stream.append(item);
-      stream.append(std::string(half_pad_amount, ' '));
+      stream.Append(std::string(pad_amount - half_pad_amount, ' '));
+      stream.Append(item);
+      stream.Append(std::string(half_pad_amount, ' '));
       break;
     }
     case il::AlignStyle::right: {
-      stream.append(std::string(pad_amount, ' '));
-      stream.append(item);
+      stream.Append(std::string(pad_amount, ' '));
+      stream.Append(item);
       break;
     }
   }

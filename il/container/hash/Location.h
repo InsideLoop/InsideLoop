@@ -37,9 +37,9 @@ class Location {
   Location(il::int_t i);
 #endif
 #ifdef IL_DEBUG_CLASS
-  void setIndex(il::int_t i, std::size_t hash);
+  void SetIndex(il::int_t i, std::size_t hash);
 #else
-  void setIndex(il::int_t i);
+  void SetIndex(il::int_t i);
 #endif
   il::int_t index() const;
   bool isValid() const;
@@ -58,12 +58,12 @@ inline Location::Location(il::int_t i) { i_ = i; }
 #endif
 
 #ifdef IL_DEBUG_CLASS
-inline void Location::setIndex(il::int_t i, std::size_t hash) {
+inline void Location::SetIndex(il::int_t i, std::size_t hash) {
   i_ = i;
   hash_ = hash;
 }
 #else
-inline void Location::setIndex(il::int_t i) { i_ = i; }
+inline void Location::SetIndex(il::int_t i) { i_ = i; }
 #endif
 
 inline il::int_t Location::index() const { return i_; }

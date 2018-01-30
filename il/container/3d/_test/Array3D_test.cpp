@@ -218,7 +218,7 @@ TEST(Array3D, copy_constructor) {
       }
     }
   }
-  A.reserve(2 * n0, 2 * n1, 2 * n2);
+  A.Reserve(2 * n0, 2 * n1, 2 * n2);
 
   il::Array3D<il::int_t> B{A};
   bool same_elements{true};
@@ -249,7 +249,7 @@ TEST(Array3D, move_constructor) {
       }
     }
   }
-  A.reserve(2 * n0, 2 * n1, 2 * n2);
+  A.Reserve(2 * n0, 2 * n1, 2 * n2);
   const il::int_t* const old_A_data{A.data()};
 
   il::Array3D<il::int_t> B{std::move(A)};
@@ -284,7 +284,7 @@ TEST(Array3D, copy_assignment_0) {
       }
     }
   }
-  A.reserve(2 * n0, 2 * n1, 2 * n2);
+  A.Reserve(2 * n0, 2 * n1, 2 * n2);
 
   il::Array3D<il::int_t> B{};
   B = A;
@@ -316,7 +316,7 @@ TEST(Array3D, copy_assignment_1) {
       }
     }
   }
-  A.reserve(2 * n0, 2 * n1, 2 * n2);
+  A.Reserve(2 * n0, 2 * n1, 2 * n2);
 
   il::Array3D<il::int_t> B{3 * n0, 3 * n1, 3 * n2};
   B = A;
@@ -379,7 +379,7 @@ TEST(Array3D, move_assignment) {
       }
     }
   }
-  A.reserve(2 * n0, 2 * n1, 2 * n2);
+  A.Reserve(2 * n0, 2 * n1, 2 * n2);
   const il::int_t* const old_A_data{A.data()};
 
   il::Array3D<il::int_t> B{3 * n0, 3 * n1, 3 * n2};
@@ -667,7 +667,7 @@ TEST(Array3D, bounds_checking_default_const) {
 TEST(Array3D, resize_0) {
   il::Array3D<il::int_t> A{il::value, {{{1, 2}, {3, 4}, {5, 6}}}};
   const il::int_t* const old_A_data{A.data()};
-  A.resize(1, 2, 1);
+  A.Resize(1, 2, 1);
 
   ASSERT_TRUE(old_A_data == A.data() && A.size(0) == 1 && A.capacity(0) == 2 &&
               A.size(1) == 2 && A.capacity(1) == 3 && A.size(2) == 1 &&
@@ -677,7 +677,7 @@ TEST(Array3D, resize_0) {
 TEST(Array3D, resize_1) {
   il::Array3D<il::int_t> A{
       il::value, {{{1, 2}, {3, 4}, {5, 6}}, {{7, 8}, {9, 10}, {11, 12}}}};
-  A.resize(1, 4, 1);
+  A.Resize(1, 4, 1);
 
   ASSERT_TRUE(A.size(0) == 1 && A.capacity(0) == 1 && A.size(1) == 4 &&
               A.capacity(1) == 4 && A.size(2) == 1 && A.capacity(2) == 1 &&
@@ -687,7 +687,7 @@ TEST(Array3D, resize_1) {
 TEST(Array3D, resize_2) {
   il::Array3D<il::int_t> A{
       il::value, {{{1, 2}, {3, 4}, {5, 6}}, {{7, 8}, {9, 10}, {11, 12}}}};
-  A.resize(3, 1, 2);
+  A.Resize(3, 1, 2);
 
   ASSERT_TRUE(A.size(0) == 3 && A.capacity(0) == 3 && A.size(1) == 1 &&
               A.capacity(1) == 1 && A.size(2) == 2 && A.capacity(2) == 2 &&
@@ -698,7 +698,7 @@ TEST(Array3D, resize_2) {
 TEST(Array3D, resize_3) {
   il::Array3D<il::int_t> A{
       il::value, {{{1, 2}, {3, 4}, {5, 6}}, {{7, 8}, {9, 10}, {11, 12}}}};
-  A.resize(3, 4, 3);
+  A.Resize(3, 4, 3);
 
   ASSERT_TRUE(A.size(0) == 3 && A.capacity(0) == 3 && A.size(1) == 4 &&
               A.capacity(1) == 4 && A.size(2) == 3 && A.capacity(2) == 3 &&
@@ -710,7 +710,7 @@ TEST(Array3D, resize_3) {
 
 TEST(Array3D, resize_4) {
   il::Array3D<il::int_t> A{};
-  A.resize(4, 0, 3);
+  A.Resize(4, 0, 3);
 
   ASSERT_TRUE(A.size(0) == 4 && A.capacity(0) == 4 && A.size(1) == 0 &&
               A.capacity(1) == 1 && A.size(2) == 3 && A.capacity(2) == 3);
@@ -720,7 +720,7 @@ TEST(Array3D, resize_object_0) {
   Dummy::reset();
   il::Array3D<Dummy> A{2, 3, 2};
   const Dummy* const old_A_data{A.data()};
-  A.resize(1, 2, 1);
+  A.Resize(1, 2, 1);
 
   ASSERT_TRUE(old_A_data == A.data() && A.size(0) == 1 && A.capacity(0) == 2 &&
               A.size(1) == 2 && A.capacity(1) == 3 && A.size(2) == 1 &&
@@ -736,7 +736,7 @@ TEST(Array3D, resize_object_0) {
 TEST(Array3D, resize_object_1) {
   Dummy::reset();
   il::Array3D<Dummy> A{2, 3, 1};
-  A.resize(4, 1, 1);
+  A.Resize(4, 1, 1);
 
   ASSERT_TRUE(A.size(0) == 4 && A.capacity(0) == 4 && A.size(1) == 1 &&
               A.capacity(1) == 1 && A.size(2) == 1 && A.capacity(2) == 1 &&
@@ -752,7 +752,7 @@ TEST(Array3D, reserve_0) {
   const il::int_t n2 = 5;
   il::Array3D<il::int_t> A{n0, n1, n2};
   const il::int_t* const old_A_data{A.data()};
-  A.reserve(n0 - 1, n1 - 1, n2 - 1);
+  A.Reserve(n0 - 1, n1 - 1, n2 - 1);
 
   ASSERT_TRUE(old_A_data == A.data() && A.size(0) == n0 &&
               A.capacity(0) == n0 && A.size(1) == n1 && A.capacity(1) == n1 &&
@@ -762,7 +762,7 @@ TEST(Array3D, reserve_0) {
 TEST(Array3D, reserve_1) {
   il::Array3D<il::int_t> A{
       il::value, {{{1, 2}, {3, 4}, {5, 6}}, {{7, 8}, {9, 10}, {11, 12}}}};
-  A.reserve(3, 4, 3);
+  A.Reserve(3, 4, 3);
 
   ASSERT_TRUE(A.size(0) == 2 && A.capacity(0) == 3 && A.size(1) == 3 &&
               A.capacity(1) == 4 && A.size(2) == 2 && A.capacity(2) == 3 &&
@@ -775,7 +775,7 @@ TEST(Array3D, reserve_1) {
 TEST(Array3D, reserve_object) {
   Dummy::reset();
   il::Array3D<Dummy> A{2, 3, 1};
-  A.reserve(1, 5, 1);
+  A.Reserve(1, 5, 1);
 
   ASSERT_TRUE(Dummy::destroyed.size() == 6 && Dummy::destroyed[0] == -6 &&
               Dummy::destroyed[1] == -5 && Dummy::destroyed[2] == -4 &&

@@ -54,7 +54,7 @@ TEST(Singular, test0) {
   il::Status status{};
   il::StaticArray<double, 3> singular_value =
       il::singularValues(A, il::io, status);
-  status.abortOnError();
+  status.AbortOnError();
   il::sort(il::io, singular_value);
 
   const double epsilon = 1.0e-15;
@@ -75,7 +75,7 @@ TEST(Singular, test1) {
   il::Status status{};
   il::StaticArray<double, 3> singular_value =
       il::singularValues(A, il::io, status);
-  status.abortOnError();
+  status.AbortOnError();
   il::sort(il::io, singular_value);
 
   const double epsilon = 1.0e-15;

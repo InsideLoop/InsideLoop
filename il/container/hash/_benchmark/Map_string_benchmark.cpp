@@ -25,13 +25,13 @@
 
 static void BM_MapCString(benchmark::State& state) {
   il::Map<il::String, int> map{7};
-  map.set("aaa", 0);
-  map.set("bbb", 0);
-  map.set("ccc", 0);
-  map.set("ddd", 0);
-  map.set("eee", 0);
-  map.set("fff", 0);
-  map.set("ggg", 0);
+  map.Set("aaa", 0);
+  map.Set("bbb", 0);
+  map.Set("ccc", 0);
+  map.Set("ddd", 0);
+  map.Set("eee", 0);
+  map.Set("fff", 0);
+  map.Set("ggg", 0);
   il::int_t i;
   while (state.KeepRunning()) {
     i += map.searchCString("aaa");
@@ -60,13 +60,13 @@ static void BM_SetMapCString(benchmark::State& state) {
 
 static void BM_Map(benchmark::State& state) {
   il::Map<il::String, int> map{7};
-  map.set("aaa", 0);
-  map.set("bbb", 0);
-  map.set("ccc", 0);
-  map.set("ddd", 0);
-  map.set("eee", 0);
-  map.set("fff", 0);
-  map.set("ggg", 0);
+  map.Set("aaa", 0);
+  map.Set("bbb", 0);
+  map.Set("ccc", 0);
+  map.Set("ddd", 0);
+  map.Set("eee", 0);
+  map.Set("fff", 0);
+  map.Set("ggg", 0);
   il::int_t i;
   while (state.KeepRunning()) {
     i += map.search("aaa");
@@ -83,13 +83,13 @@ static void BM_Map(benchmark::State& state) {
 static void BM_SetMap(benchmark::State& state) {
   il::Map<il::String, int> map{7};
   while (state.KeepRunning()) {
-    map.set("aaa", 0);
-    map.set("bbb", 0);
-    map.set("ccc", 0);
-    map.set("ddd", 0);
-    map.set("eee", 0);
-    map.set("fff", 0);
-    map.set("ggg", 0);
+    map.Set("aaa", 0);
+    map.Set("bbb", 0);
+    map.Set("ccc", 0);
+    map.Set("ddd", 0);
+    map.Set("eee", 0);
+    map.Set("fff", 0);
+    map.Set("ggg", 0);
   }
 }
 

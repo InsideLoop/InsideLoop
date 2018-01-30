@@ -40,7 +40,7 @@ inline void alignment() {
         b[i] = a[i] + b[i] + c[i];
       }
     }
-    timer.stop();
+    timer.Stop();
     std::printf("Unaligned: %7.3e ns\n", timer.elapsed());
   }
 
@@ -58,7 +58,7 @@ inline void alignment() {
         b_data[i] = a_data[i] + b_data[i] + c_data[i];
       }
     }
-    timer.stop();
+    timer.Stop();
     std::printf("SIMD aligned: %7.3e ns\n", timer.elapsed());
   }
 
@@ -76,7 +76,7 @@ inline void alignment() {
         b_data[i] = a_data[i] + b_data[i] + c_data[i];
       }
     }
-    timer.stop();
+    timer.Stop();
     std::printf("Cache aligned: %7.3e ns\n", timer.elapsed());
   }
 }
@@ -103,7 +103,7 @@ inline void conditional_assignment() {
         }
       }
     }
-    timer.stop();
+    timer.Stop();
     std::printf("Unaligned timing: %7.3e\n", timer.elapsed());
   }
 
@@ -125,7 +125,7 @@ inline void conditional_assignment() {
         }
       }
     }
-    timer.stop();
+    timer.Stop();
     std::printf("SIMD aligned timing: %7.3e\n", timer.elapsed());
   }
 
@@ -147,7 +147,7 @@ inline void conditional_assignment() {
         }
       }
     }
-    timer.stop();
+    timer.Stop();
     std::printf("Cache aligned timing: %7.3e\n", timer.elapsed());
   }
 }

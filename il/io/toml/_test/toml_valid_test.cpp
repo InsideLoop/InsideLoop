@@ -28,12 +28,12 @@ TEST(Toml, array_empty) {
   il::String filename = directory;
   std::cout << directory.asCString() << std::endl;
 
-  filename.append("array-empty.toml");
+  filename.Append("array-empty.toml");
 
   il::Status status{};
   auto config =
       il::load<il::MapArray<il::String, il::Dynamic>>(filename, il::io, status);
-  if (!status.ok() || config.size() != 1) {
+  if (!status.Ok() || config.size() != 1) {
     ans = false;
   } else {
     const il::Location i0 = config.search("thevoid");
@@ -80,12 +80,12 @@ TEST(Toml, array_nospaces) {
   bool ans = true;
 
   il::String filename = directory;
-  filename.append("array-nospaces.toml");
+  filename.Append("array-nospaces.toml");
 
   il::Status status{};
   auto config =
       il::load<il::MapArray<il::String, il::Dynamic>>(filename, il::io, status);
-  if (!status.ok() || config.size() != 1) {
+  if (!status.Ok() || config.size() != 1) {
     ans = false;
   } else {
     const il::Location i = config.search("ints");
@@ -110,12 +110,12 @@ TEST(Toml, arrays_heterogeneous) {
   bool ans = true;
 
   il::String filename = directory;
-  filename.append("arrays-hetergeneous.toml");
+  filename.Append("arrays-hetergeneous.toml");
 
   il::Status status{};
   auto config =
       il::load<il::MapArray<il::String, il::Dynamic>>(filename, il::io, status);
-  if (!status.ok() || config.size() != 1) {
+  if (!status.Ok() || config.size() != 1) {
     ans = false;
   } else {
     const il::Location i = config.search("mixed");
@@ -167,12 +167,12 @@ TEST(Toml, arrays_nested) {
   bool ans = true;
 
   il::String filename = directory;
-  filename.append("arrays-nested.toml");
+  filename.Append("arrays-nested.toml");
 
   il::Status status{};
   auto config =
       il::load<il::MapArray<il::String, il::Dynamic>>(filename, il::io, status);
-  if (!status.ok() || config.size() != 1) {
+  if (!status.Ok() || config.size() != 1) {
     ans = false;
   } else {
     const il::Location i = config.search("nest");
@@ -213,22 +213,22 @@ TEST(Toml, bool) {
   bool ans = true;
 
   il::String filename = directory;
-  filename.append("bool.toml");
+  filename.Append("bool.toml");
 
   il::Status status{};
   auto config =
       il::load<il::MapArray<il::String, il::Dynamic>>(filename, il::io, status);
-  if (!status.ok() || config.size() != 2) {
+  if (!status.Ok() || config.size() != 2) {
     ans = false;
   } else {
     const il::Location i = config.search("t");
     if (!(config.found(i) && config.value(i).is<bool>() &&
-          config.value(i).as<bool>())) {
+          config.value(i).to<bool>())) {
       ans = false;
     } else {
       const il::Location i = config.search("f");
       if (!(config.found(i) && config.value(i).is<bool>() &&
-            config.value(i).as<bool>() == false)) {
+            config.value(i).to<bool>() == false)) {
         ans = false;
       }
     }
@@ -241,12 +241,12 @@ TEST(Toml, comments_everywhere) {
   bool ans = true;
 
   il::String filename = directory;
-  filename.append("comments-everywhere.toml");
+  filename.Append("comments-everywhere.toml");
 
   il::Status status{};
   auto config =
       il::load<il::MapArray<il::String, il::Dynamic>>(filename, il::io, status);
-  if (!status.ok() || config.size() != 1) {
+  if (!status.Ok() || config.size() != 1) {
     ans = false;
   } else {
     const il::Location i = config.search("group");
@@ -255,7 +255,7 @@ TEST(Toml, comments_everywhere) {
       ans = false;
     } else {
       il::MapArray<il::String, il::Dynamic> &group =
-          config.value(i).as<il::MapArray<il::String, il::Dynamic>>();
+          config.Value(i).As<il::MapArray<il::String, il::Dynamic>>();
       il::Location j0 = group.search("answer");
       il::Location j1 = group.search("more");
       if (!(group.size() == 2 && group.found(j0) &&
@@ -265,7 +265,7 @@ TEST(Toml, comments_everywhere) {
         ans = false;
       } else {
         il::Array<il::Dynamic> &array =
-            group.value(j1).as<il::Array<il::Dynamic>>();
+            group.Value(j1).As<il::Array<il::Dynamic>>();
         if (!(array.size() == 2 && array[0].is<il::int_t>() &&
               array[0].to<il::int_t>() == 42 && array[1].is<il::int_t>() &&
               array[1].to<il::int_t>() == 42)) {
@@ -282,12 +282,12 @@ TEST(Toml, empty) {
   bool ans = true;
 
   il::String filename = directory;
-  filename.append("empty.toml");
+  filename.Append("empty.toml");
 
   il::Status status{};
   auto config =
       il::load<il::MapArray<il::String, il::Dynamic>>(filename, il::io, status);
-  if (!status.ok() || config.size() != 0) {
+  if (!status.Ok() || config.size() != 0) {
     ans = false;
   }
 
@@ -298,12 +298,12 @@ TEST(Toml, double) {
   bool ans = true;
 
   il::String filename = directory;
-  filename.append("float.toml");
+  filename.Append("float.toml");
 
   il::Status status{};
   auto config =
       il::load<il::MapArray<il::String, il::Dynamic>>(filename, il::io, status);
-  if (!status.ok() || config.size() != 2) {
+  if (!status.Ok() || config.size() != 2) {
     ans = false;
   } else {
     il::Location i0 = config.search("pi");
@@ -323,12 +323,12 @@ TEST(Toml, implicit_and_explicit_after) {
   bool ans = true;
 
   il::String filename = directory;
-  filename.append("implicit-and-explicit-after.toml");
+  filename.Append("implicit-and-explicit-after.toml");
 
   il::Status status{};
   auto config =
       il::load<il::MapArray<il::String, il::Dynamic>>(filename, il::io, status);
-  if (!status.ok() || config.size() != 1) {
+  if (!status.Ok() || config.size() != 1) {
     ans = false;
   } else {
     il::Location i = config.search("a");
@@ -371,12 +371,12 @@ TEST(Toml, implicit_and_explicit_before) {
   bool ans = true;
 
   il::String filename = directory;
-  filename.append("implicit-and-explicit-before.toml");
+  filename.Append("implicit-and-explicit-before.toml");
 
   il::Status status{};
   auto config =
       il::load<il::MapArray<il::String, il::Dynamic>>(filename, il::io, status);
-  if (!status.ok() || config.size() != 1) {
+  if (!status.Ok() || config.size() != 1) {
     ans = false;
   } else {
     il::Location i = config.search("a");
@@ -419,12 +419,12 @@ TEST(Toml, implicit_groups) {
   bool ans = true;
 
   il::String filename = directory;
-  filename.append("implicit-groups.toml");
+  filename.Append("implicit-groups.toml");
 
   il::Status status{};
   auto config =
       il::load<il::MapArray<il::String, il::Dynamic>>(filename, il::io, status);
-  if (!status.ok() || config.size() != 1) {
+  if (!status.Ok() || config.size() != 1) {
     ans = false;
   } else {
     il::Location i = config.search("a");
@@ -465,12 +465,12 @@ TEST(Toml, integer) {
   bool ans = true;
 
   il::String filename = directory;
-  filename.append("integer.toml");
+  filename.Append("integer.toml");
 
   il::Status status{};
   auto config =
       il::load<il::MapArray<il::String, il::Dynamic>>(filename, il::io, status);
-  if (!status.ok() || config.size() != 2) {
+  if (!status.Ok() || config.size() != 2) {
     ans = false;
   } else {
     il::Location i0 = config.search("answer");
@@ -490,12 +490,12 @@ TEST(Toml, key_equals_nospace) {
   bool ans = true;
 
   il::String filename = directory;
-  filename.append("key-equals-nospace.toml");
+  filename.Append("key-equals-nospace.toml");
 
   il::Status status{};
   auto config =
       il::load<il::MapArray<il::String, il::Dynamic>>(filename, il::io, status);
-  if (!status.ok() || config.size() != 1) {
+  if (!status.Ok() || config.size() != 1) {
     ans = false;
   } else {
     il::Location i = config.search("answer");
@@ -512,12 +512,12 @@ TEST(Toml, key_space) {
   bool ans = true;
 
   il::String filename = directory;
-  filename.append("key-space.toml");
+  filename.Append("key-space.toml");
 
   il::Status status{};
   auto config =
       il::load<il::MapArray<il::String, il::Dynamic>>(filename, il::io, status);
-  if (!status.ok() || config.size() != 1) {
+  if (!status.Ok() || config.size() != 1) {
     ans = false;
   } else {
     il::Location i = config.search("a b");
@@ -534,12 +534,12 @@ TEST(Toml, key_special_chars) {
   bool ans = true;
 
   il::String filename = directory;
-  filename.append("key-special-chars.toml");
+  filename.Append("key-special-chars.toml");
 
   il::Status status{};
   auto config =
       il::load<il::MapArray<il::String, il::Dynamic>>(filename, il::io, status);
-  if (!status.ok() || config.size() != 1) {
+  if (!status.Ok() || config.size() != 1) {
     ans = false;
   } else {
     il::Location i = config.search("~!@$^&*()_+-`1234567890[]|/?><.,;:'");
@@ -556,12 +556,12 @@ TEST(Toml, long_floating_point) {
   bool ans = true;
 
   il::String filename = directory;
-  filename.append("long-float.toml");
+  filename.Append("long-float.toml");
 
   il::Status status{};
   auto config =
       il::load<il::MapArray<il::String, il::Dynamic>>(filename, il::io, status);
-  if (!status.ok() || config.size() != 2) {
+  if (!status.Ok() || config.size() != 2) {
     ans = false;
   } else {
     il::Location i0 = config.search("longpi");
@@ -581,12 +581,12 @@ TEST(Toml, long_integer) {
   bool ans = true;
 
   il::String filename = directory;
-  filename.append("long-integer.toml");
+  filename.Append("long-integer.toml");
 
   il::Status status{};
   auto config =
       il::load<il::MapArray<il::String, il::Dynamic>>(filename, il::io, status);
-  if (!status.ok() || config.size() != 2) {
+  if (!status.Ok() || config.size() != 2) {
     ans = false;
   } else {
     il::Location i0 = config.search("answer");
@@ -606,12 +606,12 @@ TEST(Toml, windows_lines) {
   bool ans = true;
 
   il::String filename = directory;
-  filename.append("windows-lines.toml");
+  filename.Append("windows-lines.toml");
 
   il::Status status{};
   auto config =
       il::load<il::MapArray<il::String, il::Dynamic>>(filename, il::io, status);
-  if (!status.ok() || config.size() != 2) {
+  if (!status.Ok() || config.size() != 2) {
     ans = false;
   } else {
     il::Location i0 = config.search("input_directory");
@@ -631,12 +631,12 @@ TEST(Toml, zero) {
   bool ans = true;
 
   il::String filename = directory;
-  filename.append("zero.toml");
+  filename.Append("zero.toml");
 
   il::Status status{};
   auto config =
       il::load<il::MapArray<il::String, il::Dynamic>>(filename, il::io, status);
-  if (!status.ok() || config.size() != 2) {
+  if (!status.Ok() || config.size() != 2) {
     ans = false;
   } else {
     il::Location i0 = config.search("a");

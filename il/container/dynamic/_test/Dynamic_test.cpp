@@ -43,7 +43,7 @@ TEST(Dynamic, default_constructor) {
 TEST(Dynamic, bool_constructor_0) {
   il::Dynamic a = true;
 
-  const bool ans = a.is<bool>() && a.as<bool>() && !a.is<void>() &&
+  const bool ans = a.is<bool>() && a.to<bool>() && !a.is<void>() &&
                    !a.is<il::int_t>() && !a.is<double>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
@@ -54,7 +54,7 @@ TEST(Dynamic, bool_constructor_0) {
 TEST(Dynamic, bool_constructor_1) {
   il::Dynamic a = false;
 
-  const bool ans = a.is<bool>() && a.as<bool>() == false && !a.is<void>() &&
+  const bool ans = a.is<bool>() && a.to<bool>() == false && !a.is<void>() &&
                    !a.is<il::int_t>() && !a.is<double>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
@@ -249,7 +249,7 @@ TEST(Dynamic, copy_constructor_bool_0) {
   il::Dynamic b = true;
   il::Dynamic a{b};
 
-  const bool ans = a.is<bool>() && a.as<bool>() && !a.is<void>() &&
+  const bool ans = a.is<bool>() && a.to<bool>() && !a.is<void>() &&
                    !a.is<il::int_t>() && !a.is<double>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
@@ -261,7 +261,7 @@ TEST(Dynamic, copy_constructor_bool_1) {
   il::Dynamic b = false;
   il::Dynamic a{b};
 
-  const bool ans = a.is<bool>() && a.as<bool>() == false && !a.is<void>() &&
+  const bool ans = a.is<bool>() && a.to<bool>() == false && !a.is<void>() &&
                    !a.is<il::int_t>() && !a.is<double>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
@@ -329,8 +329,8 @@ TEST(Dynamic, copy_constructor_array_0) {
 
 TEST(Dynamic, copy_constructor_hashmaparray_0) {
   il::MapArray<il::String, il::Dynamic> map{};
-  map.set(il::String{"Hello"}, il::Dynamic{5});
-  map.set(il::String{"World!"}, il::Dynamic{6});
+  map.Set(il::String{"Hello"}, il::Dynamic{5});
+  map.Set(il::String{"World!"}, il::Dynamic{6});
 
   il::Dynamic b = map;
   il::Dynamic a{b};
@@ -364,7 +364,7 @@ TEST(Dynamic, move_constructor_bool_0) {
   il::Dynamic b = true;
   il::Dynamic a = std::move(b);
 
-  const bool ans = a.is<bool>() && a.as<bool>() && !a.is<void>() &&
+  const bool ans = a.is<bool>() && a.to<bool>() && !a.is<void>() &&
                    !a.is<il::int_t>() && !a.is<double>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
@@ -376,7 +376,7 @@ TEST(Dynamic, move_constructor_bool_1) {
   il::Dynamic b = false;
   il::Dynamic a = std::move(b);
 
-  const bool ans = a.is<bool>() && a.as<bool>() == false && !a.is<void>() &&
+  const bool ans = a.is<bool>() && a.to<bool>() == false && !a.is<void>() &&
                    !a.is<il::int_t>() && !a.is<double>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
@@ -444,8 +444,8 @@ TEST(Dynamic, move_constructor_array_0) {
 
 TEST(Dynamic, move_constructor_hashmaparray_0) {
   il::MapArray<il::String, il::Dynamic> map{};
-  map.set(il::String{"Hello"}, il::Dynamic{5});
-  map.set(il::String{"World!"}, il::Dynamic{6});
+  map.Set(il::String{"Hello"}, il::Dynamic{5});
+  map.Set(il::String{"World!"}, il::Dynamic{6});
 
   il::Dynamic b = map;
   il::Dynamic a = std::move(b);
@@ -481,7 +481,7 @@ TEST(Dynamic, copy_assignement_bool_0) {
   il::Dynamic a{};
   a = b;
 
-  const bool ans = a.is<bool>() && a.as<bool>() && !a.is<void>() &&
+  const bool ans = a.is<bool>() && a.to<bool>() && !a.is<void>() &&
                    !a.is<il::int_t>() && !a.is<double>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
@@ -494,7 +494,7 @@ TEST(Dynamic, copy_assignement_bool_1) {
   il::Dynamic a{};
   a = b;
 
-  const bool ans = a.is<bool>() && a.as<bool>() == false && !a.is<void>() &&
+  const bool ans = a.is<bool>() && a.to<bool>() == false && !a.is<void>() &&
                    !a.is<il::int_t>() && !a.is<double>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
@@ -566,8 +566,8 @@ TEST(Dynamic, copy_assignement_array_0) {
 
 TEST(Dynamic, copy_assignement_hashmaparray_0) {
   il::MapArray<il::String, il::Dynamic> map{};
-  map.set(il::String{"Hello"}, il::Dynamic{5});
-  map.set(il::String{"World!"}, il::Dynamic{6});
+  map.Set(il::String{"Hello"}, il::Dynamic{5});
+  map.Set(il::String{"World!"}, il::Dynamic{6});
 
   il::Dynamic b = map;
   il::Dynamic a{};
@@ -604,7 +604,7 @@ TEST(Dynamic, move_assignement_bool_0) {
   il::Dynamic a{};
   a = std::move(b);
 
-  const bool ans = a.is<bool>() && a.as<bool>() && !a.is<void>() &&
+  const bool ans = a.is<bool>() && a.to<bool>() && !a.is<void>() &&
                    !a.is<il::int_t>() && !a.is<double>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
@@ -617,7 +617,7 @@ TEST(Dynamic, move_assignement_bool_1) {
   il::Dynamic a{};
   a = std::move(b);
 
-  const bool ans = a.is<bool>() && a.as<bool>() == false && !a.is<void>() &&
+  const bool ans = a.is<bool>() && a.to<bool>() == false && !a.is<void>() &&
                    !a.is<il::int_t>() && !a.is<double>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
@@ -689,8 +689,8 @@ TEST(Dynamic, move_assignement_array_0) {
 
 TEST(Dynamic, move_assignement_hashmaparray_0) {
   il::MapArray<il::String, il::Dynamic> map{};
-  map.set(il::String{"Hello"}, il::Dynamic{5});
-  map.set(il::String{"World!"}, il::Dynamic{6});
+  map.Set(il::String{"Hello"}, il::Dynamic{5});
+  map.Set(il::String{"World!"}, il::Dynamic{6});
 
   il::Dynamic b = map;
   il::Dynamic a{};

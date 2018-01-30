@@ -48,7 +48,7 @@ static void BM_LU_MKL(benchmark::State& state) {
     state.ResumeTiming();
     il::Status status{};
     il::LU lu{std::move(A), il::io, status};
-    status.ignoreError();
+    status.IgnoreError();
   }
 }
 
@@ -70,7 +70,7 @@ static void BM_LU_MKL_ALIGN(benchmark::State& state) {
     state.ResumeTiming();
     il::Status status{};
     il::LU lu{std::move(A), il::io, status};
-    status.ignoreError();
+    status.IgnoreError();
   }
 }
 

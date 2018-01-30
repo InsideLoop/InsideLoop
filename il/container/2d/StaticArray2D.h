@@ -102,7 +102,7 @@ class StaticArray2D {
 
   il::Array2DView<T> view() const;
 
-  il::Array2DEdit<T> edit();
+  il::Array2DEdit<T> Edit();
 
   /* \brief Get a pointer to the first element of the array for a const
   // object
@@ -113,7 +113,7 @@ class StaticArray2D {
   /* \brief Get a pointer to the first element of the array
   // \details One should use this method only when using C-style API
   */
-  T* data();
+  T* Data();
 };
 
 template <typename T, il::int_t n0, il::int_t n1>
@@ -177,7 +177,7 @@ il::Array2DView<T> StaticArray2D<T, n0, n1>::view() const {
 }
 
 template <typename T, il::int_t n0, il::int_t n1>
-il::Array2DEdit<T> StaticArray2D<T, n0, n1>::edit() {
+il::Array2DEdit<T> StaticArray2D<T, n0, n1>::Edit() {
   return il::Array2DEdit<T>{data(), n0, n1, n0, 0, 0};
 }
 
@@ -187,7 +187,7 @@ const T* StaticArray2D<T, n0, n1>::data() const {
 }
 
 template <typename T, il::int_t n0, il::int_t n1>
-T* StaticArray2D<T, n0, n1>::data() {
+T* StaticArray2D<T, n0, n1>::Data() {
   return data_;
 }
 

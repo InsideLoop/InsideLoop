@@ -98,7 +98,7 @@ inline void save_array(const il::Array<il::Dynamic> &array, il::io_t,
     }
     switch (array[j].type()) {
       case il::Type::TBool: {
-        if (array[j].as<bool>()) {
+        if (array[j].to<bool>()) {
           const int error2 = std::fputs("true", file);
           IL_UNUSED(error2);
         } else {
@@ -125,8 +125,8 @@ inline void save_array(const il::Array<il::Dynamic> &array, il::io_t,
       } break;
       case il::Type::TArray: {
         save_array(array[j].as<il::Array<il::Dynamic>>(), il::io, file, status);
-        if (!status.ok()) {
-          status.rearm();
+        if (!status.Ok()) {
+          status.Rearm();
           return;
         }
       } break;
@@ -136,7 +136,7 @@ inline void save_array(const il::Array<il::Dynamic> &array, il::io_t,
   }
   const int error5 = std::fputs(" ]", file);
   IL_UNUSED(error5);
-  status.setOk();
+  status.SetOk();
 }
 
 template <typename M>
@@ -155,7 +155,7 @@ inline void save_aux(const M &toml, const il::String &name, il::io_t,
       if (error == EOF) return;
       switch (type) {
         case il::Type::TBool:
-          if (value.as<bool>()) {
+          if (value.to<bool>()) {
             error = std::fputs("true", file);
           } else {
             error = std::fputs("false", file);
@@ -218,7 +218,7 @@ inline void save_aux(const M &toml, const il::String &name, il::io_t,
         } break;
         case il::Type::TArray: {
           save_array(value.as<il::Array<il::Dynamic>>(), il::io, file, status);
-          status.abortOnError();
+          status.AbortOnError();
         } break;
         default:
           IL_UNREACHABLE;
@@ -240,8 +240,8 @@ inline void save_aux(const M &toml, const il::String &name, il::io_t,
       if (error == EOF) return;
       save_aux(value.as<il::MapArray<il::String, il::Dynamic>>(), toml.key(i),
                il::io, file, status);
-      if (!status.ok()) {
-        status.rearm();
+      if (!status.Ok()) {
+        status.Rearm();
         return;
       }
     } else if (type == il::Type::TMap) {
@@ -259,14 +259,14 @@ inline void save_aux(const M &toml, const il::String &name, il::io_t,
       if (error == EOF) return;
       save_aux(value.as<il::Map<il::String, il::Dynamic>>(), toml.key(i),
                il::io, file, status);
-      if (!status.ok()) {
-        status.rearm();
+      if (!status.Ok()) {
+        status.Rearm();
         return;
       }
     }
   }
 
-  status.setOk();
+  status.SetOk();
   return;
 }
 
@@ -278,7 +278,7 @@ class SaveHelper<il::Map<il::String, il::Dynamic>> {
 #ifdef IL_UNIX
     std::FILE *file = std::fopen(filename.asCString(), "wb");
     if (!file) {
-      status.setError(il::Error::FilesystemFileNotFound);
+      status.SetError(il::Error::FilesystemFileNotFound);
       return;
     }
 #else
@@ -286,25 +286,25 @@ class SaveHelper<il::Map<il::String, il::Dynamic>> {
     std::FILE *file;
     errno_t error_nb = _wfopen_s(&file, filename_utf16.asWString(), L"wb");
     if (error_nb != 0) {
-      status.setError(il::Error::FilesystemFileNotFound);
+      status.SetError(il::Error::FilesystemFileNotFound);
       return;
     }
 #endif
 
     il::String root_name{};
     save_aux(toml, root_name, il::io, file, status);
-    if (!status.ok()) {
-      status.rearm();
+    if (!status.Ok()) {
+      status.Rearm();
       return;
     }
 
     const int error = std::fclose(file);
     if (error != 0) {
-      status.setError(il::Error::FilesystemCanNotCloseFile);
+      status.SetError(il::Error::FilesystemCanNotCloseFile);
       return;
     }
 
-    status.setOk();
+    status.SetOk();
     return;
   }
 };
@@ -317,7 +317,7 @@ class SaveHelperToml<il::MapArray<il::String, il::Dynamic>> {
 #ifdef IL_UNIX
     std::FILE *file = std::fopen(filename.asCString(), "wb");
     if (!file) {
-      status.setError(il::Error::FilesystemFileNotFound);
+      status.SetError(il::Error::FilesystemFileNotFound);
       return;
     }
 #else
@@ -325,25 +325,25 @@ class SaveHelperToml<il::MapArray<il::String, il::Dynamic>> {
     std::FILE *file;
     errno_t error_nb = _wfopen_s(&file, filename_utf16.asWString(), L"wb");
     if (error_nb != 0) {
-      status.setError(il::Error::FilesystemFileNotFound);
+      status.SetError(il::Error::FilesystemFileNotFound);
       return;
     }
 #endif
 
     il::String root_name{};
     save_aux(toml, root_name, il::io, file, status);
-    if (!status.ok()) {
-      status.rearm();
+    if (!status.Ok()) {
+      status.Rearm();
       return;
     }
 
     const int error = std::fclose(file);
     if (error != 0) {
-      status.setError(il::Error::FilesystemCanNotCloseFile);
+      status.SetError(il::Error::FilesystemCanNotCloseFile);
       return;
     }
 
-    status.setOk();
+    status.SetOk();
     return;
   }
 };

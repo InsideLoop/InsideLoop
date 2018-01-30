@@ -42,7 +42,7 @@ void code() {
 
   // Performing the CG algorithm
 
-  timer.start();
+  timer.Start();
   r_cl = b_cl - A_cl * x_cl;
   p_cl = r_cl;
   delta_cl = (r_cl, r_cl);
@@ -61,7 +61,7 @@ void code() {
     p_cl = r_cl + (beta_cl / delta_cl) * p_cl;
     delta_cl = beta_cl;
   }
-  timer.stop();
+  timer.Stop();
   std::printf("    Time for Conjugate Gradient Blaze: %7.3f s\n",
               timer.elapsed());
 };

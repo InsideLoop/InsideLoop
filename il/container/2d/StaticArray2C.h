@@ -109,7 +109,7 @@ class StaticArray2C {
   /* \brief Get a pointer to the first element of the array
   // \details One should use this method only when using C-style API
   */
-  T* data();
+  T* Data();
 };
 
 template <typename T, il::int_t n0, il::int_t n1>
@@ -173,7 +173,7 @@ const T* StaticArray2C<T, n0, n1>::data() const {
 }
 
 template <typename T, il::int_t n0, il::int_t n1>
-T* StaticArray2C<T, n0, n1>::data() {
+T* StaticArray2C<T, n0, n1>::Data() {
   return data_;
 }
 }  // namespace il

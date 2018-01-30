@@ -39,12 +39,12 @@ NumpyInfo getNumpyInfo(il::io_t, std::FILE* fp, il::Status& status) {
   std::size_t count = 10;
   const std::size_t read = fread(first_buffer, sizeof(char), count, fp);
   if (read != count) {
-    status.setError(il::Error::BinaryFileWrongFormat);
+    status.SetError(il::Error::BinaryFileWrongFormat);
     IL_SET_SOURCE(status);
     return numpy_info;
   }
   if (!(buffer.subview(0, 6) == "\x93NUMPY")) {
-    status.setError(il::Error::BinaryFileWrongFormat);
+    status.SetError(il::Error::BinaryFileWrongFormat);
     IL_SET_SOURCE(status);
     return numpy_info;
   }
@@ -53,7 +53,7 @@ NumpyInfo getNumpyInfo(il::io_t, std::FILE* fp, il::Status& status) {
   unsigned short header_length =
       *reinterpret_cast<unsigned short*>(first_buffer + 8);
   if (major_version != 1 || minor_version != 0) {
-    status.setError(il::Error::BinaryFileWrongFormat);
+    status.SetError(il::Error::BinaryFileWrongFormat);
     IL_SET_SOURCE(status);
     return numpy_info;
   }
@@ -63,9 +63,9 @@ NumpyInfo getNumpyInfo(il::io_t, std::FILE* fp, il::Status& status) {
   il::Array<char> second_buffer{header_length + 1};
   StringView header =
       StringView{il::StringType::Raw, second_buffer.begin(), header_length + 1};
-  char* success = fgets(second_buffer.begin(), header_length + 1, fp);
+  char* success = fgets(second_buffer.Begin(), header_length + 1, fp);
   if (success == nullptr || !(header[header.size() - 2] == '\n')) {
-    status.setError(il::Error::BinaryFileWrongFormat);
+    status.SetError(il::Error::BinaryFileWrongFormat);
     IL_SET_SOURCE(status);
     return numpy_info;
   }
@@ -74,13 +74,13 @@ NumpyInfo getNumpyInfo(il::io_t, std::FILE* fp, il::Status& status) {
   //
   const il::int_t i4 = il::search("descr", header);
   if (i4 == -1 || i4 + 12 >= header.size()) {
-    status.setError(il::Error::BinaryFileWrongFormat);
+    status.SetError(il::Error::BinaryFileWrongFormat);
     IL_SET_SOURCE(status);
     return numpy_info;
   }
   const bool little_endian = header[i4 + 9] == '<' || header[i4 + 9] == '|';
   if (!little_endian) {
-    status.setError(il::Error::BinaryFileWrongFormat);
+    status.SetError(il::Error::BinaryFileWrongFormat);
     IL_SET_SOURCE(status);
     return numpy_info;
   }
@@ -93,7 +93,7 @@ NumpyInfo getNumpyInfo(il::io_t, std::FILE* fp, il::Status& status) {
   //
   const il::int_t i0 = il::search("fortran_order", header);
   if (i0 == -1 || i0 + 20 > header.size()) {
-    status.setError(il::Error::BinaryFileWrongFormat);
+    status.SetError(il::Error::BinaryFileWrongFormat);
     IL_SET_SOURCE(status);
     return numpy_info;
   }
@@ -106,16 +106,16 @@ NumpyInfo getNumpyInfo(il::io_t, std::FILE* fp, il::Status& status) {
   const il::int_t i1 = il::search("(", header);
   const il::int_t i2 = il::search(")", header);
   if (i1 == -1 || i2 == -1 || i2 - i1 <= 1) {
-    status.setError(il::Error::BinaryFileWrongFormat);
+    status.SetError(il::Error::BinaryFileWrongFormat);
     IL_SET_SOURCE(status);
     return numpy_info;
   }
   StringView shape_string = header.subview(i1 + 1, i2);
   if (shape_string.back(0) == ',') {
-    numpy_info.shape.resize(1);
+    numpy_info.shape.Resize(1);
   } else {
     const il::int_t n_dim = il::count(',', shape_string) + 1;
-    numpy_info.shape.resize(n_dim);
+    numpy_info.shape.Resize(n_dim);
   }
   il::int_t i = 0;
   while (true) {
@@ -128,63 +128,63 @@ NumpyInfo getNumpyInfo(il::io_t, std::FILE* fp, il::Status& status) {
     ++i;
   }
 
-  status.setOk();
+  status.SetOk();
   return numpy_info;
 }
 
 void saveNumpyInfo(const NumpyInfo& numpy_info, il::io_t, std::FILE* fp,
                    il::Status& status) {
   il::String header{};
-  header.append("{'descr': '");
+  header.Append("{'descr': '");
   // Little endian
-  header.append("<");
+  header.Append("<");
   // type of the array
-  header.append(numpy_info.type);
+  header.Append(numpy_info.type);
   // ordering
-  header.append("', 'fortran_order': ");
+  header.Append("', 'fortran_order': ");
   if (numpy_info.fortran_order) {
-    header.append("True");
+    header.Append("True");
   } else {
-    header.append("False");
+    header.Append("False");
   }
   // shape of the array
   // The buffer can hold enough digits for any 64-bit integer
   char buffer[21];
-  header.append(", 'shape': (");
+  header.Append(", 'shape': (");
   std::sprintf(buffer, "%td", numpy_info.shape[0]);
-  header.append(buffer);
+  header.Append(buffer);
   for (il::int_t i = 1; i < numpy_info.shape.size(); ++i) {
-    header.append(", ");
+    header.Append(", ");
     std::sprintf(buffer, "%td", numpy_info.shape[i]);
-    header.append(buffer);
+    header.Append(buffer);
   }
   if (numpy_info.shape.size() == 1) {
-    header.append(",");
+    header.Append(",");
   }
-  header.append("), }");
+  header.Append("), }");
   il::int_t remainder = 16 - (10 + 1 + header.size()) % 16;
-  header.append(remainder, ' ');
-  header.append('\n');
+  header.Append(remainder, ' ');
+  header.Append('\n');
 
   il::String magic{};
-  magic.append("\x93NUMPY");
+  magic.Append("\x93NUMPY");
   // Numpy format major version
-  magic.append(static_cast<char>(0x01));
+  magic.Append(static_cast<char>(0x01));
   // Numpy format minor version
-  magic.append(static_cast<char>(0x00));
+  magic.Append(static_cast<char>(0x00));
   // Size of the header
   unsigned short short_int = static_cast<unsigned short>(header.size());
-  magic.append(il::StringType::Raw, reinterpret_cast<char*>(&short_int), 2);
-  magic.append(header);
+  magic.Append(il::StringType::Raw, reinterpret_cast<char*>(&short_int), 2);
+  magic.Append(header);
 
   std::size_t written = std::fwrite(magic.asCString(), sizeof(char),
                                     static_cast<std::size_t>(magic.size()), fp);
   if (static_cast<il::int_t>(written) != magic.size()) {
-    status.setError(il::Error::FilesystemCanNotWriteToFile);
+    status.SetError(il::Error::FilesystemCanNotWriteToFile);
     IL_SET_SOURCE(status);
     return;
   }
 
-  status.setOk();
+  status.SetOk();
 }
 }  // namespace il

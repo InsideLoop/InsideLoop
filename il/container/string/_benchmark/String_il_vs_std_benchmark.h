@@ -67,7 +67,7 @@ static void StdStringConstruct_2(benchmark::State& state) {
 //  while (state.KeepRunning()) {
 //    il::String s0 = "Hello";
 //    il::String s1 = "world";
-//    s0.append(" ", s1, "!");
+//    s0.Append(" ", s1, "!");
 //    benchmark::DoNotOptimize(s0.data());
 //  }
 //}

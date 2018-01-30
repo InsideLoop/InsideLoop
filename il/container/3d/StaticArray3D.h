@@ -142,7 +142,7 @@ class StaticArray3D {
   /* \brief Get a pointer to the first element of the array
   // \details One should use this method only when using C-style API
   */
-  T* data();
+  T* Data();
 };
 
 template <typename T, il::int_t n0, il::int_t n1, il::int_t n2>
@@ -211,7 +211,7 @@ const T* StaticArray3D<T, n0, n1, n2>::data() const {
 }
 
 template <typename T, il::int_t n0, il::int_t n1, il::int_t n2>
-T* StaticArray3D<T, n0, n1, n2>::data() {
+T* StaticArray3D<T, n0, n1, n2>::Data() {
   return data_;
 }
 

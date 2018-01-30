@@ -37,7 +37,7 @@ Gmres::Gmres(double relative_precision, il::int_t max_nb_iterations,
   nb_iterations_ = -1;
 }
 
-void Gmres::solve(const ArrayFunctor<double>& a, const ArrayFunctor<double>& b,
+void Gmres::Solve(const ArrayFunctor<double>& a, const ArrayFunctor<double>& b,
                   il::ArrayView<double> y, bool use_preconditionner,
                   bool use_x_as_initial_value, il::io_t,
                   il::ArrayEdit<double> x) {
@@ -80,8 +80,8 @@ void Gmres::solve(const ArrayFunctor<double>& a, const ArrayFunctor<double>& b,
   il::StaticArray<MKL_INT, 128> ipar;
   il::StaticArray<double, 128> dpar;
 
-  dfgmres_init(&n, x_local.data(), y_local.data(), &RCI_request, ipar.data(),
-               dpar.data(), tmp.data());
+  dfgmres_init(&n, x_local.data(), y_local.data(), &RCI_request, ipar.Data(),
+               dpar.Data(), tmp.Data());
   IL_EXPECT_FAST(RCI_request == 0);
 
   // ipar[0]: The size of the matrix
@@ -131,16 +131,16 @@ void Gmres::solve(const ArrayFunctor<double>& a, const ArrayFunctor<double>& b,
   // dpar[30] = zero_diagonal_threshold_;
   // dpar[31] = zero_diagonal_replacement_;
 
-  dfgmres_check(&n, x_local.data(), y_local.data(), &RCI_request, ipar.data(),
-                dpar.data(), tmp.data());
+  dfgmres_check(&n, x_local.data(), y_local.data(), &RCI_request, ipar.Data(),
+                dpar.Data(), tmp.Data());
   IL_EXPECT_FAST(RCI_request == 0);
 
   bool stop_iteration = false;
   double y_norm = dnrm2(&n, y_local.data(), &one_int);
   while (!stop_iteration) {
     // The beginning of the iteration
-    dfgmres(&n, x_local.data(), y_local.data(), &RCI_request, ipar.data(),
-            dpar.data(), tmp.data());
+    dfgmres(&n, x_local.Data(), y_local.Data(), &RCI_request, ipar.Data(),
+            dpar.Data(), tmp.Data());
     switch (RCI_request) {
       case 0:
         // In that case, the solution has been found with the right precision.
@@ -150,26 +150,26 @@ void Gmres::solve(const ArrayFunctor<double>& a, const ArrayFunctor<double>& b,
       case 1: {
         // This is a Free Matrix/Vector multiplication
         // It takes the input from tmp[ipar[21]] and put it into tmp[ipar[22]]
-        il::ArrayView<double> x_view{tmp.data() + ipar[21] - 1, n};
-        il::ArrayEdit<double> y_edit{tmp.data() + ipar[22] - 1, n};
+        il::ArrayView<double> x_view{tmp.Data() + ipar[21] - 1, n};
+        il::ArrayEdit<double> y_edit{tmp.Data() + ipar[22] - 1, n};
         a(x_view, il::io, y_edit);
       } break;
       case 2: {
         ipar[12] = 1;
         // Retrieve iteration number AND update sol
-        dfgmres_get(&n, x_local.data(), y_copy.data(), &RCI_request,
-                    ipar.data(), dpar.data(), tmp.data(), &itercount);
+        dfgmres_get(&n, x_local.Data(), y_copy.Data(), &RCI_request,
+                    ipar.data(), dpar.data(), tmp.Data(), &itercount);
         // Compute the current true residual via MKL (Sparse) BLAS
         // routines. It multiplies the matrix A with yCopy and
         // store the result in residual.
         //--------------- To Change
         il::ArrayView<double> y_copy_view = y_copy.view();
-        il::ArrayEdit<double> residual_edit = residual.edit();
+        il::ArrayEdit<double> residual_edit = residual.Edit();
         a(y_copy_view, il::io, residual_edit);
         // Compute: residual = A.(current x_local) - y
         // Note that A.(current x_local) is stored in residual before this
         // operation
-        daxpy(&n, &minus_one_double, y_local.data(), &one_int, residual.data(),
+        daxpy(&n, &minus_one_double, y_local.data(), &one_int, residual.Data(),
               &one_int);
         // This number plays a critical role in the precision of the method
         double norm_residual = dnrm2(&n, residual.data(), &one_int);
@@ -184,8 +184,8 @@ void Gmres::solve(const ArrayFunctor<double>& a, const ArrayFunctor<double>& b,
         // TMP(IPAR(23)). Here is the recommended usage of the
         // result produced by ILUT routine via standard MKL Sparse
         // Blas solver rout'ine mkl_dcsrtrsv
-        il::ArrayView<double> x_view{tmp.data() + ipar[21] - 1, n};
-        il::ArrayEdit<double> y_edit{tmp.data() + ipar[22] - 1, n};
+        il::ArrayView<double> x_view{tmp.Data() + ipar[21] - 1, n};
+        il::ArrayEdit<double> y_edit{tmp.Data() + ipar[22] - 1, n};
         b(x_view, il::io, y_edit);
       } break;
       case 4:
@@ -203,8 +203,8 @@ void Gmres::solve(const ArrayFunctor<double>& a, const ArrayFunctor<double>& b,
     }
   }
   ipar[12] = 0;
-  dfgmres_get(&n, x_local.data(), y_local.data(), &RCI_request, ipar.data(),
-              dpar.data(), tmp.data(), &itercount);
+  dfgmres_get(&n, x_local.Data(), y_local.Data(), &RCI_request, ipar.data(),
+              dpar.data(), tmp.Data(), &itercount);
 
   nb_iterations_ = itercount;
 

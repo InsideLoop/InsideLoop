@@ -151,7 +151,7 @@ TEST(Array2D, copy_constructor) {
       A(i, j) = i + 2 * j;
     }
   }
-  A.reserve(2 * n, 2 * m);
+  A.Reserve(2 * n, 2 * m);
 
   il::Array2D<il::int_t> B{A};
   bool same_elements{true};
@@ -176,7 +176,7 @@ TEST(Array2D, move_constructor) {
       A(i, j) = i + 2 * j;
     }
   }
-  A.reserve(2 * n, 2 * m);
+  A.Reserve(2 * n, 2 * m);
   const il::int_t* const old_A_data{A.data()};
 
   il::Array2D<il::int_t> B{std::move(A)};
@@ -205,7 +205,7 @@ TEST(Array2D, copy_assignment_0) {
       A(i, j) = i + 2 * j;
     }
   }
-  A.reserve(2 * n, 2 * m);
+  A.Reserve(2 * n, 2 * m);
 
   il::Array2D<il::int_t> B{};
   B = A;
@@ -231,7 +231,7 @@ TEST(Array2D, copy_assignment_1) {
       A(i, j) = i + 2 * j;
     }
   }
-  A.reserve(2 * n, 2 * m);
+  A.Reserve(2 * n, 2 * m);
 
   il::Array2D<il::int_t> B{3 * n, 3 * m};
   B = A;
@@ -284,7 +284,7 @@ TEST(Array2D, move_assignment) {
       A(i, j) = i + 2 * j;
     }
   }
-  A.reserve(2 * n, 2 * m);
+  A.Reserve(2 * n, 2 * m);
   const il::int_t* const old_A_data{A.data()};
 
   il::Array2D<il::int_t> B{3 * n, 3 * m};
@@ -526,7 +526,7 @@ TEST(Array2D, bounds_checking_default_const) {
 TEST(Array2D, resize_0) {
   il::Array2D<il::int_t> A{il::value, {{1, 2}, {3, 4}, {5, 6}}};
   const il::int_t* const old_A_data{A.data()};
-  A.resize(1, 2);
+  A.Resize(1, 2);
 
   ASSERT_TRUE(old_A_data == A.data() && A.size(0) == 1 && A.capacity(0) == 2 &&
               A.size(1) == 2 && A.capacity(1) == 3 && A(0, 0) == 1 &&
@@ -535,7 +535,7 @@ TEST(Array2D, resize_0) {
 
 TEST(Array2D, resize_1) {
   il::Array2D<il::int_t> A{il::value, {{1, 2}, {3, 4}, {5, 6}}};
-  A.resize(1, 4);
+  A.Resize(1, 4);
 
   ASSERT_TRUE(A.size(0) == 1 && A.capacity(0) == 1 && A.size(1) == 4 &&
               A.capacity(1) == 4 && A(0, 0) == 1 && A(0, 1) == 3 &&
@@ -544,7 +544,7 @@ TEST(Array2D, resize_1) {
 
 TEST(Array2D, resize_2) {
   il::Array2D<il::int_t> A{il::value, {{1, 2}, {3, 4}, {5, 6}}};
-  A.resize(3, 1);
+  A.Resize(3, 1);
 
   ASSERT_TRUE(A.size(0) == 3 && A.capacity(0) == 3 && A.size(1) == 1 &&
               A.capacity(1) == 1 && A(0, 0) == 1 && A(1, 0) == 2);
@@ -552,7 +552,7 @@ TEST(Array2D, resize_2) {
 
 TEST(Array2D, resize_3) {
   il::Array2D<il::int_t> A{il::value, {{1, 2}, {3, 4}, {5, 6}}};
-  A.resize(3, 4);
+  A.Resize(3, 4);
 
   ASSERT_TRUE(A.size(0) == 3 && A.capacity(0) == 3 && A.size(1) == 4 &&
               A.capacity(1) == 4 && A(0, 0) == 1 && A(1, 0) == 2 &&
@@ -561,7 +561,7 @@ TEST(Array2D, resize_3) {
 
 TEST(Array2D, resize_4) {
   il::Array2D<il::int_t> A{};
-  A.resize(4, 0);
+  A.Resize(4, 0);
 
   ASSERT_TRUE(A.size(0) == 4 && A.capacity(0) == 4 && A.size(1) == 0 &&
               A.capacity(1) == 1);
@@ -571,7 +571,7 @@ TEST(Array2D, resize_object_0) {
   Dummy::reset();
   il::Array2D<Dummy> A{2, 3};
   const Dummy* const old_A_data{A.data()};
-  A.resize(1, 1);
+  A.Resize(1, 1);
 
   ASSERT_TRUE(old_A_data == A.data() && A.size(0) == 1 && A.capacity(0) == 2 &&
               A.size(1) == 1 && A.capacity(1) == 3 && A(0, 0).id() == 0 &&
@@ -583,7 +583,7 @@ TEST(Array2D, resize_object_0) {
 TEST(Array2D, resize_object_1) {
   Dummy::reset();
   il::Array2D<Dummy> A{2, 3};
-  A.resize(4, 1);
+  A.Resize(4, 1);
 
   ASSERT_TRUE(A.size(0) == 4 && A.capacity(0) == 4 && A.size(1) == 1 &&
               A.capacity(1) == 1 && Dummy::destroyed.size() == 6 &&
@@ -597,7 +597,7 @@ TEST(Array2D, reserve_0) {
   const il::int_t m = 5;
   il::Array2D<il::int_t> A{n, m};
   const il::int_t* const old_A_data{A.data()};
-  A.reserve(n - 1, m - 1);
+  A.Reserve(n - 1, m - 1);
 
   ASSERT_TRUE(old_A_data == A.data() && A.size(0) == n && A.capacity(0) == n &&
               A.size(1) == m && A.capacity(1) == m);
@@ -605,7 +605,7 @@ TEST(Array2D, reserve_0) {
 
 TEST(Array2D, reserve_1) {
   il::Array2D<il::int_t> A{il::value, {{1, 2}, {3, 4}, {5, 6}}};
-  A.reserve(3, 3);
+  A.Reserve(3, 3);
 
   ASSERT_TRUE(A.size(0) == 2 && A.capacity(0) == 3 && A.size(1) == 3 &&
               A.capacity(1) == 3 && A(0, 0) == 1 && A(1, 0) == 2 &&
@@ -614,7 +614,7 @@ TEST(Array2D, reserve_1) {
 
 TEST(Array2D, reserve_2) {
   il::Array2D<il::int_t> A{il::value, {{1, 2}, {3, 4}, {5, 6}}};
-  A.reserve(2, 4);
+  A.Reserve(2, 4);
 
   ASSERT_TRUE(A.size(0) == 2 && A.capacity(0) == 2 && A.size(1) == 3 &&
               A.capacity(1) == 4 && A(0, 0) == 1 && A(1, 0) == 2 &&
@@ -623,7 +623,7 @@ TEST(Array2D, reserve_2) {
 
 TEST(Array2D, reserve_3) {
   il::Array2D<il::int_t> A{il::value, {{1, 2}, {3, 4}, {5, 6}}};
-  A.reserve(3, 4);
+  A.Reserve(3, 4);
 
   ASSERT_TRUE(A.size(0) == 2 && A.capacity(0) == 3 && A.size(1) == 3 &&
               A.capacity(1) == 4 && A(0, 0) == 1 && A(1, 0) == 2 &&
@@ -633,7 +633,7 @@ TEST(Array2D, reserve_3) {
 TEST(Array2D, reserve_object) {
   Dummy::reset();
   il::Array2D<Dummy> A{2, 3};
-  A.reserve(1, 5);
+  A.Reserve(1, 5);
 
   ASSERT_TRUE(Dummy::destroyed.size() == 6 && Dummy::destroyed[0] == -6 &&
               Dummy::destroyed[1] == -5 && Dummy::destroyed[2] == -4 &&

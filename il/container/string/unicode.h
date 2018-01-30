@@ -90,9 +90,9 @@ inline il::UTF16String toUtf16(const il::String& string) {
   il::StringView view{string.type(), string.data(), string.size()};
 
   for (il::int_t i = 0; i < view.size(); i = view.nextRune(i)) {
-    ans.append(view.rune(i));
+    ans.Append(view.rune(i));
   }
-  ans.append('\0');
+  ans.Append('\0');
   return ans;
 }
 
@@ -100,9 +100,9 @@ inline il::String toUtf8(const il::UTF16String& string) {
   il::String ans{};
 
   for (il::int_t i = 0; i < string.size(); i = string.nextRune(i)) {
-    ans.append(string.rune(i));
+    ans.Append(string.rune(i));
   }
-  ans.append('\0');
+  ans.Append('\0');
   return ans;
 }
 

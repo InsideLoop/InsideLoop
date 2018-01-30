@@ -43,7 +43,7 @@ class FormatBuf : public std::basic_streambuf<Char> {
   }
 
   std::streamsize xsputn(const Char *s, std::streamsize count) FMT_OVERRIDE {
-    buffer_.append(s, s + count);
+    buffer_.Append(s, s + count);
     return count;
   }
 };

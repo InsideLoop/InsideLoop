@@ -57,7 +57,7 @@ class LowerArray2D {
   T& operator()(il::int_t i0, il::int_t i1);
   il::int_t size() const;
   il::int_t capacity() const;
-  T* data();
+  T* Data();
 };
 
 template <typename T>
@@ -273,7 +273,7 @@ il::int_t LowerArray2D<T>::capacity() const {
 }
 
 template <typename T>
-T* LowerArray2D<T>::data() {
+T* LowerArray2D<T>::Data() {
   return data_;
 }
 }  // namespace il

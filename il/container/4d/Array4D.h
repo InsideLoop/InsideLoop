@@ -152,7 +152,7 @@ class Array4D {
   // unchanged. When one of the sizes is > than the the capacity, reallocation
   // is done and the array gets the same capacity as its size.
   */
-  void resize(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3);
+  void Resize(il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n3);
 
   /* \brief Get the capacity of the il::Array4D<T>
   // \details capacity(0) gives the capacity in terms of rows and capacity(1)
@@ -167,7 +167,7 @@ class Array4D {
   // and the slice capacity is >= to t, nothing is done. Otherwise, reallocation
   // is done and the new capacity is set to r, s and t
   */
-  void reserve(il::int_t r0, il::int_t r1, il::int_t r2, il::int_t r3);
+  void Reserve(il::int_t r0, il::int_t r1, il::int_t r2, il::int_t r3);
 
   /* \brief Get a pointer to const to the first element of the array
   // \details One should use this method only when using C-style API
@@ -177,7 +177,7 @@ class Array4D {
   /* \brief Get a pointer to the first element of the array
   // \details One should use this method only when using C-style API
   */
-  T* data();
+  T* Data();
 
   /* \brief The memory position of A(i, j, k) is
   // data() + (i * stride(0) + j) * stride(1) + k
@@ -701,7 +701,7 @@ il::int_t Array4D<T>::size(il::int_t d) const {
 }
 
 template <typename T>
-void Array4D<T>::resize(il::int_t n0, il::int_t n1, il::int_t n2,
+void Array4D<T>::Resize(il::int_t n0, il::int_t n1, il::int_t n2,
                         il::int_t n3) {
   IL_EXPECT_FAST(n0 >= 0);
   IL_EXPECT_FAST(n1 >= 0);
@@ -896,7 +896,7 @@ il::int_t Array4D<T>::capacity(il::int_t d) const {
 }
 
 template <typename T>
-void Array4D<T>::reserve(il::int_t r0, il::int_t r1, il::int_t r2,
+void Array4D<T>::Reserve(il::int_t r0, il::int_t r1, il::int_t r2,
                          il::int_t r3) {
   IL_EXPECT_FAST(r0 >= 0);
   IL_EXPECT_FAST(r1 >= 0);
@@ -990,7 +990,7 @@ const T* Array4D<T>::data() const {
 }
 
 template <typename T>
-T* Array4D<T>::data() {
+T* Array4D<T>::Data() {
   return data_;
 }
 

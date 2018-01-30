@@ -37,14 +37,14 @@ class MapArray {
   MapArray();
   MapArray(il::int_t n);
   MapArray(il::value_t, std::initializer_list<il::KeyValue<K, V>> list);
-  void set(const K& key, const V& value);
-  void set(const K& key, V&& value);
-  void set(K&& key, const V& value);
-  void set(K&& key, V&& value);
-  void set(const K& key, const V& value, il::io_t, il::Location& i);
-  void set(const K& key, V&& value, il::io_t, il::Location& i);
-  void set(K&& key, const V& value, il::io_t, il::Location& i);
-  void set(K&& key, V&& value, il::io_t, il::Location& i);
+  void Set(const K& key, const V& value);
+  void Set(const K& key, V&& value);
+  void Set(K&& key, const V& value);
+  void Set(K&& key, V&& value);
+  void Set(const K& key, const V& value, il::io_t, il::Location& i);
+  void Set(const K& key, V&& value, il::io_t, il::Location& i);
+  void Set(K&& key, const V& value, il::io_t, il::Location& i);
+  void Set(K&& key, V&& value, il::io_t, il::Location& i);
   il::int_t size() const;
   il::int_t capacity() const;
   il::Location search(const K& key) const;
@@ -53,7 +53,7 @@ class MapArray {
   bool found(il::Location i) const;
   const K& key(il::Location i) const;
   const V& value(il::Location i) const;
-  V& value(il::Location i);
+  V& Value(il::Location i);
   il::Location next(il::Location i) const;
   il::Location first() const;
   il::Location sentinel() const;
@@ -69,7 +69,7 @@ MapArray<K, V, F>::MapArray() : array_{}, map_{} {
 
 template <typename K, typename V, typename F>
 MapArray<K, V, F>::MapArray(il::int_t n) : array_{}, map_{n} {
-  array_.reserve(n);
+  array_.Reserve(n);
 #ifdef IL_DEBUG_CLASS
   hash_ = 0;
 #endif
@@ -80,12 +80,12 @@ MapArray<K, V, F>::MapArray(il::value_t,
                             std::initializer_list<il::KeyValue<K, V>> list) {
   const il::int_t n = static_cast<il::int_t>(list.size());
   if (n > 0) {
-    array_.reserve(n);
-    map_.reserve(n);
+    array_.Reserve(n);
+    map_.Reserve(n);
     for (il::int_t i = 0; i < n; ++i) {
-      array_.append(il::emplace, (list.begin() + i)->key,
+      array_.Append(il::emplace, (list.begin() + i)->key,
                     (list.begin() + i)->value);
-      map_.set((list.begin() + i)->key, i);
+      map_.Set((list.begin() + i)->key, i);
     }
   }
 #ifdef IL_DEBUG_CLASS
@@ -94,74 +94,74 @@ MapArray<K, V, F>::MapArray(il::value_t,
 };
 
 template <typename K, typename V, typename F>
-void MapArray<K, V, F>::set(const K& key, const V& value) {
+void MapArray<K, V, F>::Set(const K& key, const V& value) {
   const il::int_t i = array_.size();
-  array_.append(il::emplace, key, value);
-  map_.set(key, i);
+  array_.Append(il::emplace, key, value);
+  map_.Set(key, i);
 #ifdef IL_DEBUG_CLASS
   hash_ = F::hash(key, map_.hash());
 #endif
 }
 
 template <typename K, typename V, typename F>
-void MapArray<K, V, F>::set(const K& key, V&& value) {
+void MapArray<K, V, F>::Set(const K& key, V&& value) {
   const il::int_t i = array_.size();
-  array_.append(il::emplace, key, std::move(value));
-  map_.set(key, i);
+  array_.Append(il::emplace, key, std::move(value));
+  map_.Set(key, i);
 #ifdef IL_DEBUG_CLASS
   hash_ = F::hash(key, map_.hash());
 #endif
 }
 
 template <typename K, typename V, typename F>
-void MapArray<K, V, F>::set(K&& key, V&& value) {
+void MapArray<K, V, F>::Set(K&& key, V&& value) {
   const il::int_t i = array_.size();
-  array_.append(il::emplace, key, std::move(value));
-  map_.set(std::move(key), i);
+  array_.Append(il::emplace, key, std::move(value));
+  map_.Set(std::move(key), i);
 #ifdef IL_DEBUG_CLASS
   hash_ = F::hash(key, map_.hash());
 #endif
 }
 
 template <typename K, typename V, typename F>
-void MapArray<K, V, F>::set(const K& key, const V& value, il::io_t,
+void MapArray<K, V, F>::Set(const K& key, const V& value, il::io_t,
                             il::Location& i) {
   const il::int_t j = array_.size();
-  array_.append(il::emplace, key, value);
-  map_.set(key, j, il::io, i);
+  array_.Append(il::emplace, key, value);
+  map_.Set(key, j, il::io, i);
 
 #ifdef IL_DEBUG_CLASS
   hash_ = F::hash(key, map_.hash());
-  i.setIndex(j, hash_);
+  i.SetIndex(j, hash_);
 #else
-  i.setIndex(j);
+  i.SetIndex(j);
 #endif
 }
 
 template <typename K, typename V, typename F>
-void MapArray<K, V, F>::set(const K& key, V&& value, il::io_t,
+void MapArray<K, V, F>::Set(const K& key, V&& value, il::io_t,
                             il::Location& i) {
   const il::int_t j = array_.size();
-  array_.append(il::emplace, key, std::move(value));
-  map_.set(key, j, il::io, i);
+  array_.Append(il::emplace, key, std::move(value));
+  map_.Set(key, j, il::io, i);
 #ifdef IL_DEBUG_CLASS
   hash_ = F::hash(key, map_.hash());
-  i.setIndex(j, hash_);
+  i.SetIndex(j, hash_);
 #else
-  i.setIndex(j);
+  i.SetIndex(j);
 #endif
 }
 
 template <typename K, typename V, typename F>
-void MapArray<K, V, F>::set(K&& key, V&& value, il::io_t, il::Location& i) {
+void MapArray<K, V, F>::Set(K&& key, V&& value, il::io_t, il::Location& i) {
   const il::int_t j = array_.size();
-  array_.append(il::emplace, key, std::move(value));
-  map_.set(std::move(key), j, il::io, i);
+  array_.Append(il::emplace, key, std::move(value));
+  map_.Set(std::move(key), j, il::io, i);
 #ifdef IL_DEBUG_CLASS
   hash_ = F::hash(key, map_.hash());
-  i.setIndex(j, hash_);
+  i.SetIndex(j, hash_);
 #else
-  i.setIndex(j);
+  i.SetIndex(j);
 #endif
 }
 
@@ -214,7 +214,7 @@ const V& MapArray<K, V, F>::value(il::Location i) const {
 }
 
 template <typename K, typename V, typename F>
-V& MapArray<K, V, F>::value(il::Location i) {
+V& MapArray<K, V, F>::Value(il::Location i) {
   return array_[i.index()].value;
 }
 
