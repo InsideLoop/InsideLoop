@@ -57,9 +57,7 @@ class Queue {
     front_ = 0;
     back_ = -1;
   }
-  il::int_t capacity() const {
-    return data_.size();
-  }
+  il::int_t capacity() const { return data_.size(); }
   void Append(const T& x) {
     if (back_ == -1 && front_ == 0) {
       data_[0] = x;
@@ -95,9 +93,7 @@ class Queue {
       }
     }
   }
-  const T& front() const {
-    return data_[front_];
-  }
+  const T& front() const { return data_[front_]; }
   T Pop() {
     if (front_ + 1 < data_.size()) {
       ++front_;
@@ -108,7 +104,6 @@ class Queue {
     }
   };
 };
-
 
 }  // namespace il
 

@@ -507,13 +507,13 @@ il::Spot Map<K, V, F>::search(const K& key) const {
     if (F::isEmpty(bucket_[i].key)) {
 #ifdef IL_DEBUG_CLASS
       return il::Spot{(i_tombstone == static_cast<std::size_t>(-1))
-                              ? -(1 + static_cast<il::int_t>(i))
-                              : -(1 + static_cast<il::int_t>(i_tombstone)),
-                          hash_};
+                          ? -(1 + static_cast<il::int_t>(i))
+                          : -(1 + static_cast<il::int_t>(i_tombstone)),
+                      hash_};
 #else
       return il::Spot{(i_tombstone == static_cast<std::size_t>(-1))
-                              ? -(1 + static_cast<il::int_t>(i))
-                              : -(1 + static_cast<il::int_t>(i_tombstone))};
+                          ? -(1 + static_cast<il::int_t>(i))
+                          : -(1 + static_cast<il::int_t>(i_tombstone))};
 #endif
     } else if (F::isTombstone(bucket_[i].key)) {
       i_tombstone = i;
@@ -552,13 +552,13 @@ il::Spot Map<K, V, F>::searchCString(const char (&key)[m]) const {
     if (F::isEmpty(bucket_[i].key)) {
 #ifdef IL_DEBUG_CLASS
       return il::Spot{(i_tombstone == static_cast<std::size_t>(-1))
-                              ? -(1 + static_cast<il::int_t>(i))
-                              : -(1 + static_cast<il::int_t>(i_tombstone)),
-                          hash_};
+                          ? -(1 + static_cast<il::int_t>(i))
+                          : -(1 + static_cast<il::int_t>(i_tombstone)),
+                      hash_};
 #else
       return il::Spot{(i_tombstone == static_cast<std::size_t>(-1))
-                              ? -(1 + static_cast<il::int_t>(i))
-                              : -(1 + static_cast<il::int_t>(i_tombstone))};
+                          ? -(1 + static_cast<il::int_t>(i))
+                          : -(1 + static_cast<il::int_t>(i_tombstone))};
 #endif
     } else if (F::isTombstone(bucket_[i].key)) {
       i_tombstone = i;
@@ -593,13 +593,13 @@ il::Spot Map<K, V, F>::searchCString(const char* key, il::int_t n) const {
     if (F::isEmpty(bucket_[i].key)) {
 #ifdef IL_DEBUG_CLASS
       return il::Spot{(i_tombstone == static_cast<std::size_t>(-1))
-                              ? -(1 + static_cast<il::int_t>(i))
-                              : -(1 + static_cast<il::int_t>(i_tombstone)),
-                          hash_};
+                          ? -(1 + static_cast<il::int_t>(i))
+                          : -(1 + static_cast<il::int_t>(i_tombstone)),
+                      hash_};
 #else
       return il::Spot{(i_tombstone == static_cast<std::size_t>(-1))
-                              ? -(1 + static_cast<il::int_t>(i))
-                              : -(1 + static_cast<il::int_t>(i_tombstone))};
+                          ? -(1 + static_cast<il::int_t>(i))
+                          : -(1 + static_cast<il::int_t>(i_tombstone))};
 #endif
     } else if (F::isTombstone(bucket_[i].key)) {
       i_tombstone = i;
@@ -689,8 +689,7 @@ void Map<K, V, F>::InsertCString(const char (&key)[m], const V& value, il::io_t,
 }
 
 template <typename K, typename V, typename F>
-void Map<K, V, F>::Set(const K& key, const V& value, il::io_t,
-                       il::Spot& i) {
+void Map<K, V, F>::Set(const K& key, const V& value, il::io_t, il::Spot& i) {
 #ifdef IL_DEBUG_CLASS
   IL_EXPECT_FAST(i.hash() == hash_);
 #endif

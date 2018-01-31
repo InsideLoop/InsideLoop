@@ -79,8 +79,9 @@ class SaveHelper<il::Array<T>> {
 
     il::NumpyInfo numpy_info;
     numpy_info.shape = il::Array<il::int_t>{il::value, {v.size()}};
-    numpy_info.type = il::String{il::StringType::kAscii, il::numpyType<T>::value,
-                                 il::size(il::numpyType<T>::value)};
+    numpy_info.type =
+        il::String{il::StringType::kAscii, il::numpyType<T>::value,
+                   il::size(il::numpyType<T>::value)};
     numpy_info.fortran_order = true;
 
     il::Status info_status{};
@@ -133,8 +134,9 @@ class SaveHelper<il::Array2D<T>> {
 
     il::NumpyInfo numpy_info;
     numpy_info.shape = il::Array<il::int_t>{il::value, {A.size(0), A.size(1)}};
-    numpy_info.type = il::String{il::StringType::kAscii, il::numpyType<T>::value,
-                                 il::size(il::numpyType<T>::value)};
+    numpy_info.type =
+        il::String{il::StringType::kAscii, il::numpyType<T>::value,
+                   il::size(il::numpyType<T>::value)};
     numpy_info.fortran_order = true;
 
     il::Status info_status{};

@@ -186,13 +186,13 @@ il::Spot Set<T, F>::search(const T& x) const {
     if (F::isEmpty(bucket_[i])) {
 #ifdef IL_DEBUG_CLASS
       return il::Spot{(i_tombstone == static_cast<std::size_t>(-1))
-                              ? -(1 + static_cast<il::int_t>(i))
-                              : -(1 + static_cast<il::int_t>(i_tombstone)),
-                          0};
+                          ? -(1 + static_cast<il::int_t>(i))
+                          : -(1 + static_cast<il::int_t>(i_tombstone)),
+                      0};
 #else
       return il::Spot{(i_tombstone == static_cast<std::size_t>(-1))
-                              ? -(1 + static_cast<il::int_t>(i))
-                              : -(1 + static_cast<il::int_t>(i_tombstone))};
+                          ? -(1 + static_cast<il::int_t>(i))
+                          : -(1 + static_cast<il::int_t>(i_tombstone))};
 #endif
     } else if (F::isTombstone(bucket_[i])) {
       i_tombstone = i;
@@ -285,11 +285,9 @@ il::Spot Set<T, F>::begin() const {
 template <typename T, typename F>
 il::Spot Set<T, F>::end() const {
 #ifdef IL_DEBUG_CLASS
-  return il::Spot{static_cast<il::int_t>(static_cast<std::size_t>(1) << p_),
-                      0};
+  return il::Spot{static_cast<il::int_t>(static_cast<std::size_t>(1) << p_), 0};
 #else
-  return il::Spot{
-      static_cast<il::int_t>(static_cast<std::size_t>(1) << p_)};
+  return il::Spot{static_cast<il::int_t>(static_cast<std::size_t>(1) << p_)};
 #endif
 }
 

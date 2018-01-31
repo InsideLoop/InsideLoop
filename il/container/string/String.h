@@ -1306,7 +1306,8 @@ inline bool StringView::hasNewLine(il::int_t i) const {
 
 inline int StringView::rune(il::int_t i) const {
   unsigned int ans = 0;
-  const unsigned char* data = reinterpret_cast<const unsigned char*>(this->data());
+  const unsigned char* data =
+      reinterpret_cast<const unsigned char*>(this->data());
   if ((data[i] & 0x80u) == 0) {
     ans = static_cast<unsigned int>(data[i]);
   } else if ((data[i] & 0xE0u) == 0xC0u) {

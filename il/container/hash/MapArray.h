@@ -139,8 +139,7 @@ void MapArray<K, V, F>::Set(const K& key, const V& value, il::io_t,
 }
 
 template <typename K, typename V, typename F>
-void MapArray<K, V, F>::Set(const K& key, V&& value, il::io_t,
-                            il::Spot& i) {
+void MapArray<K, V, F>::Set(const K& key, V&& value, il::io_t, il::Spot& i) {
   const il::int_t j = array_.size();
   array_.Append(il::emplace, key, std::move(value));
   map_.Set(key, j, il::io, i);

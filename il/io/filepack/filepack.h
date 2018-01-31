@@ -84,7 +84,8 @@ inline void auxLoad(il::int_t n, il::io_t,
     }
     il::Array<char> raw_string{size_string - 1};
     std::fread(raw_string.data(), sizeof(char), size_string - 1, file);
-    il::String string{il::StringType::kByte, raw_string.data(), size_string - 1};
+    il::String string{il::StringType::kByte, raw_string.data(),
+                      size_string - 1};
     k += string.size() + 1;
 
     il::Type type;
@@ -168,7 +169,8 @@ inline void auxLoad(il::int_t n, il::io_t,
 
           il::Array<char> raw_string{key_size};
           std::fread(raw_string.data(), sizeof(char), key_size, file);
-          key[i] = il::String{il::StringType::kByte, raw_string.data(), key_size};
+          key[i] =
+              il::String{il::StringType::kByte, raw_string.data(), key_size};
 
           fread(&(type[i]), sizeof(il::Type), 1, file);
         }
