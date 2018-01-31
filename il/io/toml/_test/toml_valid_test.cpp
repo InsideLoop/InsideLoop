@@ -36,7 +36,7 @@ TEST(Toml, array_empty) {
   if (!status.Ok() || config.size() != 1) {
     ans = false;
   } else {
-    const il::spot_t i0 = config.search("thevoid");
+    const il::Spot i0 = config.search("thevoid");
     if (!(config.found(i0) && config.value(i0).is<il::Array<il::Dynamic>>())) {
       ans = false;
     } else {
@@ -88,7 +88,7 @@ TEST(Toml, array_nospaces) {
   if (!status.Ok() || config.size() != 1) {
     ans = false;
   } else {
-    const il::spot_t i = config.search("ints");
+    const il::Spot i = config.search("ints");
     if (!(config.found(i) && config.value(i).is<il::Array<il::Dynamic>>())) {
       ans = false;
     } else {
@@ -118,7 +118,7 @@ TEST(Toml, arrays_heterogeneous) {
   if (!status.Ok() || config.size() != 1) {
     ans = false;
   } else {
-    const il::spot_t i = config.search("mixed");
+    const il::Spot i = config.search("mixed");
     if (!(config.found(i) && config.value(i).is<il::Array<il::Dynamic>>() &&
           config.value(i).as<il::Array<il::Dynamic>>().size() == 3)) {
       ans = false;
@@ -175,7 +175,7 @@ TEST(Toml, arrays_nested) {
   if (!status.Ok() || config.size() != 1) {
     ans = false;
   } else {
-    const il::spot_t i = config.search("nest");
+    const il::Spot i = config.search("nest");
     if (!(config.found(i) && config.value(i).is<il::Array<il::Dynamic>>() &&
           config.value(i).as<il::Array<il::Dynamic>>().size() == 2)) {
       ans = false;
@@ -221,12 +221,12 @@ TEST(Toml, bool) {
   if (!status.Ok() || config.size() != 2) {
     ans = false;
   } else {
-    const il::spot_t i = config.search("t");
+    const il::Spot i = config.search("t");
     if (!(config.found(i) && config.value(i).is<bool>() &&
           config.value(i).to<bool>())) {
       ans = false;
     } else {
-      const il::spot_t i = config.search("f");
+      const il::Spot i = config.search("f");
       if (!(config.found(i) && config.value(i).is<bool>() &&
             config.value(i).to<bool>() == false)) {
         ans = false;
@@ -249,15 +249,15 @@ TEST(Toml, comments_everywhere) {
   if (!status.Ok() || config.size() != 1) {
     ans = false;
   } else {
-    const il::spot_t i = config.search("group");
+    const il::Spot i = config.search("group");
     if (!(config.found(i) &&
           config.value(i).is<il::MapArray<il::String, il::Dynamic>>())) {
       ans = false;
     } else {
       il::MapArray<il::String, il::Dynamic> &group =
           config.Value(i).As<il::MapArray<il::String, il::Dynamic>>();
-      il::spot_t j0 = group.search("answer");
-      il::spot_t j1 = group.search("more");
+      il::Spot j0 = group.search("answer");
+      il::Spot j1 = group.search("more");
       if (!(group.size() == 2 && group.found(j0) &&
             group.value(j0).is<il::int_t>() &&
             group.value(j0).to<il::int_t>() == 42 && group.found(j1) &&
@@ -306,8 +306,8 @@ TEST(Toml, double) {
   if (!status.Ok() || config.size() != 2) {
     ans = false;
   } else {
-    il::spot_t i0 = config.search("pi");
-    il::spot_t i1 = config.search("negpi");
+    il::Spot i0 = config.search("pi");
+    il::Spot i1 = config.search("negpi");
     if (!(config.found(i0) && config.value(i0).is<double>() &&
           config.value(i0).to<double>() == 3.14 && config.found(i1) &&
           config.value(i1).is<double>() &&
@@ -331,15 +331,15 @@ TEST(Toml, implicit_and_explicit_after) {
   if (!status.Ok() || config.size() != 1) {
     ans = false;
   } else {
-    il::spot_t i = config.search("a");
+    il::Spot i = config.search("a");
     if (!(config.found(i) &&
           config.value(i).is<il::MapArray<il::String, il::Dynamic>>())) {
       ans = false;
     } else {
       const il::MapArray<il::String, il::Dynamic> &a =
           config.value(i).as<il::MapArray<il::String, il::Dynamic>>();
-      il::spot_t i0 = a.search("better");
-      il::spot_t i1 = a.search("b");
+      il::Spot i0 = a.search("better");
+      il::Spot i1 = a.search("b");
       if (!(a.size() == 2 && a.found(i0) && a.value(i0).is<il::int_t>() &&
             a.value(i0).to<il::int_t>() == 43 && a.found(i1) &&
             a.value(i1).is<il::MapArray<il::String, il::Dynamic>>())) {
@@ -347,14 +347,14 @@ TEST(Toml, implicit_and_explicit_after) {
       } else {
         const il::MapArray<il::String, il::Dynamic> &b =
             a.value(i1).as<il::MapArray<il::String, il::Dynamic>>();
-        il::spot_t j = b.search("c");
+        il::Spot j = b.search("c");
         if (!(b.size() == 1 && b.found(j) &&
               b.value(j).is<il::MapArray<il::String, il::Dynamic>>())) {
           ans = false;
         } else {
           const il::MapArray<il::String, il::Dynamic> &c =
               b.value(j).as<il::MapArray<il::String, il::Dynamic>>();
-          il::spot_t j0 = c.search("answer");
+          il::Spot j0 = c.search("answer");
           if (!(c.size() == 1 && c.found(j0) && c.value(j0).is<il::int_t>() &&
                 c.value(j0).to<il::int_t>() == 42)) {
             ans = false;
@@ -379,15 +379,15 @@ TEST(Toml, implicit_and_explicit_before) {
   if (!status.Ok() || config.size() != 1) {
     ans = false;
   } else {
-    il::spot_t i = config.search("a");
+    il::Spot i = config.search("a");
     if (!(config.found(i) &&
           config.value(i).is<il::MapArray<il::String, il::Dynamic>>())) {
       ans = false;
     } else {
       const il::MapArray<il::String, il::Dynamic> &a =
           config.value(i).as<il::MapArray<il::String, il::Dynamic>>();
-      il::spot_t i0 = a.search("better");
-      il::spot_t i1 = a.search("b");
+      il::Spot i0 = a.search("better");
+      il::Spot i1 = a.search("b");
       if (!(a.size() == 2 && a.found(i0) && a.value(i0).is<il::int_t>() &&
             a.value(i0).to<il::int_t>() == 43 && a.found(i1) &&
             a.value(i1).is<il::MapArray<il::String, il::Dynamic>>())) {
@@ -395,14 +395,14 @@ TEST(Toml, implicit_and_explicit_before) {
       } else {
         const il::MapArray<il::String, il::Dynamic> &b =
             a.value(i1).as<il::MapArray<il::String, il::Dynamic>>();
-        il::spot_t j = b.search("c");
+        il::Spot j = b.search("c");
         if (!(b.size() == 1 && b.found(j) &&
               b.value(j).is<il::MapArray<il::String, il::Dynamic>>())) {
           ans = false;
         } else {
           const il::MapArray<il::String, il::Dynamic> &c =
               b.value(j).as<il::MapArray<il::String, il::Dynamic>>();
-          il::spot_t j0 = c.search("answer");
+          il::Spot j0 = c.search("answer");
           if (!(c.size() == 1 && c.found(j0) && c.value(j0).is<il::int_t>() &&
                 c.value(j0).to<il::int_t>() == 42)) {
             ans = false;
@@ -427,28 +427,28 @@ TEST(Toml, implicit_groups) {
   if (!status.Ok() || config.size() != 1) {
     ans = false;
   } else {
-    il::spot_t i = config.search("a");
+    il::Spot i = config.search("a");
     if (!(config.found(i) &&
           config.value(i).is<il::MapArray<il::String, il::Dynamic>>())) {
       ans = false;
     } else {
       const il::MapArray<il::String, il::Dynamic> &a =
           config.value(i).as<il::MapArray<il::String, il::Dynamic>>();
-      il::spot_t i1 = a.search("b");
+      il::Spot i1 = a.search("b");
       if (!(a.size() == 1 && a.found(i1) &&
             a.value(i1).is<il::MapArray<il::String, il::Dynamic>>())) {
         ans = false;
       } else {
         const il::MapArray<il::String, il::Dynamic> &b =
             a.value(i1).as<il::MapArray<il::String, il::Dynamic>>();
-        il::spot_t j = b.search("c");
+        il::Spot j = b.search("c");
         if (!(b.size() == 1 && b.found(j) &&
               b.value(j).is<il::MapArray<il::String, il::Dynamic>>())) {
           ans = false;
         } else {
           const il::MapArray<il::String, il::Dynamic> &c =
               b.value(j).as<il::MapArray<il::String, il::Dynamic>>();
-          il::spot_t j0 = c.search("answer");
+          il::Spot j0 = c.search("answer");
           if (!(c.size() == 1 && c.found(j0) && c.value(j0).is<il::int_t>() &&
                 c.value(j0).to<il::int_t>() == 42)) {
             ans = false;
@@ -473,8 +473,8 @@ TEST(Toml, integer) {
   if (!status.Ok() || config.size() != 2) {
     ans = false;
   } else {
-    il::spot_t i0 = config.search("answer");
-    il::spot_t i1 = config.search("neganswer");
+    il::Spot i0 = config.search("answer");
+    il::Spot i1 = config.search("neganswer");
     if (!(config.found(i0) && config.value(i0).is<il::int_t>() &&
           config.value(i0).to<il::int_t>() == 42 && config.found(i1) &&
           config.value(i1).is<il::int_t>() &&
@@ -498,7 +498,7 @@ TEST(Toml, key_equals_nospace) {
   if (!status.Ok() || config.size() != 1) {
     ans = false;
   } else {
-    il::spot_t i = config.search("answer");
+    il::Spot i = config.search("answer");
     if (!(config.found(i) && config.value(i).is<il::int_t>() &&
           config.value(i).to<il::int_t>() == 42)) {
       ans = false;
@@ -520,7 +520,7 @@ TEST(Toml, key_space) {
   if (!status.Ok() || config.size() != 1) {
     ans = false;
   } else {
-    il::spot_t i = config.search("a b");
+    il::Spot i = config.search("a b");
     if (!(config.found(i) && config.value(i).is<il::int_t>() &&
           config.value(i).to<il::int_t>() == 1)) {
       ans = false;
@@ -542,7 +542,7 @@ TEST(Toml, key_special_chars) {
   if (!status.Ok() || config.size() != 1) {
     ans = false;
   } else {
-    il::spot_t i = config.search("~!@$^&*()_+-`1234567890[]|/?><.,;:'");
+    il::Spot i = config.search("~!@$^&*()_+-`1234567890[]|/?><.,;:'");
     if (!(config.found(i) && config.value(i).is<il::int_t>() &&
           config.value(i).to<il::int_t>() == 1)) {
       ans = false;
@@ -564,8 +564,8 @@ TEST(Toml, long_floating_point) {
   if (!status.Ok() || config.size() != 2) {
     ans = false;
   } else {
-    il::spot_t i0 = config.search("longpi");
-    il::spot_t i1 = config.search("neglongpi");
+    il::Spot i0 = config.search("longpi");
+    il::Spot i1 = config.search("neglongpi");
     if (!(config.found(i0) && config.value(i0).is<double>() &&
           config.value(i0).to<double>() == 3.141592653589793 &&
           config.found(i1) && config.value(i1).is<double>() &&
@@ -589,8 +589,8 @@ TEST(Toml, long_integer) {
   if (!status.Ok() || config.size() != 2) {
     ans = false;
   } else {
-    il::spot_t i0 = config.search("answer");
-    il::spot_t i1 = config.search("neganswer");
+    il::Spot i0 = config.search("answer");
+    il::Spot i1 = config.search("neganswer");
     if (!(config.found(i0) && config.value(i0).is<il::int_t>() &&
           config.value(i0).to<il::int_t>() == 9223372036854775807 &&
           config.found(i1) && config.value(i1).is<il::int_t>() &&
@@ -614,8 +614,8 @@ TEST(Toml, windows_lines) {
   if (!status.Ok() || config.size() != 2) {
     ans = false;
   } else {
-    il::spot_t i0 = config.search("input_directory");
-    il::spot_t i1 = config.search("Young_modulus");
+    il::Spot i0 = config.search("input_directory");
+    il::Spot i1 = config.search("Young_modulus");
     if (!(config.found(i0) && config.value(i0).is<il::String>() &&
           config.value(i0).as<il::String>() == "Mesh_Files" &&
           config.found(i1) && config.value(i1).is<double>() &&
@@ -639,8 +639,8 @@ TEST(Toml, zero) {
   if (!status.Ok() || config.size() != 2) {
     ans = false;
   } else {
-    il::spot_t i0 = config.search("a");
-    il::spot_t i1 = config.search("b");
+    il::Spot i0 = config.search("a");
+    il::Spot i1 = config.search("b");
     if (!(config.found(i0) && config.value(i0).is<double>() &&
           config.value(i0).to<double>() == 0.0 && config.found(i1) &&
           config.value(i1).is<il::int_t>() &&

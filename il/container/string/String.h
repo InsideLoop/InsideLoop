@@ -52,10 +52,10 @@ namespace il {
 // 11: byte
 
 enum class StringType : unsigned char {
-  Ascii = 0x00_uchar,
-  Utf8 = 0x20_uchar,
-  Wtf8 = 0x40_uchar,
-  Raw = 0x60_uchar
+  kAscii = 0x00_uchar,
+  kUtf8 = 0x20_uchar,
+  kWtf8 = 0x40_uchar,
+  kByte = 0x60_uchar
 };
 
 StringType joinType(StringType s0, StringType s1);
@@ -293,7 +293,7 @@ inline il::StringType joinType(il::StringType t0, il::StringType t1,
 
 inline String::String() {
   small_[0] = '\0';
-  setSmall(il::StringType::Ascii, 0);
+  setSmall(il::StringType::kAscii, 0);
 }
 
 inline String::String(char c) {
@@ -301,7 +301,7 @@ inline String::String(char c) {
 
   small_[0] = c;
   small_[1] = '\0';
-  setSmall(il::StringType::Ascii, 1);
+  setSmall(il::StringType::kAscii, 1);
 }
 
 template <il::int_t m>
@@ -309,30 +309,30 @@ inline String::String(const char (&s)[m]) {
   const il::int_t n = m - 1;
   if (n <= max_small_size_) {
     std::memcpy(small_, s, static_cast<std::size_t>(m));
-    setSmall(il::StringType::Utf8, n);
+    setSmall(il::StringType::kUtf8, n);
   } else {
     const il::int_t r = nextCapacity(n);
     large_.data = il::allocateArray<char>(r + 1);
     std::memcpy(large_.data, s, static_cast<std::size_t>(m));
-    setLarge(il::StringType::Utf8, n, r);
+    setLarge(il::StringType::kUtf8, n, r);
   }
 }
 
 template <il::int_t m>
 inline String::String(il::StringType type, const char (&s)[m]) {
-  IL_EXPECT_MEDIUM(type == il::StringType::Ascii ||
-                   type == il::StringType::Utf8);
+  IL_EXPECT_MEDIUM(type == il::StringType::kAscii ||
+                   type == il::StringType::kUtf8);
 
   const il::int_t n = m - 1;
-  const bool is_ascii = (type == il::StringType::Ascii);
+  const bool is_ascii = (type == il::StringType::kAscii);
   if (n <= max_small_size_) {
     std::memcpy(small_, s, static_cast<std::size_t>(m));
-    setSmall(is_ascii ? il::StringType::Ascii : il::StringType::Utf8, n);
+    setSmall(is_ascii ? il::StringType::kAscii : il::StringType::kUtf8, n);
   } else {
     const il::int_t r = nextCapacity(n);
     large_.data = il::allocateArray<char>(r + 1);
     std::memcpy(large_.data, s, static_cast<std::size_t>(m));
-    setLarge(is_ascii ? il::StringType::Ascii : il::StringType::Utf8, n, r);
+    setLarge(is_ascii ? il::StringType::kAscii : il::StringType::kUtf8, n, r);
   }
 }
 
@@ -369,13 +369,13 @@ inline String::String(String&& s) {
     large_.capacity = s.large_.capacity;
   }
   s.small_[0] = '\0';
-  s.setSmall(il::StringType::Ascii, 0);
+  s.setSmall(il::StringType::kAscii, 0);
 }
 
 template <il::int_t m>
 inline String& String::operator=(const char (&data)[m]) {
   const il::int_t size = m - 1;
-  const il::StringType type = il::StringType::Utf8;
+  const il::StringType type = il::StringType::kUtf8;
   if (size <= max_small_size_) {
     if (!isSmall()) {
       il::deallocate(large_.data);
@@ -443,7 +443,7 @@ inline String& String::operator=(String&& s) {
       large_.size = s.large_.size;
       large_.capacity = s.large_.capacity;
       s.small_[0] = '\0';
-      s.setSmall(il::StringType::Ascii, 0);
+      s.setSmall(il::StringType::kAscii, 0);
     }
   }
   return *this;
@@ -505,14 +505,14 @@ inline il::StringType String::type() const {
 
 inline bool String::isUtf8() const {
   const il::StringType t = type();
-  return t == il::StringType::Ascii || t == il::StringType::Utf8;
+  return t == il::StringType::kAscii || t == il::StringType::kUtf8;
 }
 
-inline bool String::isAscii() const { return type() == il::StringType::Ascii; }
+inline bool String::isAscii() const { return type() == il::StringType::kAscii; }
 
 inline bool String::isRuneBoundary(il::int_t i) const {
-  IL_EXPECT_MEDIUM(type() == il::StringType::Ascii ||
-                   type() == il::StringType::Utf8);
+  IL_EXPECT_MEDIUM(type() == il::StringType::kAscii ||
+                   type() == il::StringType::kUtf8);
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <=
                    static_cast<std::size_t>(size()));
 
@@ -551,7 +551,7 @@ inline void String::Append(int rune) {
     p[old_n] = static_cast<char>((urune >> 6) | 0x000000C0u);
     p[old_n + 1] = static_cast<char>((urune & 0x0000003Fu) | 0x00000080u);
     p[old_n + 2] = '\0';
-    SetInvariant(il::unsafe, il::joinType(t, il::StringType::Utf8), old_n + 2);
+    SetInvariant(il::unsafe, il::joinType(t, il::StringType::kUtf8), old_n + 2);
   } else if (urune < 0x00010000u) {
     Grow(il::unsafe, old_n, old_n + 3);
     char* p = Data();
@@ -560,7 +560,7 @@ inline void String::Append(int rune) {
         static_cast<char>(((urune >> 6) & 0x0000003Fu) | 0x00000080u);
     p[old_n + 2] = static_cast<char>((urune & 0x0000003Fu) | 0x00000080u);
     p[old_n + 3] = '\0';
-    SetInvariant(il::unsafe, il::joinType(t, il::StringType::Utf8), old_n + 3);
+    SetInvariant(il::unsafe, il::joinType(t, il::StringType::kUtf8), old_n + 3);
   } else {
     Grow(il::unsafe, old_n, old_n + 4);
     char* p = Data();
@@ -572,7 +572,7 @@ inline void String::Append(int rune) {
     p[old_n + 3] =
         static_cast<unsigned char>((urune & 0x0000003Fu) | 0x00000080u);
     p[old_n + 4] = '\0';
-    SetInvariant(il::unsafe, il::joinType(t, il::StringType::Utf8), old_n + 4);
+    SetInvariant(il::unsafe, il::joinType(t, il::StringType::kUtf8), old_n + 4);
   }
 }
 
@@ -614,7 +614,7 @@ inline void String::Append(il::int_t n, int rune) {
           static_cast<char>((urune & 0x0000003Fu) | 0x00000080u);
     }
     p[old_n + 2 * n] = '\0';
-    SetInvariant(il::unsafe, il::joinType(t, il::StringType::Utf8),
+    SetInvariant(il::unsafe, il::joinType(t, il::StringType::kUtf8),
                  old_n + 2 * n);
   } else if (urune < 0x00010000u) {
     Grow(il::unsafe, old_n, old_n + 3);
@@ -627,7 +627,7 @@ inline void String::Append(il::int_t n, int rune) {
           static_cast<char>((urune & 0x0000003Fu) | 0x00000080u);
     }
     p[old_n + 3 * n] = '\0';
-    SetInvariant(il::unsafe, il::joinType(t, il::StringType::Utf8),
+    SetInvariant(il::unsafe, il::joinType(t, il::StringType::kUtf8),
                  old_n + 3 * n);
   } else {
     Grow(il::unsafe, old_n, old_n + 4 * n);
@@ -643,7 +643,7 @@ inline void String::Append(il::int_t n, int rune) {
           static_cast<unsigned char>((urune & 0x0000003Fu) | 0x00000080u);
     }
     p[old_n + 4 * n] = '\0';
-    SetInvariant(il::unsafe, il::joinType(t, il::StringType::Utf8),
+    SetInvariant(il::unsafe, il::joinType(t, il::StringType::kUtf8),
                  old_n + 4 * n);
   }
 }
@@ -652,7 +652,7 @@ template <il::int_t m>
 inline void String::Append(const char (&s0)[m]) {
   const il::int_t old_n = size();
   const il::int_t n0 = m - 1;
-  const il::StringType t = joinType(type(), il::StringType::Utf8);
+  const il::StringType t = joinType(type(), il::StringType::kUtf8);
   Grow(il::unsafe, old_n, old_n + n0);
   char* p = Data();
   std::memcpy(p + old_n, s0, n0);
@@ -729,7 +729,7 @@ inline void String::Insert(il::int_t i, char c) {
   IL_EXPECT_MEDIUM(static_cast<unsigned char>(c) < 128);
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(i) <=
                    static_cast<std::size_t>(size()));
-  if (type() == il::StringType::Utf8) {
+  if (type() == il::StringType::kUtf8) {
     IL_EXPECT_MEDIUM(isRuneBoundary(i));
   }
 
@@ -763,7 +763,7 @@ inline void String::Insert(il::int_t i, char c) {
 inline void String::Insert(il::int_t i, il::int_t n, char c) {
   IL_EXPECT_FAST(static_cast<unsigned char>(c) < 128);
   IL_EXPECT_FAST(static_cast<std::size_t>(i) <= static_cast<std::size_t>(n));
-  if (type() == il::StringType::Utf8) {
+  if (type() == il::StringType::kUtf8) {
     IL_EXPECT_FAST(isRuneBoundary(i));
   }
 
@@ -802,7 +802,7 @@ template <il::int_t m>
 inline void String::Insert(il::int_t i, const char (&s)[m]) {
   IL_EXPECT_FAST(static_cast<std::size_t>(i) <=
                  static_cast<std::size_t>(size()));
-  if (type() == il::StringType::Utf8) {
+  if (type() == il::StringType::kUtf8) {
     IL_EXPECT_FAST(isRuneBoundary(i));
   }
 
@@ -835,7 +835,7 @@ inline void String::Insert(il::int_t i, const char (&s)[m]) {
 inline void String::Insert(il::int_t i, il::StringType t, const char* s,
                            il::int_t n) {
   IL_EXPECT_FAST(static_cast<std::size_t>(i) <= static_cast<std::size_t>(n));
-  if (type() == il::StringType::Utf8) {
+  if (type() == il::StringType::kUtf8) {
     IL_EXPECT_FAST(isRuneBoundary(i));
   }
 
@@ -914,7 +914,7 @@ inline il::String String::substring(il::int_t i0, il::int_t i1) const {
                    static_cast<std::size_t>(size()));
   IL_EXPECT_MEDIUM(i0 <= i1);
 
-  if (type() == il::StringType::Utf8) {
+  if (type() == il::StringType::kUtf8) {
     IL_EXPECT_MEDIUM(isRuneBoundary(i0));
     IL_EXPECT_MEDIUM(isRuneBoundary(i1));
   }
@@ -928,7 +928,7 @@ inline il::StringView String::subview(il::int_t i0, il::int_t i1) const {
                    static_cast<std::size_t>(size()));
   IL_EXPECT_MEDIUM(i0 <= i1);
 
-  if (type() == il::StringType::Utf8) {
+  if (type() == il::StringType::kUtf8) {
     IL_EXPECT_MEDIUM(isRuneBoundary(i0));
     IL_EXPECT_MEDIUM(isRuneBoundary(i1));
   }
@@ -938,10 +938,10 @@ inline il::StringView String::subview(il::int_t i0, il::int_t i1) const {
 inline void String::Clear() {
   if (isSmall()) {
     small_[0] = '\0';
-    setSmall(il::StringType::Ascii, 0);
+    setSmall(il::StringType::kAscii, 0);
   } else {
     large_.data[0] = '\0';
-    setLarge(il::StringType::Ascii, 0, capacity());
+    setLarge(il::StringType::kAscii, 0, capacity());
   }
 }
 
@@ -1023,11 +1023,11 @@ inline String::String(il::unsafe_t, il::int_t n) {
   IL_EXPECT_FAST(n >= 0);
 
   if (n <= max_small_size_) {
-    setSmall(il::StringType::Raw, n);
+    setSmall(il::StringType::kByte, n);
   } else {
     const il::int_t r = nextCapacity(n);
     large_.data = il::allocateArray<char>(r + 1);
-    setLarge(il::StringType::Raw, n, r);
+    setLarge(il::StringType::kByte, n, r);
   }
 }
 
@@ -1042,9 +1042,9 @@ inline void String::Grow(il::unsafe_t, il::int_t n_to_copy, il::int_t n) {
     if (!old_is_small) {
       std::memcpy(small_, old_data, n_to_copy);
     }
-    setSmall(il::StringType::Raw, n);
+    setSmall(il::StringType::kByte, n);
   } else if (n <= old_capacity) {
-    setLarge(il::StringType::Raw, n, old_capacity);
+    setLarge(il::StringType::kByte, n, old_capacity);
   } else {
     const il::int_t r = nextCapacity(n);
     char* p = il::allocateArray<char>(r + 1);
@@ -1053,7 +1053,7 @@ inline void String::Grow(il::unsafe_t, il::int_t n_to_copy, il::int_t n) {
     if (!old_is_small) {
       il::deallocate(old_data);
     }
-    setLarge(il::StringType::Raw, n, r);
+    setLarge(il::StringType::kByte, n, r);
   }
 }
 
@@ -1224,14 +1224,14 @@ inline constexpr bool isUtf8(const char* s) {
 inline StringView::StringView() {
   data_ = nullptr;
   size_ = nullptr;
-  type_ = il::StringType::Ascii;
+  type_ = il::StringType::kAscii;
 }
 
 template <il::int_t m>
 inline StringView::StringView(const char (&s)[m]) {
   data_ = const_cast<char*>(s);
   size_ = const_cast<char*>(s) + (m - 1);
-  type_ = il::StringType::Utf8;
+  type_ = il::StringType::kUtf8;
 }
 
 inline StringView::StringView(const il::String& s) {
@@ -1559,12 +1559,12 @@ inline bool operator!=(const il::String& s0, const char* s1) {
 }
 
 inline il::String toString(const std::string& s) {
-  return il::String{il::StringType::Raw, s.c_str(),
+  return il::String{il::StringType::kByte, s.c_str(),
                     static_cast<il::int_t>(s.size())};
 }
 
 inline il::String toString(const char* s) {
-  return il::String{il::StringType::Raw, s, il::size(s)};
+  return il::String{il::StringType::kByte, s, il::size(s)};
 }
 
 inline std::ostream& operator<<(std::ostream& os, const String& s) {

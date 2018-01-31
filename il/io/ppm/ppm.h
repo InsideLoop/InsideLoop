@@ -41,25 +41,25 @@ il::Array2D<il::Pixel> readPpm(const std::string& filename, il::io_t,
 #ifdef IL_UNIX
   FILE* fp = std::fopen(filename.c_str(), "rb");
   if (!fp) {
-    status.SetError(il::Error::FilesystemFileNotFound);
+    status.SetError(il::Error::kFilesystemFileNotFound);
     return image;
   }
 #else
   FILE* fp;
   const errno_t error_nb = fopen_s(&fp, filename.c_str(), "rb");
   if (error_nb != 0) {
-    status.SetError(il::Error::FilesystemFileNotFound);
+    status.SetError(il::Error::kFilesystemFileNotFound);
     return image;
   }
 #endif
 
   char buffer[16];
   if (!std::fgets(buffer, sizeof(buffer), fp)) {
-    status.SetError(il::Error::BinaryFileWrongFormat);
+    status.SetError(il::Error::kBinaryFileWrongFormat);
     return image;
   }
   if (buffer[0] != 'P' || buffer[1] != '6') {
-    status.SetError(il::Error::BinaryFileWrongFormat);
+    status.SetError(il::Error::kBinaryFileWrongFormat);
     return image;
   }
 
@@ -77,13 +77,13 @@ il::Array2D<il::Pixel> readPpm(const std::string& filename, il::io_t,
   int height;
 #ifdef IL_UNIX
   if (std::fscanf(fp, "%d %d", &width, &height) != 2) {
-    status.SetError(il::Error::BinaryFileWrongFormat);
+    status.SetError(il::Error::kBinaryFileWrongFormat);
     return image;
   }
 #else
   const int error_no = fscanf_s(fp, "%d %d", &width, &height);
   if (error_no != 2) {
-    status.SetError(il::Error::BinaryFileWrongFormat);
+    status.SetError(il::Error::kBinaryFileWrongFormat);
     return image;
   }
 #endif
@@ -91,21 +91,21 @@ il::Array2D<il::Pixel> readPpm(const std::string& filename, il::io_t,
   int rgb_comp_color;
 #ifdef IL_UNIX
   if (std::fscanf(fp, "%d", &rgb_comp_color) != 1) {
-    status.SetError(il::Error::BinaryFileWrongFormat);
+    status.SetError(il::Error::kBinaryFileWrongFormat);
     return image;
   }
 #else
   {
     const int error_no = fscanf_s(fp, "%d", &rgb_comp_color);
     if (error_no != 1) {
-      status.SetError(il::Error::BinaryFileWrongFormat);
+      status.SetError(il::Error::kBinaryFileWrongFormat);
       return image;
     }
   }
 #endif
   // check rgb component depth
   if (rgb_comp_color != 255) {
-    status.SetError(il::Error::BinaryFileWrongFormat);
+    status.SetError(il::Error::kBinaryFileWrongFormat);
     return image;
   }
   while (std::fgetc(fp) != '\n') {
@@ -114,7 +114,7 @@ il::Array2D<il::Pixel> readPpm(const std::string& filename, il::io_t,
   // read pixel data from file
   image.Resize(width, height);
   if (std::fread(image.data(), 3 * width, height, fp) != height) {
-    status.SetError(il::Error::BinaryFileWrongFormat);
+    status.SetError(il::Error::kBinaryFileWrongFormat);
     image.Resize(0, 0);
     return image;
   }

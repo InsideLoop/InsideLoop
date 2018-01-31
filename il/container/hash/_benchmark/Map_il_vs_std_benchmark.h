@@ -64,7 +64,7 @@ static void IlMapString_Set(benchmark::State& state) {
   il::Array<il::String> v{n};
   unsigned int k = 1234567891;
   for (il::int_t i = 0; i < n; ++i) {
-    v[i] = il::String{il::StringType::Raw, reinterpret_cast<const char*>(&k),
+    v[i] = il::String{il::StringType::kByte, reinterpret_cast<const char*>(&k),
                       sizeof(unsigned int)};
     k = 93u * k + 117u;
   }
@@ -99,7 +99,7 @@ static void IlMapString_Search(benchmark::State& state) {
   il::Array<il::String> v{n};
   unsigned int k = 1234567891;
   for (il::int_t i = 0; i < n; ++i) {
-    v[i] = il::String{il::StringType::Raw, reinterpret_cast<const char*>(&k),
+    v[i] = il::String{il::StringType::kByte, reinterpret_cast<const char*>(&k),
                       sizeof(unsigned int)};
     k = 93u * k + 117u;
   }
@@ -111,7 +111,7 @@ static void IlMapString_Search(benchmark::State& state) {
   while (state.KeepRunning()) {
     int sum = 0;
     for (il::int_t i = 0; i < n; ++i) {
-      const il::spot_t j = map.search(v[i]);
+      const il::Spot j = map.search(v[i]);
       sum += map.value(j);
     }
     benchmark::DoNotOptimize(&sum);

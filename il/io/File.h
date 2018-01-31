@@ -31,7 +31,7 @@
 
 namespace il {
 
-enum class FileMode : unsigned char { Read, Write, ReadWrite };
+enum class FileMode : unsigned char { kRead, kWrite, kReadWrite };
 
 class File {
  private:
@@ -65,10 +65,10 @@ inline File::File(const il::String& filename, il::FileMode mode,
 #ifdef IL_UNIX
   il::String s_mode{};
   switch (mode) {
-    case il::FileMode::Read:
+    case il::FileMode::kRead:
       s_mode = "rb";
       break;
-    case il::FileMode::Write:
+    case il::FileMode::kWrite:
       s_mode = "wb";
       break;
     default:
@@ -76,16 +76,16 @@ inline File::File(const il::String& filename, il::FileMode mode,
   }
   file_ = std::fopen(filename.asCString(), s_mode.asCString());
   if (file_ == nullptr) {
-    status.SetError(il::Error::FilesystemFileNotFound);
+    status.SetError(il::Error::kFilesystemFileNotFound);
     return;
   }
 #else  // Windows case
   il::UTF16String s_mode{};
   switch (mode) {
-    case il::FileMode::Read:
+    case il::FileMode::kRead:
       s_mode = L"rb";
       break;
-    case il::FileMode::Write:
+    case il::FileMode::kWrite:
       s_mode = L"wb";
       break;
     default:
@@ -95,7 +95,7 @@ inline File::File(const il::String& filename, il::FileMode mode,
   errno_t error_nb =
       _wfopen_s(&file_, filename_utf16.asWString(), s_mode.asWString());
   if (error_nb != 0) {
-    status.SetError(il::Error::FilesystemFileNotFound);
+    status.SetError(il::Error::kFilesystemFileNotFound);
     return;
   }
 #endif
@@ -117,8 +117,8 @@ inline File::~File() { IL_EXPECT_MEDIUM(!opened_); }
 template <il::int_t nb_objects, typename T>
 inline void File::Read(il::io_t, T* p, il::Status& status) {
   IL_EXPECT_MEDIUM(opened_);
-  IL_EXPECT_MEDIUM(mode_ == il::FileMode::Read ||
-                   mode_ == il::FileMode::ReadWrite);
+  IL_EXPECT_MEDIUM(mode_ == il::FileMode::kRead ||
+                   mode_ == il::FileMode::kReadWrite);
   IL_EXPECT_MEDIUM(nb_objects >= 0);
 
   const il::int_t nb_bytes_to_read =
@@ -136,8 +136,8 @@ inline void File::Read(il::io_t, T* p, il::Status& status) {
 inline void File::Read(il::int_t nb_objects, std::size_t nb_bytes, il::io_t,
                        void* p, il::Status& status) {
   IL_EXPECT_MEDIUM(opened_);
-  IL_EXPECT_MEDIUM(mode_ == il::FileMode::Read ||
-                   mode_ == il::FileMode::ReadWrite);
+  IL_EXPECT_MEDIUM(mode_ == il::FileMode::kRead ||
+                   mode_ == il::FileMode::kReadWrite);
   IL_EXPECT_MEDIUM(nb_bytes > 0);
   IL_EXPECT_MEDIUM(nb_objects >= 0);
 
@@ -160,7 +160,7 @@ inline void File::Read(il::int_t nb_objects, std::size_t nb_bytes, il::io_t,
           std::fread(p, nb_bytes_to_read, 1, file_);
       nb_bytes_read_ += nb_bytes_read;
       if (nb_bytes_read != nb_bytes_to_read) {
-        status.SetError(il::Error::FilesystemFileNotLongEnough);
+        status.SetError(il::Error::kFilesystemFileNotLongEnough);
         return;
       }
     } else {
@@ -185,7 +185,7 @@ inline void File::Read(il::int_t nb_objects, std::size_t nb_bytes, il::io_t,
                        nb_bytes_to_read, 1, file_);
         nb_bytes_read_ += nb_bytes_to_read;
         if (chunk_read != 1) {
-          status.SetError(il::Error::FilesystemFileNotLongEnough);
+          status.SetError(il::Error::kFilesystemFileNotLongEnough);
           return;
         }
       }
@@ -210,7 +210,7 @@ inline void File::Skip(std::size_t nb_bytes, il::io_t, il::Status& status) {
     end_buffer_ = 0;
     nb_bytes_read_ += nb_bytes_to_read;
     if (error != 0) {
-      status.SetError(il::Error::FilesystemFileNotLongEnough);
+      status.SetError(il::Error::kFilesystemFileNotLongEnough);
       return;
     }
   }
@@ -222,14 +222,14 @@ inline void File::Skip(std::size_t nb_bytes, il::io_t, il::Status& status) {
 inline void File::Write(const void* p, il::int_t nb_objects,
                         std::size_t nb_bytes, il::io_t, il::Status& status) {
   IL_EXPECT_MEDIUM(opened_);
-  IL_EXPECT_MEDIUM(mode_ == il::FileMode::Write ||
-                   mode_ == il::FileMode::ReadWrite);
+  IL_EXPECT_MEDIUM(mode_ == il::FileMode::kWrite ||
+                   mode_ == il::FileMode::kReadWrite);
   IL_EXPECT_MEDIUM(nb_objects >= 0);
 
   const il::int_t nb_objects_written =
       std::fwrite(p, nb_bytes, static_cast<std::size_t>(nb_objects), file_);
   if (nb_objects_written != nb_objects) {
-    status.SetError(il::Error::Undefined);
+    status.SetError(il::Error::kUndefined);
     return;
   }
 
@@ -241,7 +241,7 @@ inline void File::Close(il::io_t, il::Status& status) {
 
   const int error = std::fclose(file_);
   if (error != 0) {
-    status.SetError(il::Error::FilesystemCanNotCloseFile);
+    status.SetError(il::Error::kFilesystemCanNotCloseFile);
     return;
   }
 

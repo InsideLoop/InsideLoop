@@ -79,7 +79,7 @@ Cholesky<il::Array2D<double>>::Cholesky(il::Array2D<double> A, il::io_t,
     status.SetOk();
     l_ = std::move(A);
   } else {
-    status.SetError(il::Error::FloatingPointNegative);
+    status.SetError(il::Error::kFloatingPointNegative);
   }
 }
 
@@ -121,11 +121,11 @@ il::Array2D<double> Cholesky<il::Array2D<double>>::inverse() const {
 
 double Cholesky<il::Array2D<double>>::conditionNumber(il::Norm norm_type,
                                                       double norm_a) const {
-  IL_EXPECT_FAST(norm_type == il::Norm::L1 || norm_type == il::Norm::Linf);
+  IL_EXPECT_FAST(norm_type == il::Norm::kL1 || norm_type == il::Norm::kLinf);
 
   const int layout = LAPACK_COL_MAJOR;
   const char uplo = 'L';
-  const char lapack_norm = (norm_type == il::Norm::L1) ? '1' : 'I';
+  const char lapack_norm = (norm_type == il::Norm::kL1) ? '1' : 'I';
   const lapack_int n = static_cast<lapack_int>(l_.size(0));
   const lapack_int lda = static_cast<lapack_int>(l_.stride(1));
   double rcond;
@@ -157,7 +157,7 @@ Cholesky<LowerArray2D<double>>::Cholesky(il::LowerArray2D<double> A, il::io_t,
     status.SetOk();
     l_ = std::move(A);
   } else {
-    status.SetError(il::Error::FloatingPointNonPositive);
+    status.SetError(il::Error::kFloatingPointNonPositive);
   }
 }
 

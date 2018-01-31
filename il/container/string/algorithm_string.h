@@ -29,7 +29,7 @@ namespace il {
 inline il::String toString(il::int_t n) {
   il::String ans{il::unsafe, 11};
   const il::int_t m = std::snprintf(ans.Data(), 11 + 1, "%td", n);
-  ans.SetInvariant(il::unsafe, il::StringType::Ascii, m);
+  ans.SetInvariant(il::unsafe, il::StringType::kAscii, m);
 
   IL_ENSURE(m > 0);
   return ans;

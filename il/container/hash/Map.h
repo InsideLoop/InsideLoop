@@ -22,7 +22,7 @@
 #include <il/Array.h>
 #include <il/Status.h>
 #include <il/container/hash/HashFunction.h>
-#include <il/container/hash/spot_t.h>
+#include <il/container/hash/Spot.h>
 #include <il/math.h>
 
 namespace il {
@@ -86,27 +86,27 @@ class Map {
   void InsertCString(const char (&key)[m], V&& value);
 
   // Searching for a key
-  il::spot_t search(const K& key) const;
+  il::Spot search(const K& key) const;
   template <il::int_t m>
-  il::spot_t searchCString(const char (&key)[m]) const;
-  il::spot_t searchCString(const char* key, il::int_t n) const;
-  bool found(il::spot_t i) const;
+  il::Spot searchCString(const char (&key)[m]) const;
+  il::Spot searchCString(const char* key, il::int_t n) const;
+  bool found(il::Spot i) const;
 
   // Inserting a new (key, value)
-  void Set(const K& key, const V& value, il::io_t, il::spot_t& i);
-  void Set(const K& key, V&& value, il::io_t, il::spot_t& i);
-  void Set(K&& key, const V& value, il::io_t, il::spot_t& i);
-  void Set(K&& key, V&& value, il::io_t, il::spot_t& i);
+  void Set(const K& key, const V& value, il::io_t, il::Spot& i);
+  void Set(const K& key, V&& value, il::io_t, il::Spot& i);
+  void Set(K&& key, const V& value, il::io_t, il::Spot& i);
+  void Set(K&& key, V&& value, il::io_t, il::Spot& i);
   void InsertCString(const char* key, const il::int_t n, const V& value,
-                     il::io_t, il::spot_t& i);
+                     il::io_t, il::Spot& i);
   template <il::int_t m>
   void InsertCString(const char (&key)[m], const V& value, il::io_t,
-                     il::spot_t& i);
+                     il::Spot& i);
 
   // Getting the key and values for a given slot
-  const K& key(il::spot_t i) const;
-  const V& value(il::spot_t i) const;
-  V& Value(il::spot_t i);
+  const K& key(il::Spot i) const;
+  const V& value(il::Spot i) const;
+  V& Value(il::Spot i);
   const V& valueForKey(const K& key) const;
   const V& valueForKey(const K& key, const V& default_value) const;
   template <il::int_t m>
@@ -114,7 +114,7 @@ class Map {
   template <il::int_t m>
   const V& valueForCString(const char (&key)[m], const V& default_value) const;
 
-  void erase(il::spot_t i);
+  void erase(il::Spot i);
 
   // Changing the size
   void Clear();
@@ -126,9 +126,9 @@ class Map {
   void Rehash();
 
   // Looping over the map
-  il::spot_t begin() const;
-  il::spot_t end() const;
-  il::spot_t next(il::spot_t i) const;
+  il::Spot begin() const;
+  il::Spot end() const;
+  il::Spot next(il::Spot i) const;
 
   // To remove: Ugly hack for MapArray
 #ifdef IL_DEBUG_CLASS
@@ -245,7 +245,7 @@ Map<K, V, F>::Map(il::value_t, std::initializer_list<il::KeyValue<K, V>> list) {
     hash_ = 0;
 #endif
     for (il::int_t k = 0; k < n; ++k) {
-      il::spot_t i = search((list.begin() + k)->key);
+      il::Spot i = search((list.begin() + k)->key);
       IL_EXPECT_FAST(!found(i));
 #ifdef IL_DEBUG_CLASS
       hash_ += F::hash((list.begin() + k)->key, p_);
@@ -272,7 +272,7 @@ Map<K, V, F>::Map(const Map<K, V, F>& map) {
     for (il::int_t i = 0; i < m; ++i) {
       F::constructEmpty(il::io, reinterpret_cast<K*>(bucket_ + i));
     }
-    for (il::spot_t i = map.begin(); i != map.end(); i = map.next(i)) {
+    for (il::Spot i = map.begin(); i != map.end(); i = map.next(i)) {
       Set(map.key(i), map.value(i));
 #ifdef IL_DEBUG_CLASS
       hash_ += F::hash(map.key(i), p_);
@@ -402,7 +402,7 @@ Map<K, V, F>::~Map() {
 
 template <typename K, typename V, typename F>
 void Map<K, V, F>::Set(const K& key, const V& value) {
-  il::spot_t i = search(key);
+  il::Spot i = search(key);
   if (!found(i)) {
     Set(key, value, il::io, i);
   } else {
@@ -416,7 +416,7 @@ void Map<K, V, F>::Set(const K& key, const V& value) {
 
 template <typename K, typename V, typename F>
 void Map<K, V, F>::Set(const K& key, V&& value) {
-  il::spot_t i = search(key);
+  il::Spot i = search(key);
   if (!found(i)) {
     Set(key, std::move(value), il::io, i);
   } else {
@@ -430,7 +430,7 @@ void Map<K, V, F>::Set(const K& key, V&& value) {
 
 template <typename K, typename V, typename F>
 void Map<K, V, F>::Set(K&& key, const V& value) {
-  il::spot_t i = search(key);
+  il::Spot i = search(key);
   if (!found(i)) {
     Set(std::move(key), value, il::io, i);
   } else {
@@ -444,7 +444,7 @@ void Map<K, V, F>::Set(K&& key, const V& value) {
 
 template <typename K, typename V, typename F>
 void Map<K, V, F>::Set(K&& key, V&& value) {
-  il::spot_t i = search(key);
+  il::Spot i = search(key);
   if (!found(i)) {
     Set(std::move(key), std::move(value), il::io, i);
   } else {
@@ -459,7 +459,7 @@ void Map<K, V, F>::Set(K&& key, V&& value) {
 template <typename K, typename V, typename F>
 template <il::int_t m>
 void Map<K, V, F>::InsertCString(const char (&key)[m], const V& value) {
-  il::spot_t i = searchCString(key);
+  il::Spot i = searchCString(key);
   if (!found(i)) {
     Set(key, value, il::io, i);
   } else {
@@ -474,7 +474,7 @@ void Map<K, V, F>::InsertCString(const char (&key)[m], const V& value) {
 template <typename K, typename V, typename F>
 template <il::int_t m>
 void Map<K, V, F>::InsertCString(const char (&key)[m], V&& value) {
-  il::spot_t i = searchCString(key);
+  il::Spot i = searchCString(key);
   if (!found(i)) {
     Set(key, value, il::io, i);
   } else {
@@ -487,15 +487,15 @@ void Map<K, V, F>::InsertCString(const char (&key)[m], V&& value) {
 }
 
 template <typename K, typename V, typename F>
-il::spot_t Map<K, V, F>::search(const K& key) const {
+il::Spot Map<K, V, F>::search(const K& key) const {
   IL_EXPECT_MEDIUM(!F::isEmpty(key));
   IL_EXPECT_MEDIUM(!F::isTombstone(key));
 
   if (p_ == -1) {
 #ifdef IL_DEBUG_CLASS
-    return il::spot_t{-1, hash_};
+    return il::Spot{-1, hash_};
 #else
-    return il::spot_t{-1};
+    return il::Spot{-1};
 #endif
   }
 
@@ -506,12 +506,12 @@ il::spot_t Map<K, V, F>::search(const K& key) const {
   while (true) {
     if (F::isEmpty(bucket_[i].key)) {
 #ifdef IL_DEBUG_CLASS
-      return il::spot_t{(i_tombstone == static_cast<std::size_t>(-1))
+      return il::Spot{(i_tombstone == static_cast<std::size_t>(-1))
                               ? -(1 + static_cast<il::int_t>(i))
                               : -(1 + static_cast<il::int_t>(i_tombstone)),
                           hash_};
 #else
-      return il::spot_t{(i_tombstone == static_cast<std::size_t>(-1))
+      return il::Spot{(i_tombstone == static_cast<std::size_t>(-1))
                               ? -(1 + static_cast<il::int_t>(i))
                               : -(1 + static_cast<il::int_t>(i_tombstone))};
 #endif
@@ -519,9 +519,9 @@ il::spot_t Map<K, V, F>::search(const K& key) const {
       i_tombstone = i;
     } else if (F::isEqual(bucket_[i].key, key)) {
 #ifdef IL_DEBUG_CLASS
-      return il::spot_t{static_cast<il::int_t>(i), hash_};
+      return il::Spot{static_cast<il::int_t>(i), hash_};
 #else
-      return il::spot_t{static_cast<il::int_t>(i)};
+      return il::Spot{static_cast<il::int_t>(i)};
 #endif
     }
     i += delta_i;
@@ -532,15 +532,15 @@ il::spot_t Map<K, V, F>::search(const K& key) const {
 
 template <typename K, typename V, typename F>
 template <il::int_t m>
-il::spot_t Map<K, V, F>::searchCString(const char (&key)[m]) const {
+il::Spot Map<K, V, F>::searchCString(const char (&key)[m]) const {
   IL_EXPECT_MEDIUM(!F::isEmpty(key));
   IL_EXPECT_MEDIUM(!F::isTombstone(key));
 
   if (p_ == -1) {
 #ifdef IL_DEBUG_CLASS
-    return il::spot_t{-1, hash_};
+    return il::Spot{-1, hash_};
 #else
-    return il::spot_t{-1};
+    return il::Spot{-1};
 #endif
   }
 
@@ -551,12 +551,12 @@ il::spot_t Map<K, V, F>::searchCString(const char (&key)[m]) const {
   while (true) {
     if (F::isEmpty(bucket_[i].key)) {
 #ifdef IL_DEBUG_CLASS
-      return il::spot_t{(i_tombstone == static_cast<std::size_t>(-1))
+      return il::Spot{(i_tombstone == static_cast<std::size_t>(-1))
                               ? -(1 + static_cast<il::int_t>(i))
                               : -(1 + static_cast<il::int_t>(i_tombstone)),
                           hash_};
 #else
-      return il::spot_t{(i_tombstone == static_cast<std::size_t>(-1))
+      return il::Spot{(i_tombstone == static_cast<std::size_t>(-1))
                               ? -(1 + static_cast<il::int_t>(i))
                               : -(1 + static_cast<il::int_t>(i_tombstone))};
 #endif
@@ -564,9 +564,9 @@ il::spot_t Map<K, V, F>::searchCString(const char (&key)[m]) const {
       i_tombstone = i;
     } else if (F::isEqual(bucket_[i].key, key)) {
 #ifdef IL_DEBUG_CLASS
-      return il::spot_t{static_cast<il::int_t>(i), hash_};
+      return il::Spot{static_cast<il::int_t>(i), hash_};
 #else
-      return il::spot_t{static_cast<il::int_t>(i)};
+      return il::Spot{static_cast<il::int_t>(i)};
 #endif
     }
     i += delta_i;
@@ -576,12 +576,12 @@ il::spot_t Map<K, V, F>::searchCString(const char (&key)[m]) const {
 }
 
 template <typename K, typename V, typename F>
-il::spot_t Map<K, V, F>::searchCString(const char* key, il::int_t n) const {
+il::Spot Map<K, V, F>::searchCString(const char* key, il::int_t n) const {
   if (p_ == -1) {
 #ifdef IL_DEBUG_CLASS
-    return il::spot_t{-1, hash_};
+    return il::Spot{-1, hash_};
 #else
-    return il::spot_t{-1};
+    return il::Spot{-1};
 #endif
   }
 
@@ -592,12 +592,12 @@ il::spot_t Map<K, V, F>::searchCString(const char* key, il::int_t n) const {
   while (true) {
     if (F::isEmpty(bucket_[i].key)) {
 #ifdef IL_DEBUG_CLASS
-      return il::spot_t{(i_tombstone == static_cast<std::size_t>(-1))
+      return il::Spot{(i_tombstone == static_cast<std::size_t>(-1))
                               ? -(1 + static_cast<il::int_t>(i))
                               : -(1 + static_cast<il::int_t>(i_tombstone)),
                           hash_};
 #else
-      return il::spot_t{(i_tombstone == static_cast<std::size_t>(-1))
+      return il::Spot{(i_tombstone == static_cast<std::size_t>(-1))
                               ? -(1 + static_cast<il::int_t>(i))
                               : -(1 + static_cast<il::int_t>(i_tombstone))};
 #endif
@@ -605,9 +605,9 @@ il::spot_t Map<K, V, F>::searchCString(const char* key, il::int_t n) const {
       i_tombstone = i;
     } else if (F::isEqual(bucket_[i].key, key, n)) {
 #ifdef IL_DEBUG_CLASS
-      return il::spot_t{static_cast<il::int_t>(i), hash_};
+      return il::Spot{static_cast<il::int_t>(i), hash_};
 #else
-      return il::spot_t{static_cast<il::int_t>(i)};
+      return il::Spot{static_cast<il::int_t>(i)};
 #endif
     }
     i += delta_i;
@@ -617,7 +617,7 @@ il::spot_t Map<K, V, F>::searchCString(const char* key, il::int_t n) const {
 }
 
 template <typename K, typename V, typename F>
-bool Map<K, V, F>::found(il::spot_t i) const {
+bool Map<K, V, F>::found(il::Spot i) const {
 #ifdef IL_DEBUG_CLASS
   IL_EXPECT_MEDIUM(i.hash() == hash_);
 #endif
@@ -626,7 +626,7 @@ bool Map<K, V, F>::found(il::spot_t i) const {
 
 template <typename K, typename V, typename F>
 void Map<K, V, F>::InsertCString(const char* key, const il::int_t n,
-                                 const V& value, il::io_t, il::spot_t& i) {
+                                 const V& value, il::io_t, il::Spot& i) {
 #ifdef IL_DEBUG_CLASS
   IL_EXPECT_FAST(i.hash() == hash_);
 #endif
@@ -641,7 +641,7 @@ void Map<K, V, F>::InsertCString(const char* key, const il::int_t n,
     } else {
       il::abort();
     }
-    il::spot_t j = searchCString(key, n);
+    il::Spot j = searchCString(key, n);
     i_local = -(1 + j.index());
   }
   new (const_cast<K*>(&((bucket_ + i_local)->key))) K(key, n);
@@ -659,7 +659,7 @@ void Map<K, V, F>::InsertCString(const char* key, const il::int_t n,
 template <typename K, typename V, typename F>
 template <il::int_t m>
 void Map<K, V, F>::InsertCString(const char (&key)[m], const V& value, il::io_t,
-                                 il::spot_t& i) {
+                                 il::Spot& i) {
 #ifdef IL_DEBUG_CLASS
   IL_EXPECT_FAST(i.hash() == hash_);
 #endif
@@ -674,7 +674,7 @@ void Map<K, V, F>::InsertCString(const char (&key)[m], const V& value, il::io_t,
     } else {
       il::abort();
     }
-    il::spot_t j = searchCString(key);
+    il::Spot j = searchCString(key);
     i_local = -(1 + j.index());
   }
   new (const_cast<K*>(&((bucket_ + i_local)->key))) K(key);
@@ -690,7 +690,7 @@ void Map<K, V, F>::InsertCString(const char (&key)[m], const V& value, il::io_t,
 
 template <typename K, typename V, typename F>
 void Map<K, V, F>::Set(const K& key, const V& value, il::io_t,
-                       il::spot_t& i) {
+                       il::Spot& i) {
 #ifdef IL_DEBUG_CLASS
   IL_EXPECT_FAST(i.hash() == hash_);
 #endif
@@ -705,7 +705,7 @@ void Map<K, V, F>::Set(const K& key, const V& value, il::io_t,
     } else {
       il::abort();
     }
-    il::spot_t j = search(key);
+    il::Spot j = search(key);
     i_local = -(1 + j.index());
   }
   new (const_cast<K*>(&((bucket_ + i_local)->key))) K(key);
@@ -720,7 +720,7 @@ void Map<K, V, F>::Set(const K& key, const V& value, il::io_t,
 }
 
 template <typename K, typename V, typename F>
-void Map<K, V, F>::Set(const K& key, V&& value, il::io_t, il::spot_t& i) {
+void Map<K, V, F>::Set(const K& key, V&& value, il::io_t, il::Spot& i) {
 #ifdef IL_DEBUG_CLASS
   IL_EXPECT_FAST(i.hash() == hash_);
 #endif
@@ -735,7 +735,7 @@ void Map<K, V, F>::Set(const K& key, V&& value, il::io_t, il::spot_t& i) {
     } else {
       il::abort();
     }
-    il::spot_t j = search(key);
+    il::Spot j = search(key);
     i_local = -(1 + j.index());
   }
   new (const_cast<K*>(&((bucket_ + i_local)->key))) K(key);
@@ -750,7 +750,7 @@ void Map<K, V, F>::Set(const K& key, V&& value, il::io_t, il::spot_t& i) {
 }
 
 template <typename K, typename V, typename F>
-void Map<K, V, F>::Set(K&& key, const V& value, il::io_t, il::spot_t& i) {
+void Map<K, V, F>::Set(K&& key, const V& value, il::io_t, il::Spot& i) {
 #ifdef IL_DEBUG_CLASS
   IL_EXPECT_FAST(i.hash() == hash_);
 #endif
@@ -765,7 +765,7 @@ void Map<K, V, F>::Set(K&& key, const V& value, il::io_t, il::spot_t& i) {
     } else {
       il::abort();
     }
-    il::spot_t j = search(key);
+    il::Spot j = search(key);
     i_local = -(1 + j.index());
   }
   new (const_cast<K*>(&((bucket_ + i_local)->key))) K(std::move(key));
@@ -780,7 +780,7 @@ void Map<K, V, F>::Set(K&& key, const V& value, il::io_t, il::spot_t& i) {
 }
 
 template <typename K, typename V, typename F>
-void Map<K, V, F>::Set(K&& key, V&& value, il::io_t, il::spot_t& i) {
+void Map<K, V, F>::Set(K&& key, V&& value, il::io_t, il::Spot& i) {
 #ifdef IL_DEBUG_CLASS
   IL_EXPECT_FAST(i.hash() == hash_);
 #endif
@@ -795,7 +795,7 @@ void Map<K, V, F>::Set(K&& key, V&& value, il::io_t, il::spot_t& i) {
     } else {
       il::abort();
     }
-    il::spot_t j = search(key);
+    il::Spot j = search(key);
     i_local = -(1 + j.index());
   }
   new (const_cast<K*>(&((bucket_ + i_local)->key))) K(std::move(key));
@@ -810,7 +810,7 @@ void Map<K, V, F>::Set(K&& key, V&& value, il::io_t, il::spot_t& i) {
 }
 
 template <typename K, typename V, typename F>
-void Map<K, V, F>::erase(il::spot_t i) {
+void Map<K, V, F>::erase(il::Spot i) {
 #ifdef IL_DEBUG_CLASS
   IL_EXPECT_FAST(i.hash() == hash_);
 #endif
@@ -833,7 +833,7 @@ void Map<K, V, F>::erase(il::spot_t i) {
 }
 
 template <typename K, typename V, typename F>
-const K& Map<K, V, F>::key(il::spot_t i) const {
+const K& Map<K, V, F>::key(il::Spot i) const {
 #ifdef IL_DEBUG_CLASS
   IL_EXPECT_MEDIUM(i.hash() == hash_);
 #endif
@@ -844,7 +844,7 @@ const K& Map<K, V, F>::key(il::spot_t i) const {
 }
 
 template <typename K, typename V, typename F>
-const V& Map<K, V, F>::value(il::spot_t i) const {
+const V& Map<K, V, F>::value(il::Spot i) const {
 #ifdef IL_DEBUG_CLASS
   IL_EXPECT_MEDIUM(i.hash() == hash_);
 #endif
@@ -855,7 +855,7 @@ const V& Map<K, V, F>::value(il::spot_t i) const {
 }
 
 template <typename K, typename V, typename F>
-V& Map<K, V, F>::Value(il::spot_t i) {
+V& Map<K, V, F>::Value(il::Spot i) {
 #ifdef IL_DEBUG_CLASS
   IL_EXPECT_MEDIUM(i.hash() == hash_);
 #endif
@@ -867,7 +867,7 @@ V& Map<K, V, F>::Value(il::spot_t i) {
 
 template <typename K, typename V, typename F>
 const V& Map<K, V, F>::valueForKey(const K& key) const {
-  const il::spot_t i = search(key);
+  const il::Spot i = search(key);
   if (found(i)) {
     return value(i);
   } else {
@@ -877,7 +877,7 @@ const V& Map<K, V, F>::valueForKey(const K& key) const {
 
 template <typename K, typename V, typename F>
 const V& Map<K, V, F>::valueForKey(const K& key, const V& default_value) const {
-  const il::spot_t i = search(key);
+  const il::Spot i = search(key);
   if (found(i)) {
     return value(i);
   } else {
@@ -888,7 +888,7 @@ const V& Map<K, V, F>::valueForKey(const K& key, const V& default_value) const {
 template <typename K, typename V, typename F>
 template <il::int_t m>
 const V& Map<K, V, F>::valueForCString(const char (&key)[m]) const {
-  const il::spot_t i = search(key);
+  const il::Spot i = search(key);
   if (found(i)) {
     return value(i);
   } else {
@@ -900,7 +900,7 @@ template <typename K, typename V, typename F>
 template <il::int_t m>
 const V& Map<K, V, F>::valueForCString(const char (&key)[m],
                                        const V& default_value) const {
-  const il::spot_t i = search(key);
+  const il::Spot i = search(key);
   if (found(i)) {
     return value(i);
   } else {
@@ -1001,7 +1001,7 @@ void Map<K, V, F>::Clear() {
 }
 
 template <typename K, typename V, typename F>
-il::spot_t Map<K, V, F>::begin() const {
+il::Spot Map<K, V, F>::begin() const {
   const il::int_t m = il::int_t{1} << p_;
 
   il::int_t i = 0;
@@ -1010,23 +1010,23 @@ il::spot_t Map<K, V, F>::begin() const {
     ++i;
   }
 #ifdef IL_DEBUG_CLASS
-  return il::spot_t{i, hash_};
+  return il::Spot{i, hash_};
 #else
-  return il::spot_t{i};
+  return il::Spot{i};
 #endif
 }
 
 template <typename K, typename V, typename F>
-il::spot_t Map<K, V, F>::end() const {
+il::Spot Map<K, V, F>::end() const {
 #ifdef IL_DEBUG_CLASS
-  return il::spot_t{il::int_t{1} << p_, hash_};
+  return il::Spot{il::int_t{1} << p_, hash_};
 #else
-  return il::spot_t{il::int_t{1} << p_};
+  return il::Spot{il::int_t{1} << p_};
 #endif
 }
 
 template <typename K, typename V, typename F>
-il::spot_t Map<K, V, F>::next(il::spot_t i) const {
+il::Spot Map<K, V, F>::next(il::Spot i) const {
 #ifdef IL_DEBUG_CLASS
   IL_EXPECT_MEDIUM(i.hash() == hash_);
 #endif
@@ -1039,9 +1039,9 @@ il::spot_t Map<K, V, F>::next(il::spot_t i) const {
     ++i_local;
   }
 #ifdef IL_DEBUG_CLASS
-  return il::spot_t{i_local, hash_};
+  return il::Spot{i_local, hash_};
 #else
-  return il::spot_t{i_local};
+  return il::Spot{i_local};
 #endif
 }
 
@@ -1073,7 +1073,7 @@ void Map<K, V, F>::ReserveWithP(int p) {
     for (il::int_t i = 0; i < old_m; ++i) {
       if (!F::isEmpty(old_bucket_[i].key) &&
           !F::isTombstone(old_bucket_[i].key)) {
-        il::spot_t new_i = search(old_bucket_[i].key);
+        il::Spot new_i = search(old_bucket_[i].key);
         Set(std::move(old_bucket_[i].key), std::move(old_bucket_[i].value),
             il::io, new_i);
         (&((old_bucket_ + i)->key))->~K();

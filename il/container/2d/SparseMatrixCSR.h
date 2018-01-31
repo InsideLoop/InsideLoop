@@ -330,7 +330,7 @@ inline double norm(const il::SparseMatrixCSR<Index, double> &A, Norm norm_type,
 
   double norm = 0.0;
   switch (norm_type) {
-    case Norm::Linf:
+    case Norm::kLinf:
       for (Index i = 0; i < A.size(0); ++i) {
         double sum = 0.0;
         for (Index k = A.row(i); k < A.row(i + 1); ++k) {

@@ -21,16 +21,16 @@
 
 namespace il {
 
-enum class MatrixOperator { None, Tranpose, ConjugateTranspose };
+enum class MatrixOperator { kNone, kTranpose, kConjugateTranspose };
 
 enum class Blas {
-  Regular,
-  Transpose,
-  ConjugateTranspose,
-  SymmetricUpper,
-  SymmetricLower,
-  HermitianUpper,
-  HermitianLower
+  kRegular,
+  kTranspose,
+  kConjugateTranspose,
+  kSymmetricUpper,
+  kSymmetricLower,
+  kHermitianUpper,
+  kHermitianLower
 };
 }  // namespace il
 

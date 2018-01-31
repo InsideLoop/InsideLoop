@@ -41,22 +41,22 @@ class MapArray {
   void Set(const K& key, V&& value);
   void Set(K&& key, const V& value);
   void Set(K&& key, V&& value);
-  void Set(const K& key, const V& value, il::io_t, il::spot_t& i);
-  void Set(const K& key, V&& value, il::io_t, il::spot_t& i);
-  void Set(K&& key, const V& value, il::io_t, il::spot_t& i);
-  void Set(K&& key, V&& value, il::io_t, il::spot_t& i);
+  void Set(const K& key, const V& value, il::io_t, il::Spot& i);
+  void Set(const K& key, V&& value, il::io_t, il::Spot& i);
+  void Set(K&& key, const V& value, il::io_t, il::Spot& i);
+  void Set(K&& key, V&& value, il::io_t, il::Spot& i);
   il::int_t size() const;
   il::int_t capacity() const;
-  il::spot_t search(const K& key) const;
+  il::Spot search(const K& key) const;
   template <il::int_t m>
-  il::spot_t searchCString(const char (&key)[m]) const;
-  bool found(il::spot_t i) const;
-  const K& key(il::spot_t i) const;
-  const V& value(il::spot_t i) const;
-  V& Value(il::spot_t i);
-  il::spot_t next(il::spot_t i) const;
-  il::spot_t begin() const;
-  il::spot_t end() const;
+  il::Spot searchCString(const char (&key)[m]) const;
+  bool found(il::Spot i) const;
+  const K& key(il::Spot i) const;
+  const V& value(il::Spot i) const;
+  V& Value(il::Spot i);
+  il::Spot next(il::Spot i) const;
+  il::Spot begin() const;
+  il::Spot end() const;
   il::int_t nbElements() const;
 };
 
@@ -125,7 +125,7 @@ void MapArray<K, V, F>::Set(K&& key, V&& value) {
 
 template <typename K, typename V, typename F>
 void MapArray<K, V, F>::Set(const K& key, const V& value, il::io_t,
-                            il::spot_t& i) {
+                            il::Spot& i) {
   const il::int_t j = array_.size();
   array_.Append(il::emplace, key, value);
   map_.Set(key, j, il::io, i);
@@ -140,7 +140,7 @@ void MapArray<K, V, F>::Set(const K& key, const V& value, il::io_t,
 
 template <typename K, typename V, typename F>
 void MapArray<K, V, F>::Set(const K& key, V&& value, il::io_t,
-                            il::spot_t& i) {
+                            il::Spot& i) {
   const il::int_t j = array_.size();
   array_.Append(il::emplace, key, std::move(value));
   map_.Set(key, j, il::io, i);
@@ -153,7 +153,7 @@ void MapArray<K, V, F>::Set(const K& key, V&& value, il::io_t,
 }
 
 template <typename K, typename V, typename F>
-void MapArray<K, V, F>::Set(K&& key, V&& value, il::io_t, il::spot_t& i) {
+void MapArray<K, V, F>::Set(K&& key, V&& value, il::io_t, il::Spot& i) {
   const il::int_t j = array_.size();
   array_.Append(il::emplace, key, std::move(value));
   map_.Set(std::move(key), j, il::io, i);
@@ -176,72 +176,72 @@ il::int_t MapArray<K, V, F>::capacity() const {
 }
 
 template <typename K, typename V, typename F>
-il::spot_t MapArray<K, V, F>::search(const K& key) const {
-  const il::spot_t i = map_.search(key);
+il::Spot MapArray<K, V, F>::search(const K& key) const {
+  const il::Spot i = map_.search(key);
 #ifdef IL_DEBUG_CLASS
-  return map_.found(i) ? il::spot_t{map_.value(i), map_.hash()}
-                       : il::spot_t{i.index(), map_.hash()};
+  return map_.found(i) ? il::Spot{map_.value(i), map_.hash()}
+                       : il::Spot{i.index(), map_.hash()};
 #else
-  return map_.found(i) ? il::spot_t{map_.value(i)} : il::spot_t{i.index()};
+  return map_.found(i) ? il::Spot{map_.value(i)} : il::Spot{i.index()};
 #endif
 }
 
 template <typename K, typename V, typename F>
 template <il::int_t m>
-il::spot_t MapArray<K, V, F>::searchCString(const char (&key)[m]) const {
-  const il::spot_t i = map_.search(key);
+il::Spot MapArray<K, V, F>::searchCString(const char (&key)[m]) const {
+  const il::Spot i = map_.search(key);
 #ifdef IL_DEBUG_CLASS
-  return map_.found(i) ? il::spot_t{map_.value(i), map_.hash()}
-                       : il::spot_t{i.index(), map_.hash()};
+  return map_.found(i) ? il::Spot{map_.value(i), map_.hash()}
+                       : il::Spot{i.index(), map_.hash()};
 #else
-  return map_.found(i) ? il::spot_t{map_.value(i)} : il::spot_t{i.index()};
+  return map_.found(i) ? il::Spot{map_.value(i)} : il::Spot{i.index()};
 #endif
 };
 
 template <typename K, typename V, typename F>
-bool MapArray<K, V, F>::found(il::spot_t i) const {
+bool MapArray<K, V, F>::found(il::Spot i) const {
   return i.index() >= 0;
 }
 
 template <typename K, typename V, typename F>
-const K& MapArray<K, V, F>::key(il::spot_t i) const {
+const K& MapArray<K, V, F>::key(il::Spot i) const {
   return array_[i.index()].key;
 }
 
 template <typename K, typename V, typename F>
-const V& MapArray<K, V, F>::value(il::spot_t i) const {
+const V& MapArray<K, V, F>::value(il::Spot i) const {
   return array_[i.index()].value;
 }
 
 template <typename K, typename V, typename F>
-V& MapArray<K, V, F>::Value(il::spot_t i) {
+V& MapArray<K, V, F>::Value(il::Spot i) {
   return array_[i.index()].value;
 }
 
 template <typename K, typename V, typename F>
-il::spot_t MapArray<K, V, F>::next(il::spot_t i) const {
+il::Spot MapArray<K, V, F>::next(il::Spot i) const {
 #ifdef IL_DEBUG_CLASS
-  return il::spot_t{i.index() + 1, map_.hash()};
+  return il::Spot{i.index() + 1, map_.hash()};
 #else
-  return il::spot_t{i.index() + 1};
+  return il::Spot{i.index() + 1};
 #endif
 }
 
 template <typename K, typename V, typename F>
-il::spot_t MapArray<K, V, F>::begin() const {
+il::Spot MapArray<K, V, F>::begin() const {
 #ifdef IL_DEBUG_CLASS
-  return il::spot_t{0, hash_};
+  return il::Spot{0, hash_};
 #else
-  return il::spot_t{0};
+  return il::Spot{0};
 #endif
 }
 
 template <typename K, typename V, typename F>
-il::spot_t MapArray<K, V, F>::end() const {
+il::Spot MapArray<K, V, F>::end() const {
 #ifdef IL_DEBUG_CLASS
-  return il::spot_t{array_.size(), map_.hash()};
+  return il::Spot{array_.size(), map_.hash()};
 #else
-  return il::spot_t{array_.size()};
+  return il::Spot{array_.size()};
 #endif
 }
 

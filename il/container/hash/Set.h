@@ -20,7 +20,7 @@
 #define IL_SET_H
 
 #include <il/container/hash/HashFunction.h>
-#include <il/container/hash/spot_t.h>
+#include <il/container/hash/Spot.h>
 
 namespace il {
 
@@ -40,16 +40,16 @@ class Set {
   Set& operator=(Set<T, F>&& set);
   ~Set();
 
-  il::spot_t search(const T& x) const;
-  void Add(const T& x, il::io_t, il::spot_t i);
+  il::Spot search(const T& x) const;
+  void Add(const T& x, il::io_t, il::Spot i);
   void Add(const T& x);
-  bool found(il::spot_t i) const;
+  bool found(il::Spot i) const;
   bool contains(const T& x) const;
   void Clear();
-  const T& element(il::spot_t i) const;
-  il::spot_t begin() const;
-  il::spot_t end() const;
-  il::spot_t next(il::spot_t i) const;
+  const T& element(il::Spot i) const;
+  il::Spot begin() const;
+  il::Spot end() const;
+  il::Spot next(il::Spot i) const;
   il::int_t nbElements() const;
 
  private:
@@ -77,7 +77,7 @@ Set<T, F>::Set(const Set<T, F>& set) {
     for (il::int_t i = 0; i < m; ++i) {
       F::constructEmpty(il::io, bucket_ + i);
     }
-    for (il::spot_t i = set.begin(); i != set.end(); i = set.next(i)) {
+    for (il::Spot i = set.begin(); i != set.end(); i = set.next(i)) {
       Add(set.element(i));
     }
   }
@@ -170,12 +170,12 @@ Set<T, F>::~Set() {
 }
 
 template <typename T, typename F>
-il::spot_t Set<T, F>::search(const T& x) const {
+il::Spot Set<T, F>::search(const T& x) const {
   IL_EXPECT_MEDIUM(!F::isEmpty(x));
   IL_EXPECT_MEDIUM(!F::isTombstone(x));
 
   if (p_ == -1) {
-    return il::spot_t{-1};
+    return il::Spot{-1};
   }
 
   const std::size_t mask = (static_cast<std::size_t>(1) << p_) - 1;
@@ -185,12 +185,12 @@ il::spot_t Set<T, F>::search(const T& x) const {
   while (true) {
     if (F::isEmpty(bucket_[i])) {
 #ifdef IL_DEBUG_CLASS
-      return il::spot_t{(i_tombstone == static_cast<std::size_t>(-1))
+      return il::Spot{(i_tombstone == static_cast<std::size_t>(-1))
                               ? -(1 + static_cast<il::int_t>(i))
                               : -(1 + static_cast<il::int_t>(i_tombstone)),
                           0};
 #else
-      return il::spot_t{(i_tombstone == static_cast<std::size_t>(-1))
+      return il::Spot{(i_tombstone == static_cast<std::size_t>(-1))
                               ? -(1 + static_cast<il::int_t>(i))
                               : -(1 + static_cast<il::int_t>(i_tombstone))};
 #endif
@@ -198,9 +198,9 @@ il::spot_t Set<T, F>::search(const T& x) const {
       i_tombstone = i;
     } else if (F::isEqual(bucket_[i], x)) {
 #ifdef IL_DEBUG_CLASS
-      return il::spot_t{static_cast<il::int_t>(i), 0};
+      return il::Spot{static_cast<il::int_t>(i), 0};
 #else
-      return il::spot_t{static_cast<il::int_t>(i)};
+      return il::Spot{static_cast<il::int_t>(i)};
 #endif
     }
     i += delta_i;
@@ -210,7 +210,7 @@ il::spot_t Set<T, F>::search(const T& x) const {
 }
 
 template <typename T, typename F>
-void Set<T, F>::Add(const T& x, il::io_t, il::spot_t& i) {
+void Set<T, F>::Add(const T& x, il::io_t, il::Spot& i) {
   IL_EXPECT_FAST(!found(i));
 
   il::int_t i_local = -(1 + i.index());
@@ -222,7 +222,7 @@ void Set<T, F>::Add(const T& x, il::io_t, il::spot_t& i) {
     } else {
       il::abort();
     }
-    il::spot_t j = search(x);
+    il::Spot j = search(x);
     i_local = -(1 + j.index());
   }
   new (bucket_ + i_local) T(x);
@@ -236,20 +236,20 @@ void Set<T, F>::Add(const T& x, il::io_t, il::spot_t& i) {
 
 template <typename T, typename F>
 void Set<T, F>::Add(const T& x) {
-  il::spot_t i = search(x);
+  il::Spot i = search(x);
   if (!found(i)) {
     Add(x, il::io, i);
   }
 }
 
 template <typename T, typename F>
-bool Set<T, F>::found(il::spot_t i) const {
+bool Set<T, F>::found(il::Spot i) const {
   return i.index() >= 0;
 }
 
 template <typename T, typename F>
 bool Set<T, F>::contains(const T& x) const {
-  const il::spot_t i = search(x);
+  const il::Spot i = search(x);
   return i.index() >= 0;
 }
 
@@ -267,34 +267,34 @@ void Set<T, F>::Clear() {
 }
 
 template <typename T, typename F>
-const T& Set<T, F>::element(il::spot_t i) const {
+const T& Set<T, F>::element(il::Spot i) const {
   return bucket_[i.index()];
 }
 
 template <typename T, typename F>
-il::spot_t Set<T, F>::begin() const {
+il::Spot Set<T, F>::begin() const {
   const il::int_t m = static_cast<il::int_t>(static_cast<std::size_t>(1) << p_);
 
   il::int_t i = 0;
   while (i < m && (F::isEmpty(bucket_[i]) || F::isTombstone(bucket_[i]))) {
     ++i;
   }
-  return il::spot_t{i};
+  return il::Spot{i};
 }
 
 template <typename T, typename F>
-il::spot_t Set<T, F>::end() const {
+il::Spot Set<T, F>::end() const {
 #ifdef IL_DEBUG_CLASS
-  return il::spot_t{static_cast<il::int_t>(static_cast<std::size_t>(1) << p_),
+  return il::Spot{static_cast<il::int_t>(static_cast<std::size_t>(1) << p_),
                       0};
 #else
-  return il::spot_t{
+  return il::Spot{
       static_cast<il::int_t>(static_cast<std::size_t>(1) << p_)};
 #endif
 }
 
 template <typename T, typename F>
-il::spot_t Set<T, F>::next(il::spot_t i) const {
+il::Spot Set<T, F>::next(il::Spot i) const {
   const il::int_t m = static_cast<il::int_t>(static_cast<std::size_t>(1) << p_);
 
   il::int_t i_local = i.index();
@@ -304,9 +304,9 @@ il::spot_t Set<T, F>::next(il::spot_t i) const {
     ++i_local;
   }
 #ifdef IL_DEBUG_CLASS
-  return il::spot_t{i_local, 0};
+  return il::Spot{i_local, 0};
 #else
-  return il::spot_t{i_local};
+  return il::Spot{i_local};
 #endif
 }
 
@@ -344,7 +344,7 @@ void Set<T, F>::ReserveWithP(int p) {
   if (p_ >= 0) {
     for (il::int_t i = 0; i < old_m; ++i) {
       if (!F::isEmpty(old_bucket_[i]) && !F::isTombstone(old_bucket_[i])) {
-        il::spot_t new_i = search(old_bucket_[i]);
+        il::Spot new_i = search(old_bucket_[i]);
         Add(std::move(old_bucket_[i]), il::io, new_i);
         (old_bucket_ + i)->~T();
       }

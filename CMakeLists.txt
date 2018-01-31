@@ -171,7 +171,7 @@ set(SOURCE_FILES
     il/Array4C.h
     il/ArrayView.h
     il/BandArray2C.h
-        il/core.h
+    il/core.h
     il/CudaArray2D.h
     il/data.h
     il/Dynamic.h
@@ -184,6 +184,7 @@ set(SOURCE_FILES
     il/norm.h
     il/numpy.h
     il/png.h
+    il/Queue.h
     il/Set.h
     il/SmallArray.h
     il/SparseMatrixCSR.h
@@ -232,16 +233,18 @@ set(SOURCE_FILES
     il/container/hash/Map.h
     il/container/hash/MapArray.h
     il/container/hash/Set.h
+    il/container/hash/Spot.h
     il/container/string/String.h
     il/container/string/UTF16String.h
     il/container/string/unicode.h
     il/container/string/view_string.h
     il/container/string/algorithm_string.h
-        il/container/dynamic/Type.h
+    il/container/dynamic/Type.h
     il/container/dynamic/Dynamic.h
     il/container/info/Info.h
     il/container/info/Status.h
-        il/core/core.h
+    il/container/queue/Queue.h
+    il/core/core.h
     il/core/math/safe_arithmetic.h
     il/core/memory/allocate.h
     il/io/io_base.h

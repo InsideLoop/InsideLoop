@@ -26,25 +26,25 @@
 
 namespace il {
 
-enum class FileType { Npy, Toml, Data, Png };
+enum class FileType { kNpy, kToml, kData, kPng };
 
 inline il::FileType fileType(const il::String& file, il::io_t,
                              il::Status& status) {
   if (file.endsWith(".npy")) {
     status.SetOk();
-    return il::FileType::Npy;
+    return il::FileType::kNpy;
   } else if (file.endsWith(".toml")) {
     status.SetOk();
-    return il::FileType::Toml;
+    return il::FileType::kToml;
   } else if (file.endsWith(".data")) {
     status.SetOk();
-    return il::FileType::Data;
+    return il::FileType::kData;
   } else if (file.endsWith(".png")) {
     status.SetOk();
-    return il::FileType::Png;
+    return il::FileType::kPng;
   } else {
-    status.SetError(il::Error::Undefined);
-    return il::FileType::Npy;
+    status.SetError(il::Error::kUndefined);
+    return il::FileType::kNpy;
   }
 }
 
@@ -58,7 +58,7 @@ template <typename T>
 T LoadHelper<T>::load(const il::String& filename, il::io_t,
                       il::Status& status) {
   IL_UNUSED(filename);
-  status.SetError(il::Error::Unimplemented);
+  status.SetError(il::Error::kUnimplemented);
   IL_SET_SOURCE(status);
   return T{};
 }
@@ -73,7 +73,7 @@ template <typename T>
 T LoadHelperToml<T>::load(const il::String& filename, il::io_t,
                           il::Status& status) {
   IL_UNUSED(filename);
-  status.SetError(il::Error::Unimplemented);
+  status.SetError(il::Error::kUnimplemented);
   IL_SET_SOURCE(status);
   return T{};
 }
@@ -88,7 +88,7 @@ template <typename T>
 T LoadHelperData<T>::load(const il::String& filename, il::io_t,
                           il::Status& status) {
   IL_UNUSED(filename);
-  status.SetError(il::Error::Unimplemented);
+  status.SetError(il::Error::kUnimplemented);
   IL_SET_SOURCE(status);
   return T{};
 }
@@ -101,10 +101,10 @@ T load(const il::String& filename, il::io_t, il::Status& status) {
     return T{};
   }
   switch (ft) {
-    case il::FileType::Toml:
+    case il::FileType::kToml:
       return il::LoadHelperToml<T>::load(filename, il::io, status);
       break;
-    case il::FileType::Data:
+    case il::FileType::kData:
       return il::LoadHelperData<T>::load(filename, il::io, status);
       break;
     default:
@@ -114,7 +114,7 @@ T load(const il::String& filename, il::io_t, il::Status& status) {
 
 template <typename T>
 T load(const std::string& filename, il::io_t, il::Status& status) {
-  il::String il_filename{il::StringType::Raw, filename.c_str(),
+  il::String il_filename{il::StringType::kByte, filename.c_str(),
                          il::size(filename.c_str())};
   return il::LoadHelper<T>::load(il_filename, il::io, status);
 }
@@ -138,7 +138,7 @@ void SaveHelper<T>::save(const T& x, const il::String& filename, il::io_t,
                          il::Status& status) {
   IL_UNUSED(x);
   IL_UNUSED(filename);
-  status.SetError(il::Error::Unimplemented);
+  status.SetError(il::Error::kUnimplemented);
   IL_SET_SOURCE(status);
 }
 
@@ -149,7 +149,7 @@ void SaveHelperWithOptions<T, U>::save(const T& x, const U& options,
   IL_UNUSED(x);
   IL_UNUSED(filename);
   IL_UNUSED(options);
-  status.SetError(il::Error::Unimplemented);
+  status.SetError(il::Error::kUnimplemented);
   IL_SET_SOURCE(status);
 }
 
@@ -165,7 +165,7 @@ void SaveHelperToml<T>::save(const T& x, const il::String& filename, il::io_t,
                              il::Status& status) {
   IL_UNUSED(x);
   IL_UNUSED(filename);
-  status.SetError(il::Error::Unimplemented);
+  status.SetError(il::Error::kUnimplemented);
   IL_SET_SOURCE(status);
 }
 
@@ -188,7 +188,7 @@ void SaveHelperData<T>::save(const T& x, const il::String& filename, il::io_t,
                              il::Status& status) {
   IL_UNUSED(x);
   IL_UNUSED(filename);
-  status.SetError(il::Error::Unimplemented);
+  status.SetError(il::Error::kUnimplemented);
   IL_SET_SOURCE(status);
 }
 
@@ -198,7 +198,7 @@ void SaveHelperDataWithOptions<T, U>::save(const T& x, const U&,
                                            il::Status& status) {
   IL_UNUSED(x);
   IL_UNUSED(filename);
-  status.SetError(il::Error::Unimplemented);
+  status.SetError(il::Error::kUnimplemented);
   IL_SET_SOURCE(status);
 }
 
@@ -214,7 +214,7 @@ void SaveHelperPng<T>::save(const T& x, const il::String& filename, il::io_t,
                             il::Status& status) {
   IL_UNUSED(x);
   IL_UNUSED(filename);
-  status.SetError(il::Error::Unimplemented);
+  status.SetError(il::Error::kUnimplemented);
   IL_SET_SOURCE(status);
 }
 
@@ -227,13 +227,13 @@ void save(const T& x, const il::String& filename, il::io_t,
     return;
   }
   switch (ft) {
-    case il::FileType::Toml:
+    case il::FileType::kToml:
       il::SaveHelperToml<T>::save(x, filename, il::io, status);
       break;
-    case il::FileType::Data:
+    case il::FileType::kData:
       il::SaveHelperData<T>::save(x, filename, il::io, status);
       break;
-    case il::FileType::Png:
+    case il::FileType::kPng:
       il::SaveHelperPng<T>::save(x, filename, il::io, status);
       break;
     default:
@@ -250,14 +250,14 @@ void save(const T& x, const U& option, const il::String& filename, il::io_t,
     return;
   }
   switch (ft) {
-    case il::FileType::Toml:
+    case il::FileType::kToml:
       IL_UNREACHABLE;
       break;
-    case il::FileType::Data:
+    case il::FileType::kData:
       il::SaveHelperDataWithOptions<T, U>::save(x, option, filename, il::io,
                                                 status);
       break;
-    case il::FileType::Png:
+    case il::FileType::kPng:
       IL_UNREACHABLE;
       break;
     default:

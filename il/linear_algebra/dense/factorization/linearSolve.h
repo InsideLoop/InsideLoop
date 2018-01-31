@@ -55,7 +55,7 @@ inline il::Array<double> linearSolve(il::Array2D<double> A, il::Array<double> y,
   if (lapack_error == 0) {
     status.SetOk();
   } else {
-    status.SetError(il::Error::MatrixSingular);
+    status.SetError(il::Error::kMatrixSingular);
     IL_SET_SOURCE(status);
   }
 
@@ -81,7 +81,7 @@ inline il::Array<double> linearSolve(il::Array2C<double> A, il::Array<double> y,
   if (lapack_error == 0) {
     status.SetOk();
   } else {
-    status.SetError(il::Error::MatrixSingular);
+    status.SetError(il::Error::kMatrixSingular);
     IL_SET_SOURCE(status);
   }
 
@@ -112,7 +112,7 @@ inline il::Array<double> linearSolve(il::BandArray2C<double> A,
   if (lapack_error == 0) {
     status.SetOk();
   } else {
-    status.SetError(il::Error::MatrixSingular);
+    status.SetError(il::Error::kMatrixSingular);
     IL_SET_SOURCE(status);
     status.SetInfo("rank", il::int_t{lapack_error - 1});
   }
@@ -137,7 +137,7 @@ inline il::Array<double> linearSolve(il::TriDiagonal<double> A,
   if (lapack_error == 0) {
     status.SetOk();
   } else {
-    status.SetError(il::Error::MatrixSingular);
+    status.SetError(il::Error::kMatrixSingular);
     IL_SET_SOURCE(status);
   }
 

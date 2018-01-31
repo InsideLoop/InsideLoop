@@ -36,7 +36,7 @@ TEST(Dynamic, default_constructor) {
                    !a.is<double>() && !a.is<il::String>() &&
                    !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TVoid;
+                   a.type() == il::Type::kVoid;
   ASSERT_TRUE(ans);
 }
 
@@ -47,7 +47,7 @@ TEST(Dynamic, bool_constructor_0) {
                    !a.is<il::int_t>() && !a.is<double>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TBool;
+                   a.type() == il::Type::kBool;
   ASSERT_TRUE(ans);
 }
 
@@ -58,7 +58,7 @@ TEST(Dynamic, bool_constructor_1) {
                    !a.is<il::int_t>() && !a.is<double>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TBool;
+                   a.type() == il::Type::kBool;
   ASSERT_TRUE(ans);
 }
 
@@ -69,7 +69,7 @@ TEST(Dynamic, integer_constructor_0) {
                    !a.is<void>() && !a.is<bool>() && !a.is<double>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TInteger;
+                   a.type() == il::Type::kInteger;
   ASSERT_TRUE(ans);
 }
 
@@ -80,7 +80,7 @@ TEST(Dynamic, integer_constructor_1) {
                    !a.is<void>() && !a.is<bool>() && !a.is<double>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TInteger;
+                   a.type() == il::Type::kInteger;
   ASSERT_TRUE(ans);
 }
 
@@ -92,7 +92,7 @@ TEST(Dynamic, integer_constructor_2) {
                    !a.is<void>() && !a.is<bool>() && !a.is<double>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TInteger;
+                   a.type() == il::Type::kInteger;
   ASSERT_TRUE(ans);
 }
 
@@ -104,7 +104,7 @@ TEST(Dynamic, integer_constructor_3) {
                    !a.is<void>() && !a.is<bool>() && !a.is<double>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TInteger;
+                   a.type() == il::Type::kInteger;
   ASSERT_TRUE(ans);
 }
 
@@ -119,7 +119,7 @@ TEST(Dynamic, double_constructor_0) {
                    !a.is<bool>() && !a.is<il::int_t>() && !a.is<il::String>() &&
                    !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TDouble;
+                   a.type() == il::Type::kDouble;
   ASSERT_TRUE(ans);
 }
 
@@ -131,7 +131,7 @@ TEST(Dynamic, double_constructor_1) {
                    !a.is<void>() && !a.is<bool>() && !a.is<il::int_t>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TDouble;
+                   a.type() == il::Type::kDouble;
   ASSERT_TRUE(ans);
 }
 
@@ -143,7 +143,7 @@ TEST(Dynamic, double_constructor_2) {
                    !a.is<void>() && !a.is<bool>() && !a.is<il::int_t>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TDouble;
+                   a.type() == il::Type::kDouble;
   ASSERT_TRUE(ans);
 }
 
@@ -155,7 +155,7 @@ TEST(Dynamic, double_constructor_3) {
                    !a.is<void>() && !a.is<bool>() && !a.is<il::int_t>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TDouble;
+                   a.type() == il::Type::kDouble;
   ASSERT_TRUE(ans);
 }
 
@@ -168,7 +168,7 @@ TEST(Dynamic, double_constructor_4) {
                    !a.is<void>() && !a.is<bool>() && !a.is<il::int_t>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TDouble;
+                   a.type() == il::Type::kDouble;
   ASSERT_TRUE(ans);
 }
 
@@ -180,7 +180,7 @@ TEST(Dynamic, double_constructor_5) {
                    !a.is<bool>() && !a.is<il::int_t>() && !a.is<il::String>() &&
                    !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TDouble;
+                   a.type() == il::Type::kDouble;
   ASSERT_TRUE(ans);
 }
 
@@ -192,7 +192,7 @@ TEST(Dynamic, double_constructor_6) {
                    !a.is<bool>() && !a.is<il::int_t>() && !a.is<il::String>() &&
                    !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TDouble;
+                   a.type() == il::Type::kDouble;
   ASSERT_TRUE(ans);
 }
 
@@ -204,7 +204,7 @@ TEST(Dynamic, string_constructor_0) {
                    !a.is<void>() && !a.is<bool>() && !a.is<il::int_t>() &&
                    !a.is<double>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TString;
+                   a.type() == il::Type::kString;
   ASSERT_TRUE(ans);
 }
 
@@ -216,20 +216,20 @@ TEST(Dynamic, string_constructor_1) {
                    !a.is<void>() && !a.is<bool>() && !a.is<il::int_t>() &&
                    !a.is<double>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TString;
+                   a.type() == il::Type::kString;
   ASSERT_TRUE(ans);
 }
 
 TEST(Dynamic, string_constructor_2) {
   const char* c_string = "Hello";
-  const il::String string{il::StringType::Ascii, c_string, il::size(c_string)};
-  il::Dynamic a{il::StringType::Ascii, c_string, il::size(c_string)};
+  const il::String string{il::StringType::kAscii, c_string, il::size(c_string)};
+  il::Dynamic a{il::StringType::kAscii, c_string, il::size(c_string)};
 
   const bool ans = a.is<il::String>() && a.as<il::String>() == string &&
                    !a.is<void>() && !a.is<bool>() && !a.is<il::int_t>() &&
                    !a.is<double>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TString;
+                   a.type() == il::Type::kString;
   ASSERT_TRUE(ans);
 }
 
@@ -241,7 +241,7 @@ TEST(Dynamic, copy_constructor_null) {
                    !a.is<double>() && !a.is<il::String>() &&
                    !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TVoid;
+                   a.type() == il::Type::kVoid;
   ASSERT_TRUE(ans);
 }
 
@@ -253,7 +253,7 @@ TEST(Dynamic, copy_constructor_bool_0) {
                    !a.is<il::int_t>() && !a.is<double>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TBool;
+                   a.type() == il::Type::kBool;
   ASSERT_TRUE(ans);
 }
 
@@ -265,7 +265,7 @@ TEST(Dynamic, copy_constructor_bool_1) {
                    !a.is<il::int_t>() && !a.is<double>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TBool;
+                   a.type() == il::Type::kBool;
   ASSERT_TRUE(ans);
 }
 
@@ -278,7 +278,7 @@ TEST(Dynamic, copy_constructor_integer_0) {
                    !a.is<void>() && !a.is<bool>() && !a.is<double>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TInteger;
+                   a.type() == il::Type::kInteger;
   ASSERT_TRUE(ans);
 }
 
@@ -291,7 +291,7 @@ TEST(Dynamic, copy_constructor_floating_point_0) {
                    !a.is<bool>() && !a.is<il::int_t>() && !a.is<il::String>() &&
                    !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TDouble;
+                   a.type() == il::Type::kDouble;
   ASSERT_TRUE(ans);
 }
 
@@ -304,7 +304,7 @@ TEST(Dynamic, copy_constructor_string_0) {
                    !a.is<void>() && !a.is<bool>() && !a.is<il::int_t>() &&
                    !a.is<double>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TString;
+                   a.type() == il::Type::kString;
   ASSERT_TRUE(ans);
 }
 
@@ -323,7 +323,7 @@ TEST(Dynamic, copy_constructor_array_0) {
                    !a.is<void>() && !a.is<bool>() && !a.is<il::int_t>() &&
                    !a.is<double>() && !a.is<il::String>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TArray;
+                   a.type() == il::Type::kArray;
   ASSERT_TRUE(ans);
 }
 
@@ -344,7 +344,7 @@ TEST(Dynamic, copy_constructor_hashmaparray_0) {
           .isValid() &&
       !a.is<void>() && !a.is<bool>() && !a.is<il::int_t>() && !a.is<double>() &&
       !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
-      a.type() == il::Type::TMapArray;
+      a.type() == il::Type::kMapArray;
   ASSERT_TRUE(ans);
 }
 
@@ -356,7 +356,7 @@ TEST(Dynamic, move_constructor_null) {
                    !a.is<double>() && !a.is<il::String>() &&
                    !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TVoid && b.is<void>();
+                   a.type() == il::Type::kVoid && b.is<void>();
   ASSERT_TRUE(ans);
 }
 
@@ -368,7 +368,7 @@ TEST(Dynamic, move_constructor_bool_0) {
                    !a.is<il::int_t>() && !a.is<double>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TBool && b.is<void>();
+                   a.type() == il::Type::kBool && b.is<void>();
   ASSERT_TRUE(ans);
 }
 
@@ -380,7 +380,7 @@ TEST(Dynamic, move_constructor_bool_1) {
                    !a.is<il::int_t>() && !a.is<double>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TBool && b.is<void>();
+                   a.type() == il::Type::kBool && b.is<void>();
   ASSERT_TRUE(ans);
 }
 
@@ -393,7 +393,7 @@ TEST(Dynamic, move_constructor_integer_0) {
                    !a.is<void>() && !a.is<bool>() && !a.is<double>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TInteger && b.is<void>();
+                   a.type() == il::Type::kInteger && b.is<void>();
   ASSERT_TRUE(ans);
 }
 
@@ -406,7 +406,7 @@ TEST(Dynamic, move_constructor_floating_point_0) {
                    !a.is<bool>() && !a.is<il::int_t>() && !a.is<il::String>() &&
                    !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TDouble && b.is<void>();
+                   a.type() == il::Type::kDouble && b.is<void>();
   ASSERT_TRUE(ans);
 }
 
@@ -419,7 +419,7 @@ TEST(Dynamic, move_constructor_string_0) {
                    !a.is<void>() && !a.is<bool>() && !a.is<il::int_t>() &&
                    !a.is<double>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TString && b.is<void>();
+                   a.type() == il::Type::kString && b.is<void>();
   ASSERT_TRUE(ans);
 }
 
@@ -438,7 +438,7 @@ TEST(Dynamic, move_constructor_array_0) {
                    !a.is<void>() && !a.is<bool>() && !a.is<il::int_t>() &&
                    !a.is<double>() && !a.is<il::String>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TArray && b.is<void>();
+                   a.type() == il::Type::kArray && b.is<void>();
   ASSERT_TRUE(ans);
 }
 
@@ -459,7 +459,7 @@ TEST(Dynamic, move_constructor_hashmaparray_0) {
           .isValid() &&
       !a.is<void>() && !a.is<bool>() && !a.is<il::int_t>() && !a.is<double>() &&
       !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
-      a.type() == il::Type::TMapArray && b.is<void>();
+      a.type() == il::Type::kMapArray && b.is<void>();
   ASSERT_TRUE(ans);
 }
 
@@ -472,7 +472,7 @@ TEST(Dynamic, copy_assignement_null) {
                    !a.is<double>() && !a.is<il::String>() &&
                    !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TVoid;
+                   a.type() == il::Type::kVoid;
   ASSERT_TRUE(ans);
 }
 
@@ -485,7 +485,7 @@ TEST(Dynamic, copy_assignement_bool_0) {
                    !a.is<il::int_t>() && !a.is<double>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TBool;
+                   a.type() == il::Type::kBool;
   ASSERT_TRUE(ans);
 }
 
@@ -498,7 +498,7 @@ TEST(Dynamic, copy_assignement_bool_1) {
                    !a.is<il::int_t>() && !a.is<double>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TBool;
+                   a.type() == il::Type::kBool;
   ASSERT_TRUE(ans);
 }
 
@@ -512,7 +512,7 @@ TEST(Dynamic, copy_assignement_integer_0) {
                    !a.is<void>() && !a.is<bool>() && !a.is<double>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TInteger;
+                   a.type() == il::Type::kInteger;
   ASSERT_TRUE(ans);
 }
 
@@ -526,7 +526,7 @@ TEST(Dynamic, copy_assignement_floating_point_0) {
                    !a.is<bool>() && !a.is<il::int_t>() && !a.is<il::String>() &&
                    !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TDouble;
+                   a.type() == il::Type::kDouble;
   ASSERT_TRUE(ans);
 }
 
@@ -540,7 +540,7 @@ TEST(Dynamic, copy_assignement_string_0) {
                    !a.is<void>() && !a.is<bool>() && !a.is<il::int_t>() &&
                    !a.is<double>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TString;
+                   a.type() == il::Type::kString;
   ASSERT_TRUE(ans);
 }
 
@@ -560,7 +560,7 @@ TEST(Dynamic, copy_assignement_array_0) {
                    !a.is<void>() && !a.is<bool>() && !a.is<il::int_t>() &&
                    !a.is<double>() && !a.is<il::String>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TArray;
+                   a.type() == il::Type::kArray;
   ASSERT_TRUE(ans);
 }
 
@@ -582,7 +582,7 @@ TEST(Dynamic, copy_assignement_hashmaparray_0) {
           .isValid() &&
       !a.is<void>() && !a.is<bool>() && !a.is<il::int_t>() && !a.is<double>() &&
       !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
-      a.type() == il::Type::TMapArray;
+      a.type() == il::Type::kMapArray;
   ASSERT_TRUE(ans);
 }
 
@@ -595,7 +595,7 @@ TEST(Dynamic, move_assignement_null) {
                    !a.is<double>() && !a.is<il::String>() &&
                    !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TVoid && b.is<void>();
+                   a.type() == il::Type::kVoid && b.is<void>();
   ASSERT_TRUE(ans);
 }
 
@@ -608,7 +608,7 @@ TEST(Dynamic, move_assignement_bool_0) {
                    !a.is<il::int_t>() && !a.is<double>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TBool && b.is<void>();
+                   a.type() == il::Type::kBool && b.is<void>();
   ASSERT_TRUE(ans);
 }
 
@@ -621,7 +621,7 @@ TEST(Dynamic, move_assignement_bool_1) {
                    !a.is<il::int_t>() && !a.is<double>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TBool && b.is<void>();
+                   a.type() == il::Type::kBool && b.is<void>();
   ASSERT_TRUE(ans);
 }
 
@@ -635,7 +635,7 @@ TEST(Dynamic, move_assignement_integer_0) {
                    !a.is<void>() && !a.is<bool>() && !a.is<double>() &&
                    !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TInteger && b.is<void>();
+                   a.type() == il::Type::kInteger && b.is<void>();
   ASSERT_TRUE(ans);
 }
 
@@ -649,7 +649,7 @@ TEST(Dynamic, move_assignement_floating_point_0) {
                    !a.is<bool>() && !a.is<il::int_t>() && !a.is<il::String>() &&
                    !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TDouble && b.is<void>();
+                   a.type() == il::Type::kDouble && b.is<void>();
   ASSERT_TRUE(ans);
 }
 
@@ -663,7 +663,7 @@ TEST(Dynamic, move_assignement_string_0) {
                    !a.is<void>() && !a.is<bool>() && !a.is<il::int_t>() &&
                    !a.is<double>() && !a.is<il::Array<il::Dynamic>>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TString && b.is<void>();
+                   a.type() == il::Type::kString && b.is<void>();
   ASSERT_TRUE(ans);
 }
 
@@ -683,7 +683,7 @@ TEST(Dynamic, move_assignement_array_0) {
                    !a.is<void>() && !a.is<bool>() && !a.is<il::int_t>() &&
                    !a.is<double>() && !a.is<il::String>() &&
                    !a.is<il::MapArray<il::String, il::Dynamic>>() &&
-                   a.type() == il::Type::TArray && b.is<void>();
+                   a.type() == il::Type::kArray && b.is<void>();
   ASSERT_TRUE(ans);
 }
 
@@ -705,6 +705,6 @@ TEST(Dynamic, move_assignement_hashmaparray_0) {
           .isValid() &&
       !a.is<void>() && !a.is<bool>() && !a.is<il::int_t>() && !a.is<double>() &&
       !a.is<il::String>() && !a.is<il::Array<il::Dynamic>>() &&
-      a.type() == il::Type::TMapArray && b.is<void>();
+      a.type() == il::Type::kMapArray && b.is<void>();
   ASSERT_TRUE(ans);
 }

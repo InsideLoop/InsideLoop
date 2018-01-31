@@ -27,24 +27,24 @@
 
 namespace il {
 
-enum class Norm { L1, L2, Linf };
+enum class Norm { kL1, kL2, kLinf };
 
 template <il::int_t n>
 double norm(const il::StaticArray<double, n>& v, il::Norm norm_type) {
   double ans = 0.0;
   switch (norm_type) {
-    case Norm::L1:
+    case Norm::kL1:
       for (il::int_t i = 0; i < n; ++i) {
         ans += il::abs(v[i]);
       }
       break;
-    case Norm::L2:
+    case Norm::kL2:
       for (il::int_t i = 0; i < n; ++i) {
         ans += il::ipow<2>(v[i]);
       }
       ans = std::sqrt(ans);
       break;
-    case Norm::Linf:
+    case Norm::kLinf:
       for (il::int_t i = 0; i < n; ++i) {
         ans = il::max(ans, il::abs(v[i]));
       }
@@ -58,18 +58,18 @@ double norm(const il::StaticArray<double, n>& v, il::Norm norm_type) {
 inline double norm(const il::Array<double>& v, Norm norm_type) {
   double ans = 0.0;
   switch (norm_type) {
-    case Norm::L1:
+    case Norm::kL1:
       for (il::int_t i = 0; i < v.size(); ++i) {
         ans += il::abs(v[i]);
       }
       break;
-    case Norm::L2:
+    case Norm::kL2:
       for (il::int_t i = 0; i < v.size(); ++i) {
         ans += il::ipow<2>(v[i]);
       }
       ans = std::sqrt(ans);
       break;
-    case Norm::Linf:
+    case Norm::kLinf:
       for (il::int_t i = 0; i < v.size(); ++i) {
         ans = il::max(ans, il::abs(v[i]));
       }
@@ -87,18 +87,18 @@ inline double norm(const il::Array<double>& x, Norm norm_type,
 
   double ans = 0.0;
   switch (norm_type) {
-    case Norm::L1:
+    case Norm::kL1:
       for (il::int_t i = 0; i < x.size(); ++i) {
         ans += il::abs(x[i] / alpha[i]);
       }
       break;
-    case Norm::L2:
+    case Norm::kL2:
       for (il::int_t i = 0; i < x.size(); ++i) {
         ans += il::ipow<2>(x[i] / alpha[i]);
       }
       ans = std::sqrt(ans);
       break;
-    case Norm::Linf:
+    case Norm::kLinf:
       for (il::int_t i = 0; i < x.size(); ++i) {
         ans = il::max(ans, il::abs(x[i] / alpha[i]));
       }
@@ -114,7 +114,7 @@ double norm(const il::Array2D<T>& A, Norm norm_type) {
   T ans = 0;
 
   switch (norm_type) {
-    case Norm::L1: {
+    case Norm::kL1: {
       for (il::int_t j = 0; j < A.size(1); ++j) {
         T sum_column = 0;
         for (il::int_t i = 0; i < A.size(0); ++i) {
@@ -123,7 +123,7 @@ double norm(const il::Array2D<T>& A, Norm norm_type) {
         ans = il::max(ans, sum_column);
       }
     } break;
-    case Norm::Linf: {
+    case Norm::kLinf: {
       il::Array<T> sum_row{A.size(0), 0};
       for (il::int_t j = 0; j < A.size(1); ++j) {
         for (il::int_t i = 0; i < A.size(0); ++i) {
@@ -147,7 +147,7 @@ double norm(const il::TriDiagonal<T>& A, Norm norm_type) {
   T ans = 0;
 
   switch (norm_type) {
-    case Norm::Linf: {
+    case Norm::kLinf: {
       il::Array<T> sum_row{n};
       sum_row[0] = il::abs(A(0, 0)) + il::abs(A(0, 1));
       for (il::int_t i = 1; i < n - 1; ++i) {

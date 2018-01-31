@@ -78,7 +78,7 @@ LU<il::StaticArray2D<double, n, n>>::LU(il::StaticArray2D<double, n, n> A,
     ipiv_ = ipiv;
     lu_ = A;
   } else {
-    status.SetError(il::Error::MatrixSingular);
+    status.SetError(il::Error::kMatrixSingular);
     IL_SET_SOURCE(status);
     status.SetInfo("rank", il::int_t{lapack_error - 1});
   }
@@ -160,7 +160,7 @@ LU<il::Array2D<double>>::LU(il::Array2D<double> A, il::io_t, il::Status &status)
     ipiv_ = std::move(ipiv);
     lu_ = std::move(A);
   } else {
-    status.SetError(il::Error::MatrixSingular);
+    status.SetError(il::Error::kMatrixSingular);
     IL_SET_SOURCE(status);
     status.SetInfo("rank", il::int_t{lapack_error - 1});
   }
@@ -233,10 +233,10 @@ double LU<il::Array2D<double>>::determinant() const {
 double LU<il::Array2D<double>>::conditionNumber(il::Norm norm_type,
                                                 double norm_a) const {
   IL_EXPECT_FAST(lu_.size(0) == lu_.size(1));
-  IL_EXPECT_FAST(norm_type == il::Norm::L1 || norm_type == il::Norm::Linf);
+  IL_EXPECT_FAST(norm_type == il::Norm::kL1 || norm_type == il::Norm::kLinf);
 
   const int layout = LAPACK_COL_MAJOR;
-  const char lapack_norm = (norm_type == il::Norm::L1) ? '1' : 'I';
+  const char lapack_norm = (norm_type == il::Norm::kL1) ? '1' : 'I';
   const lapack_int n = static_cast<lapack_int>(lu_.size(0));
   const lapack_int lda = static_cast<lapack_int>(lu_.stride(1));
   double rcond;
@@ -293,7 +293,7 @@ LU<il::Array2C<double>>::LU(il::Array2C<double> A, il::io_t, il::Status &status)
     ipiv_ = std::move(ipiv);
     lu_ = std::move(A);
   } else {
-    status.SetError(il::Error::MatrixSingular);
+    status.SetError(il::Error::kMatrixSingular);
     IL_SET_SOURCE(status);
     status.SetInfo("rank", il::int_t{lapack_error - 1});
   }
@@ -363,7 +363,7 @@ template <> il::UpperArray2D<double> LU<il::Array2D<double>>::U() const {
 //    ipiv_ = std::move(ipiv);
 //    lu_ = std::move(A);
 //  } else {
-//    status.SetError(il::Error::MatrixSingular);
+//    status.SetError(il::Error::kMatrixSingular);
 //    IL_SET_SOURCE(status);
 //    status.SetInfo("rank", il::int_t{lapack_error - 1});
 //  }
