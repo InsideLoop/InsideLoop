@@ -18,11 +18,13 @@
 
 #include <iostream>
 
-#include <il/Array.h>
+#include <il/Queue.h>
 
 int main() {
-  const il::int_t n = 1000;
-  il::Array<double> v{n, 0.0};
+  il::Queue<double> q{5};
+  q.Append(1);
+  q.Append(2);
+  q.Append(3);
 
   return 0;
 }

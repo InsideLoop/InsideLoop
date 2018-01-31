@@ -60,6 +60,36 @@ class ArrayPrinter:
 	def to_string(self):
 		return "[size: %s], [capacity: %s]" % (self.size, self.capacity)
 
+class QueuePrinter:
+	def __init__(self, val):
+		type = val.type
+		if type.code == gdb.TYPE_CODE_REF:
+			type = type.target()
+		self.type = type.unqualified().strip_typedefs()
+		self.innerType = self.type.template_argument(0)
+		self.val = val
+		self.front = self.val['front_']
+		self.back = self.val['back_']
+		if (self.front == 0 and self.back == -1):
+			self.size = 0
+		elif self.front <= self.back:
+			self.size = self.back - self.front + 1
+		else:
+			self.size = self.back - self.front + 1 + self.val['data_']['size_'] - self.val['data_']['data_']
+		self.capacity = self.val['data_']['capacity_'] - self.val['data_']['data_']
+		self.data = self.val['data_']['data_'].cast(self.innerType.pointer())
+
+	def children(self):
+		yield "size", self.size
+		yield "capacity", self.capacity
+		for k in range(0, self.size):
+			dataPtr = self.data + (self.front + k) % self.capacity
+			item = dataPtr.dereference()
+			yield ("[%s]" % k), item
+
+	def to_string(self):
+		return "[size: %s], [capacity: %s]" % (self.size, self.capacity)
+
 class StaticArrayPrinter:
 	def __init__(self, val):
 		type = val.type
@@ -750,6 +780,7 @@ def build_insideloop_dictionary ():
 	pretty_printers_dict[re.compile('^il::Info$')]  = lambda val: InfoPrinter(val)
 	pretty_printers_dict[re.compile('^il::Status$')]  = lambda val: StatusPrinter(val)
 	pretty_printers_dict[re.compile('^il::Dynamic$')]  = lambda val: DynamicPrinter(val)
+	pretty_printers_dict[re.compile('^il::Queue<.*>$')]  = lambda val: QueuePrinter(val)
 
 def register_insideloop_printers(obj):
 	"Register insideloop pretty-printers with objfile Obj"

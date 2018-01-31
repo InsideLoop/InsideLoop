@@ -177,6 +177,8 @@ class Array2D {
   */
   void Resize(il::int_t n0, il::int_t n1);
 
+  void Resize(il::int_t n0, il::int_t n1, const T& x);
+
   /* \brief Get the capacity of the il::Array2D<T>
   // \details capacity(0) gives the capacity in terms of rows and capacity(1)
   // gives the capacity in terms of columns.
@@ -910,6 +912,117 @@ void Array2D<T>::Resize(il::int_t n0, il::int_t n1) {
       for (il::int_t i1 = 0; i1 < n1; ++i1) {
         for (il::int_t i0 = i1 < n1_old ? n0_old : 0; i0 < n0; ++i0) {
           new (data_ + i1 * capacity(0) + i0) T{};
+        }
+      }
+    }
+  }
+  size_[0] = data_ + n0;
+  size_[1] = data_ + n1;
+}
+
+template <typename T>
+void Array2D<T>::Resize(il::int_t n0, il::int_t n1, const T& x) {
+  IL_EXPECT_FAST(n0 >= 0);
+  IL_EXPECT_FAST(n1 >= 0);
+
+  const il::int_t n0_old = size(0);
+  const il::int_t n1_old = size(1);
+  const bool need_memory = n0 > capacity(0) || n1 > capacity(1);
+  if (need_memory) {
+    il::int_t r0;
+    il::int_t r1;
+    if (n0 > 0 && n1 > 0) {
+      if (il::isTrivial<T>::value && alignment_ != 0) {
+        const il::int_t nb_lanes = static_cast<il::int_t>(
+            static_cast<std::size_t>(alignment_) / alignof(T));
+        bool error = false;
+        r0 = il::safeUpperRound(n0, nb_lanes, il::io, error);
+        if (error) {
+          il::abort();
+        }
+        r1 = n1;
+      } else {
+        r0 = n0;
+        r1 = n1;
+      }
+    } else if (n0 == 0 && n1 == 0) {
+      r0 = 0;
+      r1 = 0;
+    } else {
+      r0 = (n0 == 0) ? 1 : n0;
+      r1 = (n1 == 0) ? 1 : n1;
+    }
+    bool error = false;
+    const il::int_t r = il::safeProduct(r0, r1, il::io, error);
+    if (error) {
+      il::abort();
+    }
+    T* new_data;
+    il::int_t new_shift;
+    if (il::isTrivial<T>::value) {
+      if (alignment_ == 0) {
+        new_data = il::allocateArray<T>(r);
+        new_shift = 0;
+      } else {
+        new_data =
+            il::allocateArray<T>(r, align_r_, align_mod_, il::io, new_shift);
+      }
+      if (data_) {
+        for (il::int_t i1 = 0; i1 < (n1 < n1_old ? n1 : n1_old); ++i1) {
+          memcpy(new_data + i1 * r0, data_ + i1 * capacity(0),
+                 (n0 < n0_old ? n0 : n0_old) * sizeof(T));
+        }
+        il::deallocate(data_ - shift_);
+      }
+      for (il::int_t i1 = 0; i1 < n1; ++i1) {
+        for (il::int_t i0 = i1 < n1_old ? n0_old : 0; i0 < n0; ++i0) {
+          new_data[i1 * r0 + i0] = x;
+        }
+      }
+    } else {
+      new_data = il::allocateArray<T>(r);
+      new_shift = 0;
+      if (data_) {
+        for (il::int_t i1 = n1_old - 1; i1 >= 0; --i1) {
+          for (il::int_t i0 = n0_old - 1; i0 >= (i1 < n1 ? n0 : 0); --i0) {
+            (data_ + i1 * capacity(0) + i0)->~T();
+          }
+        }
+        for (il::int_t i1 = (n1 < n1_old ? n1 : n1_old) - 1; i1 >= 0; --i1) {
+          for (il::int_t i0 = (n0 < n0_old ? n0 : n0_old) - 1; i0 >= 0; --i0) {
+            new (new_data + i1 * r0 + i0)
+                T(std::move(data_[i1 * capacity(0) + i0]));
+            (data_ + i1 * capacity(0) + i0)->~T();
+          }
+        }
+        il::deallocate(data_);
+      }
+      for (il::int_t i1 = 0; i1 < n1; ++i1) {
+        for (il::int_t i0 = i1 < n1_old ? n0_old : 0; i0 < n0; ++i0) {
+          new (new_data + i1 * r0 + i0) T{x};
+        }
+      }
+    }
+    data_ = new_data;
+    capacity_[0] = data_ + r0;
+    capacity_[1] = data_ + r1;
+    shift_ = static_cast<short>(new_shift);
+  } else {
+    if (il::isTrivial<T>::value) {
+      for (il::int_t i1 = 0; i1 < n1; ++i1) {
+        for (il::int_t i0 = (i1 < n1_old ? n0_old : 0); i0 < n0; ++i0) {
+          data_[i1 * capacity(0) + i0] = x;
+        }
+      }
+    } else {
+      for (il::int_t i1 = n1_old - 1; i1 >= 0; --i1) {
+        for (il::int_t i0 = n0_old - 1; i0 >= (i1 < n1 ? n0 : 0); --i0) {
+          (data_ + i1 * capacity(0) + i0)->~T();
+        }
+      }
+      for (il::int_t i1 = 0; i1 < n1; ++i1) {
+        for (il::int_t i0 = i1 < n1_old ? n0_old : 0; i0 < n0; ++i0) {
+          new (data_ + i1 * capacity(0) + i0) T{x};
         }
       }
     }

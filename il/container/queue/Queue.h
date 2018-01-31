@@ -50,10 +50,17 @@ class Queue {
       return back_ + 1 + data_.size() - front_;
     }
   }
+  void Reserve(il::int_t n) {
+    IL_ASSERT(data_.size() == 0 && front_ == 0 && back_ == -1);
+
+    data_.Resize(n);
+    front_ = 0;
+    back_ = -1;
+  }
   il::int_t capacity() const {
     return data_.size();
   }
-  void append(const T& x) {
+  void Append(const T& x) {
     if (back_ == -1 && front_ == 0) {
       data_[0] = x;
       front_ = 0;
@@ -71,7 +78,7 @@ class Queue {
     }
   }
   template <typename... Args>
-  void append(il::emplace_t, Args&&... args) {
+  void Append(il::emplace_t, Args&&... args) {
     if (back_ == -1 && front_ == 0) {
       data_[0] = T(std::forward<Args>(args)...);
       front_ = 0;
@@ -91,7 +98,7 @@ class Queue {
   const T& front() const {
     return data_[front_];
   }
-  T pop() {
+  T Pop() {
     if (front_ + 1 < data_.size()) {
       ++front_;
       return data_[front_ - 1];

@@ -73,6 +73,12 @@ inline void abort() { std::abort(); }
 
 }  // namespace il
 
+#ifdef NDEBUG
+#define IL_ASSERT(condition) ((void)0)
+#else
+#define IL_ASSERT(condition) (condition) ? ((void)0) : il::abort();
+#endif
+
 // Use this when the expectation is fast to compute compared to the function
 #ifdef IL_UNIT_TEST
 #define IL_EXPECT_FAST(condition) \
