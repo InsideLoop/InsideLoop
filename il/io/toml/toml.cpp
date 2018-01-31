@@ -552,7 +552,7 @@ void TomlParser::parseKeyValue(il::io_t, il::StringView& string,
     return;
   }
 
-  il::Location i = toml.search(key);
+  il::spot_t i = toml.search(key);
   if (toml.found(i)) {
     status.SetError(il::Error::ParseDuplicateKey);
     IL_SET_SOURCE(status);
@@ -775,7 +775,7 @@ void TomlParser::parseSingleTable(il::io_t, il::StringView& string,
     }
     full_table_name.Append(table_name);
 
-    il::Location i = toml->search(table_name);
+    il::spot_t i = toml->search(table_name);
     if (toml->found(i)) {
       if (toml->value(i).is<il::MapArray<il::String, il::Dynamic>>()) {
         toml = &(toml->Value(i).As<il::MapArray<il::String, il::Dynamic>>());
@@ -858,7 +858,7 @@ void TomlParser::parseTableArray(il::io_t, il::StringView& string,
     full_table_name.Append(table_name);
 
     string = il::removeWhitespaceLeft(string);
-    il::Location i = toml->search(table_name);
+    il::spot_t i = toml->search(table_name);
     if (toml->found(i)) {
       il::Dynamic& b = toml->Value(i);
       if (!string.isEmpty() && string[0] == ']') {

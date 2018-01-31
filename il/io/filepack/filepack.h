@@ -219,7 +219,7 @@ inline void auxLoad(il::int_t n, il::io_t,
         il::int_t n_map = 0;
         const il::int_t n = readVarint(il::io, n_map, file);
         il::int_t size = 0;
-        il::Location i = config.search(string);
+        il::spot_t i = config.search(string);
         config.Set(std::move(string),
                    il::Dynamic{il::Map<il::String, il::Dynamic>{n}}, il::io, i);
         if (!config.found(i)) {
@@ -388,7 +388,7 @@ inline void auxLoad(il::int_t n, il::io_t,
           il::int_t n_map = 0;
           const il::int_t n = readVarint(il::io, n_map, file);
           il::int_t size = 0;
-          il::Location i = config.search(string);
+          il::spot_t i = config.search(string);
           config.Set(std::move(string),
                      il::Dynamic{il::MapArray<il::String, il::Dynamic>{n}},
                      il::io, i);
@@ -406,7 +406,7 @@ inline void auxLoad(il::int_t n, il::io_t,
                 il::int_t n_map = 0;
                 const il::int_t n = readVarint(il::io, n_map, file);
                 il::int_t size = 0;
-                il::Location i = config.search(string);
+                il::spot_t i = config.search(string);
                 config.Set(std::move(string),
                               il::Dynamic{il::MapArray<il::String,
            il::Dynamic>{n}}, il::io, i); if (!config.found(i)) {
@@ -586,7 +586,7 @@ inline void auxSave(const il::MapArray<il::String, il::Dynamic>& data,
 
           il::int_t n;
           bool size_of_array_is_known = false;
-          for (il::int_t i = my_data.first(); i < my_data.sentinel();
+          for (il::int_t i = my_data.begin(); i < my_data.end();
                i = my_data.next(i)) {
             const il::String& key = my_data.key(i);
             writeVarint(key.size(), il::io, k, file);
@@ -619,7 +619,7 @@ inline void auxSave(const il::MapArray<il::String, il::Dynamic>& data,
 
           writeVarint(n, il::io, k, file);
           for (il::int_t j = 0; j < n; ++j) {
-            for (il::int_t i = my_data.first(); i != my_data.sentinel();
+            for (il::int_t i = my_data.begin(); i != my_data.end();
                  i = my_data.next(i)) {
               const il::Type type = my_data.value(i).type();
               switch (type) {

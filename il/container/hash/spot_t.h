@@ -16,14 +16,14 @@
 //
 //==============================================================================
 
-#ifndef IL_LOCATION_H
-#define IL_LOCATION_H
+#ifndef IL_SPOT_T_H
+#define IL_SPOT_T_H
 
 #include <il/core.h>
 
 namespace il {
 
-class Location {
+class spot_t {
  private:
   il::int_t i_;
 #ifdef IL_DEBUG_CLASS
@@ -32,9 +32,9 @@ class Location {
 
  public:
 #ifdef IL_DEBUG_CLASS
-  Location(il::int_t i, std::size_t hash);
+  spot_t(il::int_t i, std::size_t hash);
 #else
-  Location(il::int_t i);
+  spot_t(il::int_t i);
 #endif
 #ifdef IL_DEBUG_CLASS
   void SetIndex(il::int_t i, std::size_t hash);
@@ -49,30 +49,30 @@ class Location {
 };
 
 #ifdef IL_DEBUG_CLASS
-inline Location::Location(il::int_t i, std::size_t hash) {
+inline spot_t::spot_t(il::int_t i, std::size_t hash) {
   i_ = i;
   hash_ = hash;
 }
 #else
-inline Location::Location(il::int_t i) { i_ = i; }
+inline spot_t::spot_t(il::int_t i) { i_ = i; }
 #endif
 
 #ifdef IL_DEBUG_CLASS
-inline void Location::SetIndex(il::int_t i, std::size_t hash) {
+inline void spot_t::SetIndex(il::int_t i, std::size_t hash) {
   i_ = i;
   hash_ = hash;
 }
 #else
-inline void Location::SetIndex(il::int_t i) { i_ = i; }
+inline void spot_t::SetIndex(il::int_t i) { i_ = i; }
 #endif
 
-inline il::int_t Location::index() const { return i_; }
+inline il::int_t spot_t::index() const { return i_; }
 
-inline bool Location::isValid() const { return i_ >= 0; }
+inline bool spot_t::isValid() const { return i_ >= 0; }
 
-inline std::size_t Location::hash() const { return hash_; }
+inline std::size_t spot_t::hash() const { return hash_; }
 
-inline bool operator==(il::Location i0, il::Location i1) {
+inline bool operator==(il::spot_t i0, il::spot_t i1) {
 #ifdef IL_DEBUG_CLASS
   return i0.index() == i1.index() && i0.hash() == i1.hash();
 #else
@@ -80,7 +80,7 @@ inline bool operator==(il::Location i0, il::Location i1) {
 #endif
 }
 
-inline bool operator!=(il::Location i0, il::Location i1) {
+inline bool operator!=(il::spot_t i0, il::spot_t i1) {
 #ifdef IL_DEBUG_CLASS
   return i0.index() != i1.index() || i0.hash() != i1.hash();
 #else
@@ -90,4 +90,4 @@ inline bool operator!=(il::Location i0, il::Location i1) {
 
 }  // namespace il
 
-#endif  // IL_LOCATION_H
+#endif  // IL_SPOT_T_H
