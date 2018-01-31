@@ -82,15 +82,6 @@ class ArrayView {
   // \details One should use this method only when using C-style API
   */
   const T* data() const;
-
-  /* \brief Returns a pointer to const to the first element of the array view
-   */
-  const T* begin() const;
-
-  /* \brief Returns a pointer to const to the one after the last element of
-  //  the array view
-  */
-  const T* end() const;
 };
 
 template <typename T>
@@ -143,15 +134,6 @@ class ArrayEdit : public ArrayView<T> {
   // \details One should use this method only when using C-style API
   */
   T* Data();
-
-  /* \brief Returns a pointer to the first element of the array view
-   */
-  T* Begin();
-
-  /* \brief Returns a pointer to the one after the last element of the array
-  // view
-  */
-  T* End();
 };
 
 template <typename T>
@@ -231,16 +213,6 @@ const T* ArrayView<T>::data() const {
 }
 
 template <typename T>
-const T* ArrayView<T>::begin() const {
-  return data_;
-}
-
-template <typename T>
-const T* ArrayView<T>::end() const {
-  return size_;
-}
-
-template <typename T>
 ArrayEdit<T>::ArrayEdit() : ArrayView<T>{} {}
 
 template <typename T>
@@ -282,16 +254,6 @@ il::ArrayEdit<T> ArrayEdit<T>::Edit(il::Range range) {
 template <typename T>
 T* ArrayEdit<T>::Data() {
   return this->data_;
-}
-
-template <typename T>
-T* ArrayEdit<T>::Begin() {
-  return this->data_;
-}
-
-template <typename T>
-T* ArrayEdit<T>::End() {
-  return this->size_;
 }
 
 }  // namespace il

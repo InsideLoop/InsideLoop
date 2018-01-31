@@ -58,6 +58,7 @@ enum class Type : unsigned char {
   TFloat = 10,   // C type (float)
   TDouble = 11,  // C type (double)
   TFloatingPoint = 11,
+
   TString = 13,
   TArray = 14,
   TMap = 15,

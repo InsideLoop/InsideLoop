@@ -124,23 +124,6 @@ class StaticArray {
   // \details One should use this method only when using C-style API
   */
   T* Data();
-
-  /* \brief Returns a pointer to const to the first element of the array
-   */
-  const T* begin() const;
-
-  /* \brief Returns a pointer to the first element of the array
-   */
-  T* Begin();
-
-  /* \brief Returns a pointer to const to the one after the last element of
-  //  the array
-  */
-  const T* end() const;
-
-  /* \brief Returns a pointer to the one after the last element of the array
-   */
-  T* End();
 };
 
 template <typename T, il::int_t n>
@@ -245,25 +228,6 @@ T* StaticArray<T, n>::Data() {
   return data_;
 }
 
-template <typename T, il::int_t n>
-const T* StaticArray<T, n>::begin() const {
-  return data_;
-}
-
-template <typename T, il::int_t n>
-T* StaticArray<T, n>::Begin() {
-  return data_;
-}
-
-template <typename T, il::int_t n>
-const T* StaticArray<T, n>::end() const {
-  return data_ + n;
-}
-
-template <typename T, il::int_t n>
-T* StaticArray<T, n>::End() {
-  return data_ + n;
-}
 }  // namespace il
 
 #endif  // IL_STATICARRAY_H

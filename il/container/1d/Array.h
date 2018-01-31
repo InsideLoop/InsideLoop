@@ -245,24 +245,6 @@ class Array {
   */
   T* Data();
 
-  /* \brief Returns a pointer to const to the first element of the array
-   */
-  const T* begin() const;
-
-  /* \brief Returns a pointer to const to the first element of the array
-   */
-  T* Begin();
-
-  /* \brief Returns a pointer to const to the one after the last element of
-  //  the array
-  */
-  const T* end() const;
-
-  /* \brief Returns a pointer to const to the one after the last element of
-  //  the array
-  */
-  T* End();
-
  private:
   /* \brief Used internally to increase the capacity of the array
    */
@@ -845,26 +827,6 @@ const T* Array<T>::data() const {
 template <typename T>
 T* Array<T>::Data() {
   return data_;
-}
-
-template <typename T>
-const T* Array<T>::begin() const {
-  return data_;
-}
-
-template <typename T>
-T* Array<T>::Begin() {
-  return data_;
-}
-
-template <typename T>
-const T* Array<T>::end() const {
-  return size_;
-}
-
-template <typename T>
-T* Array<T>::End() {
-  return size_;
 }
 
 template <typename T>

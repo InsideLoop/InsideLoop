@@ -62,8 +62,8 @@ NumpyInfo getNumpyInfo(il::io_t, std::FILE* fp, il::Status& status) {
   //
   il::Array<char> second_buffer{header_length + 1};
   StringView header =
-      StringView{il::StringType::Raw, second_buffer.begin(), header_length + 1};
-  char* success = fgets(second_buffer.Begin(), header_length + 1, fp);
+      StringView{il::StringType::Raw, second_buffer.Data(), header_length + 1};
+  char* success = fgets(second_buffer.Data(), header_length + 1, fp);
   if (success == nullptr || !(header[header.size() - 2] == '\n')) {
     status.SetError(il::Error::BinaryFileWrongFormat);
     IL_SET_SOURCE(status);

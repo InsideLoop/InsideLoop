@@ -42,7 +42,7 @@ TEST(Eigen, test0) {
   status.AbortOnError();
 
   il::Array<std::complex<double>> ev = eigen_decomposition.eigenValue();
-  std::sort(ev.Begin(), ev.End(), complex_sort);
+  std::sort(ev.Data(), ev.Data() + ev.size(), complex_sort);
   il::Array<std::complex<double>> result{il::value,
                                          {{-4, 0.0}, {1.0, 0.0}, {2.0, 0.0}}};
   const double epsilon = 1.0e-15;
@@ -61,7 +61,7 @@ TEST(Eigen, test1) {
   status.AbortOnError();
 
   il::Array<std::complex<double>> ev = eigen_decomposition.eigenValue();
-  std::sort(ev.Begin(), ev.End(), complex_sort);
+  std::sort(ev.Data(), ev.Data() + ev.size(), complex_sort);
   il::Array<std::complex<double>> result{il::value,
                                          {{2.0, 0.0}, {2.0, 0.0}, {3.0, 0.0}}};
   const double epsilon = 1.0e-5;
@@ -80,7 +80,7 @@ TEST(Eigen, test2) {
   status.AbortOnError();
 
   il::Array<std::complex<double>> ev = eigen_decomposition.eigenValue();
-  std::sort(ev.Begin(), ev.End(), complex_sort);
+  std::sort(ev.Data(), ev.Data() + ev.size(), complex_sort);
   il::Array<std::complex<double>> result{il::value,
                                          {{1.0, 0.0}, {1.0, 0.0}, {1.0, 0.0}}};
   const double epsilon = 1.0e-4;
@@ -101,7 +101,7 @@ TEST(Eigen, test3) {
   status.AbortOnError();
 
   il::Array<std::complex<double>> ev = eigen_decomposition.eigenValue();
-  std::sort(ev.Begin(), ev.End(), complex_sort);
+  std::sort(ev.Data(), ev.Data() + ev.size(), complex_sort);
   il::Array<std::complex<double>> result{
       il::value, {{0.0, -1.0}, {0.0, -1.0}, {0.0, 1.0}, {0.0, 1.0}}};
   const double epsilon = 1.0e-15;

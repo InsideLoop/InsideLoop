@@ -50,13 +50,13 @@ class File {
        il::Status& status);
   ~File();
   template <il::int_t nb_objects, typename T>
-  void read(il::io_t, T* p, il::Status& status);
-  void read(il::int_t nb_objects, std::size_t nb_bytes, il::io_t, void* p,
+  void Read(il::io_t, T* p, il::Status& status);
+  void Read(il::int_t nb_objects, std::size_t nb_bytes, il::io_t, void* p,
             il::Status& status);
-  void write(const void* p, il::int_t nb_objects, std::size_t nb_bytes,
+  void Write(const void* p, il::int_t nb_objects, std::size_t nb_bytes,
              il::io_t, il::Status& status);
-  void skip(std::size_t nb_bytes, il::io_t, il::Status& status);
-  void close(il::io_t, il::Status& status);
+  void Skip(std::size_t nb_bytes, il::io_t, il::Status& status);
+  void Close(il::io_t, il::Status& status);
 };
 
 inline File::File(const il::String& filename, il::FileMode mode,
@@ -115,7 +115,7 @@ inline File::File(const il::String& filename, il::FileMode mode, il::io_t,
 inline File::~File() { IL_EXPECT_MEDIUM(!opened_); }
 
 template <il::int_t nb_objects, typename T>
-inline void File::read(il::io_t, T* p, il::Status& status) {
+inline void File::Read(il::io_t, T* p, il::Status& status) {
   IL_EXPECT_MEDIUM(opened_);
   IL_EXPECT_MEDIUM(mode_ == il::FileMode::Read ||
                    mode_ == il::FileMode::ReadWrite);
@@ -129,11 +129,11 @@ inline void File::read(il::io_t, T* p, il::Status& status) {
     nb_bytes_read_ += nb_bytes_to_read;
     status.SetOk();
   } else {
-    read(nb_objects, sizeof(T), il::io, p, status);
+    Read(nb_objects, sizeof(T), il::io, p, status);
   }
 };
 
-inline void File::read(il::int_t nb_objects, std::size_t nb_bytes, il::io_t,
+inline void File::Read(il::int_t nb_objects, std::size_t nb_bytes, il::io_t,
                        void* p, il::Status& status) {
   IL_EXPECT_MEDIUM(opened_);
   IL_EXPECT_MEDIUM(mode_ == il::FileMode::Read ||
@@ -195,7 +195,7 @@ inline void File::read(il::int_t nb_objects, std::size_t nb_bytes, il::io_t,
   status.SetOk();
 }
 
-inline void File::skip(std::size_t nb_bytes, il::io_t, il::Status& status) {
+inline void File::Skip(std::size_t nb_bytes, il::io_t, il::Status& status) {
   IL_EXPECT_MEDIUM(opened_);
 
   const il::int_t n = static_cast<std::size_t>(nb_bytes);
@@ -219,7 +219,7 @@ inline void File::skip(std::size_t nb_bytes, il::io_t, il::Status& status) {
   return;
 }
 
-inline void File::write(const void* p, il::int_t nb_objects,
+inline void File::Write(const void* p, il::int_t nb_objects,
                         std::size_t nb_bytes, il::io_t, il::Status& status) {
   IL_EXPECT_MEDIUM(opened_);
   IL_EXPECT_MEDIUM(mode_ == il::FileMode::Write ||
@@ -236,7 +236,7 @@ inline void File::write(const void* p, il::int_t nb_objects,
   status.SetOk();
 }
 
-inline void File::close(il::io_t, il::Status& status) {
+inline void File::Close(il::io_t, il::Status& status) {
   IL_EXPECT_MEDIUM(opened_);
 
   const int error = std::fclose(file_);

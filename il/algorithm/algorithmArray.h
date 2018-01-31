@@ -239,7 +239,7 @@ MinMax<T> minMax(const il::Array<T>& v, il::Range range) {
 
 // template <typename T>
 // void sort(il::io_t, il::Array<T>& v) {
-//  std::sort(v.begin(), v.end());
+//  std::sort(v.Data(), v.end());
 //}
 
 template <typename T>
@@ -326,7 +326,7 @@ il::Array<T> sort(il::Array<T>& v) {
 template <typename T>
 il::Array<T> sort(const il::Array<T>& v) {
   il::Array<T> ans = v;
-  std::sort(ans.begin(), ans.end());
+  std::sort(ans.Data(), ans.end());
   return ans;
 }
 

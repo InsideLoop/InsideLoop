@@ -154,10 +154,6 @@ class String {
   bool isEqual(const char* s, il::int_t n) const;
   const char* data() const;
   char* Data();
-  const char* begin() const;
-  char* Begin();
-  const char* end() const;
-  char* End();
 
   explicit String(il::unsafe_t, il::int_t n);
   void Grow(il::unsafe_t, il::int_t n_to_copy, il::int_t n);
@@ -227,8 +223,6 @@ class StringView {
   const char& back(il::int_t i) const;
   const char* asCString() const;
   const char* data() const;
-  const char* begin() const;
-  const char* end() const;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1025,20 +1019,6 @@ inline const char* String::data() const {
 
 inline char* String::Data() { return isSmall() ? small_ : large_.data; }
 
-inline const char* String::begin() const {
-  return isSmall() ? small_ : large_.data;
-}
-
-inline char* String::Begin() { return isSmall() ? small_ : large_.data; }
-
-inline const char* String::end() const {
-  return (isSmall() ? small_ : large_.data) + size();
-}
-
-inline char* String::End() {
-  return (isSmall() ? small_ : large_.data) + size();
-}
-
 inline String::String(il::unsafe_t, il::int_t n) {
   IL_EXPECT_FAST(n >= 0);
 
@@ -1326,7 +1306,7 @@ inline bool StringView::hasNewLine(il::int_t i) const {
 
 inline int StringView::rune(il::int_t i) const {
   unsigned int ans = 0;
-  const unsigned char* data = reinterpret_cast<const unsigned char*>(begin());
+  const unsigned char* data = reinterpret_cast<const unsigned char*>(this->data());
   if ((data[i] & 0x80u) == 0) {
     ans = static_cast<unsigned int>(data[i]);
   } else if ((data[i] & 0xE0u) == 0xC0u) {
@@ -1427,10 +1407,6 @@ inline const char* StringView::asCString() const {
 }
 
 inline const char* StringView::data() const { return data_; }
-
-inline const char* StringView::begin() const { return data_; }
-
-inline const char* StringView::end() const { return size_; }
 
 inline il::String join(const il::StringView& s0, const il::StringView& s1) {
   const il::int_t n0 = s0.size();

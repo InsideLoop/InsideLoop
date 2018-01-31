@@ -206,15 +206,6 @@ class SmallArray {
   */
   T* Data();
 
-  /* \brief Returns a pointer to const to the first element of the array
-   */
-  const T* begin() const;
-
-  /* \brief Returns a pointer to const to the one after the last element of
-  //  the array
-  */
-  const T* end() const;
-
  private:
   /* \brief Used internally to check if the stack array is used
    */
@@ -603,16 +594,6 @@ il::ArrayEdit<T> SmallArray<T, small_size>::Edit(il::Range range) {
 template <typename T, il::int_t small_size>
 const T* SmallArray<T, small_size>::data() const {
   return data_;
-}
-
-template <typename T, il::int_t small_size>
-const T* SmallArray<T, small_size>::begin() const {
-  return data_;
-}
-
-template <typename T, il::int_t small_size>
-const T* SmallArray<T, small_size>::end() const {
-  return size_;
 }
 
 template <typename T, il::int_t small_size>
