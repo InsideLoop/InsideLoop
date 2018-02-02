@@ -24,7 +24,7 @@
 namespace il {
 
 template <typename T>
-class ConstArray3DView {
+class Array3DView {
  protected:
 #ifndef NDEBUG
   il::int_t debug_size_0_;
@@ -39,30 +39,30 @@ class ConstArray3DView {
 
  public:
   /* \brief Default constructor
-  // \details It creates a ConstArray3DView of 0 rows, 0 columns and 0 slices
+  // \details It creates a Array3DView of 0 rows, 0 columns and 0 slices
   */
-  ConstArray3DView();
+  Array3DView();
 
-  /* \brief Construct an il::ConstArray3DView<T> from a C-array (a pointer) and
+  /* \brief Construct an il::Array3DView<T> from a C-array (a pointer) and
   // its size and the stride
   //
-  // il::ConstArray3DView<double> A{data, n, p, q, stride_0, stride_1};
+  // il::Array3DView<double> A{data, n, p, q, stride_0, stride_1};
   */
-  ConstArray3DView(const T* data, il::int_t n, il::int_t p, il::int_t q,
-                   il::int_t stride_0, il::int_t stride_1);
+  Array3DView(const T* data, il::int_t n, il::int_t p, il::int_t q,
+              il::int_t stride_0, il::int_t stride_1);
 
   /* \brief Accessor
   // \details Access (read only) the (i, j, k)-th element of the array view.
   // Bound  checking is done in debug mode but not in release mode.
   //
-  // il::ConstArray3DView<double> A{data, n, p, q, p, q};
+  // il::Array3DView<double> A{data, n, p, q, p, q};
   // std::cout << v(0, 0, 0) << std::endl;
   */
   const T& operator()(il::int_t i, il::int_t j, il::int_t k) const;
 
   /* \brief Get the size of the array view
   //
-  // il::ConstArray3DView<double> v{data, n, p, q, p, q};
+  // il::Array3DView<double> v{data, n, p, q, p, q};
   // for (il::int_t i = 0; i < v.size(0); ++i) {
   //   for (il::int_t j = 0; j < v.size(1); ++j) {
   //     for (il::int_t k = 0; k < v.size(2); ++k) {
@@ -84,7 +84,7 @@ class ConstArray3DView {
 };
 
 template <typename T>
-ConstArray3DView<T>::ConstArray3DView() {
+Array3DView<T>::Array3DView() {
 #ifndef NDEBUG
   debug_size_0_ = 0;
   debug_size_1_ = 0;
@@ -101,9 +101,9 @@ ConstArray3DView<T>::ConstArray3DView() {
 }
 
 template <typename T>
-ConstArray3DView<T>::ConstArray3DView(const T* data, il::int_t n, il::int_t p,
-                                      il::int_t q, il::int_t stride_0,
-                                      il::int_t stride_1) {
+Array3DView<T>::Array3DView(const T* data, il::int_t n, il::int_t p,
+                            il::int_t q, il::int_t stride_0,
+                            il::int_t stride_1) {
   IL_EXPECT_FAST(n >= 0);
   IL_EXPECT_FAST(p >= 0);
   IL_EXPECT_FAST(q >= 0);
@@ -125,8 +125,8 @@ ConstArray3DView<T>::ConstArray3DView(const T* data, il::int_t n, il::int_t p,
 }
 
 template <typename T>
-const T& ConstArray3DView<T>::operator()(il::int_t i, il::int_t j,
-                                         il::int_t k) const {
+const T& Array3DView<T>::operator()(il::int_t i, il::int_t j,
+                                    il::int_t k) const {
   IL_EXPECT_FAST(static_cast<std::size_t>(i) <
                  static_cast<std::size_t>(size(0)));
   IL_EXPECT_FAST(static_cast<std::size_t>(j) <
@@ -137,18 +137,18 @@ const T& ConstArray3DView<T>::operator()(il::int_t i, il::int_t j,
 }
 
 template <typename T>
-il::int_t ConstArray3DView<T>::size(il::int_t d) const {
+il::int_t Array3DView<T>::size(il::int_t d) const {
   IL_EXPECT_FAST(static_cast<std::size_t>(d) < static_cast<std::size_t>(3));
   return static_cast<il::int_t>(size_[d] - data_);
 }
 
 template <typename T>
-const T* ConstArray3DView<T>::data() const {
+const T* Array3DView<T>::data() const {
   return data_;
 }
 
 template <typename T>
-il::int_t ConstArray3DView<T>::stride(il::int_t d) const {
+il::int_t Array3DView<T>::stride(il::int_t d) const {
   IL_EXPECT_FAST(static_cast<std::size_t>(d) < static_cast<std::size_t>(2));
   return static_cast<il::int_t>(stride_[d] - data_);
 }
@@ -156,19 +156,19 @@ il::int_t ConstArray3DView<T>::stride(il::int_t d) const {
 ////////////////////////////////////////////////////////////////////////////////
 
 template <typename T>
-class Array3DView : public ConstArray3DView<T> {
+class Array3DEdit : public Array3DView<T> {
  public:
   /* \brief Default constructor
   // \details It creates a Array3DView of 0 rows, 0 columns and 0 slices
   */
-  Array3DView();
+  Array3DEdit();
 
   /* \brief Construct an il::Array3DView<T> from a C-array (a pointer) and
   // its size and the stride
   //
   // il::Array3DView<double> A{data, n, p, q, stride_0, stride_1};
   */
-  Array3DView(T* data, il::int_t n, il::int_t p, il::int_t q,
+  Array3DEdit(T* data, il::int_t n, il::int_t p, il::int_t q,
               il::int_t stride_0, il::int_t stride_1);
 
   /* \brief Accessor
@@ -187,26 +187,26 @@ class Array3DView : public ConstArray3DView<T> {
 };
 
 template <typename T>
-Array3DView<T>::Array3DView() : ConstArray3DView<T>{} {}
+Array3DEdit<T>::Array3DEdit() : Array3DView<T>{} {}
 
 template <typename T>
-Array3DView<T>::Array3DView(T* data, il::int_t n, il::int_t p, il::int_t q,
+Array3DEdit<T>::Array3DEdit(T* data, il::int_t n, il::int_t p, il::int_t q,
                             il::int_t stride_0, il::int_t stride_1)
-    : ConstArray3DView<T>{data, n, p, q, stride_0, stride_1} {}
+    : Array3DView<T>{data, n, p, q, stride_0, stride_1} {}
 
 template <typename T>
-T& Array3DView<T>::operator()(il::int_t i, il::int_t j, il::int_t k) {
+T& Array3DEdit<T>::operator()(il::int_t i, il::int_t j, il::int_t k) {
   IL_EXPECT_FAST(static_cast<std::size_t>(i) <
                  static_cast<std::size_t>(this->size(0)));
   IL_EXPECT_FAST(static_cast<std::size_t>(j) <
                  static_cast<std::size_t>(this->size(1)));
   IL_EXPECT_FAST(static_cast<std::size_t>(k) <
                  static_cast<std::size_t>(this->size(2)));
-  return data_[(k * this->stride(1) + j) * this->stride(0) + i];
+  return this->data_[(k * this->stride(1) + j) * this->stride(0) + i];
 }
 
 template <typename T>
-T* Array3DView<T>::data() {
+T* Array3DEdit<T>::data() {
   return this->data_;
 }
 }  // namespace il

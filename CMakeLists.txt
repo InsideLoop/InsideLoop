@@ -184,7 +184,7 @@ set(SOURCE_FILES
     il/norm.h
     il/numpy.h
     il/png.h
-    il/Queue.h
+        il/Deque.h
     il/Set.h
     il/SmallArray.h
     il/SparseMatrixCSR.h
@@ -243,7 +243,7 @@ set(SOURCE_FILES
     il/container/dynamic/Dynamic.h
     il/container/info/Info.h
     il/container/info/Status.h
-    il/container/queue/Queue.h
+        il/container/deque/Deque.h
     il/core/core.h
     il/core/math/safe_arithmetic.h
     il/core/memory/allocate.h

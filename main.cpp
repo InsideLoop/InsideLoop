@@ -18,10 +18,10 @@
 
 #include <iostream>
 
-#include <il/Queue.h>
+#include <il/Deque.h>
 
 int main() {
-  il::Queue<double> q{5};
+  il::Deque<double> q{5};
   q.Append(1);
   q.Append(2);
   q.Append(3);

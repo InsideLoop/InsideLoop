@@ -24,20 +24,20 @@
 namespace il {
 
 template <typename T>
-class Queue {
+class Deque {
  private:
   il::Array<T> data_;
   // Index of the next element to be served
   il::int_t front_;
-  // Index of the last element in the queue
+  // Index of the last element in the deque
   il::int_t back_;
 
  public:
-  Queue() : data_{} {
+  Deque() : data_{} {
     front_ = 0;
     back_ = -1;
   }
-  Queue(il::int_t n) : data_{n} {
+  Deque(il::int_t n) : data_{n} {
     front_ = 0;
     back_ = -1;
   }

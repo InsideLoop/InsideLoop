@@ -60,7 +60,7 @@ class ArrayPrinter:
 	def to_string(self):
 		return "[size: %s], [capacity: %s]" % (self.size, self.capacity)
 
-class QueuePrinter:
+class DequePrinter:
 	def __init__(self, val):
 		type = val.type
 		if type.code == gdb.TYPE_CODE_REF:
@@ -780,7 +780,7 @@ def build_insideloop_dictionary ():
 	pretty_printers_dict[re.compile('^il::Info$')]  = lambda val: InfoPrinter(val)
 	pretty_printers_dict[re.compile('^il::Status$')]  = lambda val: StatusPrinter(val)
 	pretty_printers_dict[re.compile('^il::Dynamic$')]  = lambda val: DynamicPrinter(val)
-	pretty_printers_dict[re.compile('^il::Queue<.*>$')]  = lambda val: QueuePrinter(val)
+	pretty_printers_dict[re.compile('^il::Deque<.*>$')]  = lambda val: DequePrinter(val)
 
 def register_insideloop_printers(obj):
 	"Register insideloop pretty-printers with objfile Obj"

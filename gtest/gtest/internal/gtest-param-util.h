@@ -560,8 +560,8 @@ class ParameterizedTestCaseInfo : public ParameterizedTestCaseInfoBase {
 
         size_t i = 0;
         std::set<std::string> test_param_names;
-        for (typename ParamGenerator<ParamType>::iterator param_it =
-                 generator.begin();
+        for (typename ParamGenerator<ParamType>::iterator
+                 param_it = generator.begin();
              param_it != generator.end(); ++param_it, ++i) {
           Message test_name_stream;
 
