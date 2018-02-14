@@ -115,238 +115,238 @@ class Dynamic {
   void ReleaseMemory();
 };
 
-inline Dynamic::Dynamic() { type_ = il::Type::kVoid; }
+inline Dynamic::Dynamic() { type_ = il::Type::Void; }
 
 inline Dynamic::Dynamic(bool value) {
-  type_ = il::Type::kBool;
+  type_ = il::Type::Bool;
   *reinterpret_cast<bool *>(&data_) = value;
 }
 
 inline Dynamic::Dynamic(unsigned char value) {
-  type_ = il::Type::kUInt8;
+  type_ = il::Type::UInt8;
   *reinterpret_cast<unsigned char *>(&data_) = value;
 }
 
 inline Dynamic::Dynamic(signed char value) {
-  type_ = il::Type::kInt8;
+  type_ = il::Type::Int8;
   *reinterpret_cast<signed char *>(&data_) = value;
 }
 
 inline Dynamic::Dynamic(unsigned short value) {
-  type_ = il::Type::kUInt16;
+  type_ = il::Type::UInt16;
   *reinterpret_cast<unsigned short *>(&data_) = value;
 }
 
 inline Dynamic::Dynamic(short value) {
-  type_ = il::Type::kInt16;
+  type_ = il::Type::Int16;
   *reinterpret_cast<short *>(&data_) = value;
 }
 
 #ifdef IL_64_BIT
 inline Dynamic::Dynamic(int value) {
-  type_ = il::Type::kInteger;
+  type_ = il::Type::Integer;
   *reinterpret_cast<il::int_t *>(&data_) = static_cast<il::int_t>(value);
 }
 
 inline Dynamic::Dynamic(il::int_t value) {
-  type_ = il::Type::kInteger;
+  type_ = il::Type::Integer;
   *reinterpret_cast<il::int_t *>(&data_) = value;
 }
 #else
 inline Dynamic::Dynamic(int value) {
-  type_ = il::Type::kInteger;
+  type_ = il::Type::Integer;
   *reinterpret_cast<int *>(&data_) = value;
 }
 #endif
 
 inline Dynamic::Dynamic(float value) {
-  type_ = il::Type::kFloat;
+  type_ = il::Type::Float;
   *reinterpret_cast<float *>(&data_) = value;
 }
 
 inline Dynamic::Dynamic(double value) {
-  type_ = il::Type::kDouble;
+  type_ = il::Type::Double;
   *reinterpret_cast<double *>(&data_) = value;
 }
 
 template <il::int_t m>
 Dynamic::Dynamic(const char (&value)[m]) {
-  type_ = il::Type::kString;
+  type_ = il::Type::UnicodeString;
   *reinterpret_cast<il::String **>(&data_) = new il::String{value};
 }
 
 inline Dynamic::Dynamic(il::StringType t, const char *value, il::int_t n) {
-  type_ = il::Type::kString;
+  type_ = il::Type::UnicodeString;
   *reinterpret_cast<il::String **>(&data_) = new il::String{t, value, n};
 }
 
 inline Dynamic::Dynamic(const il::String &value) {
-  type_ = il::Type::kString;
+  type_ = il::Type::UnicodeString;
   *reinterpret_cast<il::String **>(&data_) = new il::String{value};
 }
 
 inline Dynamic::Dynamic(il::String &&value) {
-  type_ = il::Type::kString;
+  type_ = il::Type::UnicodeString;
   *reinterpret_cast<il::String **>(&data_) = new il::String{std::move(value)};
 }
 
 inline Dynamic::Dynamic(const il::Array<il::Dynamic> &value) {
-  type_ = il::Type::kArray;
+  type_ = il::Type::ArrayOfDynamic;
   *reinterpret_cast<il::Array<il::Dynamic> **>(&data_) =
       new il::Array<il::Dynamic>{value};
 }
 
 inline Dynamic::Dynamic(il::Array<il::Dynamic> &&value) {
-  type_ = il::Type::kArray;
+  type_ = il::Type::ArrayOfDynamic;
   *reinterpret_cast<il::Array<il::Dynamic> **>(&data_) =
       new il::Array<il::Dynamic>{std::move(value)};
 }
 
 inline Dynamic::Dynamic(const il::Map<il::String, il::Dynamic> &value) {
-  type_ = il::Type::kMap;
+  type_ = il::Type::MapStringToDynamic;
   *reinterpret_cast<il::Map<il::String, il::Dynamic> **>(&data_) =
       new il::Map<il::String, il::Dynamic>{value};
 }
 
 inline Dynamic::Dynamic(il::Map<il::String, il::Dynamic> &&value) {
-  type_ = il::Type::kMap;
+  type_ = il::Type::MapStringToDynamic;
   *reinterpret_cast<il::Map<il::String, il::Dynamic> **>(&data_) =
       new il::Map<il::String, il::Dynamic>{std::move(value)};
 }
 
 inline Dynamic::Dynamic(const il::MapArray<il::String, il::Dynamic> &value) {
-  type_ = il::Type::kMapArray;
+  type_ = il::Type::MapArrayStringToDynamic;
   *reinterpret_cast<il::MapArray<il::String, il::Dynamic> **>(&data_) =
       new il::MapArray<il::String, il::Dynamic>{value};
 }
 
 inline Dynamic::Dynamic(il::MapArray<il::String, il::Dynamic> &&value) {
-  type_ = il::Type::kMapArray;
+  type_ = il::Type::MapArrayStringToDynamic;
   *reinterpret_cast<il::MapArray<il::String, il::Dynamic> **>(&data_) =
       new il::MapArray<il::String, il::Dynamic>{std::move(value)};
 }
 
 inline Dynamic::Dynamic(const il::Array<unsigned char> &value) {
-  type_ = il::Type::kArrayOfUInt8;
+  type_ = il::Type::ArrayOfUInt8;
   *reinterpret_cast<il::Array<unsigned char> **>(&data_) =
       new il::Array<unsigned char>{value};
 }
 
 inline Dynamic::Dynamic(il::Array<unsigned char> &&value) {
-  type_ = il::Type::kArrayOfUInt8;
+  type_ = il::Type::ArrayOfUInt8;
   *reinterpret_cast<il::Array<unsigned char> **>(&data_) =
       new il::Array<unsigned char>{std::move(value)};
 }
 
 inline Dynamic::Dynamic(const il::Array<signed char> &value) {
-  type_ = il::Type::kArrayOfInt8;
+  type_ = il::Type::ArrayOfInt8;
   *reinterpret_cast<il::Array<signed char> **>(&data_) =
       new il::Array<signed char>{value};
 }
 
 inline Dynamic::Dynamic(il::Array<signed char> &&value) {
-  type_ = il::Type::kArrayOfInt8;
+  type_ = il::Type::ArrayOfInt8;
   *reinterpret_cast<il::Array<signed char> **>(&data_) =
       new il::Array<signed char>{std::move(value)};
 }
 
 inline Dynamic::Dynamic(const il::Array<unsigned short> &value) {
-  type_ = il::Type::kArrayOfUInt16;
+  type_ = il::Type::ArrayOfUInt16;
   *reinterpret_cast<il::Array<unsigned short> **>(&data_) =
       new il::Array<unsigned short>{value};
 }
 
 inline Dynamic::Dynamic(il::Array<unsigned short> &&value) {
-  type_ = il::Type::kArrayOfUInt16;
+  type_ = il::Type::ArrayOfUInt16;
   *reinterpret_cast<il::Array<unsigned short> **>(&data_) =
       new il::Array<unsigned short>{std::move(value)};
 }
 
 inline Dynamic::Dynamic(const il::Array<short> &value) {
-  type_ = il::Type::kArrayOfInt16;
+  type_ = il::Type::ArrayOfInt16;
   *reinterpret_cast<il::Array<short> **>(&data_) = new il::Array<short>{value};
 }
 
 inline Dynamic::Dynamic(const il::Array<unsigned int> &value) {
-  type_ = il::Type::kArrayOfInt32;
+  type_ = il::Type::ArrayOfInt32;
   *reinterpret_cast<il::Array<unsigned int> **>(&data_) =
       new il::Array<unsigned int>{value};
 }
 
 inline Dynamic::Dynamic(il::Array<unsigned int> &&value) {
-  type_ = il::Type::kArrayOfInt32;
+  type_ = il::Type::ArrayOfInt32;
   *reinterpret_cast<il::Array<unsigned int> **>(&data_) =
       new il::Array<unsigned int>{value};
 }
 
 inline Dynamic::Dynamic(const il::Array<int> &value) {
-  type_ = il::Type::kArrayOfInt32;
+  type_ = il::Type::ArrayOfInt32;
   *reinterpret_cast<il::Array<int> **>(&data_) = new il::Array<int>{value};
 }
 
 inline Dynamic::Dynamic(il::Array<int> &&value) {
-  type_ = il::Type::kArrayOfInt32;
+  type_ = il::Type::ArrayOfInt32;
   *reinterpret_cast<il::Array<int> **>(&data_) = new il::Array<int>{value};
 }
 
 #ifdef IL_64_BIT
 inline Dynamic::Dynamic(const il::Array<il::uint_t> &value) {
-  type_ = il::Type::kArrayOfUInt64;
+  type_ = il::Type::ArrayOfUInt64;
   *reinterpret_cast<il::Array<il::uint_t> **>(&data_) =
       new il::Array<il::uint_t>{value};
 }
 
 inline Dynamic::Dynamic(il::Array<il::uint_t> &&value) {
-  type_ = il::Type::kArrayOfUInt64;
+  type_ = il::Type::ArrayOfUInt64;
   *reinterpret_cast<il::Array<il::uint_t> **>(&data_) =
       new il::Array<il::uint_t>{value};
 }
 
 inline Dynamic::Dynamic(const il::Array<il::int_t> &value) {
-  type_ = il::Type::kArrayOfInt64;
+  type_ = il::Type::ArrayOfInt64;
   *reinterpret_cast<il::Array<il::int_t> **>(&data_) =
       new il::Array<il::int_t>{value};
 }
 
 inline Dynamic::Dynamic(il::Array<il::int_t> &&value) {
-  type_ = il::Type::kArrayOfInt64;
+  type_ = il::Type::ArrayOfInt64;
   *reinterpret_cast<il::Array<il::int_t> **>(&data_) =
       new il::Array<il::int_t>{value};
 }
 #endif
 
 inline Dynamic::Dynamic(const il::Array<double> &value) {
-  type_ = il::Type::kArrayOfDouble;
+  type_ = il::Type::ArrayOfDouble;
   *reinterpret_cast<il::Array<double> **>(&data_) =
       new il::Array<double>{value};
 }
 
 inline Dynamic::Dynamic(il::Array<double> &&value) {
-  type_ = il::Type::kArrayOfDouble;
+  type_ = il::Type::ArrayOfDouble;
   *reinterpret_cast<il::Array<double> **>(&data_) =
       new il::Array<double>{std::move(value)};
 }
 
 inline Dynamic::Dynamic(const il::Array2D<double> &value) {
-  type_ = il::Type::kArray2DOfDouble;
+  type_ = il::Type::Array2DOfDouble;
   *reinterpret_cast<il::Array2D<double> **>(&data_) =
       new il::Array2D<double>{value};
 }
 
 inline Dynamic::Dynamic(il::Array2D<double> &&value) {
-  type_ = il::Type::kArray2DOfDouble;
+  type_ = il::Type::Array2DOfDouble;
   *reinterpret_cast<il::Array2D<double> **>(&data_) =
       new il::Array2D<double>{std::move(value)};
 }
 
 inline Dynamic::Dynamic(const il::Array2D<unsigned char> &value) {
-  type_ = il::Type::kArray2DOfUInt8;
+  type_ = il::Type::Array2DOfUInt8;
   *reinterpret_cast<il::Array2D<unsigned char> **>(&data_) =
       new il::Array2D<unsigned char>{value};
 }
 
 inline Dynamic::Dynamic(il::Array2D<unsigned char> &&value) {
-  type_ = il::Type::kArray2DOfUInt8;
+  type_ = il::Type::Array2DOfUInt8;
   *reinterpret_cast<il::Array2D<unsigned char> **>(&data_) =
       new il::Array2D<unsigned char>{std::move(value)};
 }
@@ -368,7 +368,7 @@ inline il::Dynamic &Dynamic::operator=(bool value) {
   if (!isStackAllocated()) {
     ReleaseMemory();
   }
-  type_ = il::Type::kBool;
+  type_ = il::Type::Bool;
   *reinterpret_cast<bool *>(&data_) = value;
   return *this;
 }
@@ -377,7 +377,7 @@ inline il::Dynamic &Dynamic::operator=(unsigned char value) {
   if (!isStackAllocated()) {
     ReleaseMemory();
   }
-  type_ = il::Type::kUInt8;
+  type_ = il::Type::UInt8;
   *reinterpret_cast<unsigned char *>(&data_) = value;
   return *this;
 }
@@ -386,7 +386,7 @@ inline il::Dynamic &Dynamic::operator=(signed char value) {
   if (!isStackAllocated()) {
     ReleaseMemory();
   }
-  type_ = il::Type::kInt8;
+  type_ = il::Type::Int8;
   *reinterpret_cast<signed char *>(&data_) = value;
   return *this;
 }
@@ -395,7 +395,7 @@ inline il::Dynamic &Dynamic::operator=(unsigned short value) {
   if (!isStackAllocated()) {
     ReleaseMemory();
   }
-  type_ = il::Type::kUInt16;
+  type_ = il::Type::UInt16;
   *reinterpret_cast<unsigned short *>(&data_) = value;
   return *this;
 }
@@ -404,7 +404,7 @@ inline il::Dynamic &Dynamic::operator=(short value) {
   if (!isStackAllocated()) {
     ReleaseMemory();
   }
-  type_ = il::Type::kInt16;
+  type_ = il::Type::Int16;
   *reinterpret_cast<short *>(&data_) = value;
   return *this;
 }
@@ -414,7 +414,7 @@ inline il::Dynamic &Dynamic::operator=(int value) {
   if (!isStackAllocated()) {
     ReleaseMemory();
   }
-  type_ = il::Type::kInt64;
+  type_ = il::Type::Int64;
   *reinterpret_cast<il::int_t *>(&data_) = static_cast<il::int_t>(value);
   return *this;
 }
@@ -423,7 +423,7 @@ inline il::Dynamic &Dynamic::operator=(il::int_t value) {
   if (!isStackAllocated()) {
     ReleaseMemory();
   }
-  type_ = il::Type::kInt64;
+  type_ = il::Type::Int64;
   *reinterpret_cast<il::int_t *>(&data_) = value;
   return *this;
 }
@@ -432,7 +432,7 @@ inline il::Dynamic &Dynamic::operator=(int value) {
   if (!isStackAllocated()) {
     ReleaseMemory();
   }
-  type_ = il::Type::kInt32;
+  type_ = il::Type::Int32;
   *reinterpret_cast<int *>(&data_) = value;
   return *this;
 }
@@ -442,7 +442,7 @@ inline il::Dynamic &Dynamic::operator=(float value) {
   if (!isStackAllocated()) {
     ReleaseMemory();
   }
-  type_ = il::Type::kFp32;
+  type_ = il::Type::Fp32;
   *reinterpret_cast<float *>(&data_) = value;
   return *this;
 }
@@ -451,7 +451,7 @@ inline il::Dynamic &Dynamic::operator=(double value) {
   if (!isStackAllocated()) {
     ReleaseMemory();
   }
-  type_ = il::Type::kFp64;
+  type_ = il::Type::Fp64;
   *reinterpret_cast<double *>(&data_) = value;
   return *this;
 }
@@ -460,7 +460,7 @@ inline il::Dynamic &Dynamic::operator=(const il::String &value) {
   if (!isStackAllocated()) {
     ReleaseMemory();
   }
-  type_ = il::Type::kString;
+  type_ = il::Type::UnicodeString;
   *reinterpret_cast<il::String **>(&data_) = new il::String{value};
   return *this;
 }
@@ -469,7 +469,7 @@ inline il::Dynamic &Dynamic::operator=(il::String &&value) {
   if (!isStackAllocated()) {
     ReleaseMemory();
   }
-  type_ = il::Type::kString;
+  type_ = il::Type::UnicodeString;
   *reinterpret_cast<il::String **>(&data_) = new il::String{std::move(value)};
   return *this;
 }
@@ -486,7 +486,7 @@ inline Dynamic::Dynamic(const il::Dynamic &other) {
 inline Dynamic::Dynamic(il::Dynamic &&other) {
   type_ = other.type_;
   data_ = other.data_;
-  other.type_ = il::Type::kVoid;
+  other.type_ = il::Type::Void;
 }
 
 inline il::Dynamic &Dynamic::operator=(const il::Dynamic &other) {
@@ -508,7 +508,7 @@ inline il::Dynamic &Dynamic::operator=(il::Dynamic &&other) {
   }
   type_ = other.type_;
   data_ = other.data_;
-  other.type_ = il::Type::kVoid;
+  other.type_ = il::Type::Void;
   return *this;
 }
 
@@ -556,78 +556,78 @@ inline bool Dynamic::isStackAllocated() const {
 
 inline void Dynamic::CopyData(il::Type type, void *p) {
   switch (type) {
-    case il::Type::kString:
+    case il::Type::UnicodeString:
       *reinterpret_cast<il::String **>(&data_) =
           new il::String{*reinterpret_cast<il::String *>(p)};
       break;
-    case il::Type::kArray:
+    case il::Type::ArrayOfDynamic:
       *reinterpret_cast<il::Array<il::Dynamic> **>(&data_) =
           new il::Array<il::Dynamic>{
               *reinterpret_cast<il::Array<il::Dynamic> *>(p)};
       break;
-    case il::Type::kMap:
+    case il::Type::MapStringToDynamic:
       *reinterpret_cast<il::Map<il::String, il::Dynamic> **>(&data_) =
           new il::Map<il::String, il::Dynamic>{
               *reinterpret_cast<il::Map<il::String, il::Dynamic> *>(p)};
       break;
-    case il::Type::kMapArray:
+    case il::Type::MapArrayStringToDynamic:
       *reinterpret_cast<il::MapArray<il::String, il::Dynamic> **>(&data_) =
           new il::MapArray<il::String, il::Dynamic>{
               *reinterpret_cast<il::MapArray<il::String, il::Dynamic> *>(p)};
       break;
-    case il::Type::kArrayOfBool:
+    case il::Type::ArrayOfBool:
       *reinterpret_cast<il::Array<bool> **>(&data_) =
           new il::Array<bool>{*reinterpret_cast<il::Array<bool> *>(p)};
       break;
-    case il::Type::kArrayOfUInt8:
+    case il::Type::ArrayOfUInt8:
       *reinterpret_cast<il::Array<unsigned char> **>(&data_) =
           new il::Array<unsigned char>{
               *reinterpret_cast<il::Array<unsigned char> *>(p)};
       break;
-    case il::Type::kArrayOfInt8:
+    case il::Type::ArrayOfInt8:
       *reinterpret_cast<il::Array<signed char> **>(&data_) =
           new il::Array<signed char>{
               *reinterpret_cast<il::Array<signed char> *>(p)};
       break;
-    case il::Type::kArrayOfUInt16:
+    case il::Type::ArrayOfUInt16:
       *reinterpret_cast<il::Array<unsigned short> **>(&data_) =
           new il::Array<unsigned short>{
               *reinterpret_cast<il::Array<unsigned short> *>(p)};
       break;
-    case il::Type::kArrayOfInt16:
+    case il::Type::ArrayOfInt16:
       *reinterpret_cast<il::Array<short> **>(&data_) =
           new il::Array<short>{*reinterpret_cast<il::Array<short> *>(p)};
       break;
-    case il::Type::kArrayOfUInt32:
+    case il::Type::ArrayOfUInt32:
       *reinterpret_cast<il::Array<unsigned int> **>(&data_) =
           new il::Array<unsigned int>{
               *reinterpret_cast<il::Array<unsigned int> *>(p)};
       break;
-    case il::Type::kArrayOfInt32:
+    case il::Type::ArrayOfInt32:
       *reinterpret_cast<il::Array<int> **>(&data_) =
           new il::Array<int>{*reinterpret_cast<il::Array<int> *>(p)};
       break;
 #ifdef IL_64_BIT
-    case il::Type::kArrayOfUInteger:
+    case il::Type::ArrayOfUInteger:
       *reinterpret_cast<il::Array<std::size_t> **>(&data_) =
           new il::Array<std::size_t>{
               *reinterpret_cast<il::Array<std::size_t> *>(p)};
       break;
-    case il::Type::kArrayOfInteger:
+    case il::Type::ArrayOfInteger:
       *reinterpret_cast<il::Array<il::int_t> **>(&data_) =
           new il::Array<il::int_t>{
               *reinterpret_cast<il::Array<il::int_t> *>(p)};
       break;
 #endif
-    case il::Type::kArrayOfFloat:
+    case il::Type::ArrayOfFloat:
       *reinterpret_cast<il::Array<float> **>(&data_) =
           new il::Array<float>{*reinterpret_cast<il::Array<float> *>(p)};
       break;
-    case il::Type::kArrayOfDouble:
+    case il::Type::ArrayOfDouble:
       *reinterpret_cast<il::Array<double> **>(&data_) =
           new il::Array<double>{*reinterpret_cast<il::Array<double> *>(p)};
       break;
-    case il::Type::kArrayOfString:
+    case il::Type::ArrayOfString:
       *reinterpret_cast<il::Array<il::String> **>(&data_) =
           new il::Array<il::String>{
               *reinterpret_cast<il::Array<il::String> *>(p)};
@@ -639,57 +639,57 @@ inline void Dynamic::CopyData(il::Type type, void *p) {
 
 inline void Dynamic::ReleaseMemory() {
   switch (type_) {
-    case il::Type::kString:
+    case il::Type::UnicodeString:
       delete reinterpret_cast<il::String *>(data_);
       break;
-    case il::Type::kArray:
+    case il::Type::ArrayOfDynamic:
       delete reinterpret_cast<il::Array<il::Dynamic> *>(data_);
       break;
-    case il::Type::kMap:
+    case il::Type::MapStringToDynamic:
       delete reinterpret_cast<il::Map<il::String, il::Dynamic> *>(data_);
       break;
-    case il::Type::kMapArray:
+    case il::Type::MapArrayStringToDynamic:
       delete reinterpret_cast<il::MapArray<il::String, il::Dynamic> *>(data_);
       break;
-    case il::Type::kArrayOfBool:
+    case il::Type::ArrayOfBool:
       delete reinterpret_cast<il::Array<bool> *>(data_);
       break;
-    case il::Type::kArrayOfUInt8:
+    case il::Type::ArrayOfUInt8:
       delete reinterpret_cast<il::Array<unsigned char> *>(data_);
       break;
-    case il::Type::kArrayOfInt8:
+    case il::Type::ArrayOfInt8:
       delete reinterpret_cast<il::Array<signed char> *>(data_);
       break;
-    case il::Type::kArrayOfUInt16:
+    case il::Type::ArrayOfUInt16:
       delete reinterpret_cast<il::Array<unsigned short> *>(data_);
       break;
-    case il::Type::kArrayOfInt16:
+    case il::Type::ArrayOfInt16:
       delete reinterpret_cast<il::Array<short> *>(data_);
       break;
-    case il::Type::kArrayOfUInt32:
+    case il::Type::ArrayOfUInt32:
       delete reinterpret_cast<il::Array<unsigned int> *>(data_);
       break;
-    case il::Type::kArrayOfInt32:
+    case il::Type::ArrayOfInt32:
       delete reinterpret_cast<il::Array<int> *>(data_);
       break;
 #ifdef IL_64_BIT
-    case il::Type::kArrayOfUInteger:
+    case il::Type::ArrayOfUInteger:
       delete reinterpret_cast<il::Array<std::size_t> *>(data_);
       break;
-    case il::Type::kArrayOfInteger:
+    case il::Type::ArrayOfInteger:
       delete reinterpret_cast<il::Array<il::int_t> *>(data_);
       break;
 #endif
-    case il::Type::kArrayOfFloat:
+    case il::Type::ArrayOfFloat:
       delete reinterpret_cast<il::Array<float> *>(data_);
       break;
-    case il::Type::kArrayOfDouble:
+    case il::Type::ArrayOfDouble:
       delete reinterpret_cast<il::Array<double> *>(data_);
       break;
-    case il::Type::kArrayOfString:
+    case il::Type::ArrayOfString:
       delete reinterpret_cast<il::Array<il::String> *>(data_);
       break;
-    case il::Type::kArray2DOfDouble:
+    case il::Type::Array2DOfDouble:
       delete reinterpret_cast<il::Array2D<double> *>(data_);
       break;
     default:

@@ -357,11 +357,11 @@ T mean(const il::Array<T>& v) {
   return ans;
 }
 
-enum class VarianceKind { kPopulation, kSample };
+enum class VarianceKind { Population, Sample };
 
 template <typename T>
 T variance(const il::Array<T>& v, il::VarianceKind kind) {
-  IL_EXPECT_FAST(v.size() > ((kind == il::VarianceKind::kPopulation) ? 0 : 1));
+  IL_EXPECT_FAST(v.size() > ((kind == il::VarianceKind::Population) ? 0 : 1));
 
   T mean = 0;
   for (il::int_t i = 0; i < v.size(); ++i) {
@@ -373,7 +373,7 @@ T variance(const il::Array<T>& v, il::VarianceKind kind) {
     variance += (v[i] - mean) * (v[i] - mean);
   }
   const il::int_t degrees_of_freedom =
-      (kind == il::VarianceKind::kPopulation) ? v.size() : (v.size() - 1);
+      (kind == il::VarianceKind::Population) ? v.size() : (v.size() - 1);
   variance /= degrees_of_freedom;
   return variance;
 }
@@ -386,7 +386,7 @@ struct MeanVariance {
 
 template <typename T>
 MeanVariance<T> meanVariance(const il::Array<T>& v, il::VarianceKind kind) {
-  IL_EXPECT_FAST(v.size() > ((kind == il::VarianceKind::kPopulation) ? 0 : 1));
+  IL_EXPECT_FAST(v.size() > ((kind == il::VarianceKind::Population) ? 0 : 1));
 
   T mean = 0;
   for (il::int_t i = 0; i < v.size(); ++i) {
@@ -398,7 +398,7 @@ MeanVariance<T> meanVariance(const il::Array<T>& v, il::VarianceKind kind) {
     variance += (v[i] - mean) * (v[i] - mean);
   }
   const il::int_t degrees_of_freedom =
-      (kind == il::VarianceKind::kPopulation) ? v.size() : (v.size() - 1);
+      (kind == il::VarianceKind::Population) ? v.size() : (v.size() - 1);
   variance /= degrees_of_freedom;
 
   return MeanVariance<T>{mean, variance};

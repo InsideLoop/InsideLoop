@@ -97,7 +97,7 @@ inline void save_array(const il::Array<il::Dynamic> &array, il::io_t,
       IL_UNUSED(error1);
     }
     switch (array[j].type()) {
-      case il::Type::kBool: {
+      case il::Type::Bool: {
         if (array[j].to<bool>()) {
           const int error2 = std::fputs("true", file);
           IL_UNUSED(error2);
@@ -106,15 +106,15 @@ inline void save_array(const il::Array<il::Dynamic> &array, il::io_t,
           IL_UNUSED(error2);
         }
       } break;
-      case il::Type::kInteger: {
+      case il::Type::Integer: {
         const int error2 = std::fprintf(file, "%td", array[j].to<il::int_t>());
         IL_UNUSED(error2);
       } break;
-      case il::Type::kDouble: {
+      case il::Type::Double: {
         const int error2 = std::fprintf(file, "%e", array[j].to<double>());
         IL_UNUSED(error2);
       } break;
-      case il::Type::kString: {
+      case il::Type::UnicodeString: {
         const int error2 = std::fputs("\"", file);
         const int error3 =
             std::fputs(array[j].as<il::String>().asCString(), file);
@@ -123,7 +123,7 @@ inline void save_array(const il::Array<il::Dynamic> &array, il::io_t,
         IL_UNUSED(error3);
         IL_UNUSED(error4);
       } break;
-      case il::Type::kArray: {
+      case il::Type::ArrayOfDynamic: {
         save_array(array[j].as<il::Array<il::Dynamic>>(), il::io, file, status);
         if (!status.Ok()) {
           status.Rearm();
@@ -145,16 +145,17 @@ inline void save_aux(const M &toml, const il::String &name, il::io_t,
   int error = 0;
   // Add an object that sets the error on destruction
 
-  for (il::Spot i = toml.begin(); i != toml.end(); i = toml.next(i)) {
+  for (il::Spot i = toml.spotBegin(); i != toml.spotEnd(); i = toml.next(i)) {
     const il::Dynamic &value = toml.value(i);
     const il::Type type = value.type();
-    if (type != il::Type::kMapArray && type != il::Type::kMap) {
+    if (type != il::Type::MapArrayStringToDynamic &&
+        type != il::Type::MapStringToDynamic) {
       error = std::fputs(toml.key(i).asCString(), file);
       if (error == EOF) return;
       error = std::fputs(" = ", file);
       if (error == EOF) return;
       switch (type) {
-        case il::Type::kBool:
+        case il::Type::Bool:
           if (value.to<bool>()) {
             error = std::fputs("true", file);
           } else {
@@ -162,15 +163,15 @@ inline void save_aux(const M &toml, const il::String &name, il::io_t,
           }
           if (error == EOF) return;
           break;
-        case il::Type::kInteger:
+        case il::Type::Integer:
           error = std::fprintf(file, "%td", value.to<il::int_t>());
           if (error == EOF) return;
           break;
-        case il::Type::kDouble:
+        case il::Type::Double:
           error = std::fprintf(file, "%e", value.to<double>());
           if (error == EOF) return;
           break;
-        case il::Type::kString:
+        case il::Type::UnicodeString:
           error = std::fputs("\"", file);
           if (error == EOF) return;
           error = std::fputs(value.as<il::String>().asCString(), file);
@@ -178,7 +179,7 @@ inline void save_aux(const M &toml, const il::String &name, il::io_t,
           error = std::fputs("\"", file);
           if (error == EOF) return;
           break;
-        case il::Type::kArrayOfDouble: {
+        case il::Type::ArrayOfDouble: {
           const il::Array<double> &v = value.as<il::Array<double>>();
           error = std::fputs("[ ", file);
           if (error == EOF) return;
@@ -192,7 +193,7 @@ inline void save_aux(const M &toml, const il::String &name, il::io_t,
           error = std::fputs(" ]", file);
           if (error == EOF) return;
         } break;
-        case il::Type::kArray2DOfDouble: {
+        case il::Type::Array2DOfDouble: {
           const il::Array2D<double> &v = value.as<il::Array2D<double>>();
           error = std::fputs("[ ", file);
           if (error == EOF) return;
@@ -216,7 +217,7 @@ inline void save_aux(const M &toml, const il::String &name, il::io_t,
           error = std::fputs(" ]", file);
           if (error == EOF) return;
         } break;
-        case il::Type::kArray: {
+        case il::Type::ArrayOfDynamic: {
           save_array(value.as<il::Array<il::Dynamic>>(), il::io, file, status);
           status.AbortOnError();
         } break;
@@ -225,7 +226,7 @@ inline void save_aux(const M &toml, const il::String &name, il::io_t,
       }
       error = std::fputs("\n", file);
       if (error == EOF) return;
-    } else if (type == il::Type::kMapArray) {
+    } else if (type == il::Type::MapArrayStringToDynamic) {
       error = std::fputs("\n[", file);
       if (error == EOF) return;
       if (name.size() != 0) {
@@ -244,7 +245,7 @@ inline void save_aux(const M &toml, const il::String &name, il::io_t,
         status.Rearm();
         return;
       }
-    } else if (type == il::Type::kMap) {
+    } else if (type == il::Type::MapStringToDynamic) {
       error = std::fputs("\n[", file);
       if (error == EOF) return;
       if (name.size() != 0) {
@@ -278,7 +279,7 @@ class SaveHelper<il::Map<il::String, il::Dynamic>> {
 #ifdef IL_UNIX
     std::FILE *file = std::fopen(filename.asCString(), "wb");
     if (!file) {
-      status.SetError(il::Error::kFilesystemFileNotFound);
+      status.SetError(il::Error::FilesystemFileNotFound);
       return;
     }
 #else
@@ -286,7 +287,7 @@ class SaveHelper<il::Map<il::String, il::Dynamic>> {
     std::FILE *file;
     errno_t error_nb = _wfopen_s(&file, filename_utf16.asWString(), L"wb");
     if (error_nb != 0) {
-      status.SetError(il::Error::kFilesystemFileNotFound);
+      status.SetError(il::Error::FilesystemFileNotFound);
       return;
     }
 #endif
@@ -300,7 +301,7 @@ class SaveHelper<il::Map<il::String, il::Dynamic>> {
 
     const int error = std::fclose(file);
     if (error != 0) {
-      status.SetError(il::Error::kFilesystemCanNotCloseFile);
+      status.SetError(il::Error::FilesystemCanNotCloseFile);
       return;
     }
 
@@ -317,7 +318,7 @@ class SaveHelperToml<il::MapArray<il::String, il::Dynamic>> {
 #ifdef IL_UNIX
     std::FILE *file = std::fopen(filename.asCString(), "wb");
     if (!file) {
-      status.SetError(il::Error::kFilesystemFileNotFound);
+      status.SetError(il::Error::FilesystemFileNotFound);
       return;
     }
 #else
@@ -325,7 +326,7 @@ class SaveHelperToml<il::MapArray<il::String, il::Dynamic>> {
     std::FILE *file;
     errno_t error_nb = _wfopen_s(&file, filename_utf16.asWString(), L"wb");
     if (error_nb != 0) {
-      status.SetError(il::Error::kFilesystemFileNotFound);
+      status.SetError(il::Error::FilesystemFileNotFound);
       return;
     }
 #endif
@@ -339,7 +340,7 @@ class SaveHelperToml<il::MapArray<il::String, il::Dynamic>> {
 
     const int error = std::fclose(file);
     if (error != 0) {
-      status.SetError(il::Error::kFilesystemCanNotCloseFile);
+      status.SetError(il::Error::FilesystemCanNotCloseFile);
       return;
     }
 

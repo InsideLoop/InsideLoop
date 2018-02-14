@@ -47,8 +47,8 @@ class Set {
   bool contains(const T& x) const;
   void Clear();
   const T& element(il::Spot i) const;
-  il::Spot begin() const;
-  il::Spot end() const;
+  il::Spot spotBegin() const;
+  il::Spot spotEnd() const;
   il::Spot next(il::Spot i) const;
   il::int_t nbElements() const;
 
@@ -77,7 +77,7 @@ Set<T, F>::Set(const Set<T, F>& set) {
     for (il::int_t i = 0; i < m; ++i) {
       F::constructEmpty(il::io, bucket_ + i);
     }
-    for (il::Spot i = set.begin(); i != set.end(); i = set.next(i)) {
+    for (il::Spot i = set.spotBegin(); i != set.spotEnd(); i = set.next(i)) {
       Add(set.element(i));
     }
   }
@@ -272,7 +272,7 @@ const T& Set<T, F>::element(il::Spot i) const {
 }
 
 template <typename T, typename F>
-il::Spot Set<T, F>::begin() const {
+il::Spot Set<T, F>::spotBegin() const {
   const il::int_t m = static_cast<il::int_t>(static_cast<std::size_t>(1) << p_);
 
   il::int_t i = 0;
@@ -283,7 +283,7 @@ il::Spot Set<T, F>::begin() const {
 }
 
 template <typename T, typename F>
-il::Spot Set<T, F>::end() const {
+il::Spot Set<T, F>::spotEnd() const {
 #ifdef IL_DEBUG_CLASS
   return il::Spot{static_cast<il::int_t>(static_cast<std::size_t>(1) << p_), 0};
 #else

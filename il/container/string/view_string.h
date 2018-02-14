@@ -33,7 +33,7 @@ inline StringView view(const char* string) {
     ++size;
   }
 
-  return StringView{il::StringType::kByte, string, size};
+  return StringView{il::StringType::Byte, string, size};
 }
 
 }  // namespace il

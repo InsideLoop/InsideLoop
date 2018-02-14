@@ -289,7 +289,7 @@ inline void blas(double alpha, const il::Array2DView<double> &A,
   IL_EXPECT_FAST(A.size(0) == B.size(0));
   IL_EXPECT_FAST(C.size(0) == A.size(1));
   IL_EXPECT_FAST(C.size(1) == B.size(1));
-  IL_EXPECT_FAST(op == il::MatrixOperator::kTranpose);
+  IL_EXPECT_FAST(op == il::MatrixOperator::Tranpose);
 
   const IL_CBLAS_LAYOUT layout = CblasColMajor;
   const CBLAS_TRANSPOSE transa = CblasTrans;
@@ -310,7 +310,7 @@ inline void blas(double alpha, const il::Array2DView<double> &A,
   IL_EXPECT_FAST(A.size(1) == B.size(1));
   IL_EXPECT_FAST(C.size(0) == A.size(0));
   IL_EXPECT_FAST(C.size(1) == B.size(0));
-  IL_EXPECT_FAST(op == il::MatrixOperator::kTranpose);
+  IL_EXPECT_FAST(op == il::MatrixOperator::Tranpose);
 
   const IL_CBLAS_LAYOUT layout = CblasColMajor;
   const CBLAS_TRANSPOSE transa = CblasNoTrans;
@@ -343,7 +343,7 @@ inline void blas(double alpha, const il::Array2D<double> &A, Blas info_a,
   const IL_CBLAS_INT lda{static_cast<IL_CBLAS_INT>(A.stride(1))};
   const IL_CBLAS_INT ldb{static_cast<IL_CBLAS_INT>(B.stride(1))};
   const IL_CBLAS_INT ldc{static_cast<IL_CBLAS_INT>(C.stride(1))};
-  if (info_a == il::Blas::kSymmetricUpper && info_b == il::Blas::kRegular) {
+  if (info_a == il::Blas::SymmetricUpper && info_b == il::Blas::Regular) {
     IL_EXPECT_FAST(A.size(0) == A.size(1));
     const CBLAS_SIDE side{CblasLeft};
     const CBLAS_UPLO uplo{CblasUpper};
@@ -423,7 +423,7 @@ inline void blas(double alpha, const il::Array2C<double> &A, Blas info_a,
   const IL_CBLAS_INT lda{static_cast<IL_CBLAS_INT>(A.stride(0))};
   const IL_CBLAS_INT ldb{static_cast<IL_CBLAS_INT>(B.stride(0))};
   const IL_CBLAS_INT ldc{static_cast<IL_CBLAS_INT>(C.stride(0))};
-  if (info_a == il::Blas::kSymmetricUpper && info_b == il::Blas::kRegular) {
+  if (info_a == il::Blas::SymmetricUpper && info_b == il::Blas::Regular) {
     IL_EXPECT_FAST(A.size(0) == A.size(1));
     const CBLAS_SIDE side{CblasLeft};
     const CBLAS_UPLO uplo{CblasUpper};

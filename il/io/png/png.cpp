@@ -29,7 +29,7 @@ il::Array3C<unsigned char> loadPng(const std::string &filename, il::io_t,
   unsigned char header[8];
   FILE *fp{fopen(filename.c_str(), "rb")};
   if (fp == nullptr) {
-    status.SetError(il::Error::kFilesystemFileNotFound);
+    status.SetError(il::Error::FilesystemFileNotFound);
     IL_SET_SOURCE(status);
     fclose(fp);
     return image;
@@ -37,7 +37,7 @@ il::Array3C<unsigned char> loadPng(const std::string &filename, il::io_t,
 
   fread(header, 1, 8, fp);
   if (png_sig_cmp(header, 0, 8)) {
-    status.SetError(il::Error::kBinaryFileWrongFormat);
+    status.SetError(il::Error::BinaryFileWrongFormat);
     IL_SET_SOURCE(status);
     fclose(fp);
     return image;
@@ -46,20 +46,20 @@ il::Array3C<unsigned char> loadPng(const std::string &filename, il::io_t,
   png_structp png_ptr{
       png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr)};
   if (png_ptr == nullptr) {
-    status.SetError(il::Error::kUndefined);
+    status.SetError(il::Error::Undefined);
     IL_SET_SOURCE(status);
     fclose(fp);
     return image;
   }
   png_infop info_ptr{png_create_info_struct(png_ptr)};
   if (info_ptr == nullptr) {
-    status.SetError(il::Error::kUndefined);
+    status.SetError(il::Error::Undefined);
     IL_SET_SOURCE(status);
     fclose(fp);
     return image;
   }
   if (setjmp(png_jmpbuf(png_ptr))) {
-    status.SetError(il::Error::kUndefined);
+    status.SetError(il::Error::Undefined);
     IL_SET_SOURCE(status);
     fclose(fp);
     return image;
@@ -80,7 +80,7 @@ il::Array3C<unsigned char> loadPng(const std::string &filename, il::io_t,
   png_read_update_info(png_ptr, info_ptr);
 
   if (setjmp(png_jmpbuf(png_ptr))) {
-    status.SetError(il::Error::kUndefined);
+    status.SetError(il::Error::Undefined);
     IL_SET_SOURCE(status);
     fclose(fp);
     return image;
@@ -122,7 +122,7 @@ void savePng(const il::Array3C<unsigned char> &image,
              const il::String &filename, il::io_t, il::Status &status) {
   FILE *fp{fopen(filename.asCString(), "wb")};
   if (fp == nullptr) {
-    status.SetError(il::Error::kFilesystemFileNotFound);
+    status.SetError(il::Error::FilesystemFileNotFound);
     IL_SET_SOURCE(status);
     return;
   }
@@ -130,26 +130,26 @@ void savePng(const il::Array3C<unsigned char> &image,
   png_structp png_ptr{png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr,
                                               nullptr, nullptr)};
   if (png_ptr == nullptr) {
-    status.SetError(il::Error::kUndefined);
+    status.SetError(il::Error::Undefined);
     IL_SET_SOURCE(status);
     return;
   }
 
   png_infop info_ptr{png_create_info_struct(png_ptr)};
   if (info_ptr == nullptr) {
-    status.SetError(il::Error::kUndefined);
+    status.SetError(il::Error::Undefined);
     IL_SET_SOURCE(status);
     return;
   }
   if (setjmp(png_jmpbuf(png_ptr))) {
-    status.SetError(il::Error::kUndefined);
+    status.SetError(il::Error::Undefined);
     IL_SET_SOURCE(status);
     return;
   }
 
   png_init_io(png_ptr, fp);
   if (setjmp(png_jmpbuf(png_ptr))) {
-    status.SetError(il::Error::kUndefined);
+    status.SetError(il::Error::Undefined);
     IL_SET_SOURCE(status);
     return;
   }
@@ -173,7 +173,7 @@ void savePng(const il::Array3C<unsigned char> &image,
 
   /* write bytes */
   if (setjmp(png_jmpbuf(png_ptr))) {
-    status.SetError(il::Error::kUndefined);
+    status.SetError(il::Error::Undefined);
     IL_SET_SOURCE(status);
     return;
   }
@@ -196,7 +196,7 @@ void savePng(const il::Array3C<unsigned char> &image,
 
   /* end write */
   if (setjmp(png_jmpbuf(png_ptr))) {
-    status.SetError(il::Error::kUndefined);
+    status.SetError(il::Error::Undefined);
     IL_SET_SOURCE(status);
     return;
   }

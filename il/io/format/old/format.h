@@ -28,7 +28,7 @@
 
 namespace il {
 
-enum class FloatStyle { kPercent, kFixed, kExponent };
+enum class FloatStyle { Percent, Fixed, Exponent };
 
 void write_double(double value, int precision, il::FloatStyle style, il::io_t,
                   std::string& stream) {
@@ -42,13 +42,13 @@ void write_double(double value, int precision, il::FloatStyle style, il::io_t,
 
   char c_letter;
   switch (style) {
-    case FloatStyle::kExponent:
+    case FloatStyle::Exponent:
       c_letter = 'e';
       break;
-    case FloatStyle::kFixed:
+    case FloatStyle::Fixed:
       c_letter = 'f';
       break;
-    case FloatStyle::kPercent:
+    case FloatStyle::Percent:
       c_letter = 'f';
       break;
     default:
@@ -60,17 +60,17 @@ void write_double(double value, int precision, il::FloatStyle style, il::io_t,
   spec.Append(std::to_string(precision));
   spec.Append(std::string(1, c_letter));
 
-  if (style == FloatStyle::kPercent) {
+  if (style == FloatStyle::Percent) {
     value *= 100;
   }
 
   char buffer[32];
   int length = std::snprintf(buffer, sizeof(buffer), spec.c_str(), value);
-  if (style == FloatStyle::kPercent) {
+  if (style == FloatStyle::Percent) {
     ++length;
   }
   stream.Append(buffer);
-  if (style == FloatStyle::kPercent) {
+  if (style == FloatStyle::Percent) {
     stream.Append("%");
   }
 }
@@ -90,13 +90,13 @@ class FormatProvider<double> {
     FloatStyle s;
     switch (style[0]) {
       case 'P':
-        s = FloatStyle::kPercent;
+        s = FloatStyle::Percent;
         break;
       case 'F':
-        s = FloatStyle::kFixed;
+        s = FloatStyle::Fixed;
         break;
       case 'E':
-        s = FloatStyle::kExponent;
+        s = FloatStyle::Exponent;
         break;
       default:
         IL_EXPECT_FAST(false);
@@ -104,7 +104,7 @@ class FormatProvider<double> {
 
     int precision;
     switch (s) {
-      case FloatStyle::kExponent:
+      case FloatStyle::Exponent:
         precision = 6;
         break;
       default:
@@ -133,7 +133,7 @@ class FormatProvider<int> {
   }
 };
 
-enum class AlignStyle { kLeft, kCenter, kRight };
+enum class AlignStyle { Left, Center, Right };
 
 template <typename T>
 void format_align(const T& value, il::AlignStyle align_style, il::int_t amount,
@@ -151,18 +151,18 @@ void format_align(const T& value, il::AlignStyle align_style, il::int_t amount,
 
   std::size_t pad_amount = static_cast<std::size_t>(amount) - item.size();
   switch (align_style) {
-    case il::AlignStyle::kLeft:
+    case il::AlignStyle::Left:
       stream.Append(item);
       stream.Append(std::string(pad_amount, ' '));
       break;
-    case il::AlignStyle::kCenter: {
+    case il::AlignStyle::Center: {
       std::size_t half_pad_amount = pad_amount / 2;
       stream.Append(std::string(pad_amount - half_pad_amount, ' '));
       stream.Append(item);
       stream.Append(std::string(half_pad_amount, ' '));
       break;
     }
-    case il::AlignStyle::kRight: {
+    case il::AlignStyle::Right: {
       stream.Append(std::string(pad_amount, ' '));
       stream.Append(item);
       break;
@@ -180,19 +180,19 @@ void format_style(const T& value, const std::string& style, il::io_t,
     il::int_t pos = 1;
     switch (style[pos]) {
       case '-':
-        align_style = il::AlignStyle::kLeft;
+        align_style = il::AlignStyle::Left;
         ++pos;
         break;
       case '=':
-        align_style = il::AlignStyle::kCenter;
+        align_style = il::AlignStyle::Center;
         ++pos;
         break;
       case '+':
-        align_style = il::AlignStyle::kRight;
+        align_style = il::AlignStyle::Right;
         ++pos;
         break;
       default:
-        align_style = il::AlignStyle::kRight;
+        align_style = il::AlignStyle::Right;
     }
     il::int_t pos_column = pos;
     while (pos_column < static_cast<il::int_t>(style.size()) &&
@@ -207,7 +207,7 @@ void format_style(const T& value, const std::string& style, il::io_t,
       new_style = std::string{};
     }
   } else {
-    align_style = il::AlignStyle::kRight;
+    align_style = il::AlignStyle::Right;
     amount = 0;
     new_style = std::string(style.begin() + 1, style.end());
   }

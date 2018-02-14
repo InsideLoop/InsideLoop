@@ -29,168 +29,168 @@
 namespace il {
 
 enum class Type : unsigned char {
-  kVoid = 12,
-  kBool = 0,
-  kUInt8 = 1,
-  kInt8 = 2,
-  kUChar = 1,  // C type (unsigned char)
-  kSChar = 2,  // C type (signed char, not char)
-  kUInt16 = 3,
-  kInt16 = 4,
-  kUShort = 3,  // C type (unsigned short)
-  kShort = 4,   // C type (shor)
-  kUInt32 = 5,
-  kInt32 = 6,
-  kUInt = 5,  // C type (unsigned int)
-  kInt = 6,   // C type (int)
-  kUInt64 = 7,
-  kInt64 = 8,
+  Void = 12,
+  Bool = 0,
+  UInt8 = 1,
+  Int8 = 2,
+  UChar = 1,  // C type (unsigned char)
+  SChar = 2,  // C type (signed char, not char)
+  UInt16 = 3,
+  Int16 = 4,
+  UShort = 3,  // C type (unsigned short)
+  Short = 4,   // C type (shor)
+  UInt32 = 5,
+  Int32 = 6,
+  UInt = 5,  // C type (unsigned int)
+  Int = 6,   // C type (int)
+  UInt64 = 7,
+  Int64 = 8,
 #ifdef IL_64_BIT
-  kUInteger = 7,  // C++ type (il::uint_t aka std::size_t)
-  kInteger = 8,   // C++ type (il::int_t aka std:ptrdiff_t)
+  UInteger = 7,  // C++ type (il::uint_t aka std::size_t)
+  Integer = 8,   // C++ type (il::int_t aka std:ptrdiff_t)
 #else
-  kUInteger = 5,  // C++ type (il::uint_t aka std::size_t)
-  kInteger = 6,   // C++ type (il::int_t aka std:ptrdiff_t)
+  UInteger = 5,  // C++ type (il::uint_t aka std::size_t)
+  Integer = 6,   // C++ type (il::int_t aka std:ptrdiff_t)
 #endif
   // TFp16 = 9,
-  kFp32 = 10,
-  kFp64 = 11,
-  kFloat = 10,   // C type (float)
-  kDouble = 11,  // C type (double)
-  kFloatingPoint = 11,
+  Fp32 = 10,
+  Fp64 = 11,
+  Float = 10,   // C type (float)
+  Double = 11,  // C type (double)
+  FloatingPoint = 11,
 
-  kString = 13,
-  kArray = 14,
-  kMap = 15,
-  kMapArray = 16,
+  UnicodeString = 13,
+  ArrayOfDynamic = 14,
+  MapStringToDynamic = 15,
+  MapArrayStringToDynamic = 16,
 
-  kArrayOfBool = 20,
-  kArrayOfUInt8 = 21,
-  kArrayOfInt8 = 22,
-  kArrayOfUInt16 = 23,
-  kArrayOfInt16 = 24,
-  kArrayOfUInt32 = 25,
-  kArrayOfInt32 = 26,
-  kArrayOfUInt = 25,
-  kArrayOfInt = 26,
-  kArrayOfUInt64 = 27,
-  kArrayOfInt64 = 28,
+  ArrayOfBool = 20,
+  ArrayOfUInt8 = 21,
+  ArrayOfInt8 = 22,
+  ArrayOfUInt16 = 23,
+  ArrayOfInt16 = 24,
+  ArrayOfUInt32 = 25,
+  ArrayOfInt32 = 26,
+  ArrayOfUInt = 25,
+  ArrayOfInt = 26,
+  ArrayOfUInt64 = 27,
+  ArrayOfInt64 = 28,
 #ifdef IL_64_BIT
-  kArrayOfUInteger = 27,
-  kArrayOfInteger = 28,
+  ArrayOfUInteger = 27,
+  ArrayOfInteger = 28,
 #else
-  kArrayOfUInteger = 25,
-  kArrayOfInteger = 26,
+  ArrayOfUInteger = 25,
+  ArrayOfInteger = 26,
 #endif
-  kArrayOfFp32 = 30,
-  kArrayOfFp64 = 31,
-  kArrayOfFloat = 30,
-  kArrayOfDouble = 31,
-  kArrayOfFloatingPoint = 31,
-  kArrayOfString = 32,
-  kArrayOfStruct = 33,
+  ArrayOfFp32 = 30,
+  ArrayOfFp64 = 31,
+  ArrayOfFloat = 30,
+  ArrayOfDouble = 31,
+  ArrayOfFloatingPoint = 31,
+  ArrayOfString = 32,
+  ArrayOfStruct = 33,
 
-  kArrayViewOfBool = 20,
-  kArrayViewOfUInt8 = 21,
-  kArrayViewOfInt8 = 22,
-  kArrayViewOfUInt16 = 23,
-  kArrayViewOfInt16 = 24,
-  kArrayViewOfUInt32 = 25,
-  kArrayViewOfInt32 = 26,
-  kArrayViewOfUInt = 25,
-  kArrayViewOfInt = 26,
-  kArrayViewOfUInt64 = 27,
-  kArrayViewOfInt64 = 28,
+  ArrayViewOfBool = 20,
+  ArrayViewOfUInt8 = 21,
+  ArrayViewOfInt8 = 22,
+  ArrayViewOfUInt16 = 23,
+  ArrayViewOfInt16 = 24,
+  ArrayViewOfUInt32 = 25,
+  ArrayViewOfInt32 = 26,
+  ArrayViewOfUInt = 25,
+  ArrayViewOfInt = 26,
+  ArrayViewOfUInt64 = 27,
+  ArrayViewOfInt64 = 28,
 #ifdef IL_64_BIT
-  kArrayViewOfUInteger = 27,
-  kArrayViewOfInteger = 28,
+  ArrayViewOfUInteger = 27,
+  ArrayViewOfInteger = 28,
 #else
-  kArrayViewOfUInteger = 25,
-  kArrayViewOfInteger = 26,
+  ArrayViewOfUInteger = 25,
+  ArrayViewOfInteger = 26,
 #endif
-  kArrayViewOfFp32 = 30,
-  kArrayViewOfFp64 = 31,
-  kArrayViewOfFloat = 30,
-  kArrayViewOfDouble = 31,
-  kArrayViewOfFloatingPoint = 31,
-  kArrayViewOfString = 32,
+  ArrayViewOfFp32 = 30,
+  ArrayViewOfFp64 = 31,
+  ArrayViewOfFloat = 30,
+  ArrayViewOfDouble = 31,
+  ArrayViewOfFloatingPoint = 31,
+  ArrayViewOfString = 32,
 
-  kArrayEditOfBool = 20,
-  kArrayEditOfUInt8 = 21,
-  kArrayEditOfInt8 = 22,
-  kArrayEditOfUInt16 = 23,
-  kArrayEditOfInt16 = 24,
-  kArrayEditOfUInt32 = 25,
-  kArrayEditOfInt32 = 26,
-  kArrayEditOfUInt = 25,
-  kArrayEditOfInt = 26,
-  kArrayEditOfUInt64 = 27,
-  kArrayEditOfInt64 = 28,
+  ArrayEditOfBool = 20,
+  ArrayEditOfUInt8 = 21,
+  ArrayEditOfInt8 = 22,
+  ArrayEditOfUInt16 = 23,
+  ArrayEditOfInt16 = 24,
+  ArrayEditOfUInt32 = 25,
+  ArrayEditOfInt32 = 26,
+  ArrayEditOfUInt = 25,
+  ArrayEditOfInt = 26,
+  ArrayEditOfUInt64 = 27,
+  ArrayEditOfInt64 = 28,
 #ifdef IL_64_BIT
-  kArrayEditOfUInteger = 27,
-  kArrayEditOfInteger = 28,
+  ArrayEditOfUInteger = 27,
+  ArrayEditOfInteger = 28,
 #else
-  kArrayEditOfUInteger = 25,
-  kArrayEditOfInteger = 26,
+  ArrayEditOfUInteger = 25,
+  ArrayEditOfInteger = 26,
 #endif
-  kArrayEditOfFp32 = 30,
-  kArrayEditOfFp64 = 31,
-  kArrayEditOfFloat = 30,
-  kArrayEditOfDouble = 31,
-  kArrayEditOfFloatingPoint = 31,
-  kArrayEditOfString = 32,
+  ArrayEditOfFp32 = 30,
+  ArrayEditOfFp64 = 31,
+  ArrayEditOfFloat = 30,
+  ArrayEditOfDouble = 31,
+  ArrayEditOfFloatingPoint = 31,
+  ArrayEditOfString = 32,
 
-  kArray2DOfBool = 40,
-  kArray2DOfUInt8 = 41,
-  kArray2DOfInt8 = 42,
-  kArray2DOfUInt16 = 43,
-  kArray2DOfInt16 = 44,
-  kArray2DOfUInt32 = 45,
-  kArray2DOfInt32 = 46,
-  kArray2DOfUInt = 45,
-  kArray2DOfInt = 46,
-  kArray2DOfUInt64 = 47,
-  kArray2DOfInt64 = 48,
+  Array2DOfBool = 40,
+  Array2DOfUInt8 = 41,
+  Array2DOfInt8 = 42,
+  Array2DOfUInt16 = 43,
+  Array2DOfInt16 = 44,
+  Array2DOfUInt32 = 45,
+  Array2DOfInt32 = 46,
+  Array2DOfUInt = 45,
+  Array2DOfInt = 46,
+  Array2DOfUInt64 = 47,
+  Array2DOfInt64 = 48,
 #ifdef IL_64_BIT
-  kArray2DOfUInteger = 47,
-  kArray2DOfInteger = 48,
+  Array2DOfUInteger = 47,
+  Array2DOfInteger = 48,
 #else
-  kArray2DOfUInteger = 45,
-  kArray2DOfInteger = 46,
+  Array2DOfUInteger = 45,
+  Array2DOfInteger = 46,
 #endif
   // TArray2DOfFp16 = 49,
-  kArray2DOfFp32 = 50,
-  kArray2DOfFp64 = 51,
-  kArray2DOfFloat = 50,
-  kArray2DOfDouble = 51,
-  kArray2DOfFloatingPoint = 51,
-  kArray2DOfString = 52,
+  Array2DOfFp32 = 50,
+  Array2DOfFp64 = 51,
+  Array2DOfFloat = 50,
+  Array2DOfDouble = 51,
+  Array2DOfFloatingPoint = 51,
+  Array2DOfString = 52,
 
-  kArray2COfBool = 60,
-  kArray2COfUInt8 = 61,
-  kArray2COfInt8 = 62,
-  kArray2COfUInt16 = 63,
-  kArray2COfInt16 = 64,
-  kArray2COfUInt32 = 65,
-  kArray2COfInt32 = 66,
-  kArray2COfUInt = 65,
-  kArray2COfInt = 66,
-  kArray2COfUInt64 = 67,
-  kArray2COfInt64 = 68,
+  Array2COfBool = 60,
+  Array2COfUInt8 = 61,
+  Array2COfInt8 = 62,
+  Array2COfUInt16 = 63,
+  Array2COfInt16 = 64,
+  Array2COfUInt32 = 65,
+  Array2COfInt32 = 66,
+  Array2COfUInt = 65,
+  Array2COfInt = 66,
+  Array2COfUInt64 = 67,
+  Array2COfInt64 = 68,
 #ifdef IL_64_BIT
-  kArray2COfUInteger = 67,
-  kArray2COfInteger = 68,
+  Array2COfUInteger = 67,
+  Array2COfInteger = 68,
 #else
-  kArray2COfUInteger = 65,
-  kArray2COfInteger = 66,
+  Array2COfUInteger = 65,
+  Array2COfInteger = 66,
 #endif
   // TArray2COfFp16 = 69,
-  kArray2COfFp32 = 70,
-  kArray2COfFp64 = 71,
-  kArray2COfFloat = 70,
-  kArray2COfDouble = 71,
-  kArray2COfFloatingPoint = 71,
-  kArray2COfString = 72,
+  Array2COfFp32 = 70,
+  Array2COfFp64 = 71,
+  Array2COfFloat = 70,
+  Array2COfDouble = 71,
+  Array2COfFloatingPoint = 71,
+  Array2COfString = 72,
 
 };
 
@@ -198,205 +198,205 @@ class Dynamic;
 
 template <typename T>
 il::Type typeId() {
-  return il::Type::kVoid;
+  return il::Type::Void;
 }
 
 template <>
 inline il::Type typeId<bool>() {
-  return il::Type::kBool;
+  return il::Type::Bool;
 }
 
 template <>
 inline il::Type typeId<int>() {
-  return il::Type::kInt;
+  return il::Type::Int;
 }
 
 #ifdef IL_64_BIT
 template <>
 inline il::Type typeId<il::int_t>() {
-  return il::Type::kInteger;
+  return il::Type::Integer;
 }
 #endif
 
 template <>
 inline il::Type typeId<float>() {
-  return il::Type::kFloat;
+  return il::Type::Float;
 }
 
 template <>
 inline il::Type typeId<double>() {
-  return il::Type::kDouble;
+  return il::Type::Double;
 }
 
 template <>
 inline il::Type typeId<il::String>() {
-  return il::Type::kString;
+  return il::Type::UnicodeString;
 }
 
 template <>
 inline il::Type typeId<il::Array<il::Dynamic>>() {
-  return il::Type::kArray;
+  return il::Type::ArrayOfDynamic;
 }
 
 template <>
 inline il::Type typeId<il::Map<il::String, il::Dynamic>>() {
-  return il::Type::kMap;
+  return il::Type::MapStringToDynamic;
 }
 
 template <>
 inline il::Type typeId<il::MapArray<il::String, il::Dynamic>>() {
-  return il::Type::kMapArray;
+  return il::Type::MapArrayStringToDynamic;
 }
 
 template <>
 inline il::Type typeId<il::Array<unsigned char>>() {
-  return il::Type::kArrayOfUInt8;
+  return il::Type::ArrayOfUInt8;
 }
 
 template <>
 inline il::Type typeId<il::Array<signed char>>() {
-  return il::Type::kArrayOfInt8;
+  return il::Type::ArrayOfInt8;
 }
 
 template <>
 inline il::Type typeId<il::Array<unsigned short>>() {
-  return il::Type::kArrayOfUInt16;
+  return il::Type::ArrayOfUInt16;
 }
 
 template <>
 inline il::Type typeId<il::Array<short>>() {
-  return il::Type::kArrayOfInt16;
+  return il::Type::ArrayOfInt16;
 }
 
 template <>
 inline il::Type typeId<il::Array<unsigned int>>() {
-  return il::Type::kArrayOfUInt32;
+  return il::Type::ArrayOfUInt32;
 }
 
 template <>
 inline il::Type typeId<il::Array<int>>() {
-  return il::Type::kArrayOfInt32;
+  return il::Type::ArrayOfInt32;
 }
 
 #ifdef IL_64_BIT
 template <>
 inline il::Type typeId<il::Array<std::size_t>>() {
-  return il::Type::kArrayOfUInt64;
+  return il::Type::ArrayOfUInt64;
 }
 
 template <>
 inline il::Type typeId<il::Array<il::int_t>>() {
-  return il::Type::kArrayOfInt64;
+  return il::Type::ArrayOfInt64;
 }
 #endif
 
 template <>
 inline il::Type typeId<il::Array<float>>() {
-  return il::Type::kArrayOfFloat;
+  return il::Type::ArrayOfFloat;
 }
 
 template <>
 inline il::Type typeId<il::Array<double>>() {
-  return il::Type::kArrayOfDouble;
+  return il::Type::ArrayOfDouble;
 }
 
 template <>
 inline il::Type typeId<il::Array2D<unsigned char>>() {
-  return il::Type::kArray2DOfUInt8;
+  return il::Type::Array2DOfUInt8;
 }
 
 template <>
 inline il::Type typeId<il::Array2D<signed char>>() {
-  return il::Type::kArray2DOfInt8;
+  return il::Type::Array2DOfInt8;
 }
 
 template <>
 inline il::Type typeId<il::Array2D<unsigned short>>() {
-  return il::Type::kArray2DOfUInt16;
+  return il::Type::Array2DOfUInt16;
 }
 
 template <>
 inline il::Type typeId<il::Array2D<short>>() {
-  return il::Type::kArray2DOfInt16;
+  return il::Type::Array2DOfInt16;
 }
 
 template <>
 inline il::Type typeId<il::Array2D<unsigned int>>() {
-  return il::Type::kArray2DOfUInt32;
+  return il::Type::Array2DOfUInt32;
 }
 
 template <>
 inline il::Type typeId<il::Array2D<int>>() {
-  return il::Type::kArray2DOfInt32;
+  return il::Type::Array2DOfInt32;
 }
 
 #ifdef IL_64_BIT
 template <>
 inline il::Type typeId<il::Array2D<std::size_t>>() {
-  return il::Type::kArray2DOfUInt64;
+  return il::Type::Array2DOfUInt64;
 }
 
 template <>
 inline il::Type typeId<il::Array2D<il::int_t>>() {
-  return il::Type::kArray2DOfInt64;
+  return il::Type::Array2DOfInt64;
 }
 #endif
 
 template <>
 inline il::Type typeId<il::Array2D<float>>() {
-  return il::Type::kArray2DOfFloat;
+  return il::Type::Array2DOfFloat;
 }
 
 template <>
 inline il::Type typeId<il::Array2D<double>>() {
-  return il::Type::kArray2DOfDouble;
+  return il::Type::Array2DOfDouble;
 }
 
 template <>
 inline il::Type typeId<il::Array2C<signed char>>() {
-  return il::Type::kArray2COfInt8;
+  return il::Type::Array2COfInt8;
 }
 
 template <>
 inline il::Type typeId<il::Array2C<unsigned short>>() {
-  return il::Type::kArray2COfUInt16;
+  return il::Type::Array2COfUInt16;
 }
 
 template <>
 inline il::Type typeId<il::Array2C<short>>() {
-  return il::Type::kArray2COfInt16;
+  return il::Type::Array2COfInt16;
 }
 
 template <>
 inline il::Type typeId<il::Array2C<unsigned int>>() {
-  return il::Type::kArray2COfUInt32;
+  return il::Type::Array2COfUInt32;
 }
 
 template <>
 inline il::Type typeId<il::Array2C<int>>() {
-  return il::Type::kArray2COfInt32;
+  return il::Type::Array2COfInt32;
 }
 
 #ifdef IL_64_BIT
 template <>
 inline il::Type typeId<il::Array2C<std::size_t>>() {
-  return il::Type::kArray2COfUInt64;
+  return il::Type::Array2COfUInt64;
 }
 
 template <>
 inline il::Type typeId<il::Array2C<il::int_t>>() {
-  return il::Type::kArray2COfInt64;
+  return il::Type::Array2COfInt64;
 }
 #endif
 
 template <>
 inline il::Type typeId<il::Array2C<float>>() {
-  return il::Type::kArray2COfFloat;
+  return il::Type::Array2COfFloat;
 }
 
 template <>
 inline il::Type typeId<il::Array2C<double>>() {
-  return il::Type::kArray2COfDouble;
+  return il::Type::Array2COfDouble;
 }
 
 }  // namespace il

@@ -55,8 +55,8 @@ class MapArray {
   const V& value(il::Spot i) const;
   V& Value(il::Spot i);
   il::Spot next(il::Spot i) const;
-  il::Spot begin() const;
-  il::Spot end() const;
+  il::Spot spotBegin() const;
+  il::Spot spotEnd() const;
   il::int_t nbElements() const;
 };
 
@@ -227,7 +227,7 @@ il::Spot MapArray<K, V, F>::next(il::Spot i) const {
 }
 
 template <typename K, typename V, typename F>
-il::Spot MapArray<K, V, F>::begin() const {
+il::Spot MapArray<K, V, F>::spotBegin() const {
 #ifdef IL_DEBUG_CLASS
   return il::Spot{0, hash_};
 #else
@@ -236,7 +236,7 @@ il::Spot MapArray<K, V, F>::begin() const {
 }
 
 template <typename K, typename V, typename F>
-il::Spot MapArray<K, V, F>::end() const {
+il::Spot MapArray<K, V, F>::spotEnd() const {
 #ifdef IL_DEBUG_CLASS
   return il::Spot{array_.size(), map_.hash()};
 #else

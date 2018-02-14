@@ -126,8 +126,8 @@ class Map {
   void Rehash();
 
   // Looping over the map
-  il::Spot begin() const;
-  il::Spot end() const;
+  il::Spot spotBegin() const;
+  il::Spot spotEnd() const;
   il::Spot next(il::Spot i) const;
 
   // To remove: Ugly hack for MapArray
@@ -272,7 +272,7 @@ Map<K, V, F>::Map(const Map<K, V, F>& map) {
     for (il::int_t i = 0; i < m; ++i) {
       F::constructEmpty(il::io, reinterpret_cast<K*>(bucket_ + i));
     }
-    for (il::Spot i = map.begin(); i != map.end(); i = map.next(i)) {
+    for (il::Spot i = map.spotBegin(); i != map.spotEnd(); i = map.next(i)) {
       Set(map.key(i), map.value(i));
 #ifdef IL_DEBUG_CLASS
       hash_ += F::hash(map.key(i), p_);
@@ -1000,7 +1000,7 @@ void Map<K, V, F>::Clear() {
 }
 
 template <typename K, typename V, typename F>
-il::Spot Map<K, V, F>::begin() const {
+il::Spot Map<K, V, F>::spotBegin() const {
   const il::int_t m = il::int_t{1} << p_;
 
   il::int_t i = 0;
@@ -1016,7 +1016,7 @@ il::Spot Map<K, V, F>::begin() const {
 }
 
 template <typename K, typename V, typename F>
-il::Spot Map<K, V, F>::end() const {
+il::Spot Map<K, V, F>::spotEnd() const {
 #ifdef IL_DEBUG_CLASS
   return il::Spot{il::int_t{1} << p_, hash_};
 #else

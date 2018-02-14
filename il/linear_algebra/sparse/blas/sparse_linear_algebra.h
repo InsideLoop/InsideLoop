@@ -26,7 +26,7 @@ double norm(const il::SparseArray2D<T> &A, Norm norm_type,
 
   auto norm = T{0.0};
   switch (norm_type) {
-    case Norm::kinfinity:
+    case Norm::infinity:
       for (il::int_t i = 0; i < A.size(0); ++i) {
         double sum = 0.0;
         for (il::int_t k = A.row(i); k < A.row(i + 1); ++k) {

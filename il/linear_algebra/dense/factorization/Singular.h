@@ -67,7 +67,7 @@ il::StaticArray<double, n> singularValues(il::StaticArray2D<double, n, n> A,
   if (lapack_error_0 == 0 && lapack_error_1 == 0) {
     status.SetOk();
   } else {
-    status.SetError(il::Error::kUndefined);
+    status.SetError(il::Error::Undefined);
   }
   return d;
 }
@@ -125,7 +125,7 @@ Singular<il::StaticArray2D<double, n, n>>::Singular(
     status.SetOk();
     singular_value_ = std::move(d);
   } else {
-    status.SetError(il::Error::kUndefined);
+    status.SetError(il::Error::Undefined);
   }
 }
 
@@ -179,7 +179,7 @@ Singular<il::Array2D<double>>::Singular(il::Array2D<double> A, il::io_t,
     status.SetOk();
     singular_value_ = std::move(d);
   } else {
-    status.SetError(il::Error::kUndefined);
+    status.SetError(il::Error::Undefined);
   }
 }
 }  // namespace il
