@@ -59,6 +59,9 @@ enum class Type : unsigned char {
   Double = 11,  // C type (double)
   FloatingPoint = 11,
 
+  Complex32 = 17,
+  Complex64 = 18,
+
   UnicodeString = 13,
   ArrayOfDynamic = 14,
   MapStringToDynamic = 15,

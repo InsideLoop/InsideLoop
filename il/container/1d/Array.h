@@ -89,6 +89,9 @@ class Array {
   */
   explicit Array(il::int_t n, const T& x);
 
+  template <typename... Args>
+  explicit Array(il::int_t n, il::emplace_t, Args&&... args);
+
   /* \brief Construct an array of n elements with a value
   //
   // // Construct an array of double of length 5, initialized with 3.14
@@ -194,6 +197,9 @@ class Array {
 
   void Resize(il::int_t n, const T& x);
 
+  template <typename... Args>
+  void Resize(il::int_t n, il::emplace_t, Args&&... args);
+
   /* \brief Get the capacity of the il::Array<T>
    */
   il::int_t capacity() const;
@@ -244,6 +250,13 @@ class Array {
   // \details One should use this method only when using C-style API
   */
   T* Data();
+
+  const T* begin() const;
+  const T* cbegin() const;
+  T* begin();
+  const T* end() const;
+  const T* cend() const;
+  T* end();
 
  private:
   /* \brief Used internally to increase the capacity of the array
@@ -348,6 +361,27 @@ Array<T>::Array(il::int_t n, const T& x) {
     data_ = il::allocateArray<T>(n);
     for (il::int_t i = 0; i < n; ++i) {
       new (data_ + i) T(x);
+    }
+  } else {
+    data_ = nullptr;
+  }
+  size_ = data_ + n;
+  capacity_ = data_ + n;
+  alignment_ = 0;
+  align_r_ = 0;
+  align_mod_ = 0;
+  shift_ = 0;
+}
+
+template <typename T>
+template <typename... Args>
+Array<T>::Array(il::int_t n, il::emplace_t, Args&&... args) {
+  IL_EXPECT_FAST(n >= 0);
+
+  if (n > 0) {
+    data_ = il::allocateArray<T>(n);
+    for (il::int_t i = 0; i < n; ++i) {
+      new (data_ + i) T(std::forward<Args>(args)...);
     }
   } else {
     data_ = nullptr;
@@ -712,6 +746,40 @@ void Array<T>::Resize(il::int_t n, const T& x) {
 }
 
 template <typename T>
+template <typename... Args>
+void Array<T>::Resize(il::int_t n, il::emplace_t, Args&&... args) {
+  IL_EXPECT_FAST(n >= 0);
+
+  if (n <= capacity()) {
+    if (il::isTrivial<T>::value) {
+      for (il::int_t i = size(); i < n; ++i) {
+        data_[i] = T(std::forward<Args>(args)...);
+      }
+    } else {
+      for (il::int_t i = size() - 1; i >= n; --i) {
+        (data_ + i)->~T();
+      }
+      for (il::int_t i = size(); i < n; ++i) {
+        new (data_ + i) T(std::forward<Args>(args)...);
+      }
+    }
+  } else {
+    const il::int_t n_old = size();
+    IncreaseCapacity(n);
+    if (il::isTrivial<T>::value) {
+      for (il::int_t i = n_old; i < n; ++i) {
+        data_[i] = T(std::forward<Args>(args)...);
+      }
+    } else {
+      for (il::int_t i = n_old; i < n; ++i) {
+        new (data_ + i) T(std::forward<Args>(args)...);
+      }
+    }
+  }
+  size_ = data_ + n;
+};
+
+template <typename T>
 il::int_t Array<T>::capacity() const {
   return capacity_ - data_;
 }
@@ -827,6 +895,36 @@ const T* Array<T>::data() const {
 template <typename T>
 T* Array<T>::Data() {
   return data_;
+}
+
+template <typename T>
+const T* Array<T>::begin() const {
+  return data_;
+}
+
+template <typename T>
+const T* Array<T>::cbegin() const {
+  return data_;
+}
+
+template <typename T>
+T* Array<T>::begin() {
+  return data_;
+}
+
+template <typename T>
+const T* Array<T>::end() const {
+  return size_;
+}
+
+template <typename T>
+const T* Array<T>::cend() const {
+  return size_;
+}
+
+template <typename T>
+T* Array<T>::end() {
+  return size_;
 }
 
 template <typename T>

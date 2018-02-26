@@ -31,8 +31,8 @@ project(InsideLoopUnitTest CXX)
 project(Program CXX)
 
 set(IL_OPENMP 0)
-set(IL_BLAS 1)
-set(IL_MKL 1)
+set(IL_BLAS 0)
+set(IL_MKL 0)
 set(IL_OPENBLAS 0)
 set(IL_PNG 0)
 

@@ -91,6 +91,9 @@ class Array2D {
   */
   explicit Array2D(il::int_t n0, il::int_t n1, const T& x);
 
+  template <typename... Args>
+  explicit Array2D(il::int_t n0, il::int_t n1, il::emplace_t, Args&&... args);
+
   explicit Array2D(il::int_t n0, il::int_t n1, const T& x, il::align_t,
                    il::int_t alignment);
 
@@ -385,6 +388,39 @@ Array2D<T>::Array2D(il::int_t n0, il::int_t n1, const T& x) {
     for (il::int_t i1 = 0; i1 < n1; ++i1) {
       for (il::int_t i0 = 0; i0 < n0; ++i0) {
         new (data_ + i1 * r0 + i0) T(x);
+      }
+    }
+  } else {
+    data_ = nullptr;
+  }
+  size_[0] = data_ + n0;
+  size_[1] = data_ + n1;
+  capacity_[0] = data_ + r0;
+  capacity_[1] = data_ + r1;
+  alignment_ = 0;
+  align_r_ = 0;
+  align_mod_ = 0;
+  shift_ = 0;
+}
+
+template <typename T>
+template <typename... Args>
+Array2D<T>::Array2D(il::int_t n0, il::int_t n1, il::emplace_t, Args&&... args) {
+  IL_EXPECT_FAST(n0 >= 0);
+  IL_EXPECT_FAST(n1 >= 0);
+
+  const il::int_t r0 = n0 > 0 ? n0 : (n1 == 0 ? 0 : 1);
+  const il::int_t r1 = n1 > 0 ? n1 : (n0 == 0 ? 0 : 1);
+  bool error = false;
+  const il::int_t r = il::safeProduct(r0, r1, il::io, error);
+  if (error) {
+    il::abort();
+  }
+  if (r > 0) {
+    data_ = il::allocateArray<T>(r);
+    for (il::int_t i1 = 0; i1 < n1; ++i1) {
+      for (il::int_t i0 = 0; i0 < n0; ++i0) {
+        new (data_ + i1 * r0 + i0) T(std::forward<Args>(args)...);
       }
     }
   } else {
