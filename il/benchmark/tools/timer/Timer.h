@@ -45,6 +45,12 @@ class Timer {
   void sleepUntil(double time) const;
 };
 
+void sleep(double time) {
+  il::Timer timer{};
+  timer.Start();
+  timer.sleepUntil(time);
+}
+
 inline Timer::Timer() : point_begin_{} {
   time_ = 0.0;
   launched_ = false;

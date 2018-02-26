@@ -16,7 +16,7 @@
 //
 //==============================================================================
 
-#include <il/container/string/algorithm_string.h>
+#include <il/container/string/algorithmString.h>
 #include <il/io/toml/toml.h>
 
 namespace il {

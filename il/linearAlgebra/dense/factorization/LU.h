@@ -152,7 +152,7 @@ LU<il::Array2D<double>>::LU(il::Array2D<double> A, il::io_t, il::Status &status)
   const lapack_int lda = static_cast<lapack_int>(A.stride(1));
   il::Array<lapack_int> ipiv{A.size(0) < A.size(1) ? A.size(0) : A.size(1)};
   const lapack_int lapack_error =
-      LAPACKE_dgetrf(layout, m, n, A.data(), lda, ipiv.data());
+      LAPACKE_dgetrf(layout, m, n, A.Data(), lda, ipiv.Data());
 
   IL_EXPECT_FAST(lapack_error >= 0);
   if (lapack_error == 0) {
@@ -178,10 +178,10 @@ il::Array<double> LU<il::Array2D<double>>::solve(il::Array<double> y) const {
   const char trans = 'N';
   const lapack_int n = static_cast<lapack_int>(lu_.size(0));
   const lapack_int nrhs = 1;
-  const lapack_int lda = static_cast<lapack_int>(lu_.stride(1));
+  const lapack_int lda = static_cast<lapack_int>(lu_.size(0));
   const lapack_int ldy = n;
   const lapack_int lapack_error = LAPACKE_dgetrs(
-      layout, trans, n, nrhs, lu_.data(), lda, ipiv_.data(), y.data(), ldy);
+      layout, trans, n, nrhs, lu_.data(), lda, ipiv_.data(), y.Data(), ldy);
   IL_EXPECT_FAST(lapack_error == 0);
 
   return y;
@@ -199,7 +199,7 @@ il::Array2D<double> LU<il::Array2D<double>>::solve(
   const lapack_int lda = static_cast<lapack_int>(lu_.stride(1));
   const lapack_int ldy = n;
   const lapack_int lapack_error = LAPACKE_dgetrs(
-      layout, trans, n, nrhs, lu_.data(), lda, ipiv_.data(), y.data(), ldy);
+      layout, trans, n, nrhs, lu_.data(), lda, ipiv_.data(), y.Data(), ldy);
   IL_EXPECT_FAST(lapack_error == 0);
 
   return y;
@@ -213,7 +213,7 @@ il::Array2D<double> LU<il::Array2D<double>>::inverse() const {
   const lapack_int n = static_cast<lapack_int>(inverse.size(0));
   const lapack_int lda = static_cast<lapack_int>(inverse.stride(1));
   const lapack_int lapack_error =
-      LAPACKE_dgetri(layout, n, inverse.data(), lda, ipiv_.data());
+      LAPACKE_dgetri(layout, n, inverse.Data(), lda, ipiv_.data());
   IL_EXPECT_FAST(lapack_error == 0);
 
   return inverse;

@@ -27,7 +27,7 @@
 
 #include <il/Array.h>
 #include <il/String.h>
-#include <il/container/string/algorithm_string.h>
+#include <il/container/string/algorithmString.h>
 
 #ifdef IL_WINDOWS
 #include <il/UTF16String.h>

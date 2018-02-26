@@ -18,7 +18,7 @@
 
 #include <gtest/gtest.h>
 
-#include <il/linear_algebra/sparse/blas/sparse_blas.h>
+#include <il/linearAlgebra/sparse/blas/sparseBlas.h>
 #include <il/linear_algebra/sparse/factorization/GmresIlu0.h>
 #include <il/linear_algebra/sparse/factorization/_test/matrix/heat.h>
 

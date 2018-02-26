@@ -228,7 +228,7 @@ set(SOURCE_FILES
     il/container/cuda/1d/CudaArray.h
     il/container/cuda/2d/CudaArray2D.h
     il/container/cuda/2d/CudaSparseMatrixCSR.h
-    il/container/cuda/cuda_copy.h
+        il/container/cuda/cudaCopy.h
     il/container/hash/HashFunction.h
     il/container/hash/Map.h
     il/container/hash/MapArray.h
@@ -237,8 +237,7 @@ set(SOURCE_FILES
     il/container/string/String.h
     il/container/string/UTF16String.h
     il/container/string/unicode.h
-    il/container/string/view_string.h
-    il/container/string/algorithm_string.h
+        il/container/string/algorithmString.h
     il/container/dynamic/Type.h
     il/container/dynamic/Dynamic.h
     il/container/info/Info.h
@@ -257,22 +256,22 @@ set(SOURCE_FILES
 #    il/io/png/png.cpp
     il/io/filepack/filepack.h
     il/io/format/format.cc
-    il/linear_algebra/dense/blas/blas.h
-    il/linear_algebra/dense/blas/dot.h
-    il/linear_algebra/dense/norm.h
-    il/linear_algebra/dense/factorization/linearSolve.h
-    il/linear_algebra/dense/factorization/LU.h
-    il/linear_algebra/dense/factorization/Cholesky.h
-    il/linear_algebra/dense/factorization/Householder.h
-    il/linear_algebra/dense/factorization/Eigen.h
-    il/linear_algebra/dense/factorization/Singular.h
-    il/linear_algebra/sparse/blas/_code/conjugate_gradient_blaze.h
-    il/linear_algebra/sparse/blas/sparse_blas.h
-    il/linear_algebra/sparse/blas/sparse_dot.h
-    il/linear_algebra/sparse/blas/sparse_linear_algebra.h
-    il/linear_algebra/sparse/blas/SparseMatrixBlas.h
-    il/linear_algebra/cuda/dense/blas/cuda_blas.h
-#    il/linear_algebra/matrixFree/solver/Gmres.cpp
+        il/linearAlgebra/dense/blas/blas.h
+        il/linearAlgebra/dense/blas/dot.h
+        il/linearAlgebra/dense/norm.h
+        il/linearAlgebra/dense/factorization/linearSolve.h
+        il/linearAlgebra/dense/factorization/LU.h
+        il/linearAlgebra/dense/factorization/Cholesky.h
+        il/linearAlgebra/dense/factorization/Householder.h
+        il/linearAlgebra/dense/factorization/Eigen.h
+        il/linearAlgebra/dense/factorization/Singular.h
+        il/linearAlgebra/sparse/blas/_code/conjugate_gradient_blaze.h
+        il/linearAlgebra/sparse/blas/sparseBlas.h
+        il/linearAlgebra/sparse/blas/sparseDot.h
+        il/linearAlgebra/sparse/blas/sparseLinearAlgebra.h
+        il/linearAlgebra/sparse/blas/SparseMatrixBlas.h
+        il/linearAlgebra/cuda/dense/blas/cudaBlas.h
+#    il/linearAlgebra/matrixFree/solver/Gmres.cpp
     il/unit/time.h
     il/random/sobol.h)
 
@@ -313,15 +312,15 @@ set(UNIT_TEST_FILES
     il/container/dynamic/_test/Dynamic_test.cpp
     il/container/info/_test/Info_test.cpp
     il/core/math/_test/safe_arithmetic_test.cpp
-    il/linear_algebra/dense/_test/norm_test.cpp
-    il/linear_algebra/dense/blas/_test/blas_test.cpp
-    il/linear_algebra/dense/blas/_test/linear_solve_test.cpp
-    il/linear_algebra/dense/blas/_test/dot_test.cpp
-    il/linear_algebra/dense/blas/_test/cross_test.cpp
-    il/linear_algebra/dense/factorization/_test/Eigen_test.cpp
-    il/linear_algebra/dense/factorization/_test/Singular_test.cpp
-    il/linear_algebra/sparse/factorization/_test/Pardiso_test.cpp
-    il/linear_algebra/sparse/factorization/_test/GmresIlu0_test.cpp
+        il/linearAlgebra/dense/_test/norm_test.cpp
+        il/linearAlgebra/dense/blas/_test/blas_test.cpp
+        il/linearAlgebra/dense/blas/_test/linear_solve_test.cpp
+        il/linearAlgebra/dense/blas/_test/dot_test.cpp
+        il/linearAlgebra/dense/blas/_test/cross_test.cpp
+        il/linearAlgebra/dense/factorization/_test/Eigen_test.cpp
+        il/linearAlgebra/dense/factorization/_test/Singular_test.cpp
+        il/linearAlgebra/sparse/factorization/_test/Pardiso_test.cpp
+        il/linearAlgebra/sparse/factorization/_test/GmresIlu0_test.cpp
     il/io/_test/numpy_test.cpp
     il/io/toml/_test/toml_valid_test.cpp
     gtest/src/gtest-all.cc
@@ -521,7 +520,7 @@ set(BENCHMARK_FILES
     il/container/hash/_benchmark/Map_il_vs_std_benchmark.h
     il/container/string/_benchmark/String_benchmark.h
     il/container/string/_benchmark/String_il_vs_std_benchmark.h
-        il/linear_algebra/matrixFree/solver/Gmres.cpp il/linear_algebra/matrixFree/solver/Gmres.h il/File.h)
+        il/linearAlgebra/matrixFree/solver/Gmres.cpp il/linearAlgebra/matrixFree/solver/Gmres.h il/File.h)
 
 # C++ feature checks
 # Determine the correct regular expression engine to use

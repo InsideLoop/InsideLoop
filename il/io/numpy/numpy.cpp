@@ -19,7 +19,7 @@
 #include <il/io/numpy/numpy.h>
 
 #include <il/String.h>
-#include <il/container/string/algorithm_string.h>
+#include <il/container/string/algorithmString.h>
 
 namespace il {
 

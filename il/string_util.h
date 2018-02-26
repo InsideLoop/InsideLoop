@@ -16,4 +16,4 @@
 //
 //==============================================================================
 
-#include <il/container/string/algorithm_string.h>
+#include <il/container/string/algorithmString.h>

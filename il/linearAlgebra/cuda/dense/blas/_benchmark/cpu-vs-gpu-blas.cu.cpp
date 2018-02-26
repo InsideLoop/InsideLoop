@@ -19,8 +19,8 @@
 #include <cstdio>
 
 #include <il/Timer.h>
-#include <il/container/cuda/cuda_copy.h>
-#include <il/linear_algebra/cuda/dense/blas/cuda_blas.h>
+#include <il/container/cuda/cudaCopy.h>
+#include <il/linearAlgebra/cuda/dense/blas/cudaBlas.h>
 #include <il/linear_algebra/dense/blas/blas.h>
 
 int main() {
