@@ -18,8 +18,8 @@
 
 #include <il/Array2D.h>
 #include <il/LowerArray2D.h>
-#include <il/linear_algebra/factorization/Cholesky.h>
-#include <il/linear_algebra/factorization/LowerCholesky.h>
+#include <il/linearAlgebra/factorization/Cholesky.h>
+#include <il/linearAlgebra/factorization/LowerCholesky.h>
 #include <il/math.h>
 
 #include <benchmark/benchmark.h>

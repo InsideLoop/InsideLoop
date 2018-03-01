@@ -22,7 +22,7 @@
 #include <il/Array.h>
 #include <il/Array2C.h>
 #include <il/Array2D.h>
-#include <il/linear_algebra.h>
+#include <il/linearAlgebra.h>
 
 #include <benchmark/benchmark.h>
 

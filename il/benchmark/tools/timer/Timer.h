@@ -45,7 +45,7 @@ class Timer {
   void sleepUntil(double time) const;
 };
 
-void sleep(double time) {
+inline void sleep(double time) {
   il::Timer timer{};
   timer.Start();
   timer.sleepUntil(time);

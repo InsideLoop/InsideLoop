@@ -24,7 +24,7 @@
 #include <il/Status.h>
 #include <il/container/1d/Array.h>
 #include <il/container/2d/Array2D.h>
-#include <il/linear_algebra/dense/norm.h>
+#include <il/linearAlgebra/dense/norm.h>
 
 #ifdef IL_MKL
 #include <mkl_lapacke.h>

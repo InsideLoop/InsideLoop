@@ -20,7 +20,7 @@
 #include <cstdio>
 
 //#include <blaze/math/DynamicMatrix.h>
-#include <il/linear_algebra/dense/blas/blas.h>
+#include <il/linearAlgebra/dense/blas/blas.h>
 
 //#include "mkl.h"
 

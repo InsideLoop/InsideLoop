@@ -251,7 +251,7 @@ Matrix multiplication is also available with the same function
 
 ```cpp
 #include <il/Array2D.h>
-#include <il/linear_algebra/dense/blas/dot.h>
+#include <il/linearAlgebra/dense/blas/dot.h>
 
 const il::int_t n = 1000;
 il::Array2D<double> A(n, n);
@@ -270,7 +270,7 @@ function which won't allocate any memory:
 
 ```cpp
 #include <il/Array2D.h>
-#include <il/linear_algebra/dense/blas/blas.h>
+#include <il/linearAlgebra/dense/blas/blas.h>
 
 const il::int_t n = 1000;
 il::Array2D<double> A(n, n);
@@ -299,7 +299,7 @@ You can also solve system of linear equations:
 ```cpp
 // Code to solve the system A.x = y
 #include <il/Array2D.h>
-#include <il/linear_algebra/dense/factorization/LU.h>
+#include <il/linearAlgebra/dense/factorization/LU.h>
 
 const il::int_t n = 1000;
 il::Array2D<double> A(n, n);
@@ -347,7 +347,7 @@ consequence, we can even avoid memory allocation for x.
 ```cpp
 // Code to solve the system A.x = y
 #include <il/Array2D.h>
-#include <il/linear_algebra/dense/factorization/LU.h>
+#include <il/linearAlgebra/dense/factorization/LU.h>
 
 const il::int_t n = 1000;
 il::Array2D<double> A(n, n);
@@ -619,9 +619,9 @@ exhibit 2 special values known as `empty_key` and `tombstone_key` which are
 forbidden to use. When no `(key, value)` are inserted in the hash table, all
 the keys are set to `empty_key` to mark the slot as empty. When you want to
 insert a `(key, value)` pair, the table hashes the key and produce an integer
-which is reduced modulo `nb_slot`. If the corresponding slot is empty, the `(key, value)` pair
-is stored here. Otherwise (in this case, we have what is called a collision), it
-steps to the next slot (modulo `nb_slot`) and
+which is reduced modulo `nb_slot`. If the corresponding slot is empty, the
+`(key, value)` pair is stored here. Otherwise (in this case, we have what is
+called a collision), it steps to the next slot (modulo `nb_slot`) and
 checks if it is empty. If it is, the `(key, value)` pair is stored here.
 Otherwise, it makes 2 steps and check if this slot is empty. In case it is not,
 it makes 3 steps, etc. Until it finds a valid slot that we call `i`.
@@ -640,7 +640,7 @@ void addEuropeanCountry(il::Map<il::String, il::int_t>& population) {
   il::String country = "France";
   il::int_t n = 64806269;
   
-  il::Spot i = population.search(country);
+  il::spot_t i = population.search(country);
   if (!population.found(i)) {
     population.Set(country, n, il::io, i);
   }
@@ -668,7 +668,7 @@ display the population of a country with the previous hash table:
 void printPopulationCountry(
     const il::Map<il::String, il::int_t>& population,
     const il::String& country) {
-  il::Spot i = population.search(country);
+  il::spot_t i = population.search(country);
   if (population.found(i)) {
     std::printf("The population of %s is %td\n", country.asCString(),
         population.value(i));
@@ -806,7 +806,7 @@ int main() {
   
   // get the name
   il::String name{};
-  il::Spot i = config.search("name");
+  il::spot_t i = config.search("name");
   if (config.found(i) && config.value(i).is<il::String>()) {
     name = config.value(i).as<il::String>();
   }
@@ -826,7 +826,7 @@ int main() {
     const il::MapArray<il::String, il::Dynamic>& water =
         config.value(i).as<il::MapArray<il::String, il::Dynamic>>();
     
-    il::Spot j = water.search("density");
+    il::spot_t j = water.search("density");
     if (water.found(j) && water.value(j).is<double>()) {
       density = water.value(j).to<double>();
     }

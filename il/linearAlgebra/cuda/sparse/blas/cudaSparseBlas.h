@@ -19,7 +19,7 @@
 #ifndef IL_CUDA_SPARSE_BLAS_H
 #define IL_CUDA_SPARSE_BLAS_H
 
-#include <il/linear_algebra/cuda/sparse/blas/CusparseHandle.h>
+#include <il/linearAlgebra/cuda/sparse/blas/CusparseHandle.h>
 
 namespace il {
 

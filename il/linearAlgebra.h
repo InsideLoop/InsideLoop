@@ -16,6 +16,6 @@
 //
 //==============================================================================
 
-#include <il/linear_algebra/dense/blas/cross.h>
-#include <il/linear_algebra/dense/blas/dot.h>
-#include <il/linear_algebra/dense/factorization/linearSolve.h>
+#include <il/linearAlgebra/dense/blas/cross.h>
+#include <il/linearAlgebra/dense/blas/dot.h>
+#include <il/linearAlgebra/dense/factorization/linearSolve.h>

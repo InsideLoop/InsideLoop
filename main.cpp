@@ -19,20 +19,11 @@
 #include <iostream>
 
 #include <il/String.h>
-#include <il/Array.h>
-#include <il/Array2D.h>
-#include <il/StaticArray.h>
-#include <il/Dynamic.h>
-#include <il/Map.h>
 
 int main() {
-  const il::String name0 = "François";
-  const il::int_t n = 10;
-  il::Array<double> v{n};
-  il::Array2D<double> m{n, n};
-  il::StaticArray<double, 3> w{};
+  il::String s = "Hello world!";
 
-  il::Map<il::String, double> map{};
+  std::cout << s.asCString() << std::endl;
 
   return 0;
 }

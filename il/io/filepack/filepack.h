@@ -220,7 +220,7 @@ inline void auxLoad(il::int_t n, il::io_t,
         il::int_t n_map = 0;
         const il::int_t n = readVarint(il::io, n_map, file);
         il::int_t size = 0;
-        il::Spot i = config.search(string);
+        il::spot_t i = config.search(string);
         config.Set(std::move(string),
                    il::Dynamic{il::Map<il::String, il::Dynamic>{n}}, il::io, i);
         if (!config.found(i)) {
@@ -389,7 +389,7 @@ inline void auxLoad(il::int_t n, il::io_t,
           il::int_t n_map = 0;
           const il::int_t n = readVarint(il::io, n_map, file);
           il::int_t size = 0;
-          il::Spot i = config.search(string);
+          il::spot_t i = config.search(string);
           config.Set(std::move(string),
                      il::Dynamic{il::MapArray<il::String, il::Dynamic>{n}},
                      il::io, i);
@@ -407,7 +407,7 @@ inline void auxLoad(il::int_t n, il::io_t,
                 il::int_t n_map = 0;
                 const il::int_t n = readVarint(il::io, n_map, file);
                 il::int_t size = 0;
-                il::Spot i = config.search(string);
+                il::spot_t i = config.search(string);
                 config.Set(std::move(string),
                               il::Dynamic{il::MapArray<il::String,
            il::Dynamic>{n}}, il::io, i); if (!config.found(i)) {

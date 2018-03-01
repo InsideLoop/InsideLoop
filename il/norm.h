@@ -16,4 +16,4 @@
 //
 //==============================================================================
 
-#include <il/linear_algebra/dense/norm.h>
+#include <il/linearAlgebra/dense/norm.h>

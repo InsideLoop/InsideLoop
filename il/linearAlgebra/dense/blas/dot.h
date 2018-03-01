@@ -24,8 +24,8 @@
 #include <il/StaticArray3D.h>
 #include <il/StaticArray4D.h>
 
-#include <il/linear_algebra/blas_info.h>
-#include <il/linear_algebra/dense/blas/blas.h>
+#include <il/linearAlgebra/blasInfo.h>
+#include <il/linearAlgebra/dense/blas/blas.h>
 
 namespace il {
 

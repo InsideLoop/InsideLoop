@@ -23,7 +23,7 @@
 #include <il/Array2D.h>
 
 #ifdef IL_BLAS
-#include <il/linear_algebra/dense/factorization/Eigen.h>
+#include <il/linearAlgebra/dense/factorization/Eigen.h>
 
 bool complex_sort(std::complex<double> z0, std::complex<double> z1) {
   if (std::real(z0) == std::real(z1)) {

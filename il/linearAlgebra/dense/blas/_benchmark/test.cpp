@@ -21,7 +21,7 @@
 
 #include <random>
 
-#include <il/linear_algebra/dense/blas/blas.h>
+#include <il/linearAlgebra/dense/blas/blas.h>
 #include "PartialLU.h"
 
 #include <benchmark/benchmark.h>

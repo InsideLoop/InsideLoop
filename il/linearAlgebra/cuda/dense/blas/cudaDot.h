@@ -21,7 +21,7 @@
 
 #include <il/container/cuda/1d/CudaArray.h>
 #include <il/container/cuda/2d/CudaArray2D.h>
-#include <il/linear_algebra/cuda/dense/blas/CublasHandle.h>
+#include <il/linearAlgebra/cuda/dense/blas/CublasHandle.h>
 
 #include <cublas_v2.h>
 

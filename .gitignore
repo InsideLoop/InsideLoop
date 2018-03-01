@@ -1,5 +1,6 @@
 .idea
 .DS_Store
+doc/_build
 gtest/tmp/b.npy
 prettyPrint/gdb/__pycache__
 cmake-build-debug

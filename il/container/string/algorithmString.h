@@ -22,7 +22,6 @@
 #include <cstdio>
 
 #include <il/String.h>
-#include <il/container/string/view_string.h>
 
 namespace il {
 
@@ -67,17 +66,25 @@ inline il::int_t search(StringView a, StringView b) {
   return -1;
 }
 
+inline il::StringView view(const char* s) {
+  il::int_t i = 0;
+  while (s[i] != '\0') {
+    ++i;
+  }
+  return il::StringView{il::StringType::Byte, s, i};
+}
+
 inline il::int_t search(const char* a, StringView b) {
   return il::search(il::view(a), b);
 }
 
 inline il::int_t search(const String& a, const String& b) {
-  return il::search(il::view(a), il::view(b));
+  return il::search(a.view(), b.view());
 }
 
 template <il::int_t m>
 inline il::int_t search(const char (&s)[m], const String& b) {
-  return il::search(StringView{s}, il::view(b));
+  return il::search(StringView{s}, b.view());
 }
 
 inline il::int_t count(char c, StringView a) {

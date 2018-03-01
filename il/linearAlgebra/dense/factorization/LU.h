@@ -26,7 +26,7 @@
 #include <il/container/2d/LowerArray2D.h>
 #include <il/container/2d/StaticArray2D.h>
 #include <il/container/2d/UpperArray2D.h>
-#include <il/linear_algebra/dense/norm.h>
+#include <il/linearAlgebra/dense/norm.h>
 
 #ifdef IL_MKL
 #include <mkl_lapacke.h>

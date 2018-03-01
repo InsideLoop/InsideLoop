@@ -111,7 +111,7 @@ static void IlMapString_Search(benchmark::State& state) {
   while (state.KeepRunning()) {
     int sum = 0;
     for (il::int_t i = 0; i < n; ++i) {
-      const il::Spot j = map.search(v[i]);
+      const il::spot_t j = map.search(v[i]);
       sum += map.value(j);
     }
     benchmark::DoNotOptimize(&sum);

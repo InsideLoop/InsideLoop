@@ -18,7 +18,7 @@
 
 #include <gtest/gtest.h>
 
-#include <il/linear_algebra/dense/blas/cross.h>
+#include <il/linearAlgebra/dense/blas/cross.h>
 #include <il/math.h>
 
 TEST(cross, cross2_0) {

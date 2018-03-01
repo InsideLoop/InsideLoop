@@ -19,7 +19,7 @@
 #ifndef IL_SPARSE_BLAS_H
 #define IL_SPARSE_BLAS_H
 
-#include <il/linear_algebra/sparse/blas/SparseMatrixBlas.h>
+#include <il/linearAlgebra/sparse/blas/SparseMatrixBlas.h>
 
 #ifdef IL_MKL
 

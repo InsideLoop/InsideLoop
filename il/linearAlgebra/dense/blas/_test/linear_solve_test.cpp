@@ -18,7 +18,7 @@
 
 #include <gtest/gtest.h>
 
-#include <il/linear_algebra/dense/factorization/linearSolve.h>
+#include <il/linearAlgebra/dense/factorization/linearSolve.h>
 
 #ifdef IL_BLAS
 TEST(linear_solve, square_matrix_0) {

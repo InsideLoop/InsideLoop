@@ -26,7 +26,7 @@
 #include <il/StaticArray2D.h>
 #include <il/StaticArray3D.h>
 #include <il/StaticArray4D.h>
-#include <il/linear_algebra/blas_info.h>
+#include <il/linearAlgebra/blasInfo.h>
 
 #ifdef IL_MKL
 #include <mkl_cblas.h>

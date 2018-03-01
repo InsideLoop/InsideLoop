@@ -1169,7 +1169,7 @@ il::Array2DView<T> Array2D<T>::view(il::Range range0, il::Range range1) const {
 
 template <typename T>
 il::Array2DEdit<T> Array2D<T>::Edit() {
-  return il::Array2DEdit<T>{data(), size(0), size(1), stride(1), 0, 0};
+  return il::Array2DEdit<T>{Data(), size(0), size(1), stride(1), 0, 0};
 }
 
 template <typename T>

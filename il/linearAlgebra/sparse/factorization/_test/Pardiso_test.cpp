@@ -19,8 +19,8 @@
 #include <gtest/gtest.h>
 
 #include <il/linearAlgebra/sparse/blas/sparseBlas.h>
-#include <il/linear_algebra/sparse/factorization/Pardiso.h>
-#include <il/linear_algebra/sparse/factorization/_test/matrix/heat.h>
+#include <il/linearAlgebra/sparse/factorization/Pardiso.h>
+#include <il/linearAlgebra/sparse/factorization/_test/matrix/heat.h>
 
 #include <il/benchmark/tools/timer/Timer.h>
 

@@ -18,7 +18,7 @@
 
 #include <gtest/gtest.h>
 
-#include <il/linear_algebra/dense/blas/blas.h>
+#include <il/linearAlgebra/dense/blas/blas.h>
 
 #ifdef IL_BLAS
 TEST(Blas, daxpy) {

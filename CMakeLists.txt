@@ -31,12 +31,12 @@ project(InsideLoopUnitTest CXX)
 project(Program CXX)
 
 set(IL_OPENMP 0)
-set(IL_BLAS 0)
-set(IL_MKL 0)
+set(IL_BLAS 1)
+set(IL_MKL 1)
 set(IL_OPENBLAS 0)
 set(IL_PNG 0)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++17")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++11")
 
 # We want all possible warnings and treat them as errors
 if (UNIX)
@@ -178,13 +178,13 @@ set(SOURCE_FILES
     il/format.h
     il/Map.h
     il/Info.h
-    il/linear_algebra.h
+    il/linearAlgebra.h
     il/LowerArray2D.h
     il/math.h
     il/norm.h
     il/numpy.h
     il/png.h
-        il/Deque.h
+    il/Deque.h
     il/Set.h
     il/SmallArray.h
     il/SparseMatrixCSR.h
@@ -233,8 +233,7 @@ set(SOURCE_FILES
     il/container/hash/Map.h
     il/container/hash/MapArray.h
     il/container/hash/Set.h
-    il/container/hash/Spot.h
-    il/container/string/String.h
+        il/container/string/String.h
     il/container/string/UTF16String.h
     il/container/string/unicode.h
         il/container/string/algorithmString.h
@@ -312,15 +311,15 @@ set(UNIT_TEST_FILES
     il/container/dynamic/_test/Dynamic_test.cpp
     il/container/info/_test/Info_test.cpp
     il/core/math/_test/safe_arithmetic_test.cpp
-        il/linearAlgebra/dense/_test/norm_test.cpp
-        il/linearAlgebra/dense/blas/_test/blas_test.cpp
-        il/linearAlgebra/dense/blas/_test/linear_solve_test.cpp
-        il/linearAlgebra/dense/blas/_test/dot_test.cpp
-        il/linearAlgebra/dense/blas/_test/cross_test.cpp
-        il/linearAlgebra/dense/factorization/_test/Eigen_test.cpp
-        il/linearAlgebra/dense/factorization/_test/Singular_test.cpp
-        il/linearAlgebra/sparse/factorization/_test/Pardiso_test.cpp
-        il/linearAlgebra/sparse/factorization/_test/GmresIlu0_test.cpp
+    il/linearAlgebra/dense/_test/norm_test.cpp
+    il/linearAlgebra/dense/blas/_test/blas_test.cpp
+    il/linearAlgebra/dense/blas/_test/linear_solve_test.cpp
+    il/linearAlgebra/dense/blas/_test/dot_test.cpp
+    il/linearAlgebra/dense/blas/_test/cross_test.cpp
+    il/linearAlgebra/dense/factorization/_test/Eigen_test.cpp
+    il/linearAlgebra/dense/factorization/_test/Singular_test.cpp
+    il/linearAlgebra/sparse/factorization/_test/Pardiso_test.cpp
+    il/linearAlgebra/sparse/factorization/_test/GmresIlu0_test.cpp
     il/io/_test/numpy_test.cpp
     il/io/toml/_test/toml_valid_test.cpp
     gtest/src/gtest-all.cc
@@ -331,7 +330,7 @@ set(UNIT_TEST_FILES
 add_executable(InsideLoopUnitTest ${SOURCE_FILES} ${UNIT_TEST_FILES} test.cpp)
 
 target_include_directories(InsideLoopUnitTest PUBLIC ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/gtest)
-target_link_libraries(InsideLoopUnitTest ${CMAKE_MKL_LIBRARIES} ${CMAKE_PNG_LIBRARIES} ${CMAKE_OPENBLAS_LIBRARIES})
+target_link_libraries(InsideLoopUnitTest ${CMAKE_MKL_LIBRARIES} ${CMAKE_PNG_LIBRARIES} ${CMAKE_OPENBLAS_LIBRARIES} pthread)
 
 # For unit tests: The precondition of our fonctions are checked with assert
 # macros that terminate the program in debug mode. In order to test those macros
@@ -520,7 +519,9 @@ set(BENCHMARK_FILES
     il/container/hash/_benchmark/Map_il_vs_std_benchmark.h
     il/container/string/_benchmark/String_benchmark.h
     il/container/string/_benchmark/String_il_vs_std_benchmark.h
-        il/linearAlgebra/matrixFree/solver/Gmres.cpp il/linearAlgebra/matrixFree/solver/Gmres.h il/File.h)
+    il/linearAlgebra/matrixFree/solver/Gmres.cpp
+    il/linearAlgebra/matrixFree/solver/Gmres.h
+    il/File.h)
 
 # C++ feature checks
 # Determine the correct regular expression engine to use

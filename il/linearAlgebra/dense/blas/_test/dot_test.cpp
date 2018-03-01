@@ -18,7 +18,7 @@
 
 #include <gtest/gtest.h>
 
-#include <il/linear_algebra/dense/blas/dot.h>
+#include <il/linearAlgebra/dense/blas/dot.h>
 #include <il/math.h>
 
 #ifdef IL_BLAS

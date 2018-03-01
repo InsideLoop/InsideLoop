@@ -6,7 +6,7 @@ around with Hilbert matrices.
 
 .. code-block:: cpp
 
-    #include <il/linear_algebra.h>
+    #include <il/linearAlgebra.h>
 
     int main() {
       // The il::int_t is the signed version of std::size_t. We use signed

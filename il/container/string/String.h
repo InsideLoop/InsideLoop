@@ -145,6 +145,7 @@ class String {
   //  void replace(const StringView& s_sold, const StringView& s_new);
   il::String substring(il::int_t i0, il::int_t i1) const;
   il::StringView subview(il::int_t i0, il::int_t i1) const;
+  il::StringView view() const;
   void Clear();
   bool startsWith(const StringView& s) const;
   bool endsWith(const StringView& s) const;
@@ -933,6 +934,10 @@ inline il::StringView String::subview(il::int_t i0, il::int_t i1) const {
     IL_EXPECT_MEDIUM(isRuneBoundary(i1));
   }
   return il::StringView{type(), small_ + i0, i1 - i0};
+}
+
+inline il::StringView String::view() const {
+  return il::StringView{type(), data(), size()};
 }
 
 inline void String::Clear() {

@@ -21,7 +21,7 @@
 #include <il/Timer.h>
 #include <il/container/cuda/cudaCopy.h>
 #include <il/linearAlgebra/cuda/dense/blas/cudaBlas.h>
-#include <il/linear_algebra/dense/blas/blas.h>
+#include <il/linearAlgebra/dense/blas/blas.h>
 
 int main() {
   {
