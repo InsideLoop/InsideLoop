@@ -96,11 +96,11 @@ class Map {
   void Set(const K& key, V&& value, il::io_t, il::spot_t& i);
   void Set(K&& key, const V& value, il::io_t, il::spot_t& i);
   void Set(K&& key, V&& value, il::io_t, il::spot_t& i);
-  void SetCString(const char* key, const il::int_t n, const V& value,
-                     il::io_t, il::spot_t& i);
+  void SetCString(const char* key, const il::int_t n, const V& value, il::io_t,
+                  il::spot_t& i);
   template <il::int_t m>
   void SetCString(const char (&key)[m], const V& value, il::io_t,
-                     il::spot_t& i);
+                  il::spot_t& i);
 
   // Getting the key and values for a given slot
   const K& key(il::spot_t i) const;
@@ -505,8 +505,8 @@ il::spot_t Map<K, V, F>::search(const K& key) const {
   while (true) {
     if (F::isEmpty(bucket_[i].key)) {
       il::spot_t s{(i_tombstone == static_cast<std::size_t>(-1))
-                          ? -(1 + static_cast<il::int_t>(i))
-                          : -(1 + static_cast<il::int_t>(i_tombstone))};
+                       ? -(1 + static_cast<il::int_t>(i))
+                       : -(1 + static_cast<il::int_t>(i_tombstone))};
 #ifdef IL_DEBUG_CLASS
       s.signature = hash_;
 #endif
@@ -547,8 +547,8 @@ il::spot_t Map<K, V, F>::searchCString(const char (&key)[m]) const {
   while (true) {
     if (F::isEmpty(bucket_[i].key)) {
       il::spot_t s{(i_tombstone == static_cast<std::size_t>(-1))
-                          ? -(1 + static_cast<il::int_t>(i))
-                          : -(1 + static_cast<il::int_t>(i_tombstone))};
+                       ? -(1 + static_cast<il::int_t>(i))
+                       : -(1 + static_cast<il::int_t>(i_tombstone))};
 #ifdef IL_DEBUG_CLASS
       s.signature = hash_;
 #endif
@@ -585,8 +585,8 @@ il::spot_t Map<K, V, F>::searchCString(const char* key, il::int_t n) const {
   while (true) {
     if (F::isEmpty(bucket_[i].key)) {
       il::spot_t s{(i_tombstone == static_cast<std::size_t>(-1))
-                          ? -(1 + static_cast<il::int_t>(i))
-                          : -(1 + static_cast<il::int_t>(i_tombstone))};
+                       ? -(1 + static_cast<il::int_t>(i))
+                       : -(1 + static_cast<il::int_t>(i_tombstone))};
 #ifdef IL_DEBUG_CLASS
       s.signature = hash_;
 #endif
@@ -616,7 +616,7 @@ bool Map<K, V, F>::found(il::spot_t i) const {
 
 template <typename K, typename V, typename F>
 void Map<K, V, F>::SetCString(const char* key, const il::int_t n,
-                                 const V& value, il::io_t, il::spot_t& i) {
+                              const V& value, il::io_t, il::spot_t& i) {
 #ifdef IL_DEBUG_CLASS
   IL_EXPECT_FAST(i.signature == hash_);
 #endif
@@ -648,7 +648,7 @@ void Map<K, V, F>::SetCString(const char* key, const il::int_t n,
 template <typename K, typename V, typename F>
 template <il::int_t m>
 void Map<K, V, F>::SetCString(const char (&key)[m], const V& value, il::io_t,
-                                 il::spot_t& i) {
+                              il::spot_t& i) {
 #ifdef IL_DEBUG_CLASS
   IL_EXPECT_FAST(i.signature == hash_);
 #endif

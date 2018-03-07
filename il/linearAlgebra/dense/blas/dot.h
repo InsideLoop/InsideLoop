@@ -24,7 +24,7 @@
 #include <il/StaticArray3D.h>
 #include <il/StaticArray4D.h>
 
-#include <il/linearAlgebra/blasInfo.h>
+#include <il/linearAlgebra/Matrix.h>
 #include <il/linearAlgebra/dense/blas/blas.h>
 
 namespace il {
@@ -159,8 +159,9 @@ il::StaticArray<T, n0> dot(const il::StaticArray2D<T, n0, n>& A,
 
 template <typename T, il::int_t n0, il::int_t n>
 il::StaticArray<T, n0> dot(const il::StaticArray2D<T, n, n0>& A,
-                           il::Blas A_info, const il::StaticArray<T, n>& B) {
-  IL_EXPECT_FAST(A_info == il::Blas::Transpose);
+                           il::MatrixType A_info,
+                           const il::StaticArray<T, n>& B) {
+  IL_EXPECT_FAST(A_info == il::MatrixType::Transpose);
   IL_UNUSED(A_info);
 
   il::StaticArray<T, n0> C{};
@@ -202,9 +203,9 @@ il::StaticArray2D<T, n0, n1> dot(const il::StaticArray2D<T, n0, n>& A,
 
 template <typename T, il::int_t n0, il::int_t n, il::int_t n1>
 il::StaticArray2D<T, n0, n1> dot(const il::StaticArray2D<T, n, n0>& A,
-                                 il::Blas A_info,
+                                 il::MatrixType A_info,
                                  const il::StaticArray2D<T, n, n1>& B) {
-  IL_EXPECT_FAST(A_info == il::Blas::Transpose);
+  IL_EXPECT_FAST(A_info == il::MatrixType::Transpose);
   IL_UNUSED(A_info);
 
   il::StaticArray2D<T, n0, n1> C{};

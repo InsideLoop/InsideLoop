@@ -16,14 +16,14 @@
 //
 //==============================================================================
 
-#ifndef IL_BLAS_INFO_H
-#define IL_BLAS_INFO_H
+#ifndef IL_MATRIX_H
+#define IL_MATRIX_H
 
 namespace il {
 
 enum class MatrixOperator { None, Tranpose, ConjugateTranspose };
 
-enum class Blas {
+enum class MatrixType {
   Regular,
   Transpose,
   ConjugateTranspose,
@@ -32,6 +32,7 @@ enum class Blas {
   HermitianUpper,
   HermitianLower
 };
+
 }  // namespace il
 
-#endif  // IL_BLAS_INFO_H
+#endif  // IL_MATRIX_H

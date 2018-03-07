@@ -26,7 +26,7 @@
 #include <il/StaticArray2D.h>
 #include <il/StaticArray3D.h>
 #include <il/StaticArray4D.h>
-#include <il/linearAlgebra/blasInfo.h>
+#include <il/linearAlgebra/Matrix.h>
 
 #ifdef IL_MKL
 #include <mkl_cblas.h>
@@ -325,9 +325,10 @@ inline void blas(double alpha, const il::Array2DView<double> &A,
               ldb, beta, C.Data(), ldc);
 }
 
-inline void blas(double alpha, const il::Array2D<double> &A, Blas info_a,
-                 const il::Array2D<double> &B, Blas info_b, double beta,
-                 il::io_t, il::Array2D<double> &C) {
+inline void blas(double alpha, const il::Array2D<double> &A,
+                 il::MatrixType info_a, const il::Array2D<double> &B,
+                 il::MatrixType info_b, double beta, il::io_t,
+                 il::Array2D<double> &C) {
   IL_EXPECT_FAST(A.size(1) == B.size(0));
   IL_EXPECT_FAST(C.size(0) == A.size(0));
   IL_EXPECT_FAST(C.size(1) == B.size(1));
@@ -343,7 +344,8 @@ inline void blas(double alpha, const il::Array2D<double> &A, Blas info_a,
   const IL_CBLAS_INT lda{static_cast<IL_CBLAS_INT>(A.stride(1))};
   const IL_CBLAS_INT ldb{static_cast<IL_CBLAS_INT>(B.stride(1))};
   const IL_CBLAS_INT ldc{static_cast<IL_CBLAS_INT>(C.stride(1))};
-  if (info_a == il::Blas::SymmetricUpper && info_b == il::Blas::Regular) {
+  if (info_a == il::MatrixType::SymmetricUpper &&
+      info_b == il::MatrixType::Regular) {
     IL_EXPECT_FAST(A.size(0) == A.size(1));
     const CBLAS_SIDE side{CblasLeft};
     const CBLAS_UPLO uplo{CblasUpper};
@@ -405,9 +407,10 @@ inline void blas(double alpha, const il::Array2C<double> &A,
               ldb, beta, C.Data(), ldc);
 }
 
-inline void blas(double alpha, const il::Array2C<double> &A, Blas info_a,
-                 const il::Array2C<double> &B, Blas info_b, double beta,
-                 il::io_t, il::Array2C<double> &C) {
+inline void blas(double alpha, const il::Array2C<double> &A,
+                 il::MatrixType info_a, const il::Array2C<double> &B,
+                 il::MatrixType info_b, double beta, il::io_t,
+                 il::Array2C<double> &C) {
   IL_EXPECT_FAST(A.size(1) == B.size(0));
   IL_EXPECT_FAST(C.size(0) == A.size(0));
   IL_EXPECT_FAST(C.size(1) == B.size(1));
@@ -423,7 +426,8 @@ inline void blas(double alpha, const il::Array2C<double> &A, Blas info_a,
   const IL_CBLAS_INT lda{static_cast<IL_CBLAS_INT>(A.stride(0))};
   const IL_CBLAS_INT ldb{static_cast<IL_CBLAS_INT>(B.stride(0))};
   const IL_CBLAS_INT ldc{static_cast<IL_CBLAS_INT>(C.stride(0))};
-  if (info_a == il::Blas::SymmetricUpper && info_b == il::Blas::Regular) {
+  if (info_a == il::MatrixType::SymmetricUpper &&
+      info_b == il::MatrixType::Regular) {
     IL_EXPECT_FAST(A.size(0) == A.size(1));
     const CBLAS_SIDE side{CblasLeft};
     const CBLAS_UPLO uplo{CblasUpper};

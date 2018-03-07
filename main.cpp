@@ -16,14 +16,12 @@
 //
 //==============================================================================
 
-#include <iostream>
-
-#include <il/String.h>
+#include <il/Array.h>
 
 int main() {
-  il::String s = "Hello world!";
-
-  std::cout << s.asCString() << std::endl;
+  const il::int_t n = 10;
+  il::Array<double> v{n, 0.0};
 
   return 0;
 }
+
