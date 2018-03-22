@@ -19,8 +19,8 @@
 #include <il/Array.h>
 
 int main() {
-  const il::int_t n = 10;
-  il::Array<double> v{n, 0.0};
+  const il::int_t n = 5;
+  il::Array<double> v{n};
 
   return 0;
 }

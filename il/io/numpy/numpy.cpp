@@ -152,17 +152,17 @@ void saveNumpyInfo(const NumpyInfo& numpy_info, il::io_t, std::FILE* fp,
   char buffer[21];
   header.Append(", 'shape': (");
   std::sprintf(buffer, "%td", numpy_info.shape[0]);
-  header.Append(buffer);
+  header.Append(il::StringType::Byte, buffer, il::size(buffer));
   for (il::int_t i = 1; i < numpy_info.shape.size(); ++i) {
     header.Append(", ");
     std::sprintf(buffer, "%td", numpy_info.shape[i]);
-    header.Append(buffer);
+    header.Append(il::StringType::Byte, buffer, il::size(buffer));
   }
   if (numpy_info.shape.size() == 1) {
     header.Append(",");
   }
   header.Append("), }");
-  il::int_t remainder = 16 - (10 + 1 + header.size()) % 16;
+  il::int_t remainder = 64 - (10 + 1 + header.size()) % 64;
   header.Append(remainder, ' ');
   header.Append('\n');
 

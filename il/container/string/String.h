@@ -681,7 +681,7 @@ inline void String::Append(il::StringType t0, const char* data, il::int_t n) {
   const il::StringType t = joinType(type(), t0);
   Grow(il::unsafe, old_n, old_n + n);
   char* p = this->Data();
-  std::memcpy(p + old_n, data, old_n + n);
+  std::memcpy(p + old_n, data, n);
   p[old_n + n] = '\0';
   SetInvariant(il::unsafe, t, old_n + n);
 }
