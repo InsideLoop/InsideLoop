@@ -12,10 +12,6 @@ Welcome to InsideLoop's documentation!
 
 Hello world!
 
-.. doxygenfunction:: foo
-.. doxygenclass:: MyClass
-   :members:
-
 Indices and tables
 ==================
 
@@ -29,3 +25,4 @@ Indices and tables
 
    Integer.rst
    Array.rst
+   ArrayView.rst

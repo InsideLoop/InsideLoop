@@ -1,6 +1,6 @@
 //==============================================================================
 //
-// Copyright 2017 The InsideLoop Authors. All Rights Reserved.
+// Copyright 2018 The InsideLoop Authors. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@
 #ifndef IL_FORMAT_IL_H
 #define IL_FORMAT_IL_H
 
+#include <cstdio>
+
 #include <il/String.h>
 #include <il/io/format/format.h>
 #include <string>
@@ -28,9 +30,17 @@ namespace il {
 template <typename... Args>
 il::String format(Args&&... args) {
   std::string s = fmt::format(args...);
-  il::String ans{s.data(), static_cast<il::int_t>(s.size())};
+  il::String ans{il::StringType::Byte, s.data(),
+                 static_cast<il::int_t>(s.size())};
   return ans;
 }
+
+template <typename... Args>
+void print(Args&&... args) {
+  std::string s = fmt::format(args...);
+  std::printf("%s", s.data());
+}
+
 
 }  // namespace il
 

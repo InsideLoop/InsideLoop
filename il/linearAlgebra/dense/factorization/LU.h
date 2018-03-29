@@ -1,6 +1,6 @@
 //==============================================================================
 //
-// Copyright 2017 The InsideLoop Authors. All Rights Reserved.
+// Copyright 2018 The InsideLoop Authors. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -68,9 +68,9 @@ LU<il::StaticArray2D<double, n, n>>::LU(il::StaticArray2D<double, n, n> A,
     : ipiv_{}, lu_{} {
   const int layout = LAPACK_COL_MAJOR;
   const lapack_int lapack_n = static_cast<lapack_int>(n);
-  il::StaticArray<lapack_int, lapack_n> ipiv{};
+  il::StaticArray<lapack_int, n> ipiv{};
   const lapack_int lapack_error = LAPACKE_dgetrf(
-      layout, lapack_n, lapack_n, A.data(), lapack_n, ipiv.data());
+      layout, lapack_n, lapack_n, A.Data(), lapack_n, ipiv.Data());
   IL_EXPECT_FAST(lapack_error >= 0);
 
   if (lapack_error == 0) {
@@ -91,7 +91,7 @@ il::StaticArray2D<double, n, n> LU<il::StaticArray2D<double, n, n>>::inverse()
   const int layout = LAPACK_COL_MAJOR;
   const lapack_int lapack_n = static_cast<lapack_int>(n);
   const lapack_int lapack_error =
-      LAPACKE_dgetri(layout, lapack_n, inverse.data(), lapack_n, ipiv_.data());
+      LAPACKE_dgetri(layout, lapack_n, inverse.Data(), lapack_n, ipiv_.data());
   IL_EXPECT_FAST(lapack_error == 0);
 
   return inverse;
@@ -144,7 +144,7 @@ class LU<il::Array2D<double>> {
   il::UpperArray2D<double> U() const;
 };
 
-LU<il::Array2D<double>>::LU(il::Array2D<double> A, il::io_t, il::Status &status)
+inline LU<il::Array2D<double>>::LU(il::Array2D<double> A, il::io_t, il::Status &status)
     : ipiv_{}, lu_{} {
   const int layout = LAPACK_COL_MAJOR;
   const lapack_int m = static_cast<lapack_int>(A.size(0));
@@ -166,12 +166,12 @@ LU<il::Array2D<double>>::LU(il::Array2D<double> A, il::io_t, il::Status &status)
   }
 }
 
-il::int_t LU<il::Array2D<double>>::size(il::int_t d) const {
+inline il::int_t LU<il::Array2D<double>>::size(il::int_t d) const {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(d) < static_cast<std::size_t>(2));
   return lu_.size(d);
 }
 
-il::Array<double> LU<il::Array2D<double>>::solve(il::Array<double> y) const {
+inline il::Array<double> LU<il::Array2D<double>>::solve(il::Array<double> y) const {
   IL_EXPECT_FAST(lu_.size(0) == lu_.size(1));
 
   const int layout = LAPACK_COL_MAJOR;
@@ -187,7 +187,7 @@ il::Array<double> LU<il::Array2D<double>>::solve(il::Array<double> y) const {
   return y;
 }
 
-il::Array2D<double> LU<il::Array2D<double>>::solve(
+inline il::Array2D<double> LU<il::Array2D<double>>::solve(
     il::Array2D<double> y) const {
   IL_EXPECT_FAST(lu_.size(0) == lu_.size(1));
   IL_EXPECT_FAST(lu_.size(0) == y.size(0));
@@ -205,7 +205,7 @@ il::Array2D<double> LU<il::Array2D<double>>::solve(
   return y;
 }
 
-il::Array2D<double> LU<il::Array2D<double>>::inverse() const {
+inline il::Array2D<double> LU<il::Array2D<double>>::inverse() const {
   IL_EXPECT_FAST(lu_.size(0) == lu_.size(1));
 
   il::Array2D<double> inverse{lu_};
@@ -219,7 +219,7 @@ il::Array2D<double> LU<il::Array2D<double>>::inverse() const {
   return inverse;
 }
 
-double LU<il::Array2D<double>>::determinant() const {
+inline double LU<il::Array2D<double>>::determinant() const {
   IL_EXPECT_FAST(lu_.size(0) == lu_.size(1));
 
   double det = 1.0;
@@ -230,7 +230,7 @@ double LU<il::Array2D<double>>::determinant() const {
   return det;
 }
 
-double LU<il::Array2D<double>>::conditionNumber(il::Norm norm_type,
+inline double LU<il::Array2D<double>>::conditionNumber(il::Norm norm_type,
                                                 double norm_a) const {
   IL_EXPECT_FAST(lu_.size(0) == lu_.size(1));
   IL_EXPECT_FAST(norm_type == il::Norm::L1 || norm_type == il::Norm::Linf);
@@ -247,12 +247,12 @@ double LU<il::Array2D<double>>::conditionNumber(il::Norm norm_type,
   return 1.0 / rcond;
 }
 
-const double &LU<il::Array2D<double>>::L(il::int_t i, il::int_t j) const {
+inline const double &LU<il::Array2D<double>>::L(il::int_t i, il::int_t j) const {
   IL_EXPECT_MEDIUM(j < i);
   return lu_(i, j);
 }
 
-const double &LU<il::Array2D<double>>::U(il::int_t i, il::int_t j) const {
+inline const double &LU<il::Array2D<double>>::U(il::int_t i, il::int_t j) const {
   IL_EXPECT_MEDIUM(j >= i);
   return lu_(i, j);
 }

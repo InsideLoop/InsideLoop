@@ -1,6 +1,6 @@
 //==============================================================================
 //
-// Copyright 2017 The InsideLoop Authors. All Rights Reserved.
+// Copyright 2018 The InsideLoop Authors. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -178,7 +178,7 @@ il::Array2DView<T> StaticArray2D<T, n0, n1>::view() const {
 
 template <typename T, il::int_t n0, il::int_t n1>
 il::Array2DEdit<T> StaticArray2D<T, n0, n1>::Edit() {
-  return il::Array2DEdit<T>{data(), n0, n1, n0, 0, 0};
+  return il::Array2DEdit<T>{Data(), n0, n1, n0, 0, 0};
 }
 
 template <typename T, il::int_t n0, il::int_t n1>

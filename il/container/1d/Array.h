@@ -1,6 +1,6 @@
 //==============================================================================
 //
-// Copyright 2017 The InsideLoop Authors. All Rights Reserved.
+// Copyright 2018 The InsideLoop Authors. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -691,7 +691,7 @@ void Array<T>::Resize(il::int_t n) {
         (data_ + i)->~T();
       }
       for (il::int_t i = size(); i < n; ++i) {
-        new (data_ + i) T{};
+        new (data_ + i) T();
       }
     }
   } else {

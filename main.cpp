@@ -1,6 +1,6 @@
 //==============================================================================
 //
-// Copyright 2017 The InsideLoop Authors. All Rights Reserved.
+// Copyright 2018 The InsideLoop Authors. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,11 +16,11 @@
 //
 //==============================================================================
 
-#include <il/Array.h>
+#include <il/String.h>
+#include <il/print.h>
 
 int main() {
-  const il::int_t n = 5;
-  il::Array<double> v{n};
+  il::print("Size: {:>10}, Capacity: {:>10}\n", 3, 6);
 
   return 0;
 }

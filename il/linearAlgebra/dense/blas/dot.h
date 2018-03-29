@@ -1,6 +1,6 @@
 //==============================================================================
 //
-// Copyright 2017 The InsideLoop Authors. All Rights Reserved.
+// Copyright 2018 The InsideLoop Authors. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -159,9 +159,9 @@ il::StaticArray<T, n0> dot(const il::StaticArray2D<T, n0, n>& A,
 
 template <typename T, il::int_t n0, il::int_t n>
 il::StaticArray<T, n0> dot(const il::StaticArray2D<T, n, n0>& A,
-                           il::MatrixType A_info,
+                           il::MatrixOperator A_info,
                            const il::StaticArray<T, n>& B) {
-  IL_EXPECT_FAST(A_info == il::MatrixType::Transpose);
+  IL_EXPECT_FAST(A_info == il::MatrixOperator::Transpose);
   IL_UNUSED(A_info);
 
   il::StaticArray<T, n0> C{};
@@ -203,9 +203,9 @@ il::StaticArray2D<T, n0, n1> dot(const il::StaticArray2D<T, n0, n>& A,
 
 template <typename T, il::int_t n0, il::int_t n, il::int_t n1>
 il::StaticArray2D<T, n0, n1> dot(const il::StaticArray2D<T, n, n0>& A,
-                                 il::MatrixType A_info,
+                                 il::MatrixOperator A_info,
                                  const il::StaticArray2D<T, n, n1>& B) {
-  IL_EXPECT_FAST(A_info == il::MatrixType::Transpose);
+  IL_EXPECT_FAST(A_info == il::MatrixOperator::Transpose);
   IL_UNUSED(A_info);
 
   il::StaticArray2D<T, n0, n1> C{};

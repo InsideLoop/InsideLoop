@@ -20,7 +20,7 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('.'))
-sys.path.append( "/Users/fayard/Desktop/InsideLoop/doc/" )
+sys.path.append( "/home/fayard/Documents/Projects/InsideLoop/InsideLoop/doc/" )
 
 
 # -- General configuration ------------------------------------------------
@@ -35,7 +35,7 @@ sys.path.append( "/Users/fayard/Desktop/InsideLoop/doc/" )
 extensions = ['sphinx.ext.imgmath', 'sphinx.ext.todo', 'breathe' ]
 
 #
-breathe_projects = { "myproject": "/Users/fayard/Desktop/InsideLoop/doc/xml/" }
+breathe_projects = { "myproject": "/home/fayard/Documents/Projects/InsideLoop/InsideLoop/doc/xml/" }
 breathe_default_project = "myproject"
 
 # Add any paths that contain templates here, relative to this directory.

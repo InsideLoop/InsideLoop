@@ -1,6 +1,6 @@
 //==============================================================================
 //
-// Copyright 2017 The InsideLoop Authors. All Rights Reserved.
+// Copyright 2018 The InsideLoop Authors. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -120,11 +120,11 @@ inline UTF16String::UTF16String(const IL_UTF16CHAR* data) {
 inline UTF16String::UTF16String(const UTF16String& s) {
   const il::int_t size = s.size();
   if (size <= max_small_size_) {
-    std::memcpy(data_, s.Data(), 2 * (static_cast<std::size_t>(size) + 1));
+    std::memcpy(data_, s.data(), 2 * (static_cast<std::size_t>(size) + 1));
     SetSmallSize(size);
   } else {
     large_.data = il::allocateArray<unsigned short>(size + 1);
-    std::memcpy(large_.data, s.Data(),
+    std::memcpy(large_.data, s.data(),
                 2 * (static_cast<std::size_t>(size) + 1));
     large_.size = static_cast<std::size_t>(size);
     SetLargeCapacity(size);
@@ -151,11 +151,11 @@ inline UTF16String& UTF16String::operator=(const UTF16String& s) {
     if (!isSmall()) {
       il::deallocate(large_.data);
     }
-    std::memcpy(data_, s.Data(), 2 * (static_cast<std::size_t>(size) + 1));
+    std::memcpy(data_, s.data(), 2 * (static_cast<std::size_t>(size) + 1));
     SetSmallSize(size);
   } else {
     if (size <= capacity()) {
-      std::memcpy(large_.data, s.Data(),
+      std::memcpy(large_.data, s.data(),
                   2 * (static_cast<std::size_t>(size) + 1));
       large_.size = static_cast<std::size_t>(size);
     } else {
@@ -163,7 +163,7 @@ inline UTF16String& UTF16String::operator=(const UTF16String& s) {
         il::deallocate(large_.data);
       }
       large_.data = il::allocateArray<unsigned short>(size + 1);
-      std::memcpy(large_.data, s.Data(),
+      std::memcpy(large_.data, s.data(),
                   2 * (static_cast<std::size_t>(size) + 1));
       large_.size = static_cast<std::size_t>(size);
       SetLargeCapacity(size);
@@ -239,7 +239,7 @@ inline void UTF16String::Reserve(il::int_t r) {
 }
 
 inline void UTF16String::Append(const UTF16String& s) {
-  Append(reinterpret_cast<const IL_UTF16CHAR*>(s.Data()), s.size());
+  Append(reinterpret_cast<const IL_UTF16CHAR*>(s.data()), s.size());
 }
 
 inline void UTF16String::Append(const IL_UTF16CHAR* data) {
@@ -257,7 +257,7 @@ inline void UTF16String::Append(char c) {
   const il::int_t new_size = old_size + 1;
   const il::int_t new_capacity = il::max(new_size, 2 * old_size);
   Reserve(new_capacity);
-  unsigned short* data = data() + old_size;
+  unsigned short* data = Data() + old_size;
   data[0] = static_cast<unsigned short>(c);
   data[1] = static_cast<unsigned short>('\0');
   if (isSmall()) {
@@ -275,7 +275,7 @@ inline void UTF16String::Append(il::int_t n, char c) {
   const il::int_t new_size = old_size + 1;
   const il::int_t new_capacity = il::max(new_size, 2 * old_size);
   Reserve(new_capacity);
-  unsigned short* data = data() + old_size;
+  unsigned short* data = Data() + old_size;
   for (il::int_t i = 0; i < n; ++i) {
     data[i] = static_cast<unsigned short>(c);
   }
@@ -297,14 +297,14 @@ inline void UTF16String::Append(int cp) {
     new_size = old_size + 1;
     const il::int_t new_capacity = il::max(new_size, 2 * old_size);
     Reserve(new_capacity);
-    unsigned short* data = end();
+    unsigned short* data = Data() + size();
     data[0] = static_cast<unsigned short>(ucp);
     data[1] = static_cast<unsigned short>('\0');
   } else {
     new_size = old_size + 2;
     const il::int_t new_capacity = il::max(new_size, 2 * old_size);
     Reserve(new_capacity);
-    unsigned short* data = end();
+    unsigned short* data = Data() + size();
     const unsigned int a = ucp - 0x00010000u;
     data[0] = static_cast<unsigned short>(a >> 10) + 0xD800u;
     data[1] = static_cast<unsigned short>(a & 0x3FF) + 0xDC00u;
@@ -344,8 +344,8 @@ inline const IL_UTF16CHAR* UTF16String::asWString() const {
 inline bool UTF16String::isEmpty() const { return size() == 0; }
 
 inline il::int_t UTF16String::nextRune(il::int_t i) const {
-  const unsigned short* data = data();
-  if (data[i] < 0xD800u || data[i] >= 0xDC00u) {
+  const unsigned short* local_data = data();
+  if (local_data[i] < 0xD800u || local_data[i] >= 0xDC00u) {
     return i + 1;
   } else {
     return i + 2;
@@ -353,12 +353,12 @@ inline il::int_t UTF16String::nextRune(il::int_t i) const {
 }
 
 inline int UTF16String::rune(il::int_t i) const {
-  const unsigned short* data = data();
-  if (data[i] < 0xD800u || data[i] >= 0xDC00u) {
-    return static_cast<int>(data[i]);
+  const unsigned short* local_data = data();
+  if (local_data[i] < 0xD800u || local_data[i] >= 0xDC00u) {
+    return static_cast<int>(local_data[i]);
   } else {
-    unsigned int a = static_cast<unsigned int>(data[i]);
-    unsigned int b = static_cast<unsigned int>(data[i + 1]);
+    unsigned int a = static_cast<unsigned int>(local_data[i]);
+    unsigned int b = static_cast<unsigned int>(local_data[i + 1]);
     return static_cast<int>(((a & 0x03FFu) << 10) + (b & 0x03FFu) +
                             0x00010000u);
   }

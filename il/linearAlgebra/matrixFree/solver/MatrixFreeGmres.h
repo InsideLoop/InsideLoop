@@ -1,6 +1,6 @@
 //==============================================================================
 //
-// Copyright 2017 The InsideLoop Authors. All Rights Reserved.
+// Copyright 2018 The InsideLoop Authors. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -88,8 +88,8 @@ il::Array<double> il::MatrixFreeGmres<M>::Solve(const M& m,
   const int one_int = 1;
   const double minus_one_double = -1.0;
 
-  dfgmres_init(&n, x.data(), yloc.data(), &RCI_request, ipar_.data(),
-               dpar_.data(), tmp.data());
+  dfgmres_init(&n, x.data(), yloc.data(), &RCI_request, ipar_.Data(),
+               dpar_.Data(), tmp.Data());
   IL_EXPECT_FAST(RCI_request == 0);
 
   // ipar_[0]: The size of the matrix
@@ -139,15 +139,15 @@ il::Array<double> il::MatrixFreeGmres<M>::Solve(const M& m,
   // dpar_[30] = zero_diagonal_threshold_;
   // dpar_[31] = zero_diagonal_replacement_;
 
-  dfgmres_check(&n, x.data(), yloc.data(), &RCI_request, ipar_.data(),
-                dpar_.data(), tmp.data());
+  dfgmres_check(&n, x.data(), yloc.data(), &RCI_request, ipar_.Data(),
+                dpar_.Data(), tmp.Data());
   IL_EXPECT_FAST(RCI_request == 0);
   bool stop_iteration = false;
   double y_norm = dnrm2(&n, yloc.data(), &one_int);
   while (!stop_iteration) {
     // The beginning of the iteration
-    dfgmres(&n, x.data(), yloc.data(), &RCI_request, ipar_.data(), dpar_.data(),
-            tmp.data());
+    dfgmres(&n, x.Data(), yloc.Data(), &RCI_request, ipar_.Data(), dpar_.Data(),
+            tmp.Data());
     switch (RCI_request) {
       case 0:
         // In that case, the solution has been found with the right precision.
@@ -158,17 +158,17 @@ il::Array<double> il::MatrixFreeGmres<M>::Solve(const M& m,
         // This is a Free Matrix/Vector multiplication
         // It takes the input from tmp[ipar_[21]] and put it into tmp[ipar_[22]]
         il::ArrayView<double> my_x{tmp.data() + ipar_[21] - 1, n};
-        il::ArrayEdit<double> my_y{tmp.data() + ipar_[22] - 1, n};
+        il::ArrayEdit<double> my_y{tmp.Data() + ipar_[22] - 1, n};
         for (il::int_t i = 0; i < n; ++i) {
           my_y[i] = 0.0;
         }
-        m.dot(my_x, il::io, my_y);
+        m(my_x, il::io, my_y);
       } break;
       case 2: {
         ipar_[12] = 1;
         // Retrieve iteration number AND update sol
-        dfgmres_get(&n, x.data(), ycopy.data(), &RCI_request, ipar_.data(),
-                    dpar_.data(), tmp.data(), &itercount);
+        dfgmres_get(&n, x.Data(), ycopy.Data(), &RCI_request, ipar_.data(),
+                    dpar_.data(), tmp.Data(), &itercount);
         // Compute the current true residual via MKL (Sparse) BLAS
         // routines. It multiplies the matrix A with yCopy and
         // store the result in residual.
@@ -178,10 +178,10 @@ il::Array<double> il::MatrixFreeGmres<M>::Solve(const M& m,
         for (il::int_t i = 0; i < n; ++i) {
           my_y[i] = 0.0;
         }
-        m.dot(my_x, il::io, my_y);
+        m(my_x, il::io, my_y);
         // Compute: residual = A.(current x) - y
         // Note that A.(current x) is stored in residual before this operation
-        daxpy(&n, &minus_one_double, yloc.data(), &one_int, residual.data(),
+        daxpy(&n, &minus_one_double, yloc.data(), &one_int, residual.Data(),
               &one_int);
         // This number plays a critical role in the precision of the method
         double norm_residual = dnrm2(&n, residual.data(), &one_int);
@@ -197,7 +197,7 @@ il::Array<double> il::MatrixFreeGmres<M>::Solve(const M& m,
         // result produced by ILUT routine via standard MKL Sparse
         // Blas solver rout'ine mkl_dcsrtrsv
         il::ArrayView<double> my_x{tmp.data() + ipar_[21] - 1, n};
-        il::ArrayEdit<double> my_y{tmp.data() + ipar_[22] - 1, n};
+        il::ArrayEdit<double> my_y{tmp.Data() + ipar_[22] - 1, n};
         for (il::int_t i = 0; i < n; ++i) {
           my_y[i] = my_x[i];
         }
@@ -217,8 +217,8 @@ il::Array<double> il::MatrixFreeGmres<M>::Solve(const M& m,
     }
   }
   ipar_[12] = 0;
-  dfgmres_get(&n, x.data(), yloc.data(), &RCI_request, ipar_.data(),
-              dpar_.data(), tmp.data(), &itercount);
+  dfgmres_get(&n, x.Data(), yloc.Data(), &RCI_request, ipar_.data(),
+              dpar_.data(), tmp.Data(), &itercount);
 
   nb_iteration_ = itercount;
 

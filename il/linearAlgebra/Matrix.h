@@ -1,6 +1,6 @@
 //==============================================================================
 //
-// Copyright 2017 The InsideLoop Authors. All Rights Reserved.
+// Copyright 2018 The InsideLoop Authors. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,12 +21,10 @@
 
 namespace il {
 
-enum class MatrixOperator { None, Tranpose, ConjugateTranspose };
+enum class MatrixOperator { None, Transpose, ConjugateTranspose };
 
 enum class MatrixType {
   Regular,
-  Transpose,
-  ConjugateTranspose,
   SymmetricUpper,
   SymmetricLower,
   HermitianUpper,

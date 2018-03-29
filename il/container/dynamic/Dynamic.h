@@ -1,6 +1,6 @@
 //==============================================================================
 //
-// Copyright 2017 The InsideLoop Authors. All Rights Reserved.
+// Copyright 2018 The InsideLoop Authors. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -160,7 +160,7 @@ inline Dynamic::Dynamic(int value) {
 #endif
 
 inline Dynamic::Dynamic(float value) {
-  type_ = il::Type::Float;
+  type_ = il::Type::Single;
   *reinterpret_cast<float *>(&data_) = value;
 }
 
@@ -442,7 +442,7 @@ inline il::Dynamic &Dynamic::operator=(float value) {
   if (!isStackAllocated()) {
     ReleaseMemory();
   }
-  type_ = il::Type::Fp32;
+  type_ = il::Type::Float32;
   *reinterpret_cast<float *>(&data_) = value;
   return *this;
 }
@@ -451,7 +451,7 @@ inline il::Dynamic &Dynamic::operator=(double value) {
   if (!isStackAllocated()) {
     ReleaseMemory();
   }
-  type_ = il::Type::Fp64;
+  type_ = il::Type::Float64;
   *reinterpret_cast<double *>(&data_) = value;
   return *this;
 }

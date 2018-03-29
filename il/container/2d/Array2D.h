@@ -1,6 +1,6 @@
 //==============================================================================
 //
-// Copyright 2017 The InsideLoop Authors. All Rights Reserved.
+// Copyright 2018 The InsideLoop Authors. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@
 // <utility> is needed for std::move
 #include <utility>
 
+#include <il/container/1d/ArrayView.h>
 #include <il/container/2d/Array2DView.h>
 #include <il/core/memory/allocate.h>
 
@@ -200,6 +201,8 @@ class Array2D {
   il::int_t alignment() const;
 
   il::Array2DView<T> view() const;
+
+  il::ArrayView<T> view(il::Range range0, il::int_t i1) const;
 
   il::Array2DView<T> view(il::Range range0, il::Range range1) const;
 
@@ -1145,6 +1148,12 @@ il::int_t Array2D<T>::alignment() const {
 template <typename T>
 il::Array2DView<T> Array2D<T>::view() const {
   return il::Array2DView<T>{data(), size(0), size(1), stride(1), 0, 0};
+}
+
+template <typename T>
+il::ArrayView<T> Array2D<T>::view(il::Range range0, il::int_t i1) const {
+  return il::ArrayView<T>{data() + i1 * size(0) + range0.begin,
+                          range0.end - range0.begin};
 }
 
 template <typename T>

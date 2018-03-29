@@ -1,6 +1,6 @@
 #===============================================================================
 #
-# Copyright 2017 The InsideLoop Authors. All Rights Reserved.
+# Copyright 2018 The InsideLoop Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ if (UNIX)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")
     elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 #        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -pedantic")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
+#        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
     elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -pedantic")
     endif()
@@ -175,7 +175,7 @@ set(SOURCE_FILES
     il/CudaArray2D.h
     il/data.h
     il/Dynamic.h
-    il/format.h
+        il/print.h
     il/Map.h
     il/Info.h
     il/linearAlgebra.h
@@ -228,20 +228,20 @@ set(SOURCE_FILES
     il/container/cuda/1d/CudaArray.h
     il/container/cuda/2d/CudaArray2D.h
     il/container/cuda/2d/CudaSparseMatrixCSR.h
-        il/container/cuda/cudaCopy.h
+    il/container/cuda/cudaCopy.h
     il/container/hash/HashFunction.h
     il/container/hash/Map.h
     il/container/hash/MapArray.h
     il/container/hash/Set.h
-        il/container/string/String.h
+    il/container/string/String.h
     il/container/string/UTF16String.h
     il/container/string/unicode.h
-        il/container/string/algorithmString.h
+    il/container/string/algorithmString.h
     il/container/dynamic/Type.h
     il/container/dynamic/Dynamic.h
     il/container/info/Info.h
     il/container/info/Status.h
-        il/container/deque/Deque.h
+    il/container/deque/Deque.h
     il/core/core.h
     il/core/math/safe_arithmetic.h
     il/core/memory/allocate.h
@@ -254,22 +254,22 @@ set(SOURCE_FILES
     il/io/png/png.h
 #    il/io/png/png.cpp
     il/io/filepack/filepack.h
-    il/io/format/format.cc
-        il/linearAlgebra/dense/blas/blas.h
-        il/linearAlgebra/dense/blas/dot.h
-        il/linearAlgebra/dense/norm.h
-        il/linearAlgebra/dense/factorization/linearSolve.h
-        il/linearAlgebra/dense/factorization/LU.h
-        il/linearAlgebra/dense/factorization/Cholesky.h
-        il/linearAlgebra/dense/factorization/Householder.h
-        il/linearAlgebra/dense/factorization/Eigen.h
-        il/linearAlgebra/dense/factorization/Singular.h
-        il/linearAlgebra/sparse/blas/_code/conjugate_gradient_blaze.h
-        il/linearAlgebra/sparse/blas/sparseBlas.h
-        il/linearAlgebra/sparse/blas/sparseDot.h
-        il/linearAlgebra/sparse/blas/sparseLinearAlgebra.h
-        il/linearAlgebra/sparse/blas/SparseMatrixBlas.h
-        il/linearAlgebra/cuda/dense/blas/cudaBlas.h
+        il/io/format/print.cc
+    il/linearAlgebra/dense/blas/blas.h
+    il/linearAlgebra/dense/blas/dot.h
+    il/linearAlgebra/dense/norm.h
+    il/linearAlgebra/dense/factorization/linearSolve.h
+    il/linearAlgebra/dense/factorization/LU.h
+    il/linearAlgebra/dense/factorization/Cholesky.h
+    il/linearAlgebra/dense/factorization/Householder.h
+    il/linearAlgebra/dense/factorization/Eigen.h
+    il/linearAlgebra/dense/factorization/Singular.h
+    il/linearAlgebra/sparse/blas/_code/conjugate_gradient_blaze.h
+    il/linearAlgebra/sparse/blas/sparseBlas.h
+    il/linearAlgebra/sparse/blas/sparseDot.h
+    il/linearAlgebra/sparse/blas/sparseLinearAlgebra.h
+    il/linearAlgebra/sparse/blas/SparseMatrixBlas.h
+    il/linearAlgebra/cuda/dense/blas/cudaBlas.h
 #    il/linearAlgebra/matrixFree/solver/Gmres.cpp
     il/unit/time.h
     il/random/sobol.h)
@@ -279,7 +279,7 @@ set(SOURCE_FILES
 ################################################################################
 
 
-add_executable(InsideLoop ${SOURCE_FILES} main.cpp)
+add_executable(InsideLoop ${SOURCE_FILES} main.cpp il/Tree.h il/MatrixFreeGmres.h)
 target_link_libraries(InsideLoop ${CMAKE_MKL_LIBRARIES} ${CMAKE_PNG_LIBRARIES} ${CMAKE_OPENBLAS_LIBRARIES})
 target_include_directories(InsideLoop PRIVATE ${CMAKE_SOURCE_DIR} /opt/eigen-3.3.2 /opt/blaze-3.0 /opt/cuda-8.0/include)
 
@@ -325,7 +325,7 @@ set(UNIT_TEST_FILES
     gtest/src/gtest-all.cc
     il/core/_test/Status_test.cpp
     il/MapArray.h
-    il/container/string/_test/StringView_test.cpp)
+    il/container/string/_test/StringView_test.cpp il/container/tree/_test/Tree_test.cpp)
 
 add_executable(InsideLoopUnitTest ${SOURCE_FILES} ${UNIT_TEST_FILES} test.cpp)
 
@@ -521,7 +521,7 @@ set(BENCHMARK_FILES
     il/container/string/_benchmark/String_il_vs_std_benchmark.h
     il/linearAlgebra/matrixFree/solver/Gmres.cpp
     il/linearAlgebra/matrixFree/solver/Gmres.h
-    il/File.h)
+    il/File.h il/container/tree/Tree.h)
 
 # C++ feature checks
 # Determine the correct regular expression engine to use

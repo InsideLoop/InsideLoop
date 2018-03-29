@@ -1,6 +1,6 @@
 //==============================================================================
 //
-// Copyright 2017 The InsideLoop Authors. All Rights Reserved.
+// Copyright 2018 The InsideLoop Authors. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -53,14 +53,16 @@ enum class Type : unsigned char {
   Integer = 6,   // C++ type (il::int_t aka std:ptrdiff_t)
 #endif
   // TFp16 = 9,
-  Fp32 = 10,
-  Fp64 = 11,
-  Float = 10,   // C type (float)
-  Double = 11,  // C type (double)
-  FloatingPoint = 11,
 
-  Complex32 = 17,
-  Complex64 = 18,
+  Float16,
+  Float32 = 10,
+  Float64 = 11,
+  Single = 10,   // C type (float)
+  Double = 11,  // C type (double)
+//  FloatintPoint = 11,
+
+  Complex64 = 17,
+  Complex128 = 18,
 
   UnicodeString = 13,
   ArrayOfDynamic = 14,
@@ -223,7 +225,7 @@ inline il::Type typeId<il::int_t>() {
 
 template <>
 inline il::Type typeId<float>() {
-  return il::Type::Float;
+  return il::Type::Single;
 }
 
 template <>

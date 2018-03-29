@@ -1,6 +1,6 @@
 //==============================================================================
 //
-// Copyright 2017 The InsideLoop Authors. All Rights Reserved.
+// Copyright 2018 The InsideLoop Authors. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -149,6 +149,7 @@ class String {
   void Clear();
   bool startsWith(const StringView& s) const;
   bool endsWith(const StringView& s) const;
+  bool endsWith(char c) const;
 
   const char* asCString() const;
   bool isEqual(const char* s) const;
@@ -986,6 +987,19 @@ inline bool String::endsWith(const StringView& s) const {
     ++i;
   }
   return ans;
+}
+
+inline bool String::endsWith(char c) const {
+  const il::int_t n = size();
+  if (n == 0) {
+    return false;
+  }
+  const char* s = data();
+  if (*s == 'c') {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 inline const char* String::asCString() const {
