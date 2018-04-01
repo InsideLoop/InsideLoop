@@ -1,0 +1,432 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="F:\Git\soe\InsideLoop\il\io\numpy\numpy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="F:\Git\soe\InsideLoop\il\io\toml\toml.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="F:\Git\soe\InsideLoop\il\io\format\print.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="F:\Git\soe\InsideLoop\il\container\1d\_test\Array_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="F:\Git\soe\InsideLoop\il\container\1d\_test\Dummy_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="F:\Git\soe\InsideLoop\il\container\2d\_test\Array2D_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="F:\Git\soe\InsideLoop\il\container\2d\_test\Array2C_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="F:\Git\soe\InsideLoop\il\container\3d\_test\Array3D_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="F:\Git\soe\InsideLoop\il\container\string\_test\String_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="F:\Git\soe\InsideLoop\il\container\dynamic\_test\Dynamic_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="F:\Git\soe\InsideLoop\il\container\info\_test\Info_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="F:\Git\soe\InsideLoop\il\core\math\_test\safe_arithmetic_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="F:\Git\soe\InsideLoop\il\linearAlgebra\dense\_test\norm_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="F:\Git\soe\InsideLoop\il\linearAlgebra\dense\blas\_test\blas_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="F:\Git\soe\InsideLoop\il\linearAlgebra\dense\blas\_test\linear_solve_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="F:\Git\soe\InsideLoop\il\linearAlgebra\dense\blas\_test\dot_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="F:\Git\soe\InsideLoop\il\linearAlgebra\dense\blas\_test\cross_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="F:\Git\soe\InsideLoop\il\linearAlgebra\dense\factorization\_test\Eigen_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="F:\Git\soe\InsideLoop\il\linearAlgebra\dense\factorization\_test\Singular_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="F:\Git\soe\InsideLoop\il\linearAlgebra\sparse\factorization\_test\Pardiso_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="F:\Git\soe\InsideLoop\il\linearAlgebra\sparse\factorization\_test\GmresIlu0_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="F:\Git\soe\InsideLoop\il\io\_test\numpy_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="F:\Git\soe\InsideLoop\il\io\toml\_test\toml_valid_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="F:\Git\soe\InsideLoop\gtest\src\gtest-all.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="F:\Git\soe\InsideLoop\il\core\_test\Status_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="F:\Git\soe\InsideLoop\il\container\string\_test\StringView_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="F:\Git\soe\InsideLoop\il\container\tree\_test\Tree_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="F:\Git\soe\InsideLoop\test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\algorithmArray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\algorithmArray2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\Array.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\Array2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\Array2C.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\Array2DView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\Array3C.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\Array3D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\Array4D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\Array4C.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\ArrayView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\BandArray2C.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\core.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\CudaArray2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\data.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\Dynamic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\print.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\Map.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\Info.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\linearAlgebra.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\LowerArray2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\math.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\norm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\numpy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\png.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\Deque.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\Set.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\SmallArray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\SparseMatrixCSR.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\StaticArray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\StaticArray2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\StaticArray2C.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\StaticArray3D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\StaticArray4D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\Status.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\String.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\string_util.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\Timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\Type.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\toml.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\TriDiagonal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\UTF16String.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\unicode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\UpperArray2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\algorithm\algorithmArray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\1d\Array.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\1d\ArrayView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\1d\SmallArray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\1d\StaticArray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\2d\Array2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\2d\Array2C.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\2d\BandArray2C.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\2d\Array2DView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\2d\LowerArray2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\2d\SparseMatrixCSR.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\2d\StaticArray2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\2d\StaticArray2C.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\2d\TriDiagonal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\2d\UpperArray2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\3d\Array3C.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\3d\Array3D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\3d\Array3DView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\3d\StaticArray3D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\4d\Array4D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\4d\Array4C.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\4d\StaticArray4D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\cuda\1d\CudaArray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\cuda\2d\CudaArray2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\cuda\2d\CudaSparseMatrixCSR.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\cuda\cudaCopy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\hash\HashFunction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\hash\Map.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\hash\MapArray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\hash\Set.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\string\String.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\string\UTF16String.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\string\unicode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\string\algorithmString.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\dynamic\Type.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\dynamic\Dynamic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\info\Info.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\info\Status.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\deque\Deque.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\core\core.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\core\math\safe_arithmetic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\core\memory\allocate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\io\io_base.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\io\ppm\ppm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\io\numpy\numpy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\io\toml\toml.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\io\png\png.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\io\filepack\filepack.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\linearAlgebra\dense\blas\blas.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\linearAlgebra\dense\blas\dot.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\linearAlgebra\dense\norm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\linearAlgebra\dense\factorization\linearSolve.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\linearAlgebra\dense\factorization\LU.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\linearAlgebra\dense\factorization\Cholesky.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\linearAlgebra\dense\factorization\Householder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\linearAlgebra\dense\factorization\Eigen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\linearAlgebra\dense\factorization\Singular.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\linearAlgebra\sparse\blas\_code\conjugate_gradient_blaze.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\linearAlgebra\sparse\blas\sparseBlas.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\linearAlgebra\sparse\blas\sparseDot.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\linearAlgebra\sparse\blas\sparseLinearAlgebra.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\linearAlgebra\sparse\blas\SparseMatrixBlas.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\linearAlgebra\cuda\dense\blas\cudaBlas.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\unit\time.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\random\sobol.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\1d\_test\Dummy_test.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\MapArray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{CF296875-E9F0-3869-A0DD-F66659ABD8C7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{2BAEDB94-1B99-3B4D-8F71-DB5E54A584E2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

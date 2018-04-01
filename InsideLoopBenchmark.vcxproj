@@ -1,0 +1,301 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{B96568D8-5C58-33C2-857F-3702D75B807E}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>x64</Platform>
+    <ProjectName>InsideLoopBenchmark</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">F:\Git\soe\InsideLoop\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">InsideLoopBenchmark.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">InsideLoopBenchmark</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">F:\Git\soe\InsideLoop\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">InsideLoopBenchmark.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">InsideLoopBenchmark</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</GenerateManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>F:\Git\soe\bx\include\compat\msvc;F:\Git\soe;F:\Git\soe\gbenchmark\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) -g</AdditionalOptions>
+      <AssemblerListingLocation>Debug/</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <CppLanguageStandard>c++11</CppLanguageStandard>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4201;4324;4723</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <OmitFramePointers>true</OmitFramePointers>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;IL_FOLDER='F:/Git/soe/il';__STDC_LIMIT_MACROS;__STDC_FORMAT_MACROS;__STDC_CONSTANT_MACROS;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;HAVE_STD_REGEX;HAVE_STEADY_CLOCK;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;IL_FOLDER='F:/Git/soe/il';__STDC_LIMIT_MACROS;__STDC_FORMAT_MACROS;__STDC_CONSTANT_MACROS;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;HAVE_STD_REGEX;HAVE_STEADY_CLOCK;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>F:\Git\soe\bx\include\compat\msvc;F:\Git\soe;F:\Git\soe\gbenchmark\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>F:\Git\soe\bx\include\compat\msvc;F:\Git\soe;F:\Git\soe\gbenchmark\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>pthread.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>F:/Git/soe/InsideLoop/Debug/InsideLoopBenchmark.lib</ImportLibrary>
+      <ProgramDataBaseFile>F:/Git/soe/InsideLoop/Debug/InsideLoopBenchmark.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>F:\Git\soe\bx\include\compat\msvc;F:\Git\soe;F:\Git\soe\gbenchmark\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) -g</AdditionalOptions>
+      <AssemblerListingLocation>Release/</AssemblerListingLocation>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <CppLanguageStandard>c++11</CppLanguageStandard>
+      <DisableSpecificWarnings>4201;4324;4723</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <OmitFramePointers>true</OmitFramePointers>
+      <Optimization>Full</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <StringPooling>true</StringPooling>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;IL_FOLDER='F:/Git/soe/il';NDEBUG;__STDC_LIMIT_MACROS;__STDC_FORMAT_MACROS;__STDC_CONSTANT_MACROS;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;HAVE_STD_REGEX;HAVE_STEADY_CLOCK;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;IL_FOLDER='F:/Git/soe/il';NDEBUG;__STDC_LIMIT_MACROS;__STDC_FORMAT_MACROS;__STDC_CONSTANT_MACROS;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;HAVE_STD_REGEX;HAVE_STEADY_CLOCK;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>F:\Git\soe\bx\include\compat\msvc;F:\Git\soe;F:\Git\soe\gbenchmark\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>F:\Git\soe\bx\include\compat\msvc;F:\Git\soe;F:\Git\soe\gbenchmark\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>pthread.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>F:/Git/soe/InsideLoop/Release/InsideLoopBenchmark.lib</ImportLibrary>
+      <ProgramDataBaseFile>F:/Git/soe/InsideLoop/Release/InsideLoopBenchmark.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\algorithmArray.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\algorithmArray2D.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\Array.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\Array2D.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\Array2C.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\Array2DView.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\Array3C.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\Array3D.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\Array4D.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\Array4C.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\ArrayView.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\BandArray2C.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\core.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\CudaArray2D.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\data.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\Dynamic.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\print.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\Map.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\Info.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\linearAlgebra.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\LowerArray2D.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\math.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\norm.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\numpy.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\png.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\Deque.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\Set.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\SmallArray.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\SparseMatrixCSR.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\StaticArray.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\StaticArray2D.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\StaticArray2C.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\StaticArray3D.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\StaticArray4D.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\Status.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\String.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\string_util.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\Timer.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\Type.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\toml.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\TriDiagonal.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\UTF16String.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\unicode.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\UpperArray2D.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\algorithm\algorithmArray.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\1d\Array.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\1d\ArrayView.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\1d\SmallArray.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\1d\StaticArray.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\2d\Array2D.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\2d\Array2C.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\2d\BandArray2C.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\2d\Array2DView.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\2d\LowerArray2D.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\2d\SparseMatrixCSR.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\2d\StaticArray2D.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\2d\StaticArray2C.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\2d\TriDiagonal.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\2d\UpperArray2D.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\3d\Array3C.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\3d\Array3D.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\3d\Array3DView.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\3d\StaticArray3D.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\4d\Array4D.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\4d\Array4C.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\4d\StaticArray4D.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\cuda\1d\CudaArray.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\cuda\2d\CudaArray2D.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\cuda\2d\CudaSparseMatrixCSR.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\cuda\cudaCopy.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\hash\HashFunction.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\hash\Map.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\hash\MapArray.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\hash\Set.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\string\String.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\string\UTF16String.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\string\unicode.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\string\algorithmString.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\dynamic\Type.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\dynamic\Dynamic.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\info\Info.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\info\Status.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\deque\Deque.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\core\core.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\core\math\safe_arithmetic.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\core\memory\allocate.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\io\io_base.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\io\ppm\ppm.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\io\numpy\numpy.h" />
+    <ClCompile Include="F:\Git\soe\InsideLoop\il\io\numpy\numpy.cpp" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\io\toml\toml.h" />
+    <ClCompile Include="F:\Git\soe\InsideLoop\il\io\toml\toml.cpp" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\io\png\png.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\io\filepack\filepack.h" />
+    <ClCompile Include="F:\Git\soe\InsideLoop\il\io\format\print.cc" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\linearAlgebra\dense\blas\blas.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\linearAlgebra\dense\blas\dot.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\linearAlgebra\dense\norm.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\linearAlgebra\dense\factorization\linearSolve.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\linearAlgebra\dense\factorization\LU.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\linearAlgebra\dense\factorization\Cholesky.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\linearAlgebra\dense\factorization\Householder.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\linearAlgebra\dense\factorization\Eigen.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\linearAlgebra\dense\factorization\Singular.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\linearAlgebra\sparse\blas\_code\conjugate_gradient_blaze.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\linearAlgebra\sparse\blas\sparseBlas.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\linearAlgebra\sparse\blas\sparseDot.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\linearAlgebra\sparse\blas\sparseLinearAlgebra.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\linearAlgebra\sparse\blas\SparseMatrixBlas.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\linearAlgebra\cuda\dense\blas\cudaBlas.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\unit\time.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\random\sobol.h" />
+    <ClCompile Include="F:\Git\soe\InsideLoop\gbenchmark\src\benchmark.cc">
+      <ObjectFileName>$(IntDir)/gbenchmark/src/benchmark.cc.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="F:\Git\soe\InsideLoop\gbenchmark\src\benchmark_register.cc" />
+    <ClCompile Include="F:\Git\soe\InsideLoop\gbenchmark\src\colorprint.cc" />
+    <ClCompile Include="F:\Git\soe\InsideLoop\gbenchmark\src\commandlineflags.cc" />
+    <ClCompile Include="F:\Git\soe\InsideLoop\gbenchmark\src\complexity.cc" />
+    <ClCompile Include="F:\Git\soe\InsideLoop\gbenchmark\src\console_reporter.cc" />
+    <ClCompile Include="F:\Git\soe\InsideLoop\gbenchmark\src\counter.cc" />
+    <ClCompile Include="F:\Git\soe\InsideLoop\gbenchmark\src\csv_reporter.cc" />
+    <ClCompile Include="F:\Git\soe\InsideLoop\gbenchmark\src\json_reporter.cc" />
+    <ClCompile Include="F:\Git\soe\InsideLoop\gbenchmark\src\reporter.cc" />
+    <ClCompile Include="F:\Git\soe\InsideLoop\gbenchmark\src\sleep.cc" />
+    <ClCompile Include="F:\Git\soe\InsideLoop\gbenchmark\src\string_util.cc" />
+    <ClCompile Include="F:\Git\soe\InsideLoop\gbenchmark\src\sysinfo.cc" />
+    <ClCompile Include="F:\Git\soe\InsideLoop\gbenchmark\src\timers.cc" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\hash\_benchmark\Map_il_vs_std_benchmark.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\string\_benchmark\String_benchmark.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\string\_benchmark\String_il_vs_std_benchmark.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\linearAlgebra\matrixFree\solver\Gmres.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\File.h" />
+    <ClInclude Include="F:\Git\soe\InsideLoop\il\container\tree\Tree.h" />
+    <ClCompile Include="F:\Git\soe\InsideLoop\benchmark.cpp">
+      <ObjectFileName>$(IntDir)/benchmark.cpp.obj</ObjectFileName>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
