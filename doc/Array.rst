@@ -29,7 +29,7 @@ array of :cpp:`n` floating point numbers and stores the inverse of the first
     }
 
 In this example, the size of the array is defined at the construction of the
-object and is fixed in this code. But their size an grow or shrink during the
+object and is fixed in this code. But their size can grow or shrink during the
 lifetime of the object. You can use the :cpp:`Append` method to add an element
 at the end of an array. The following function takes an array :cpp:`v` and
 returns the array containing all the positive elements of :cpp:`v`.
@@ -150,9 +150,9 @@ There are many different ways to construct an array.
 
    - For objects, the elements are default constructed. As a consequence they
      are properly initialized. As a consequence, this constructor must be called
-     with types :cpp:`T` with a default constructor. However, the `il::Array<T>`
-     container also comes with constructors and methods that works with types
-     that do not provide any default constructor.
+     with types :cpp:`T` with a default constructor. However, the
+     :cpp:`il::Array<T>` container also comes with constructors and methods that
+     works with types that do not provide any default constructor.
 
 3. One can also explicitly ask to construct an array of size :cpp:`n` with a
    default value supplied as a second argument. For instance, if you want to
@@ -183,14 +183,14 @@ There are many different ways to construct an array.
    the item :cpp:`il::emplace` is a keywork of the InsideLoop library which is
    used for disambiguation with the previous constructor.
 
-5. Finally, in case you want to explicitly initialized the element to a default
-   value, the following constructor can be used.
+5. Finally, in case you want to explicitly initialize the element to a list of
+   values, the following constructor can be used.
 
    .. code-block:: cpp
 
        #include <il/Array.h>
 
-       il::Array<double> v{il::value, {1.0, 2.0}}
+       il::Array<int> v{il::value, {3, 0}}
 
    The item :cpp:`il::value` is another keyword of the InsideLoop library, also
    needed for disambiguation. The constructor :cpp:`il::Array<int> v{3, 0}`
@@ -201,29 +201,29 @@ There are many different ways to construct an array.
 
 Arrays own their memory. As a consequence, it is impossible to construct an
 array from a pointer that has been allocated by :cpp:`malloc`, :cpp:`new` or
-another library. If you want to warp such a pointer inside an InsideLoop object,
-the type you are looking for are :cpp:`il::ArrayView<T>` and
+any other library. If you want to warp such a pointer inside an InsideLoop
+object, the type you are looking for are :cpp:`il::ArrayView<T>` and
 :cpp:`il::ArrayEdit<T>`.
 
 Copy construction and assignement
 ---------------------------------
 
-Copy construction and assigment in C++ is designed to provide a fresh copy of
-an object with the same identity. The identity of :cpp:`il::Array<T>` comes from
-its size and the elements it holds. As a consequence, when you copy construct an
-array, you are guarenteed to have a new array with the same size as the
-original and with elements that should compare equal. Bare in mind that the
-capacity of an array, which exists for optimization purpose, is not part of the
+Copy construction and assigment in C++ are designed to provide a fresh copy of
+an object with the same identity. The identity of :cpp:`il::Array<T>` is defined
+by its size and the elements it holds. As a consequence, when you copy construct
+an array, you are guarenteed to have a new array with the same size as the
+original and with elements that compare equal. Bare in mind that the
+capacity of an array, which exists for optimization purposes, is not part of the
 identity of an array. As a consequence, when you copy an array, you are not
 guaranteed to keep the same capacity. Most of the times, the newly created
-array will have its size and capacity equal.
+array will have its capacity equal to its size.
 
 1. **Copy construction**.
    When an array :cpp:`w` is constructed as a copy of the array :cpp:`v`, any
    change made to one of the array will not affect the other one. Two different
-   arrays will never share the same part of memory. As a consequence, if
-   :cpp:`w` is constructed from :cpp:`v`, it will allocate its own memory and
-   copy all the elements of :cpp:`v` in it.
+   arrays will never share the same part of memory: we say that they do not
+   alias. As a consequence, if :cpp:`w` is constructed from :cpp:`v`, it will
+   allocate its own memory and copy all the elements of :cpp:`v` in it.
 
    .. code-block:: cpp
 
@@ -233,8 +233,8 @@ array will have its size and capacity equal.
        ...
        il::Array<double> w = v;
 
-   As arrays are expensive to copy. When they are passed to functions to be
-   read, they should be passed by const reference.
+   As arrays are expensive to copy. When they are passed to functions as input
+   parameters, they should be passed by const reference.
 
    .. code-block:: cpp
 
@@ -262,14 +262,6 @@ array will have its size and capacity equal.
        ...
        il::Array<double> w = std::move(v);
 
-   You should not be afraid to return arrays from functions. Even though the
-   semantics of C++ says that returned objects are copied, in practice return
-   value optimization is done by the compiler and returning an array is cheap.
-   In the very specific cases where return value optimization could not be done,
-   the mode semantics are automatically generated by the compiler (please do not
-   use :cpp:`return std::move(v)` that would prevent return value optimization).
-   So please return arrays by value: they are cheap to return.
-
    In some special cases, it might be useful to pass an array to a constructor
    by copy to use the move semantics if you want. For instance, in the following
    code, no memory allocation happens at when the object filter is constructed,
@@ -295,6 +287,14 @@ array will have its size and capacity equal.
    construction of :cpp:`f`, one can remove the :cpp:`std::move` operator when
    constructing :cpp:`f`. As a consequence, passing arrays by value when
    you want to copy or transfer ownership of the memory is a good habit.
+
+   You should not be afraid to return arrays from functions. Even though the
+   semantics of C++ says that returned objects are copied, in practice return
+   value optimization is done by the compiler and returning an array is cheap.
+   In the very specific case where return value optimization could not be done,
+   the move semantics are automatically generated by the compiler (please do not
+   use :cpp:`return std::move(v);` that would prevent return value optimization).
+   So please, *return arrays by value*: they are cheap to return.
 
 2. **Copy assignment**.
    The assignement follows the same behaviour where the full identity of an
@@ -367,8 +367,8 @@ Accessing the elements
      which will let you easily find the culprit with a debugger.
    - *Release mode*: In release mode, no bounds checking is done and accessing
      arrays out of bounds will result in undefined behavior. But this will
-     let the compiler do a lot of optimization, such as vectorization which are
-     impossible in C++ with bounds checking.
+     let the compiler do a lot of optimization, such as vectorization which would
+     be impossible in C++ with bounds checking.
 
 2. **Write access with the bracket operator**.
    The bracket operator can also be used on an array for write access.
@@ -442,9 +442,10 @@ The size of an array can be changed by two kind of methods.
        ...
        v.Resize(n);
 
-   If the original array is larger than :cpp:`n`, the first :cpp:`n` elements of
-   the array will be kept. If the original array is smaller thant :cpp:`n`, the
-   new elements will be or not initialized depending upon the type :cpp:`T` in
+   If the original array has a size that is larger than :cpp:`n`, the first
+   :cpp:`n` elements of the array will be kept. If the original array is smaller
+   thant :cpp:`n`, the new elements will be or not initialized depending upon
+   the type :cpp:`T` in
    the same way things happened for the constructor. This method can result in
    reallocation of the memory when the capacity of the array is less than
    :cpp:`n`.
@@ -529,8 +530,8 @@ The size of an array can be changed by two kind of methods.
    query and change the capacity of the array upfront. You can query this
    capacity with the method :cpp:`capacity()` that returns an :cpp:`il::int_t`.
    But this method is not needed in most production code as what you usually
-   need is to reserve some space for future insertion. This is done with the You might have a look at our article
-   on integers in this documentation.:cpp:`Reserve` method
+   need is to reserve some space for future insertion. This is done with the
+   :cpp:`Reserve` method
 
    .. code-block:: cpp
 
@@ -676,7 +677,8 @@ When working with other C++ libraries or other languages, and only is this case,
 it might be useful to get a raw pointer to the first element of the array. This
 can be done with the :cpp:`data()` and :cpp:`Data()` methods. The first one
 returns a pointer to const while the second one returns a pointer that can be
-used to write to the array. Here is a typical call to a C library:
+used to write to the array. Here is a typical call to a C library where we
+assume that the size of the array fits into an :cpp:`int`:
 
 .. code-block:: cpp
 
@@ -686,6 +688,7 @@ used to write to the array. Here is a typical call to a C library:
 
    const il::int_t n = 1000;
    il::Array<double> v{n};
+
    my_c_function(v.Data(), static_cast<int>(v.size()));
 
 
@@ -698,6 +701,17 @@ is easy to debug you program that use the :cpp:`il::Array<T>` container. For
 instance, here is an array inside CLion on Linux running the Gdb debugger:
 
 .. image:: debugger.png
+       :scale: 100 %
+       :alt: alternate text
+       :align: center
+
+On macOS, we provide pretty printers for both Gdb and Lldb. As a consequence,
+one can also use CLion or any othe IDE with the same ease of mind.
+
+We don't forget Windows user and also provide some pretty printers for Visual
+Studio.
+
+.. image:: debugger-array-vs2017.png
        :scale: 100 %
        :alt: alternate text
        :align: center

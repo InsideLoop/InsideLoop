@@ -19,8 +19,8 @@ about how Inside Loop deals with vectors and matrices.
 
 - **Vectors**: We use the :cpp:`il::Array<T>` family of object to represent
   vectors where `T` can be :cpp:`float` or :cpp:`double`. Other types such
-  as :cpp:`std::complex<flat>` and :cpp:`std::complex<double>` are under
-  implementation.
+  as :cpp:`std::complex<flat>` and :cpp:`std::complex<double>` are being
+  implemented.
 
 - **Matrices**: We use the :cpp:`il::Array2D<T>` family of objects to represent
   matrices in column major order (also known as Fortran order). We also provide
@@ -57,8 +57,8 @@ a tensor contraction of two tensors. It takes two tensors and returns a tensor.
 
   As a consequence, in this case, :cpp:`il::dot` will receive two
   :cpp:`il::Array<T>` of the same size and will return a :cpp:`T`. In debug
-  mode, if those arrays do not have the same size, the program will abort. The
-  result is undefined behavior in release mode.
+  mode, if those arrays do not have the same size, the program will abort. In
+  release mode, such a situation leads to undefined behavior.
 
    .. code-block:: cpp
 
@@ -67,14 +67,49 @@ a tensor contraction of two tensors. It takes two tensors and returns a tensor.
        const il::int_t n = 1000;
        il::Array<double> a{n, 0.0};
        il::Array<double> b{n, 0.0};
+
        const double alpha = il::dot(a, b);
 
-- **Matrix/Vector**: When :cpp:`A` is a matrix and :cpp:`x` is a vector, the dot
-  operation will return the classic matrix/vector product :cpp:`y` defined by
+  When :cpp:`T` is a complex number, the usual dot product is defined by:
 
   .. math::
 
-      y_{i_0} = \sum_{i_1 = 0}^{n_1 - 1} a_{i_0, i_1} x_{i_1}
+       \alpha = \sum_{k = 0}^{n-1} \overline{a_k} \cdot b_k
+
+  and is computed with the call:
+
+  .. code-block:: cpp
+
+       #include <il/dot.h>
+
+       const il::int_t n = 1000;
+       il::Array<std::complex<double>> a{n, 0.0};
+       il::Array<std::complex<double>> b{n, 0.0};
+
+       const std::complex<double> alpha = il::dot(a, il::Dot::Star, b);
+
+  where the keyword :cpp:`il::Dot::Star` is in this case a synonym of
+  :cpp:`il::Dot::Conjugate` (There will be a difference when they operate
+  on matrices). For those who prefer the convention where we take the conjugate
+  of the second vector, one can also use the call:
+
+  .. code-block:: cpp
+
+       #include <il/dot.h>
+
+       const il::int_t n = 1000;
+       il::Array<std::complex<double>> a{n, 0.0};
+       il::Array<std::complex<double>> b{n, 0.0};
+
+       const std::complex<double> alpha = il::dot(a, b, il::Dot::Star);
+
+
+- **Matrix/Vector**: When :math:`A` is a matrix and :math:`x` is a vector, the dot
+  operation will return the classic matrix/vector product :math:`y = A\cdot x` defined by
+
+  .. math::
+
+      y_{i_0} = \sum_{i_1 = 0}^{n_1 - 1} A_{i_0, i_1} x_{i_1}
 
   where :cpp:`n1` is the size of the array :cpp:`x` and the number of columns
   of the matrix :cpp:`A`. Again, those dimensions are checked at runtime and
@@ -88,6 +123,7 @@ a tensor contraction of two tensors. It takes two tensors and returns a tensor.
        const il::int_t n1 = 2000;
        il::Array2D<double> A{n0, n1, 0.0};
        il::Array<double> x{n1, 0.0};
+
        il::Array<double> y = il::dot(A, x);
 
 - **Matrix/Matrix**: Finally, when :cpp:`A` and :cpp:`B` are both matrices, the
@@ -109,18 +145,20 @@ a tensor contraction of two tensors. It takes two tensors and returns a tensor.
        const il::int_t n1 = 2000;
        il::Array2D<double> A{n0, n, 0.0};
        il::Array2D<double> B{n, n1, 0.0};
+
        il::Array2D<double> C = il::dot(A, B);
 
 Blas
 ----
 
-Unfortunately, the previous :cpp:`il::dot` returns a tensor and therefore
-allocates some memory. But sometimes it might be that we already have some
-memory allocated, or that we need to add the result of the product of 2 matrices
-to a third one which already exists.
+Unfortunately, the previous function :cpp:`il::dot` returns a tensor and
+therefore allocates some memory. But sometimes it might be that we already have
+some memory allocated, or that we need to add the result of the product of 2
+matrices to a third one which already exists.
 
 Some libraries such as Eigen provide very friendly ways to do this kind of
-operations using both operator overloading and template metaprogramming.
+operations using both operator overloading and template metaprogramming. The
+allow the user of their library to write code such as :cpp:`C += A * B`.
 Unfortunately, it makes programs that use them harder to debug and much harder
 to profile. Inside Loop has chosen a different way, with a syntax which is a
 bit less intuitive, but which allows to get the best performance with any
@@ -157,6 +195,7 @@ already allocated, you can run:
      il::Array2D<double> A{n0, n1, 0.0};
      il::Array2D<double> B{n1, n2, 0.0};
      il::Array2D<double> C{n0, n2};
+
      il::blas(1.0, A, B, 0.0, il::io, C);
 
 One can also use this function to generate products with the transpose of the
@@ -167,4 +206,4 @@ to :math:`C`, one can issue the call:
 
      #include <il/blas.h>
 
-     il::blas(1.0, A, il::MatrixOperator::Transpose, B, 1.0, il::io, C);
+     il::blas(1.0, A, il::Dot::Transpose, B, 1.0, il::io, C);

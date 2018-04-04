@@ -64,9 +64,32 @@ inline il::int_t floor(double x) {
   return static_cast<il::int_t>(std::floor(x));
 }
 
-template <typename T>
-T abs(T x) {
+inline int abs(int x) {
   return x >= 0 ? x : -x;
+}
+
+inline il::int_t abs(il::int_t x) {
+  return x >= 0 ? x : -x;
+}
+
+inline float abs(float x) {
+  return x >= 0 ? x : -x;
+}
+
+inline double abs(double x) {
+  return x >= 0 ? x : -x;
+}
+
+inline float abs(std::complex<float> x) {
+  const float re = x.real();
+  const float im = x.imag();
+  return std::sqrt(re * re + im * im);
+}
+
+inline double abs(std::complex<double> x) {
+  const double re = x.real();
+  const double im = x.imag();
+  return std::sqrt(re * re + im * im);
 }
 
 // Template for pow(x,N) where N is a positive il::int_t constant.

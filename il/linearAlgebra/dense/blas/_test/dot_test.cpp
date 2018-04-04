@@ -21,6 +21,162 @@
 #include <il/linearAlgebra/dense/blas/dot.h>
 #include <il/math.h>
 
+#include <iostream>
+
+TEST(dot, vector_vector_f_0) {
+  il::Array<float> x{il::value, {2.0f, 3.0f}};
+  il::Array<float> y{il::value, {4.0f, 5.0f}};
+
+  float alpha = il::dot(x, y);
+
+  IL_EXPECT_FAST(il::abs(alpha - 23.0f) <= 1.0e-15f);
+}
+
+TEST(dot, vector_vector_f_1) {
+  il::Array<float> x{il::value, {2.0f, 3.0f}};
+  il::Array<float> y{il::value, {4.0f, 5.0f}};
+
+  float alpha = il::dot(x.view(), y.view());
+
+  IL_EXPECT_FAST(il::abs(alpha - 23.0f) <= 1.0e-15f);
+}
+
+TEST(dot, vector_vector_d_0) {
+  il::Array<double> x{il::value, {2.0, 3.0}};
+  il::Array<double> y{il::value, {4.0, 5.0}};
+
+  double alpha = il::dot(x, y);
+
+  IL_EXPECT_FAST(il::abs(alpha - 23.0) <= 1.0e-15);
+}
+
+TEST(dot, vector_vector_d_1) {
+  il::Array<double> x{il::value, {2.0, 3.0}};
+  il::Array<double> y{il::value, {4.0, 5.0}};
+
+  double alpha = il::dot(x.view(), y.view());
+
+  IL_EXPECT_FAST(il::abs(alpha - 23.0) <= 1.0e-15);
+}
+
+TEST(dot, vector_vector_cf_0) {
+  il::Array<std::complex<float>> x{il::value, {{2.0f, 0.5f}, {3.0f, 2.0f}}};
+  il::Array<std::complex<float>> y{il::value, {{4.0f, 0.25f}, {5.0f, 4.0f}}};
+
+  std::complex<float> alpha = il::dot(x, y);
+
+  IL_EXPECT_FAST(il::abs(alpha - std::complex<float>{14.875f, 24.5f}) <=
+                 1.0e-15f);
+}
+
+TEST(dot, vector_vector_cf_1) {
+  il::Array<std::complex<float>> x{il::value, {{2.0f, 0.5f}, {3.0f, 2.0f}}};
+  il::Array<std::complex<float>> y{il::value, {{4.0f, 0.25f}, {5.0f, 4.0f}}};
+
+  std::complex<float> alpha = il::dot(x.view(), y.view());
+
+  IL_EXPECT_FAST(il::abs(alpha - std::complex<float>{14.875f, 24.5f}) <=
+                 1.0e-15f);
+}
+
+TEST(dot, vector_vector_cf_2) {
+  il::Array<std::complex<float>> x{il::value, {{2.0f, 0.5f}, {3.0f, 2.0f}}};
+  il::Array<std::complex<float>> y{il::value, {{4.0f, 0.25f}, {5.0f, 4.0f}}};
+
+  std::complex<float> alpha = il::dot(x, il::Dot::Star, y);
+
+  IL_EXPECT_FAST(il::abs(alpha - std::complex<float>{31.125f, 0.5f}) <=
+                 1.0e-15f);
+}
+
+TEST(dot, vector_vector_cf_3) {
+  il::Array<std::complex<float>> x{il::value, {{2.0f, 0.5f}, {3.0f, 2.0f}}};
+  il::Array<std::complex<float>> y{il::value, {{4.0f, 0.25f}, {5.0f, 4.0f}}};
+
+  std::complex<float> alpha = il::dot(x.view(), il::Dot::Star, y.view());
+
+  IL_EXPECT_FAST(il::abs(alpha - std::complex<float>{31.125f, 0.5f}) <=
+                 1.0e-15f);
+}
+
+TEST(dot, vector_vector_cf_4) {
+  il::Array<std::complex<float>> x{il::value, {{2.0f, 0.5f}, {3.0f, 2.0f}}};
+  il::Array<std::complex<float>> y{il::value, {{4.0f, 0.25f}, {5.0f, 4.0f}}};
+
+  std::complex<float> alpha = il::dot(x, y, il::Dot::Star);
+
+  IL_EXPECT_FAST(il::abs(alpha - std::complex<float>{31.125f, -0.5f}) <=
+                 1.0e-15f);
+}
+
+TEST(dot, vector_vector_cf_5) {
+  il::Array<std::complex<float>> x{il::value, {{2.0f, 0.5f}, {3.0f, 2.0f}}};
+  il::Array<std::complex<float>> y{il::value, {{4.0f, 0.25f}, {5.0f, 4.0f}}};
+
+  std::complex<float> alpha = il::dot(x.view(), y.view(), il::Dot::Star);
+
+  IL_EXPECT_FAST(il::abs(alpha - std::complex<float>{31.125f, -0.5f}) <=
+                 1.0e-15f);
+}
+
+TEST(dot, vector_vector_cd_0) {
+  il::Array<std::complex<double>> x{il::value, {{2.0, 0.5}, {3.0, 2.0}}};
+  il::Array<std::complex<double>> y{il::value, {{4.0, 0.25}, {5.0, 4.0}}};
+
+  std::complex<double> alpha = il::dot(x, y);
+
+  IL_EXPECT_FAST(il::abs(alpha - std::complex<double>{14.875, 24.5}) <=
+                 1.0e-15);
+}
+
+TEST(dot, vector_vector_cd_1) {
+  il::Array<std::complex<double>> x{il::value, {{2.0, 0.5}, {3.0, 2.0}}};
+  il::Array<std::complex<double>> y{il::value, {{4.0, 0.25}, {5.0, 4.0}}};
+
+  std::complex<double> alpha = il::dot(x.view(), y.view());
+
+  IL_EXPECT_FAST(il::abs(alpha - std::complex<double>{14.875, 24.5}) <=
+                 1.0e-15);
+}
+
+TEST(dot, vector_vector_cd_2) {
+  il::Array<std::complex<double>> x{il::value, {{2.0, 0.5}, {3.0, 2.0}}};
+  il::Array<std::complex<double>> y{il::value, {{4.0, 0.25}, {5.0, 4.0}}};
+
+  std::complex<double> alpha = il::dot(x, il::Dot::Star, y);
+
+  IL_EXPECT_FAST(il::abs(alpha - std::complex<double>{31.125, 0.5}) <= 1.0e-15);
+}
+
+TEST(dot, vector_vector_cd_3) {
+  il::Array<std::complex<double>> x{il::value, {{2.0, 0.5}, {3.0, 2.0}}};
+  il::Array<std::complex<double>> y{il::value, {{4.0, 0.25}, {5.0, 4.0}}};
+
+  std::complex<double> alpha = il::dot(x.view(), il::Dot::Star, y.view());
+
+  IL_EXPECT_FAST(il::abs(alpha - std::complex<double>{31.125, 0.5}) <= 1.0e-15);
+}
+
+TEST(dot, vector_vector_cd_4) {
+  il::Array<std::complex<double>> x{il::value, {{2.0, 0.5}, {3.0, 2.0}}};
+  il::Array<std::complex<double>> y{il::value, {{4.0, 0.25}, {5.0, 4.0}}};
+
+  std::complex<double> alpha = il::dot(x, y, il::Dot::Star);
+
+  IL_EXPECT_FAST(il::abs(alpha - std::complex<double>{31.125, -0.5}) <=
+                 1.0e-15);
+}
+
+TEST(dot, vector_vector_cd_5) {
+  il::Array<std::complex<double>> x{il::value, {{2.0, 0.5}, {3.0, 2.0}}};
+  il::Array<std::complex<double>> y{il::value, {{4.0, 0.25}, {5.0, 4.0}}};
+
+  std::complex<double> alpha = il::dot(x.view(), y.view(), il::Dot::Star);
+
+  IL_EXPECT_FAST(il::abs(alpha - std::complex<double>{31.125, -0.5}) <=
+                 1.0e-15);
+}
+
 #ifdef IL_BLAS
 TEST(dot, matrix_vector_f_0) {
   il::Array2D<double> A{il::value, {{1.0, 2.0}, {3.0, 4.0}, {5.0, 6.0}}};
@@ -74,6 +230,7 @@ TEST(dot, matrix_f_1) {
 
 TEST(dot, matrix_f_simd_0) {
   il::Array2D<double> A{2, 2, il::align, 32};
+  A(0, 0) = 1.0;
   A(1, 0) = 2.0;
   A(0, 1) = 3.0;
   A(1, 1) = 4.0;

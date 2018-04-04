@@ -40,6 +40,7 @@ own risk. The API getting stabilized.
    :maxdepth: 1
    :caption: Contents:
 
+   CompilingFirstProgram.rst
    Array.rst
    ArrayView.rst
    LinearAlgebra.rst

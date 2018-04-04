@@ -16,16 +16,25 @@
 //
 //==============================================================================
 
+#include <cmath>
+#include <iostream>
+
 #include <il/Array.h>
-#include <il/print.h>
+#include <il/Timer.h>
 
 int main() {
-  const il::int_t n = 100;
+  const il::int_t n = 10000000;
   il::Array<double> v{n};
+  const double alpha = 1.0;
 
-  il::print("Hello world!\n");
-  il::print("Our array has a size of {} and a capacity of {}\n", v.size(),
-            v.capacity());
+  il::Timer timer{};
+  timer.Start();
+  for (il::int_t k = 0; k < v.size(); ++k) {
+    v[k] = std::cos(k * alpha);
+  }
+  timer.Stop();
+
+  std::cout << "Time: " << timer.time() << "s" << std::endl;
 
   return 0;
 }

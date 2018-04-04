@@ -1,5 +1,6 @@
 .. role:: cpp(code)
-:language: cpp
+
+    :language: cpp
 
 ArrayView
 =========

@@ -176,9 +176,9 @@ inline void blas(double alpha, const il::Array2DView<double> &A,
 // A is a matrix, x, y are vectors
 // y <- alpha A.x + beta y
 inline void blas(double alpha, const il::Array2DView<double> &A,
-                 il::MatrixOperator op, const il::ArrayView<double> &x,
+                 il::Dot op, const il::ArrayView<double> &x,
                  double beta, il::io_t, il::ArrayEdit<double> y) {
-  IL_EXPECT_FAST(op == il::MatrixOperator::Transpose);
+  IL_EXPECT_FAST(op == il::Dot::Transpose);
   IL_EXPECT_FAST(A.size(1) == y.size());
   IL_EXPECT_FAST(A.size(0) == x.size());
 
@@ -305,12 +305,12 @@ inline void blas(double alpha, const il::Array2DView<double> &A,
 }
 
 inline void blas(double alpha, const il::Array2DView<double> &A,
-                 il::MatrixOperator op, const il::Array2DView<double> &B,
+                 il::Dot op, const il::Array2DView<double> &B,
                  double beta, il::io_t, il::Array2DEdit<double> C) {
   IL_EXPECT_FAST(A.size(0) == B.size(0));
   IL_EXPECT_FAST(C.size(0) == A.size(1));
   IL_EXPECT_FAST(C.size(1) == B.size(1));
-  IL_EXPECT_FAST(op == il::MatrixOperator::Transpose);
+  IL_EXPECT_FAST(op == il::Dot::Transpose);
 
   const IL_CBLAS_LAYOUT layout = CblasColMajor;
   const CBLAS_TRANSPOSE transa = CblasTrans;
@@ -326,12 +326,12 @@ inline void blas(double alpha, const il::Array2DView<double> &A,
 }
 
 inline void blas(double alpha, const il::Array2DView<double> &A,
-                 const il::Array2DView<double> &B, il::MatrixOperator op,
+                 const il::Array2DView<double> &B, il::Dot op,
                  double beta, il::io_t, il::Array2DEdit<double> C) {
   IL_EXPECT_FAST(A.size(1) == B.size(1));
   IL_EXPECT_FAST(C.size(0) == A.size(0));
   IL_EXPECT_FAST(C.size(1) == B.size(0));
-  IL_EXPECT_FAST(op == il::MatrixOperator::Transpose);
+  IL_EXPECT_FAST(op == il::Dot::Transpose);
 
   const IL_CBLAS_LAYOUT layout = CblasColMajor;
   const CBLAS_TRANSPOSE transa = CblasNoTrans;

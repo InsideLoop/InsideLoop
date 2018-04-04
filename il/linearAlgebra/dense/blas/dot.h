@@ -19,6 +19,8 @@
 #ifndef IL_DOT_H
 #define IL_DOT_H
 
+#include <complex>
+
 #include <il/StaticArray.h>
 #include <il/StaticArray2D.h>
 #include <il/StaticArray3D.h>
@@ -29,6 +31,12 @@
 
 namespace il {
 
+//==============================================================================
+//
+// Scalar product
+//
+//==============================================================================
+
 inline float dot(const il::Array<float>& x, const il::Array<float>& y) {
   IL_EXPECT_FAST(x.size() == y.size());
 
@@ -36,7 +44,16 @@ inline float dot(const il::Array<float>& x, const il::Array<float>& y) {
   for (il::int_t i = 0; i < x.size(); ++i) {
     sum += x[i] * y[i];
   }
+  return sum;
+}
 
+inline float dot(il::ArrayView<float> x, il::ArrayView<float> y) {
+  IL_EXPECT_FAST(x.size() == y.size());
+
+  float sum = 0.0f;
+  for (il::int_t i = 0; i < x.size(); ++i) {
+    sum += x[i] * y[i];
+  }
   return sum;
 }
 
@@ -47,9 +64,180 @@ inline double dot(const il::Array<double>& x, const il::Array<double>& y) {
   for (il::int_t i = 0; i < x.size(); ++i) {
     sum += x[i] * y[i];
   }
-
   return sum;
 }
+
+inline double dot(il::ArrayView<double> x, il::ArrayView<double> y) {
+  IL_EXPECT_FAST(x.size() == y.size());
+
+  double sum = 0.0;
+  for (il::int_t i = 0; i < x.size(); ++i) {
+    sum += x[i] * y[i];
+  }
+  return sum;
+}
+
+inline std::complex<float> dot(const il::Array<std::complex<float>>& x,
+                               const il::Array<std::complex<float>>& y) {
+  IL_EXPECT_FAST(x.size() == y.size());
+
+  std::complex<float> sum = 0.0f;
+  for (il::int_t i = 0; i < x.size(); ++i) {
+    sum += x[i] * y[i];
+  }
+  return sum;
+}
+
+inline std::complex<float> dot(const il::Array<std::complex<float>>& x,
+                               il::Dot op,
+                               const il::Array<std::complex<float>>& y) {
+  IL_EXPECT_FAST(op == il::Dot::Transpose || op == il::Dot::Star);
+  IL_EXPECT_FAST(x.size() == y.size());
+
+  std::complex<float> sum = 0.0f;
+  for (il::int_t i = 0; i < x.size(); ++i) {
+    sum += std::conj(x[i]) * y[i];
+  }
+  return sum;
+}
+
+inline std::complex<float> dot(const il::Array<std::complex<float>>& x,
+                               const il::Array<std::complex<float>>& y,
+                               il::Dot op) {
+  IL_EXPECT_FAST(op == il::Dot::Transpose || op == il::Dot::Star);
+  IL_EXPECT_FAST(x.size() == y.size());
+
+  std::complex<float> sum = 0.0f;
+  for (il::int_t i = 0; i < x.size(); ++i) {
+    sum += x[i] * std::conj(y[i]);
+  }
+  return sum;
+}
+
+inline std::complex<float> dot(il::ArrayView<std::complex<float>> x,
+                               il::ArrayView<std::complex<float>> y) {
+  IL_EXPECT_FAST(x.size() == y.size());
+
+  std::complex<float> sum = 0.0f;
+  for (il::int_t i = 0; i < x.size(); ++i) {
+    sum += x[i] * y[i];
+  }
+  return sum;
+}
+
+inline std::complex<float> dot(il::ArrayView<std::complex<float>> x, il::Dot op,
+                               il::ArrayView<std::complex<float>> y) {
+  IL_EXPECT_FAST(op == il::Dot::Transpose || op == il::Dot::Star);
+  IL_EXPECT_FAST(x.size() == y.size());
+
+  std::complex<float> sum = 0.0f;
+  for (il::int_t i = 0; i < x.size(); ++i) {
+    sum += std::conj(x[i]) * y[i];
+  }
+  return sum;
+}
+
+inline std::complex<float> dot(il::ArrayView<std::complex<float>> x,
+                               il::ArrayView<std::complex<float>> y,
+                               il::Dot op) {
+  IL_EXPECT_FAST(op == il::Dot::Transpose || op == il::Dot::Star);
+  IL_EXPECT_FAST(x.size() == y.size());
+
+  std::complex<float> sum = 0.0f;
+  for (il::int_t i = 0; i < x.size(); ++i) {
+    sum += x[i] * std::conj(y[i]);
+  }
+  return sum;
+}
+
+inline std::complex<double> dot(const il::Array<std::complex<double>>& x,
+                                const il::Array<std::complex<double>>& y) {
+  IL_EXPECT_FAST(x.size() == y.size());
+
+  std::complex<double> sum = 0.0;
+  for (il::int_t i = 0; i < x.size(); ++i) {
+    sum += x[i] * y[i];
+  }
+  return sum;
+}
+
+inline std::complex<double> dot(const il::Array<std::complex<double>>& x,
+                                il::Dot op,
+                                const il::Array<std::complex<double>>& y) {
+  IL_EXPECT_FAST(op == il::Dot::Transpose || op == il::Dot::Star);
+  IL_EXPECT_FAST(x.size() == y.size());
+
+  std::complex<double> sum = 0.0;
+  for (il::int_t i = 0; i < x.size(); ++i) {
+    sum += std::conj(x[i]) * y[i];
+  }
+  return sum;
+}
+
+inline std::complex<double> dot(const il::Array<std::complex<double>>& x,
+                                const il::Array<std::complex<double>>& y,
+                                il::Dot op) {
+  IL_EXPECT_FAST(op == il::Dot::Transpose || op == il::Dot::Star);
+  IL_EXPECT_FAST(x.size() == y.size());
+
+  std::complex<double> sum = 0.0;
+  for (il::int_t i = 0; i < x.size(); ++i) {
+    sum += x[i] * std::conj(y[i]);
+  }
+  return sum;
+}
+
+inline std::complex<double> dot(il::ArrayView<std::complex<double>> x,
+                                il::ArrayView<std::complex<double>> y) {
+  IL_EXPECT_FAST(x.size() == y.size());
+
+  std::complex<double> sum = 0.0;
+  for (il::int_t i = 0; i < x.size(); ++i) {
+    sum += x[i] * y[i];
+  }
+  return sum;
+}
+
+inline std::complex<double> dot(il::ArrayView<std::complex<double>> x,
+                                il::Dot op,
+                                il::ArrayView<std::complex<double>> y) {
+  IL_EXPECT_FAST(op == il::Dot::Transpose || op == il::Dot::Star);
+  IL_EXPECT_FAST(x.size() == y.size());
+
+  std::complex<double> sum = 0.0;
+  for (il::int_t i = 0; i < x.size(); ++i) {
+    sum += std::conj(x[i]) * y[i];
+  }
+  return sum;
+}
+
+inline std::complex<double> dot(il::ArrayView<std::complex<double>> x,
+                                il::ArrayView<std::complex<double>> y,
+                                il::Dot op) {
+  IL_EXPECT_FAST(op == il::Dot::Transpose || op == il::Dot::Star);
+  IL_EXPECT_FAST(x.size() == y.size());
+
+  std::complex<double> sum = 0.0;
+  for (il::int_t i = 0; i < x.size(); ++i) {
+    sum += x[i] * std::conj(y[i]);
+  }
+  return sum;
+}
+
+template <typename T, il::int_t n>
+T dot(const il::StaticArray<T, n>& x, const il::StaticArray<T, n>& y) {
+  T ans{0};
+  for (il::int_t i = 0; i < n; ++i) {
+    ans += x[i] * y[i];
+  }
+  return ans;
+}
+
+//==============================================================================
+//
+// Matrix vector product
+//
+//==============================================================================
 
 #ifdef IL_BLAS
 inline il::Array<double> dot(const il::Array2D<double>& A,
@@ -71,6 +259,12 @@ inline il::Array<double> dot(const il::Array2C<double>& A,
 
   return y;
 }
+
+//==============================================================================
+//
+// Matrix/Matrix product
+//
+//==============================================================================
 
 inline il::Array2D<float> dot(const il::Array2D<float>& A,
                               const il::Array2D<float>& B) {
@@ -136,15 +330,6 @@ inline il::Array2C<double> dot(const il::Array2C<double>& A,
 }
 #endif
 
-template <typename T, il::int_t n>
-T dot(const il::StaticArray<T, n>& x, const il::StaticArray<T, n>& y) {
-  T ans{0};
-  for (il::int_t i = 0; i < n; ++i) {
-    ans += x[i] * y[i];
-  }
-  return ans;
-}
-
 template <typename T, il::int_t n0, il::int_t n>
 il::StaticArray<T, n0> dot(const il::StaticArray2D<T, n0, n>& A,
                            const il::StaticArray<T, n>& B) {
@@ -158,10 +343,9 @@ il::StaticArray<T, n0> dot(const il::StaticArray2D<T, n0, n>& A,
 }
 
 template <typename T, il::int_t n0, il::int_t n>
-il::StaticArray<T, n0> dot(const il::StaticArray2D<T, n, n0>& A,
-                           il::MatrixOperator A_info,
+il::StaticArray<T, n0> dot(const il::StaticArray2D<T, n, n0>& A, il::Dot A_info,
                            const il::StaticArray<T, n>& B) {
-  IL_EXPECT_FAST(A_info == il::MatrixOperator::Transpose);
+  IL_EXPECT_FAST(A_info == il::Dot::Transpose);
   IL_UNUSED(A_info);
 
   il::StaticArray<T, n0> C{};
@@ -203,9 +387,9 @@ il::StaticArray2D<T, n0, n1> dot(const il::StaticArray2D<T, n0, n>& A,
 
 template <typename T, il::int_t n0, il::int_t n, il::int_t n1>
 il::StaticArray2D<T, n0, n1> dot(const il::StaticArray2D<T, n, n0>& A,
-                                 il::MatrixOperator A_info,
+                                 il::Dot A_info,
                                  const il::StaticArray2D<T, n, n1>& B) {
-  IL_EXPECT_FAST(A_info == il::MatrixOperator::Transpose);
+  IL_EXPECT_FAST(A_info == il::Dot::Transpose);
   IL_UNUSED(A_info);
 
   il::StaticArray2D<T, n0, n1> C{};
@@ -268,6 +452,7 @@ il::StaticArray3D<T, n0, n1, n2> dot(
   }
   return C;
 }
+
 }  // namespace il
 
 #endif  // IL_DOT_H

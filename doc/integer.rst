@@ -6,9 +6,9 @@
 
     :language: bash
 
-.. role:: bash(assembly)
+.. role:: asm(code)
 
-    :language: assembly
+    :language: asm
 
 Integers in C++
 ===============
@@ -282,7 +282,7 @@ generated for different widths.
 
 Surprisingly, all those functions generate the same assembly on x86-64:
 
-.. code:: assembly
+.. code:: asm
 
     addl %esi, %edi
     movl %edi, %eax
@@ -293,7 +293,7 @@ register used to return values, and then return from the function. On a 64-bit
 platform, general purpose registers can hold 64 bits of data, but such registers
 can only hold a single integer. As we can see from the assembly, those registers
 are used to hold all kinds of integers and it turns out that the
-:assembly:`addl` instruction operates on all the 64 bits of the register. It
+:asm:`addl` instruction operates on all the 64 bits of the register. It
 turns out that, because of the way integers are stored, this operation gives the
 right result even for shorter integers. We can deduce that the :cpp:`+`
 operation will be as fast on all kind of integers. The same experience shows
@@ -367,19 +367,19 @@ function on x86-64:
 
 It generated the following code
 
-.. code:: assembly
+.. code:: asm
 
     movslq %esi, %rsi
     vmovsd (%rdi,%rsi,8), %xmm0
     ret
 
 The first operation converts the 32 bits integer k into a 64 bits integer. The
-second line gets the element from memory and put it into :assembly:`%xmm0` which
+second line gets the element from memory and put it into :asm:`%xmm0` which
 is the register used to return floating points. If you change the type of
 :cpp:`k` from :cpp:`int` to :cpp:`std::ptrdiff_t` which is 64 bits on this
 platform, the assembly code generated is reduced to:
 
-.. code:: assembly
+.. code:: asm
 
     vmovsd (%rdi,%rsi,8), %xmm0
     ret

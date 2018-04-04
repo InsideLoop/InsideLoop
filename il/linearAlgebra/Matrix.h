@@ -21,7 +21,7 @@
 
 namespace il {
 
-enum class MatrixOperator { None, Transpose, ConjugateTranspose };
+enum class Dot { None, Star, Transpose, Conjugate };
 
 enum class MatrixType {
   Regular,
