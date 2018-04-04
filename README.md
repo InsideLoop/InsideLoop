@@ -1,5 +1,3 @@
-![InsideLoop icon](http://www.insideloop.io/wp-content/uploads/2014/09/inside-loop-logo-front.png)
-
 InsideLoop is a **C++11 library** for **high performance scientific applications**
 running on processors (including **Xeon**) and coprocessors (**Cuda**). This
 library has been designed to provide you with:
