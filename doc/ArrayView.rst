@@ -1,8 +1,8 @@
 .. role:: cpp(code)
 :language: cpp
 
-il::ArrayView<T>
-================
+ArrayView
+=========
 
 The object :cpp:`il::ArrayView<T>` should be thought as a wrapper around the
 pair :cpp:`(const T* p, int n)` which is often seen in C programs. It is a view

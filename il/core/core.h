@@ -178,6 +178,16 @@ T max(T a, T b) {
 }
 
 template <typename T>
+T max(T a, int b) {
+  return a >= b ? a : b;
+}
+
+template <typename T>
+T max(int a, T b) {
+  return a >= b ? a : b;
+}
+
+template <typename T>
 T max(T a, T b, T c) {
   return max(max(a, b), c);
 }

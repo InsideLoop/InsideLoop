@@ -16,16 +16,5 @@
 //
 //==============================================================================
 
-#include <il/Array.h>
-#include <il/print.h>
+#include <il/container/2d/Array2CView.h>
 
-int main() {
-  const il::int_t n = 100;
-  il::Array<double> v{n};
-
-  il::print("Hello world!\n");
-  il::print("Our array has a size of {} and a capacity of {}\n", v.size(),
-            v.capacity());
-
-  return 0;
-}

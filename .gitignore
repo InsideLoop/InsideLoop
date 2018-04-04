@@ -1,6 +1,11 @@
 .idea
 .DS_Store
 doc/_build
+doc/_static/
+doc/_templates/
+doc/html/
+doc/latex/
+doc/xml/
 gtest/tmp/b.npy
 prettyPrint/gdb/__pycache__
 cmake-build-debug

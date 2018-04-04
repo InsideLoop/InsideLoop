@@ -175,7 +175,7 @@ set(SOURCE_FILES
     il/CudaArray2D.h
     il/data.h
     il/Dynamic.h
-        il/print.h
+    il/print.h
     il/Map.h
     il/Info.h
     il/linearAlgebra.h
@@ -254,7 +254,7 @@ set(SOURCE_FILES
     il/io/png/png.h
 #    il/io/png/png.cpp
     il/io/filepack/filepack.h
-        il/io/format/print.cc
+    il/io/format/print.cc
     il/linearAlgebra/dense/blas/blas.h
     il/linearAlgebra/dense/blas/dot.h
     il/linearAlgebra/dense/norm.h
@@ -279,7 +279,7 @@ set(SOURCE_FILES
 ################################################################################
 
 
-add_executable(InsideLoop ${SOURCE_FILES} main.cpp il/Tree.h il/MatrixFreeGmres.h)
+add_executable(InsideLoop ${SOURCE_FILES} main.cpp il/Tree.h il/MatrixFreeGmres.h il/container/2d/Array2CView.h il/Array2CView.h)
 target_link_libraries(InsideLoop ${CMAKE_MKL_LIBRARIES} ${CMAKE_PNG_LIBRARIES} ${CMAKE_OPENBLAS_LIBRARIES})
 target_include_directories(InsideLoop PRIVATE ${CMAKE_SOURCE_DIR} /opt/eigen-3.3.2 /opt/blaze-3.0 /opt/cuda-8.0/include)
 
@@ -519,7 +519,6 @@ set(BENCHMARK_FILES
     il/container/hash/_benchmark/Map_il_vs_std_benchmark.h
     il/container/string/_benchmark/String_benchmark.h
     il/container/string/_benchmark/String_il_vs_std_benchmark.h
-    il/linearAlgebra/matrixFree/solver/Gmres.cpp
     il/linearAlgebra/matrixFree/solver/Gmres.h
     il/File.h il/container/tree/Tree.h)
 
