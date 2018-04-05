@@ -27,7 +27,7 @@ called :bash:`Library` inside your home folder.
     fayard@Grisbouille:~$ git clone https://github.com/InsideLoop/InsideLoop.git
 
 Then create a file :bash:`main.cpp` with the text editor of your choice and
-type your first InsideLoop program which computes the first 10'000'000 values
+type your first InsideLoop program which computes the first 100'000'000 values
 of :math:`\cos(k)` and times this operation.
 
 .. code:: cpp
@@ -39,8 +39,8 @@ of :math:`\cos(k)` and times this operation.
     #include <il/Timer.h>
 
     int main() {
-      const il::int_t n = 10000000;
-      il::Array<double> v{n};
+      const il::int_t n = 100000000;
+      il::Array<double> v{n, 0.0};
       const double alpha = 1.0;
 
       il::Timer timer{};
@@ -61,7 +61,7 @@ To compile and run your program in debug mode, you should use
 
     fayard@Grisbouille:~$ g++ -g -std=c++11 -O0 -I~/Library main.cpp -o main
     fayard@Grisbouille:~$ ./main
-    Time: 0.434021s
+    Time: 4.44s
 
 For release mode, you can use the following commands:
 
@@ -69,7 +69,7 @@ For release mode, you can use the following commands:
 
     fayard@Grisbouille:~$ g++ -g -std=c++11 -O3 -march=native -DNDEBUG -I~/Library main.cpp -o main
     fayard@Grisbouille:~$ ./main
-    Time: 0.348785s
+    Time: 3.24s
 
 If you want to use clang, the same commands can be used:
 
@@ -77,7 +77,7 @@ If you want to use clang, the same commands can be used:
 
     fayard@Grisbouille:~$ clang++ -g -std=c++11 -O3 -march=native -DNDEBUG -I~/Library main.cpp -o main
     fayard@Grisbouille:~$ ./main
-    Time: 0.0357214s
+    Time: 1.68e-7s
 
 As you can see, clang is smart enough to realize that nothig is done with the
 array. As a consequence, the loop is removed from the final code which does
@@ -89,10 +89,15 @@ If you use the Intel compilers, one can issue the following command:
 
     fayard@Grisbouille:~$ icpc -g -std=c++11 -O3 -xHost -DNDEBUG -I~/Library main.cpp -o main
     fayard@Grisbouille:~$ ./main
-    Time: 0.197042s
+    Time: 0.66s
 
 This time, we get a faster code than gcc. It is obviously not as fast as clang
 as the computation is really done.
+
+Note: The Gcc compiler is know to use very slow calls when computing :cpp:`sin`
+and :cpp:`cos` functions. Even though the Intel compiler is notoriously good
+for number crunching, one should not expect such a difference in between
+compilers for most programs.
 
 
 Windows
@@ -148,4 +153,5 @@ On Windows 10, using Visual Studio 2017, here are the steps you should do.
 
 - Then, click on the menu :bash:`Build -> Build Solution`. After the program
   has compiled, you can start it with :bash:`Debug -> Start Debugging`.
+
 

@@ -89,7 +89,7 @@ a tensor contraction of two tensors. It takes two tensors and returns a tensor.
        const std::complex<double> alpha = il::dot(a, il::Dot::Star, b);
 
   where the keyword :cpp:`il::Dot::Star` is in this case a synonym of
-  :cpp:`il::Dot::Conjugate` (There will be a difference when they operate
+  :cpp:`il::Dot::Conjugate` (there will be a difference when they operate
   on matrices). For those who prefer the convention where we take the conjugate
   of the second vector, one can also use the call:
 
@@ -113,7 +113,7 @@ a tensor contraction of two tensors. It takes two tensors and returns a tensor.
 
   where :cpp:`n1` is the size of the array :cpp:`x` and the number of columns
   of the matrix :cpp:`A`. Again, those dimensions are checked at runtime and
-  will abort if there is a problem in debug mode.
+  will abort if there is a problem when in debug mode.
 
   .. code-block:: cpp
 
@@ -133,8 +133,8 @@ a tensor contraction of two tensors. It takes two tensors and returns a tensor.
 
       C_{i_0, i_1} = \sum_{k = 0}^{n - 1} A_{i_0, k} B_{k, i_1}
 
-  where :cpp:`n` is the number of columns of :cpp:`A` and :cpp:`n` is the
-  number of rows of :cpp:`B` which should be equal.
+  where :cpp:`n` is the number of columns of :cpp:`A` and the
+  number of rows of :cpp:`B`.
 
   .. code-block:: cpp
 
@@ -151,7 +151,7 @@ a tensor contraction of two tensors. It takes two tensors and returns a tensor.
 Blas
 ----
 
-Unfortunately, the previous function :cpp:`il::dot` returns a tensor and
+The previous function :cpp:`il::dot` returns a tensor and
 therefore allocates some memory. But sometimes it might be that we already have
 some memory allocated, or that we need to add the result of the product of 2
 matrices to a third one which already exists.

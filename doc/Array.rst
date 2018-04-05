@@ -154,7 +154,7 @@ There are many different ways to construct an array.
      :cpp:`il::Array<T>` container also comes with constructors and methods that
      works with types that do not provide any default constructor.
 
-3. One can also explicitly ask to construct an array of size :cpp:`n` with a
+4. One can also explicitly ask to construct an array of size :cpp:`n` with a
    default value supplied as a second argument. For instance, if you want to
    create an array of floating point with all the elements initialized to
    :cpp:`0.0`, one can use the following code:

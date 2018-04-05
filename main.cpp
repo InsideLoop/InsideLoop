@@ -23,8 +23,8 @@
 #include <il/Timer.h>
 
 int main() {
-  const il::int_t n = 10000000;
-  il::Array<double> v{n};
+  const il::int_t n = 100000000;
+  il::Array<double> v{n, 0.0};
   const double alpha = 1.0;
 
   il::Timer timer{};

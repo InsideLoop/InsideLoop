@@ -34,16 +34,35 @@ libraries available today.
 
 Note that for the time being, **InsideLoop is a work in progress**. Although
 some parts of it have been used in production code, it should be used at your
-own risk. The API getting stabilized.
+own risk. The API is getting stabilized and specifications documented here
+will be enforced through the whole 0.x.x serie.
 
 .. toctree::
+   :caption: Getting started
    :maxdepth: 1
-   :caption: Contents:
 
    CompilingFirstProgram.rst
+
+.. toctree::
+   :caption: The containers
+   :maxdepth: 1
+
    Array.rst
    ArrayView.rst
+   Array2D.rst
+   String.rst
+   Map.rst
+
+.. toctree::
+   :caption: Linear algebra
+   :maxdepth: 1
+
    LinearAlgebra.rst
+
+.. toctree::
+   :caption: Performance guide
+   :maxdepth: 1
+
    integer.rst
 
 Remarks, feature request, bug report
