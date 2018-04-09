@@ -89,7 +89,7 @@ common ones are described below:
   historical reasons.
 
   .. image:: array2d-image.png
-      :scale: 20 %
+      :scale: 80 %
       :alt: alternate text
       :align: center
 
@@ -280,7 +280,254 @@ Accessing the elements
      be impossible in C++ with bounds checking.
 
 2. **Write access with the parenthesis operator**.
-   The parenthesis operator can also be used on a arrays for write access.
+   The parenthesis operator can also be used on a arrays for write access. For
+   instance, here is some code that creates a Hilbert matrix:
 
-To be continued...
+   .. code-block:: cpp
 
+       #include <il/Array2D.h>
+
+       il::Array2D<double> hilbert(il::int_t n) {
+         il::Array2D<double> H{n, n};
+
+         for (il::int_t i1 = 0; i1 < n; ++i1) {
+           for (il::int_t i0 = 0; i0 < n; ++i0) {
+             H(i0, i1) = 1.0 / (2 + i0 + i1);
+           }
+         }
+
+         return H;
+       }
+
+   Note how we carefuly fill the matrix column after column in order to
+   make the job easier for processor and the memory. The loops would be much
+   less efficients if they were swaped.
+
+Unfortunately, there is no efficient way to traverse a multidimensional array
+with iterators when those arrays are allowed to have paddings. As a consequence,
+the :cpp:`il::Array2D<T>` object cannot be traversed with range-based for
+loops available in C++11.
+
+Operations that change the size of an Array2D
+---------------------------------------------
+
+The size of an two-dimensional array can be changed with the :cpp:`Resize`
+method:
+
+1. **The semantics of Resize**.
+   You can change the size of an array using the method :cpp:`Resize`
+
+   .. code-block:: cpp
+
+       #include <il/Array2D.h>
+
+       il::Array2D<double> a{il::value, {{2.0, 5.0}, {7.0, 1.0}};
+       a.Resize(1, 3);
+
+   Both dimensions can be reduced or extended and all the elements that belong
+   to both extents of the array are kept. In this case, the array is transformed
+   from a 2 by 2 matrix to a 1 by 3 matrix. The first 2 elements of the new
+   matrix are the ones that were already available, but the new one is left
+   uninitialized (or set to a distinctive element in debug mode) as we are
+   dealing with a numeric type. If :cpp:`T` were an object, the new element
+   would have been default constructed.
+
+   .. image:: array2d-resize.png
+      :scale: 20 %
+      :alt: alternate text
+      :align: center
+
+   If the new sizes are both within the capacity of the original array, no
+   reallocation is needed. But, when this is not the case, a reallocation of
+   the array is done.
+
+   One can also specify an element to be used to fill the new elements of the
+   array. For instance, with the same array, with the following code
+
+   .. code-block:: cpp
+
+       #include <il/Array2D.h>
+
+       il::Array2D<double> a{il::value, {{2.0, 5.0}, {7.0, 1.0}};
+       a.Resize(1, 3, 3.14);
+
+   we go from the left matrix to the right one.
+
+   .. image:: array2d-resize-bis.png
+       :scale: 20 %
+       :alt: alternate text
+       :align: center
+
+   For objects that cannot be copied, we also provide a method where we provide
+   the arguments of the constructor for the newly created objects.
+
+    .. code-block:: cpp
+
+       #include <atomic>
+       #include <il/Array2D.h>
+
+       il::Array2D<std::atomic<int>> a{};
+       a.Resize(2, 2, il::emplace, 1);
+
+2. **Avoiding reallocation with the capacity**
+   As with linear arrays, two-dimensional arrays provide capacities in both
+   dimensions. For better performance, it might be useful to play with the
+   capacities, in order to avoid the number or reallocation. This is done with
+   the :cpp:`Reserve` method that takes two :cpp:`il::int_t` integers
+   as capacities and that reallocates (if necessary) the array such that after
+   this call
+
+   .. code-block:: cpp
+
+       #include <il/Array2D.h>
+
+       il::Array2D<float> point{};
+       ...
+       point.Reserve(r0, r1);
+
+   our array have capacities at least equal to :cpp:`r0` and :cpp:`r1`
+   respectively. Note that those capacities could be larger after the call,
+   either because the capacties were already larger than those numbers, or for
+   alignement purposes.
+
+   Imagine for
+   instance that you generate randomly :cpp:`n` points in the plane and you
+   want to save those such that :math:`x + y \geq 0` in an array. Roughly,
+   you should get about half of those points. As a consequence, it might be
+   a good idea to reserve the size of your array upfront.
+
+    .. code-block:: cpp
+
+       #include <random>
+       #include <il/Array2D.h>
+
+       il::int_t n = 100000;
+       il::Array2D<float> point{0, 2};
+       point.Reserve(n / 2, 2);
+
+       std::default_random_engine engine{};
+       std::uniform_real_distribution<float> distribution{-1.0f, 1.0f};
+       for (il::int_t k = 0; k < n; ++k) {
+         float x = distribution(engine);
+         float y = distribution(engine);
+         if (x + y >= 0.0f) {
+           il::int_t n = point.size(0);
+           point.Resize(n + 1, 2);
+           point(n, 0) = x;
+           point(n, 1) = y;
+         }
+       }
+
+View/Edit of an Array2D
+-----------------------
+
+1. **ArrayView**.
+   It is often useful to work with a view or a subview of a matrix. A view to
+   a two-dimensional array does not own is memory and should be treated like
+   a point to some raw memory that also knows the size of the array. Views are
+   cheap to copy because the library does not need to copy the elements they
+   give access to: they alias memory. For instance, the following code
+
+   .. code-block:: cpp
+
+       #include <iostream>
+       #include <il/Array2D.h>
+
+       il::int_t n = 10;
+       il::Array2D<double> A{n, n, 0.0};
+       il::Array2DView<double> v = A.view();
+
+       std::cout << "Before: " << v(0, 0) << std::endl;
+       A(0, 0) = 1.0;
+       std::cout << "After: " << v(0, 0) << std::endl;
+
+   prints :cpp:`Before: 0.0` and :cpp:`After: 1.0`. Be aware that, because of
+   reallocation, any change to the size or the capacity of :cpp:`A` might
+   invalidate the view :cpp:`v`.
+
+   Views can also be used to access par of a matrix. For instance, the
+   following code gives access to a submatrix of our original matrix.
+
+   .. code-block:: cpp
+
+       #include <iostream>
+       #include <il/Array2D.h>
+
+       il::int_t n0 = 3;
+       il::int_t n1 = 4;
+       il::Array2D<double> A{n0, n1, 0.0};
+       il::Array2DView<double> v = A.view(il::Range{1, n0}, il::Range{1, n1});
+
+       A(1, 1) = 3.14159;
+       std::cout << "View: " << v(0, 0) << std::endl;
+
+   The previous code prints :cpp:`3.14159`.
+
+   On can also generate a view of a column or a subcolumn. For instance, the
+   following code gives access to the second column of our matrix
+
+   .. code-block:: cpp
+
+       #include <iostream>
+       #include <il/Array2D.h>
+
+       il::int_t n0 = 3;
+       il::int_t n1 = 4;
+       il::Array2D<double> A{n0, n1, 0.0};
+       il::ArrayView<double> v = A.view(il::Range{0, n0}, 1);
+
+       A(1, 1) = 3.14159;
+       std::cout << "View: " << v[1] << std::endl;
+
+   and prints :cpp:`View: 3.14159`.
+
+2. **ArrayEdit**.
+   It is also possible to create an :cpp:`il::Array2DEdit<T>` or a
+   :cpp:`il::ArrayEdit<T>` from an array using the :cpp:`Edit` methods. They
+   provide write access to the underlying arrays.
+
+Raw access for C functions
+--------------------------
+
+When working with other C++ libraries or librairies written in other languages
+it might be useful to get raw access to the underlying array. This can
+be done with the the :cpp:`data()` and the :cpp:`Data()` methods. The first
+one gives access to a :cpp:`const T*` useful if you only need read access to
+the elements of the array. The second one is useful if you need to have
+write access to the array. The element of indices :cpp:`(i0, i1)` of the
+two-dimensional array :cpp:`a` is available at position
+:cpp:`a.data() + i1 * a.stride(1) + i0`. For instance, if :cpp:`A`, :cpp:`B`
+and :cpp:`C` are 3 matrices, the folowing call to the BLAS function can be used
+to multiply :cpp:`A` by :cpp:`B` store the result in :cpp:`C`.
+
+.. code-block:: cpp
+
+   #include <il/Array2D.h>
+   #include <mkl_cblas.h>
+
+   int n0 = 500;
+   int n1 = 1000;
+   int n2 = 1500;
+   il::Array2D<double> A{n0, n1, 0.0};
+   il::Array2D<double> B{n1, n2, 0.0};
+   il::Array2D<double> C{n0, n2};
+
+   cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, n0, n2, n1, 1.0,
+               A.data(), static_cast<int>(A.stride(1)),
+               B.data(), static_cast<int>(B.stride(1)),
+               0.0, C.Data(), static_cast<int>(C.stride(1)));
+
+Bare in mind that the InsideLoop library provides wrapper around those functions
+and that you should not call directly the C BLAS functions yourself.
+
+Debugger
+--------
+
+Much like :cpp:`il::Array<T>`, we provide debugging facilities for
+:cpp:`il::Array2D<T>`. Here is how an :cpp:`il::Array2D<T>` looks like from
+CLion under Linux running the :cpp:`Gdb` debugger.
+
+.. image:: debugger-array2d.png
+    :scale: 100 %
+    :alt: alternate text
+    :align: center

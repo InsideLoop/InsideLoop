@@ -1,3 +1,10 @@
+To skip all the InsideLoop and the Standard Library, one should use
+
+(gdb) skip -rfu ^il::
+(gdb) skip -rfu ^std::
+
+or
+
 skip -file "il/container/string/String.h"
 skip -file "il/container/dynamic/Dynamic.h"
 skip -file "il/container/hash/Map.h"

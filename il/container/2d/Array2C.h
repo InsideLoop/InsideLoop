@@ -28,7 +28,8 @@
 // <utility> is needed for std::move
 #include <utility>
 
-#include <il/core.h>
+#include <il/container/1d/ArrayView.h>
+#include <il/container/2d/Array2CView.h>
 #include <il/core/memory/allocate.h>
 
 namespace il {
@@ -193,6 +194,10 @@ class Array2C {
   /* \brief Get the alignment of the pointer returned by data()
    */
   il::int_t alignment() const;
+
+  il::Array2CView<T> view(il::Range range0, il::Range range1) const;
+
+  il::Array2CEdit<T> Edit();
 
   /* \brief Get a pointer to const to the first element of the array
   // \details One should use this method only when using C-style API
@@ -977,6 +982,32 @@ void Array2C<T>::Reserve(il::int_t r0, il::int_t r1) {
 template <typename T>
 il::int_t Array2C<T>::alignment() const {
   return alignment_;
+}
+
+template <typename T>
+il::Array2CView<T> Array2C<T>::view(il::Range range0, il::Range range1) const {
+  IL_EXPECT_FAST(static_cast<std::size_t>(range0.begin) <
+                 static_cast<std::size_t>(size(0)));
+  IL_EXPECT_FAST(static_cast<std::size_t>(range0.end) <=
+                 static_cast<std::size_t>(size(0)));
+  IL_EXPECT_FAST(static_cast<std::size_t>(range1.begin) <
+                 static_cast<std::size_t>(size(1)));
+  IL_EXPECT_FAST(static_cast<std::size_t>(range1.end) <=
+                 static_cast<std::size_t>(size(1)));
+
+  const il::int_t the_stride = capacity(1);
+  return il::Array2CView<T>{data_ + range0.begin * the_stride + range1.begin,
+                            range0.end - range0.begin,
+                            range1.end - range1.begin,
+                            the_stride,
+                            0,
+                            0};
+}
+
+template <typename T>
+il::Array2CEdit<T> Array2C<T>::Edit() {
+  const il::int_t the_stride = capacity(1);
+  return il::Array2CEdit<T>{Data(), size(0), size(1), the_stride, 0, 0};
 }
 
 template <typename T>

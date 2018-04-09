@@ -243,6 +243,27 @@ inline void blas(float alpha, const il::Array2D<float> &A,
               ldb, beta, C.Data(), ldc);
 }
 
+inline void blas(float alpha, const il::Array2DView<float> &A,
+                 const il::Array2DView<float> &B, il::Dot op,
+                 float beta, il::io_t, il::Array2DEdit<float> C) {
+  IL_EXPECT_FAST(A.size(1) == B.size(1));
+  IL_EXPECT_FAST(C.size(0) == A.size(0));
+  IL_EXPECT_FAST(C.size(1) == B.size(0));
+  IL_EXPECT_FAST(op == il::Dot::Transpose);
+
+  const IL_CBLAS_LAYOUT layout = CblasColMajor;
+  const CBLAS_TRANSPOSE transa = CblasNoTrans;
+  const CBLAS_TRANSPOSE transb = CblasTrans;
+  const IL_CBLAS_INT m = static_cast<IL_CBLAS_INT>(A.size(0));
+  const IL_CBLAS_INT k = static_cast<IL_CBLAS_INT>(A.size(1));
+  const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(B.size(0));
+  const IL_CBLAS_INT lda = static_cast<IL_CBLAS_INT>(A.stride(1));
+  const IL_CBLAS_INT ldb = static_cast<IL_CBLAS_INT>(B.stride(1));
+  const IL_CBLAS_INT ldc = static_cast<IL_CBLAS_INT>(C.stride(1));
+  cblas_sgemm(layout, transa, transb, m, n, k, alpha, A.data(), lda, B.data(),
+              ldb, beta, C.Data(), ldc);
+}
+
 // A is a matrix, x, y are vectors
 // y <- alpha A.x + beta y
 template <il::int_t n>
@@ -403,6 +424,28 @@ inline void blas(float alpha, const il::Array2C<float> &A,
   cblas_sgemm(layout, transa, transb, m, n, k, alpha, A.data(), lda, B.data(),
               ldb, beta, C.Data(), ldc);
 }
+
+inline void blas(float alpha, const il::Array2CView<float> &A,
+                 const il::Array2CView<float> &B, il::Dot op,
+                 float beta, il::io_t, il::Array2CEdit<float> C) {
+  IL_EXPECT_FAST(A.size(1) == B.size(1));
+  IL_EXPECT_FAST(C.size(0) == A.size(0));
+  IL_EXPECT_FAST(C.size(1) == B.size(0));
+  IL_EXPECT_FAST(op == il::Dot::Transpose);
+
+  const IL_CBLAS_LAYOUT layout = CblasRowMajor;
+  const CBLAS_TRANSPOSE transa = CblasNoTrans;
+  const CBLAS_TRANSPOSE transb = CblasTrans;
+  const IL_CBLAS_INT m = static_cast<IL_CBLAS_INT>(A.size(0));
+  const IL_CBLAS_INT k = static_cast<IL_CBLAS_INT>(A.size(1));
+  const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(B.size(0));
+  const IL_CBLAS_INT lda = static_cast<IL_CBLAS_INT>(A.stride(1));
+  const IL_CBLAS_INT ldb = static_cast<IL_CBLAS_INT>(B.stride(1));
+  const IL_CBLAS_INT ldc = static_cast<IL_CBLAS_INT>(C.stride(1));
+  cblas_sgemm(layout, transa, transb, m, n, k, alpha, A.data(), lda, B.data(),
+              ldb, beta, C.Data(), ldc);
+}
+
 
 // A, B, C are matrices
 // C <- alpha A.B + beta C

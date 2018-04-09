@@ -16,25 +16,10 @@
 //
 //==============================================================================
 
-#include <cmath>
-#include <iostream>
-
-#include <il/Array.h>
-#include <il/Timer.h>
+#include <il/Array2D.h>
 
 int main() {
-  const il::int_t n = 100000000;
-  il::Array<double> v{n, 0.0};
-  const double alpha = 1.0;
-
-  il::Timer timer{};
-  timer.Start();
-  for (il::int_t k = 0; k < v.size(); ++k) {
-    v[k] = std::cos(k * alpha);
-  }
-  timer.Stop();
-
-  std::cout << "Time: " << timer.time() << "s" << std::endl;
+  il::Array2D<double> v{2, 3, 0.0};
 
   return 0;
 }

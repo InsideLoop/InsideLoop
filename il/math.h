@@ -92,6 +92,13 @@ inline double abs(std::complex<double> x) {
   return std::sqrt(re * re + im * im);
 }
 
+inline il::int_t floor(il::int_t a, int b) {
+  return (a / b) * b;
+}
+
+inline il::int_t floor(il::int_t a, il::int_t b) {
+  return (a / b) * b;
+}
 // Template for pow(x,N) where N is a positive il::int_t constant.
 // General case, N is not a power of 2:
 template <bool IsPowerOf2, il::int_t N, typename T>
