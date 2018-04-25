@@ -25,7 +25,7 @@ Note that for the time being, **InsideLoop is a work in progress**. Although
 some parts of it have been used in production code, it should be used at your
 own risk. The API getting stabilized.
 
-The documentation is currently begin written and is available here: [Documentation](http://623459105c.url-de-test.ws/doc/_build/html/index.html).
+The documentation is currently begin written and is available here: [Documentation](http://www.insideloop.io/doc-insideloop/_build/html/index.html)
 
 ## Remarks, feature request, bug report
 
