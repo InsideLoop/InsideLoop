@@ -195,6 +195,8 @@ class Array2C {
    */
   il::int_t alignment() const;
 
+  il::Array2CView<T> view() const;
+
   il::Array2CView<T> view(il::Range range0, il::Range range1) const;
 
   il::Array2CEdit<T> Edit();
@@ -982,6 +984,16 @@ void Array2C<T>::Reserve(il::int_t r0, il::int_t r1) {
 template <typename T>
 il::int_t Array2C<T>::alignment() const {
   return alignment_;
+}
+template <typename T>
+il::Array2CView<T> Array2C<T>::view() const {
+  const il::int_t the_stride = capacity(1);
+  return il::Array2CView<T>{data_,
+                            size(0),
+                            size(1),
+                            the_stride,
+                            0,
+                            0};
 }
 
 template <typename T>

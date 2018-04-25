@@ -19,426 +19,585 @@
 #ifndef IL_BLAS_H
 #define IL_BLAS_H
 
-#include <il/Array.h>
-#include <il/Array2C.h>
-#include <il/Array2D.h>
-#include <il/StaticArray.h>
-#include <il/StaticArray2D.h>
-#include <il/StaticArray3D.h>
-#include <il/StaticArray4D.h>
+#include <complex>
+
+#include <il/Array2CView.h>
+#include <il/Array2DView.h>
+#include <il/ArrayView.h>
 #include <il/linearAlgebra/Matrix.h>
 
-#ifdef IL_MKL
-#include <mkl_cblas.h>
-#define IL_CBLAS_INT MKL_INT
-#define IL_CBLAS_LAYOUT CBLAS_LAYOUT
-#elif IL_OPENBLAS
-#include <OpenBLAS/cblas.h>
-#define IL_CBLAS_INT int
-#define IL_CBLAS_LAYOUT CBLAS_ORDER
-#endif
+#include <il/linearAlgebra/dense/blas/blas_config.h>
+
+// BLAS level 1
+//   y = alpha * x + y
+//   y = alpha * x + beta * y
+//   Scalar product of x and y, with conjugate options for complex
+//   A = alpha * B + A
 
 namespace il {
 
-////////////////////////////////////////////////////////////////////////////////
-// BLAS Level 1
-////////////////////////////////////////////////////////////////////////////////
-
-template <typename T, il::int_t n0, il::int_t n1, il::int_t n2>
-void blas(T alpha, const il::StaticArray3D<T, n0, n1, n2> &A, T beta, il::io_t,
-          il::StaticArray3D<T, n0, n1, n2> &B) {
-  for (il::int_t i2 = 0; i2 < n2; ++i2) {
-    for (il::int_t i1 = 0; i1 < n1; ++i1) {
-      for (il::int_t i0 = 0; i0 < n0; ++i0) {
-        B(i0, i1, i2) = alpha * A(i0, i1, i2) + beta * B(i0, i1, i2);
-      }
-    }
+inline CBLAS_TRANSPOSE blas_from_dot(il::Dot op) {
+  switch (op) {
+    case il::Dot::None:
+      return CblasNoTrans;
+    case il::Dot::Transpose:
+      return CblasTrans;
+    case il::Dot::Star:
+      return CblasConjTrans;
+    default:
+      IL_UNREACHABLE;
   }
 }
 
-#ifdef IL_BLAS
-// x, y are vectors
-// y <- alpha x + y
-inline void blas(double alpha, const il::Array<double> &x, il::io_t,
-                 il::Array<double> &y) {
+// y = alpha * x + y
+
+inline void blas(float alpha, il::ArrayView<float> x, il::io_t,
+                 il::ArrayEdit<float> y) {
   IL_EXPECT_FAST(x.size() == y.size());
 
-  const IL_CBLAS_INT n{static_cast<IL_CBLAS_INT>(x.size())};
-  const IL_CBLAS_INT incx{1};
-  const IL_CBLAS_INT incy{1};
+  const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(x.size());
+  const IL_CBLAS_INT incx = 1;
+  const IL_CBLAS_INT incy = 1;
+  cblas_saxpy(n, alpha, x.data(), incx, y.Data(), incy);
+}
+
+inline void blas(double alpha, il::ArrayView<double> x, il::io_t,
+                 il::ArrayEdit<double> y) {
+  IL_EXPECT_FAST(x.size() == y.size());
+
+  const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(x.size());
+  const IL_CBLAS_INT incx = 1;
+  const IL_CBLAS_INT incy = 1;
   cblas_daxpy(n, alpha, x.data(), incx, y.Data(), incy);
 }
 
-// x, y are vectors
-// y <- alpha x + beta y
-inline void blas(float alpha, const il::Array<float> &x, float beta, il::io_t,
-                 il::Array<float> &y) {
+inline void blas(std::complex<float> alpha,
+                 il::ArrayView<std::complex<float>> x, il::io_t,
+                 il::ArrayEdit<std::complex<float>> y) {
   IL_EXPECT_FAST(x.size() == y.size());
 
-  const IL_CBLAS_INT n{static_cast<IL_CBLAS_INT>(x.size())};
-  const IL_CBLAS_INT incx{1};
-  const IL_CBLAS_INT incy{1};
+  const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(x.size());
+  const IL_CBLAS_INT incx = 1;
+  const IL_CBLAS_INT incy = 1;
+  cblas_caxpy(n, &alpha, x.data(), incx, y.Data(), incy);
+}
+
+inline void blas(std::complex<double> alpha,
+                 il::ArrayView<std::complex<double>> x, il::io_t,
+                 il::ArrayEdit<std::complex<double>> y) {
+  IL_EXPECT_FAST(x.size() == y.size());
+
+  const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(x.size());
+  const IL_CBLAS_INT incx = 1;
+  const IL_CBLAS_INT incy = 1;
+  cblas_zaxpy(n, &alpha, x.data(), incx, y.Data(), incy);
+}
+
+// y = alpha * x + beta * y
+
+inline void blas(float alpha, il::ArrayView<float> x, float beta, il::io_t,
+                 il::ArrayEdit<float> y) {
+  IL_EXPECT_FAST(x.size() == y.size());
+
+  const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(x.size());
+  const IL_CBLAS_INT incx = 1;
+  const IL_CBLAS_INT incy = 1;
   cblas_saxpby(n, alpha, x.data(), incx, beta, y.Data(), incy);
 }
 
-// x, y are vectors
-// y <- alpha x + beta y
-inline void blas(double alpha, const il::Array<double> &x, double beta,
-                 il::io_t, il::Array<double> &y) {
+inline void blas(double alpha, il::ArrayView<double> x, double beta, il::io_t,
+                 il::ArrayEdit<double> y) {
   IL_EXPECT_FAST(x.size() == y.size());
 
-  const IL_CBLAS_INT n{static_cast<IL_CBLAS_INT>(x.size())};
-  const IL_CBLAS_INT incx{1};
-  const IL_CBLAS_INT incy{1};
+  const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(x.size());
+  const IL_CBLAS_INT incx = 1;
+  const IL_CBLAS_INT incy = 1;
   cblas_daxpby(n, alpha, x.data(), incx, beta, y.Data(), incy);
 }
 
-inline void blas(double alpha, const il::Array2D<double> &a, double beta,
-                 il::io_t, il::Array2D<double> &b) {
-  IL_EXPECT_FAST(a.size(0) == b.size(0));
-  IL_EXPECT_FAST(a.size(1) == b.size(1));
+inline void blas(std::complex<float> alpha,
+                 il::ArrayView<std::complex<float>> x, std::complex<float> beta,
+                 il::io_t, il::ArrayEdit<std::complex<float>> y) {
+  IL_EXPECT_FAST(x.size() == y.size());
 
-  const il::int_t n0 = a.size(0);
-  const il::int_t n1 = a.size(1);
-  for (il::int_t i1 = 0; i1 < n1; ++i1) {
-    for (il::int_t i0 = 0; i0 < n0; ++i0) {
-      b(i0, i1) = beta * b(i0, i1) + alpha * a(i0, i1);
+  const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(x.size());
+  const IL_CBLAS_INT incx = 1;
+  const IL_CBLAS_INT incy = 1;
+  cblas_caxpby(n, &alpha, x.data(), incx, &beta, y.Data(), incy);
+}
+
+inline void blas(std::complex<double> alpha,
+                 il::ArrayView<std::complex<double>> x,
+                 std::complex<double> beta, il::io_t,
+                 il::ArrayEdit<std::complex<double>> y) {
+  IL_EXPECT_FAST(x.size() == y.size());
+
+  const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(x.size());
+  const IL_CBLAS_INT incx = 1;
+  const IL_CBLAS_INT incy = 1;
+  cblas_zaxpby(n, &alpha, x.data(), incx, &beta, y.Data(), incy);
+}
+
+// Scalar product of x and y
+
+inline float dot(il::ArrayView<float> x, il::ArrayView<float> y) {
+  IL_EXPECT_FAST(x.size() == y.size());
+
+  const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(x.size());
+  const IL_CBLAS_INT incx = 1;
+  const IL_CBLAS_INT incy = 1;
+  const float ans = cblas_sdot(n, x.data(), incx, y.data(), incy);
+  return ans;
+}
+
+inline double dot(il::ArrayView<double> x, il::ArrayView<double> y) {
+  IL_EXPECT_FAST(x.size() == y.size());
+
+  const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(x.size());
+  const IL_CBLAS_INT incx = 1;
+  const IL_CBLAS_INT incy = 1;
+  const double ans = cblas_ddot(n, x.data(), incx, y.data(), incy);
+  return ans;
+}
+
+inline std::complex<float> dot(il::ArrayView<std::complex<float>> x,
+                               il::ArrayView<std::complex<float>> y) {
+  IL_EXPECT_FAST(x.size() == y.size());
+
+  const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(x.size());
+  const IL_CBLAS_INT incx = 1;
+  const IL_CBLAS_INT incy = 1;
+  std::complex<float> ans;
+  cblas_cdotu_sub(n, x.data(), incx, y.data(), incy, &ans);
+  return ans;
+}
+
+inline std::complex<double> dot(il::ArrayView<std::complex<double>> x,
+                                il::ArrayView<std::complex<double>> y) {
+  IL_EXPECT_FAST(x.size() == y.size());
+
+  const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(x.size());
+  const IL_CBLAS_INT incx = 1;
+  const IL_CBLAS_INT incy = 1;
+  std::complex<double> ans;
+  cblas_zdotu_sub(n, x.data(), incx, y.data(), incy, &ans);
+  return ans;
+}
+
+inline std::complex<float> dot(il::ArrayView<std::complex<float>> x, il::Dot op,
+                               il::ArrayView<std::complex<float>> y) {
+  IL_EXPECT_FAST(x.size() == y.size());
+
+  switch (op) {
+    case il::Dot::Star: {
+      const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(x.size());
+      const IL_CBLAS_INT incx = 1;
+      const IL_CBLAS_INT incy = 1;
+      std::complex<float> ans;
+      cblas_cdotc_sub(n, x.data(), incx, y.data(), incy, &ans);
+      return ans;
     }
+    case il::Dot::None:
+      return il::dot(x, y);
+    default:
+      IL_UNREACHABLE;
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// BLAS Level 2
-////////////////////////////////////////////////////////////////////////////////
+inline std::complex<double> dot(il::ArrayView<std::complex<double>> x,
+                                il::Dot op,
+                                il::ArrayView<std::complex<double>> y) {
+  IL_EXPECT_FAST(x.size() == y.size());
 
-// A is a matrix, x, y are vectors
-// y <- alpha A.x + beta y
-inline void blas(float alpha, const il::Array2D<float> &A,
-                 const il::Array<float> &x, float beta, il::io_t,
-                 il::Array<float> &y) {
-  IL_EXPECT_FAST(A.size(0) == y.size());
-  IL_EXPECT_FAST(A.size(1) == x.size());
-  IL_EXPECT_FAST(&x != &y);
+  switch (op) {
+    case il::Dot::Star: {
+      const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(x.size());
+      const IL_CBLAS_INT incx = 1;
+      const IL_CBLAS_INT incy = 1;
+      std::complex<double> ans;
+      cblas_zdotc_sub(n, x.data(), incx, y.data(), incy, &ans);
+      return ans;
+    }
+    case il::Dot::None:
+      return il::dot(x, y);
+    default:
+      IL_UNREACHABLE;
+  }
+}
 
-  const IL_CBLAS_LAYOUT layout{CblasColMajor};
-  const CBLAS_TRANSPOSE transa{CblasNoTrans};
-  const IL_CBLAS_INT m{static_cast<IL_CBLAS_INT>(A.size(0))};
-  const IL_CBLAS_INT n{static_cast<IL_CBLAS_INT>(A.size(1))};
-  const IL_CBLAS_INT lda{static_cast<IL_CBLAS_INT>(A.stride(1))};
-  const IL_CBLAS_INT incx{1};
-  const IL_CBLAS_INT incy{1};
+inline std::complex<float> dot(il::ArrayView<std::complex<float>> x,
+                               il::ArrayView<std::complex<float>> y,
+                               il::Dot op) {
+  IL_EXPECT_FAST(x.size() == y.size());
+
+  switch (op) {
+    case il::Dot::Star: {
+      const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(x.size());
+      const IL_CBLAS_INT incx = 1;
+      const IL_CBLAS_INT incy = 1;
+      std::complex<float> ans;
+      cblas_cdotc_sub(n, x.data(), incx, y.data(), incy, &ans);
+      return std::conj(ans);
+    }
+    case il::Dot::None:
+      return il::dot(x, y);
+    default:
+      IL_UNREACHABLE;
+  }
+}
+
+inline std::complex<double> dot(il::ArrayView<std::complex<double>> x,
+                                il::ArrayView<std::complex<double>> y,
+                                il::Dot op) {
+  IL_EXPECT_FAST(x.size() == y.size());
+
+  switch (op) {
+    case il::Dot::Star: {
+      const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(x.size());
+      const IL_CBLAS_INT incx = 1;
+      const IL_CBLAS_INT incy = 1;
+      std::complex<double> ans;
+      cblas_zdotc_sub(n, x.data(), incx, y.data(), incy, &ans);
+      return std::conj(ans);
+    }
+    case il::Dot::None:
+      return il::dot(x, y);
+    default:
+      IL_UNREACHABLE;
+  }
+}
+
+// BLAS level 2
+//   y = alpha * A.x + beta * y
+
+inline void blas(float alpha, il::Array2DView<float> A, il::Dot op,
+                 il::ArrayView<float> x, float beta, il::io_t,
+                 il::ArrayEdit<float> y) {
+  switch (op) {
+    case il::Dot::None:
+      IL_EXPECT_FAST(A.size(0) == y.size());
+      IL_EXPECT_FAST(A.size(1) == x.size());
+      break;
+    case il::Dot::Transpose:
+    case il::Dot::Star:
+      IL_EXPECT_FAST(A.size(0) == x.size());
+      IL_EXPECT_FAST(A.size(1) == y.size());
+      break;
+    default:
+      IL_UNREACHABLE;
+  }
+  IL_EXPECT_FAST(x.data() != y.data());
+
+  const IL_CBLAS_LAYOUT layout = CblasColMajor;
+  const CBLAS_TRANSPOSE transa = il::blas_from_dot(op);
+  const IL_CBLAS_INT m = static_cast<IL_CBLAS_INT>(A.size(0));
+  const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(A.size(1));
+  const IL_CBLAS_INT lda = static_cast<IL_CBLAS_INT>(A.stride(1));
+  const IL_CBLAS_INT incx = 1;
+  const IL_CBLAS_INT incy = 1;
 
   cblas_sgemv(layout, transa, m, n, alpha, A.data(), lda, x.data(), incx, beta,
               y.Data(), incy);
 }
 
-// A is a matrix, x, y are vectors
-// y <- alpha A.x + beta y
-inline void blas(double alpha, const il::Array2D<double> &A,
-                 const il::Array<double> &x, double beta, il::io_t,
-                 il::Array<double> &y) {
-  IL_EXPECT_FAST(A.size(0) == y.size());
-  IL_EXPECT_FAST(A.size(1) == x.size());
-  IL_EXPECT_FAST(&x != &y);
-
-  const IL_CBLAS_LAYOUT layout{CblasColMajor};
-  const CBLAS_TRANSPOSE transa{CblasNoTrans};
-  const IL_CBLAS_INT m{static_cast<IL_CBLAS_INT>(A.size(0))};
-  const IL_CBLAS_INT n{static_cast<IL_CBLAS_INT>(A.size(1))};
-  const IL_CBLAS_INT lda{static_cast<IL_CBLAS_INT>(A.stride(1))};
-  const IL_CBLAS_INT incx{1};
-  const IL_CBLAS_INT incy{1};
-
-  cblas_dgemv(layout, transa, m, n, alpha, A.data(), lda, x.data(), incx, beta,
-              y.Data(), incy);
+inline void blas(float alpha, il::Array2DView<float> A, il::ArrayView<float> x,
+                 float beta, il::io_t, il::ArrayEdit<float> y) {
+  il::blas(alpha, A, il::Dot::None, x, beta, il::io, y);
 }
 
-// A is a matrix, x, y are vectors
-// y <- alpha A.x + beta y
-inline void blas(double alpha, const il::Array2DView<double> &A,
-                 const il::ArrayView<double> &x, double beta, il::io_t,
+inline void blas(double alpha, il::Array2DView<double> A, il::Dot op,
+                 il::ArrayView<double> x, double beta, il::io_t,
                  il::ArrayEdit<double> y) {
-  IL_EXPECT_FAST(A.size(0) == y.size());
-  IL_EXPECT_FAST(A.size(1) == x.size());
-
-  const IL_CBLAS_LAYOUT layout = CblasColMajor;
-  const CBLAS_TRANSPOSE transa = CblasNoTrans;
-  const IL_CBLAS_INT m = static_cast<IL_CBLAS_INT>(A.size(0));
-  const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(A.size(1));
-  const IL_CBLAS_INT lda = static_cast<IL_CBLAS_INT>(A.stride(1));
-  const IL_CBLAS_INT incx = 1;
-  const IL_CBLAS_INT incy = 1;
-
-  cblas_dgemv(layout, transa, m, n, alpha, A.data(), lda, x.data(), incx, beta,
-              y.Data(), incy);
-}
-
-// A is a matrix, x, y are vectors
-// y <- alpha A.x + beta y
-inline void blas(double alpha, const il::Array2DView<double> &A,
-                 il::Dot op, const il::ArrayView<double> &x,
-                 double beta, il::io_t, il::ArrayEdit<double> y) {
-  IL_EXPECT_FAST(op == il::Dot::Transpose);
-  IL_EXPECT_FAST(A.size(1) == y.size());
-  IL_EXPECT_FAST(A.size(0) == x.size());
-
-  const IL_CBLAS_LAYOUT layout = CblasColMajor;
-  const CBLAS_TRANSPOSE transa = CblasTrans;
-  const IL_CBLAS_INT m = static_cast<IL_CBLAS_INT>(A.size(0));
-  const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(A.size(1));
-  const IL_CBLAS_INT lda = static_cast<IL_CBLAS_INT>(A.stride(1));
-  const IL_CBLAS_INT incx = 1;
-  const IL_CBLAS_INT incy = 1;
-
-  cblas_dgemv(layout, transa, m, n, alpha, A.data(), lda, x.data(), incx, beta,
-              y.Data(), incy);
-}
-
-// A is a matrix, x, y are vectors
-// y <- alpha A.x + beta y
-inline void blas(double alpha, const il::Array2C<double> &A,
-                 const il::Array<double> &x, double beta, il::io_t,
-                 il::Array<double> &y) {
-  IL_EXPECT_FAST(A.size(0) == y.size());
-  IL_EXPECT_FAST(A.size(1) == x.size());
-  IL_EXPECT_FAST(&x != &y);
-
-  const IL_CBLAS_LAYOUT layout{CblasRowMajor};
-  const CBLAS_TRANSPOSE transa{CblasNoTrans};
-  const IL_CBLAS_INT m{static_cast<IL_CBLAS_INT>(A.size(0))};
-  const IL_CBLAS_INT n{static_cast<IL_CBLAS_INT>(A.size(1))};
-  const IL_CBLAS_INT lda{static_cast<IL_CBLAS_INT>(A.stride(0))};
-  const IL_CBLAS_INT incx{1};
-  const IL_CBLAS_INT incy{1};
-
-  cblas_dgemv(layout, transa, m, n, alpha, A.data(), lda, x.data(), incx, beta,
-              y.Data(), incy);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// BLAS Level 3
-////////////////////////////////////////////////////////////////////////////////
-
-// A, B, C are matrices
-// C <- alpha A.B + beta C
-inline void blas(float alpha, const il::Array2D<float> &A,
-                 const il::Array2D<float> &B, float beta, il::io_t,
-                 il::Array2D<float> &C) {
-  IL_EXPECT_FAST(A.size(1) == B.size(0));
-  IL_EXPECT_FAST(C.size(0) == A.size(0));
-  IL_EXPECT_FAST(C.size(1) == B.size(1));
-  IL_EXPECT_FAST(&A != &C);
-  IL_EXPECT_FAST(&B != &C);
-
-  const IL_CBLAS_LAYOUT layout{CblasColMajor};
-  const CBLAS_TRANSPOSE transa{CblasNoTrans};
-  const CBLAS_TRANSPOSE transb{CblasNoTrans};
-  const IL_CBLAS_INT m{static_cast<IL_CBLAS_INT>(A.size(0))};
-  const IL_CBLAS_INT n{static_cast<IL_CBLAS_INT>(B.size(1))};
-  const IL_CBLAS_INT k{static_cast<IL_CBLAS_INT>(A.size(1))};
-  const IL_CBLAS_INT lda{static_cast<IL_CBLAS_INT>(A.stride(1))};
-  const IL_CBLAS_INT ldb{static_cast<IL_CBLAS_INT>(B.stride(1))};
-  const IL_CBLAS_INT ldc{static_cast<IL_CBLAS_INT>(C.stride(1))};
-  cblas_sgemm(layout, transa, transb, m, n, k, alpha, A.data(), lda, B.data(),
-              ldb, beta, C.Data(), ldc);
-}
-
-inline void blas(float alpha, const il::Array2DView<float> &A,
-                 const il::Array2DView<float> &B, il::Dot op,
-                 float beta, il::io_t, il::Array2DEdit<float> C) {
-  IL_EXPECT_FAST(A.size(1) == B.size(1));
-  IL_EXPECT_FAST(C.size(0) == A.size(0));
-  IL_EXPECT_FAST(C.size(1) == B.size(0));
-  IL_EXPECT_FAST(op == il::Dot::Transpose);
-
-  const IL_CBLAS_LAYOUT layout = CblasColMajor;
-  const CBLAS_TRANSPOSE transa = CblasNoTrans;
-  const CBLAS_TRANSPOSE transb = CblasTrans;
-  const IL_CBLAS_INT m = static_cast<IL_CBLAS_INT>(A.size(0));
-  const IL_CBLAS_INT k = static_cast<IL_CBLAS_INT>(A.size(1));
-  const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(B.size(0));
-  const IL_CBLAS_INT lda = static_cast<IL_CBLAS_INT>(A.stride(1));
-  const IL_CBLAS_INT ldb = static_cast<IL_CBLAS_INT>(B.stride(1));
-  const IL_CBLAS_INT ldc = static_cast<IL_CBLAS_INT>(C.stride(1));
-  cblas_sgemm(layout, transa, transb, m, n, k, alpha, A.data(), lda, B.data(),
-              ldb, beta, C.Data(), ldc);
-}
-
-// A is a matrix, x, y are vectors
-// y <- alpha A.x + beta y
-template <il::int_t n>
-void blas(double alpha, const il::StaticArray2D<double, n, n> &A,
-          const il::StaticArray2D<double, n, n> &B, double beta, il::io_t,
-          il::StaticArray2D<double, n, n> &C) {
-  IL_EXPECT_FAST(&A != &C);
-  IL_EXPECT_FAST(&B != &C);
-
-  const IL_CBLAS_LAYOUT layout = CblasColMajor;
-  const CBLAS_TRANSPOSE transa = CblasNoTrans;
-  const CBLAS_TRANSPOSE transb = CblasNoTrans;
-  const IL_CBLAS_INT lapack_n = static_cast<IL_CBLAS_INT>(n);
-
-  cblas_dgemm(layout, transa, transb, lapack_n, lapack_n, lapack_n, alpha,
-              A.data(), lapack_n, B.data(), lapack_n, beta, C.Data(), lapack_n);
-}
-
-// A, B, C are matrices
-// C <- alpha A.B + beta C
-inline void blas(double alpha, const il::Array2D<double> &A,
-                 const il::Array2D<double> &B, double beta, il::io_t,
-                 il::Array2D<double> &C) {
-  IL_EXPECT_FAST(A.size(1) == B.size(0));
-  IL_EXPECT_FAST(C.size(0) == A.size(0));
-  IL_EXPECT_FAST(C.size(1) == B.size(1));
-  IL_EXPECT_FAST(&A != &C);
-  IL_EXPECT_FAST(&B != &C);
-
-  const IL_CBLAS_LAYOUT layout{CblasColMajor};
-  const CBLAS_TRANSPOSE transa{CblasNoTrans};
-  const CBLAS_TRANSPOSE transb{CblasNoTrans};
-  const IL_CBLAS_INT m{static_cast<IL_CBLAS_INT>(A.size(0))};
-  const IL_CBLAS_INT n{static_cast<IL_CBLAS_INT>(B.size(1))};
-  const IL_CBLAS_INT k{static_cast<IL_CBLAS_INT>(A.size(1))};
-  const IL_CBLAS_INT lda{static_cast<IL_CBLAS_INT>(A.stride(1))};
-  const IL_CBLAS_INT ldb{static_cast<IL_CBLAS_INT>(B.stride(1))};
-  const IL_CBLAS_INT ldc{static_cast<IL_CBLAS_INT>(C.stride(1))};
-  cblas_dgemm(layout, transa, transb, m, n, k, alpha, A.data(), lda, B.data(),
-              ldb, beta, C.Data(), ldc);
-}
-
-inline void blas(double alpha, const il::Array2DView<double> &A,
-                 const il::Array2DView<double> &B, double beta, il::io_t,
-                 il::Array2DEdit<double> C) {
-  IL_EXPECT_FAST(A.size(1) == B.size(0));
-  IL_EXPECT_FAST(C.size(0) == A.size(0));
-  IL_EXPECT_FAST(C.size(1) == B.size(1));
-
-  const IL_CBLAS_LAYOUT layout = CblasColMajor;
-  const CBLAS_TRANSPOSE trans = CblasNoTrans;
-  const IL_CBLAS_INT m = static_cast<IL_CBLAS_INT>(A.size(0));
-  const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(B.size(1));
-  const IL_CBLAS_INT k = static_cast<IL_CBLAS_INT>(A.size(1));
-  const IL_CBLAS_INT lda = static_cast<IL_CBLAS_INT>(A.stride(1));
-  const IL_CBLAS_INT ldb = static_cast<IL_CBLAS_INT>(B.stride(1));
-  const IL_CBLAS_INT ldc = static_cast<IL_CBLAS_INT>(C.stride(1));
-  cblas_dgemm(layout, trans, trans, m, n, k, alpha, A.data(), lda, B.data(),
-              ldb, beta, C.Data(), ldc);
-}
-
-inline void blas(double alpha, const il::Array2DView<double> &A,
-                 il::Dot op, const il::Array2DView<double> &B,
-                 double beta, il::io_t, il::Array2DEdit<double> C) {
-  IL_EXPECT_FAST(A.size(0) == B.size(0));
-  IL_EXPECT_FAST(C.size(0) == A.size(1));
-  IL_EXPECT_FAST(C.size(1) == B.size(1));
-  IL_EXPECT_FAST(op == il::Dot::Transpose);
-
-  const IL_CBLAS_LAYOUT layout = CblasColMajor;
-  const CBLAS_TRANSPOSE transa = CblasTrans;
-  const CBLAS_TRANSPOSE transb = CblasNoTrans;
-  const IL_CBLAS_INT m = static_cast<IL_CBLAS_INT>(A.size(1));
-  const IL_CBLAS_INT k = static_cast<IL_CBLAS_INT>(A.size(0));
-  const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(B.size(1));
-  const IL_CBLAS_INT lda = static_cast<IL_CBLAS_INT>(A.stride(1));
-  const IL_CBLAS_INT ldb = static_cast<IL_CBLAS_INT>(B.stride(1));
-  const IL_CBLAS_INT ldc = static_cast<IL_CBLAS_INT>(C.stride(1));
-  cblas_dgemm(layout, transa, transb, m, n, k, alpha, A.data(), lda, B.data(),
-              ldb, beta, C.Data(), ldc);
-}
-
-inline void blas(double alpha, const il::Array2DView<double> &A,
-                 const il::Array2DView<double> &B, il::Dot op,
-                 double beta, il::io_t, il::Array2DEdit<double> C) {
-  IL_EXPECT_FAST(A.size(1) == B.size(1));
-  IL_EXPECT_FAST(C.size(0) == A.size(0));
-  IL_EXPECT_FAST(C.size(1) == B.size(0));
-  IL_EXPECT_FAST(op == il::Dot::Transpose);
-
-  const IL_CBLAS_LAYOUT layout = CblasColMajor;
-  const CBLAS_TRANSPOSE transa = CblasNoTrans;
-  const CBLAS_TRANSPOSE transb = CblasTrans;
-  const IL_CBLAS_INT m = static_cast<IL_CBLAS_INT>(A.size(0));
-  const IL_CBLAS_INT k = static_cast<IL_CBLAS_INT>(A.size(1));
-  const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(B.size(0));
-  const IL_CBLAS_INT lda = static_cast<IL_CBLAS_INT>(A.stride(1));
-  const IL_CBLAS_INT ldb = static_cast<IL_CBLAS_INT>(B.stride(1));
-  const IL_CBLAS_INT ldc = static_cast<IL_CBLAS_INT>(C.stride(1));
-  cblas_dgemm(layout, transa, transb, m, n, k, alpha, A.data(), lda, B.data(),
-              ldb, beta, C.Data(), ldc);
-}
-
-inline void blas(double alpha, const il::Array2D<double> &A,
-                 il::MatrixType info_a, const il::Array2D<double> &B,
-                 il::MatrixType info_b, double beta, il::io_t,
-                 il::Array2D<double> &C) {
-  IL_EXPECT_FAST(A.size(1) == B.size(0));
-  IL_EXPECT_FAST(C.size(0) == A.size(0));
-  IL_EXPECT_FAST(C.size(1) == B.size(1));
-  IL_EXPECT_FAST(&A != &C);
-  IL_EXPECT_FAST(&B != &C);
-
-  const IL_CBLAS_LAYOUT layout{CblasColMajor};
-  const CBLAS_TRANSPOSE transa{CblasNoTrans};
-  const CBLAS_TRANSPOSE transb{CblasNoTrans};
-  const IL_CBLAS_INT m{static_cast<IL_CBLAS_INT>(A.size(0))};
-  const IL_CBLAS_INT n{static_cast<IL_CBLAS_INT>(B.size(1))};
-  const IL_CBLAS_INT k{static_cast<IL_CBLAS_INT>(A.size(1))};
-  const IL_CBLAS_INT lda{static_cast<IL_CBLAS_INT>(A.stride(1))};
-  const IL_CBLAS_INT ldb{static_cast<IL_CBLAS_INT>(B.stride(1))};
-  const IL_CBLAS_INT ldc{static_cast<IL_CBLAS_INT>(C.stride(1))};
-  if (info_a == il::MatrixType::SymmetricUpper &&
-      info_b == il::MatrixType::Regular) {
-    IL_EXPECT_FAST(A.size(0) == A.size(1));
-    const CBLAS_SIDE side{CblasLeft};
-    const CBLAS_UPLO uplo{CblasUpper};
-    cblas_dsymm(layout, side, uplo, m, n, alpha, A.data(), lda, B.data(), ldb,
-                beta, C.Data(), ldc);
-  } else {
-    (void)transa;
-    (void)transb;
-    (void)k;
-    abort();
+  switch (op) {
+    case il::Dot::None:
+      IL_EXPECT_FAST(A.size(0) == y.size());
+      IL_EXPECT_FAST(A.size(1) == x.size());
+      break;
+    case il::Dot::Transpose:
+    case il::Dot::Star:
+      IL_EXPECT_FAST(A.size(0) == x.size());
+      IL_EXPECT_FAST(A.size(1) == y.size());
+      break;
+    default:
+      IL_UNREACHABLE;
   }
+  IL_EXPECT_FAST(x.data() != y.data());
+
+  const IL_CBLAS_LAYOUT layout = CblasColMajor;
+  const CBLAS_TRANSPOSE transa = il::blas_from_dot(op);
+  const IL_CBLAS_INT m = static_cast<IL_CBLAS_INT>(A.size(0));
+  const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(A.size(1));
+  const IL_CBLAS_INT lda = static_cast<IL_CBLAS_INT>(A.stride(1));
+  const IL_CBLAS_INT incx = 1;
+  const IL_CBLAS_INT incy = 1;
+
+  cblas_dgemv(layout, transa, m, n, alpha, A.data(), lda, x.data(), incx, beta,
+              y.Data(), incy);
 }
 
-// A, B, C are matrices
-// C <- alpha A.B + beta C
-inline void blas(float alpha, const il::Array2C<float> &A,
-                 const il::Array2C<float> &B, float beta, il::io_t,
-                 il::Array2C<float> &C) {
-  IL_EXPECT_FAST(A.size(1) == B.size(0));
-  IL_EXPECT_FAST(C.size(0) == A.size(0));
-  IL_EXPECT_FAST(C.size(1) == B.size(1));
-  IL_EXPECT_FAST(&A != &C);
-  IL_EXPECT_FAST(&B != &C);
-
-  const IL_CBLAS_LAYOUT layout{CblasRowMajor};
-  const CBLAS_TRANSPOSE transa{CblasNoTrans};
-  const CBLAS_TRANSPOSE transb{CblasNoTrans};
-  const IL_CBLAS_INT m{static_cast<IL_CBLAS_INT>(A.size(0))};
-  const IL_CBLAS_INT n{static_cast<IL_CBLAS_INT>(B.size(1))};
-  const IL_CBLAS_INT k{static_cast<IL_CBLAS_INT>(A.size(1))};
-  const IL_CBLAS_INT lda{static_cast<IL_CBLAS_INT>(A.stride(0))};
-  const IL_CBLAS_INT ldb{static_cast<IL_CBLAS_INT>(B.stride(0))};
-  const IL_CBLAS_INT ldc{static_cast<IL_CBLAS_INT>(C.stride(0))};
-  cblas_sgemm(layout, transa, transb, m, n, k, alpha, A.data(), lda, B.data(),
-              ldb, beta, C.Data(), ldc);
+inline void blas(double alpha, il::Array2DView<double> A,
+                 il::ArrayView<double> x, double beta, il::io_t,
+                 il::ArrayEdit<double> y) {
+  il::blas(alpha, A, il::Dot::None, x, beta, il::io, y);
 }
 
-inline void blas(float alpha, const il::Array2CView<float> &A,
-                 const il::Array2CView<float> &B, il::Dot op,
-                 float beta, il::io_t, il::Array2CEdit<float> C) {
-  IL_EXPECT_FAST(A.size(1) == B.size(1));
-  IL_EXPECT_FAST(C.size(0) == A.size(0));
-  IL_EXPECT_FAST(C.size(1) == B.size(0));
-  IL_EXPECT_FAST(op == il::Dot::Transpose);
+inline void blas(std::complex<float> alpha,
+                 il::Array2DView<std::complex<float>> A, il::Dot dot,
+                 il::ArrayView<std::complex<float>> x, std::complex<float> beta,
+                 il::io_t, il::ArrayEdit<std::complex<float>> y) {
+  switch (dot) {
+    case il::Dot::None:
+      IL_EXPECT_FAST(A.size(0) == y.size());
+      IL_EXPECT_FAST(A.size(1) == x.size());
+      break;
+    case il::Dot::Transpose:
+    case il::Dot::Star:
+      IL_EXPECT_FAST(A.size(0) == x.size());
+      IL_EXPECT_FAST(A.size(1) == y.size());
+      break;
+    default:
+      IL_UNREACHABLE;
+  }
+  IL_EXPECT_FAST(x.data() != y.data());
+
+  const IL_CBLAS_LAYOUT layout = CblasColMajor;
+  const CBLAS_TRANSPOSE transa = il::blas_from_dot(dot);
+  const IL_CBLAS_INT m = static_cast<IL_CBLAS_INT>(A.size(0));
+  const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(A.size(1));
+  const IL_CBLAS_INT lda = static_cast<IL_CBLAS_INT>(A.stride(1));
+  const IL_CBLAS_INT incx = 1;
+  const IL_CBLAS_INT incy = 1;
+
+  cblas_cgemv(layout, transa, m, n, &alpha, A.data(), lda, x.data(), incx,
+              &beta, y.Data(), incy);
+}
+
+inline void blas(std::complex<float> alpha,
+                 il::Array2DView<std::complex<float>> A,
+                 il::ArrayView<std::complex<float>> x, std::complex<float> beta,
+                 il::io_t, il::ArrayEdit<std::complex<float>> y) {
+  il::blas(alpha, A, il::Dot::None, x, beta, il::io, y);
+}
+
+inline void blas(std::complex<double> alpha,
+                 il::Array2DView<std::complex<double>> A, il::Dot dot,
+                 il::ArrayView<std::complex<double>> x,
+                 std::complex<double> beta, il::io_t,
+                 il::ArrayEdit<std::complex<double>> y) {
+  switch (dot) {
+    case il::Dot::None:
+      IL_EXPECT_FAST(A.size(0) == y.size());
+      IL_EXPECT_FAST(A.size(1) == x.size());
+      break;
+    case il::Dot::Transpose:
+    case il::Dot::Star:
+      IL_EXPECT_FAST(A.size(0) == x.size());
+      IL_EXPECT_FAST(A.size(1) == y.size());
+      break;
+    default:
+      IL_UNREACHABLE;
+  }
+  IL_EXPECT_FAST(x.data() != y.data());
+
+  const IL_CBLAS_LAYOUT layout = CblasColMajor;
+  const CBLAS_TRANSPOSE transa = il::blas_from_dot(dot);
+  const IL_CBLAS_INT m = static_cast<IL_CBLAS_INT>(A.size(0));
+  const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(A.size(1));
+  const IL_CBLAS_INT lda = static_cast<IL_CBLAS_INT>(A.stride(1));
+  const IL_CBLAS_INT incx = 1;
+  const IL_CBLAS_INT incy = 1;
+
+  cblas_zgemv(layout, transa, m, n, &alpha, A.data(), lda, x.data(), incx,
+              &beta, y.Data(), incy);
+}
+
+inline void blas(std::complex<double> alpha,
+                 il::Array2DView<std::complex<double>> A,
+                 il::ArrayView<std::complex<double>> x,
+                 std::complex<double> beta, il::io_t,
+                 il::ArrayEdit<std::complex<double>> y) {
+  il::blas(alpha, A, il::Dot::None, x, beta, il::io, y);
+}
+
+inline void blas(float alpha, il::Array2CView<float> A, il::Dot op,
+                 il::ArrayView<float> x, float beta, il::io_t,
+                 il::ArrayEdit<float> y) {
+  switch (op) {
+    case il::Dot::None:
+      IL_EXPECT_FAST(A.size(0) == y.size());
+      IL_EXPECT_FAST(A.size(1) == x.size());
+      break;
+    case il::Dot::Transpose:
+    case il::Dot::Star:
+      IL_EXPECT_FAST(A.size(0) == x.size());
+      IL_EXPECT_FAST(A.size(1) == y.size());
+      break;
+    default:
+      IL_UNREACHABLE;
+  }
+  IL_EXPECT_FAST(x.data() != y.data());
 
   const IL_CBLAS_LAYOUT layout = CblasRowMajor;
-  const CBLAS_TRANSPOSE transa = CblasNoTrans;
-  const CBLAS_TRANSPOSE transb = CblasTrans;
+  const CBLAS_TRANSPOSE transa = il::blas_from_dot(op);
   const IL_CBLAS_INT m = static_cast<IL_CBLAS_INT>(A.size(0));
-  const IL_CBLAS_INT k = static_cast<IL_CBLAS_INT>(A.size(1));
-  const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(B.size(0));
+  const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(A.size(1));
+  const IL_CBLAS_INT lda = static_cast<IL_CBLAS_INT>(A.stride(0));
+  const IL_CBLAS_INT incx = 1;
+  const IL_CBLAS_INT incy = 1;
+
+  cblas_sgemv(layout, transa, m, n, alpha, A.data(), lda, x.data(), incx, beta,
+              y.Data(), incy);
+}
+
+inline void blas(float alpha, il::Array2CView<float> A, il::ArrayView<float> x,
+                 float beta, il::io_t, il::ArrayEdit<float> y) {
+  il::blas(alpha, A, il::Dot::None, x, beta, il::io, y);
+}
+
+inline void blas(double alpha, il::Array2CView<double> A, il::Dot op,
+                 il::ArrayView<double> x, double beta, il::io_t,
+                 il::ArrayEdit<double> y) {
+  switch (op) {
+    case il::Dot::None:
+      IL_EXPECT_FAST(A.size(0) == y.size());
+      IL_EXPECT_FAST(A.size(1) == x.size());
+      break;
+    case il::Dot::Transpose:
+      IL_EXPECT_FAST(A.size(0) == x.size());
+      IL_EXPECT_FAST(A.size(1) == y.size());
+      break;
+    default:
+      IL_UNREACHABLE;
+  }
+  IL_EXPECT_FAST(x.data() != y.data());
+
+  const IL_CBLAS_LAYOUT layout = CblasRowMajor;
+  const CBLAS_TRANSPOSE transa = il::blas_from_dot(op);
+  const IL_CBLAS_INT m = static_cast<IL_CBLAS_INT>(A.size(0));
+  const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(A.size(1));
+  const IL_CBLAS_INT lda = static_cast<IL_CBLAS_INT>(A.stride(0));
+  const IL_CBLAS_INT incx = 1;
+  const IL_CBLAS_INT incy = 1;
+
+  cblas_dgemv(layout, transa, m, n, alpha, A.data(), lda, x.data(), incx, beta,
+              y.Data(), incy);
+}
+
+inline void blas(double alpha, il::Array2CView<double> A,
+                 il::ArrayView<double> x, double beta, il::io_t,
+                 il::ArrayEdit<double> y) {
+  il::blas(alpha, A, il::Dot::None, x, beta, il::io, y);
+}
+
+inline void blas(std::complex<float> alpha,
+                 il::Array2CView<std::complex<float>> A, il::Dot dot,
+                 il::ArrayView<std::complex<float>> x, std::complex<float> beta,
+                 il::io_t, il::ArrayEdit<std::complex<float>> y) {
+  switch (dot) {
+    case il::Dot::None:
+      IL_EXPECT_FAST(A.size(0) == y.size());
+      IL_EXPECT_FAST(A.size(1) == x.size());
+      break;
+    case il::Dot::Transpose:
+    case il::Dot::Star:
+      IL_EXPECT_FAST(A.size(0) == x.size());
+      IL_EXPECT_FAST(A.size(1) == y.size());
+      break;
+    default:
+      IL_UNREACHABLE;
+  }
+  IL_EXPECT_FAST(x.data() != y.data());
+
+  const IL_CBLAS_LAYOUT layout = CblasRowMajor;
+  const CBLAS_TRANSPOSE transa = il::blas_from_dot(dot);
+  const IL_CBLAS_INT m = static_cast<IL_CBLAS_INT>(A.size(0));
+  const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(A.size(1));
+  const IL_CBLAS_INT lda = static_cast<IL_CBLAS_INT>(A.stride(0));
+  const IL_CBLAS_INT incx = 1;
+  const IL_CBLAS_INT incy = 1;
+
+  cblas_cgemv(layout, transa, m, n, &alpha, A.data(), lda, x.data(), incx,
+              &beta, y.Data(), incy);
+}
+
+inline void blas(std::complex<float> alpha,
+                 il::Array2CView<std::complex<float>> A,
+                 il::ArrayView<std::complex<float>> x, std::complex<float> beta,
+                 il::io_t, il::ArrayEdit<std::complex<float>> y) {
+  il::blas(alpha, A, il::Dot::None, x, beta, il::io, y);
+}
+
+inline void blas(std::complex<double> alpha,
+                 il::Array2CView<std::complex<double>> A, il::Dot dot,
+                 il::ArrayView<std::complex<double>> x,
+                 std::complex<double> beta, il::io_t,
+                 il::ArrayEdit<std::complex<double>> y) {
+  switch (dot) {
+    case il::Dot::None:
+      IL_EXPECT_FAST(A.size(0) == y.size());
+      IL_EXPECT_FAST(A.size(1) == x.size());
+      break;
+    case il::Dot::Transpose:
+    case il::Dot::Star:
+      IL_EXPECT_FAST(A.size(0) == x.size());
+      IL_EXPECT_FAST(A.size(1) == y.size());
+      break;
+    default:
+      IL_UNREACHABLE;
+  }
+  IL_EXPECT_FAST(x.data() != y.data());
+
+  const IL_CBLAS_LAYOUT layout = CblasRowMajor;
+  const CBLAS_TRANSPOSE transa = il::blas_from_dot(dot);
+  const IL_CBLAS_INT m = static_cast<IL_CBLAS_INT>(A.size(0));
+  const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(A.size(1));
+  const IL_CBLAS_INT lda = static_cast<IL_CBLAS_INT>(A.stride(0));
+  const IL_CBLAS_INT incx = 1;
+  const IL_CBLAS_INT incy = 1;
+
+  cblas_zgemv(layout, transa, m, n, &alpha, A.data(), lda, x.data(), incx,
+              &beta, y.Data(), incy);
+}
+
+inline void blas(std::complex<double> alpha,
+                 il::Array2CView<std::complex<double>> A,
+                 il::ArrayView<std::complex<double>> x,
+                 std::complex<double> beta, il::io_t,
+                 il::ArrayEdit<std::complex<double>> y) {
+  il::blas(alpha, A, il::Dot::None, x, beta, il::io, y);
+}
+
+// BLAS level 3
+//   C = alpha * A.B + beta * C
+
+inline void blas(float alpha, il::Array2DView<float> A, il::Dot opa,
+                 il::Array2DView<float> B, il::Dot opb, float beta, il::io_t,
+                 il::Array2DEdit<float> C) {
+  if (opa == il::Dot::None && opb == il::Dot::None) {
+    IL_EXPECT_FAST(A.size(1) == B.size(0));
+    IL_EXPECT_FAST(C.size(0) == A.size(0));
+    IL_EXPECT_FAST(C.size(1) == B.size(1));
+  } else if (opa == il::Dot::None) {
+    IL_EXPECT_FAST(A.size(1) == B.size(1));
+    IL_EXPECT_FAST(C.size(0) == A.size(0));
+    IL_EXPECT_FAST(C.size(1) == B.size(0));
+  } else if (opb == il::Dot::None) {
+    IL_EXPECT_FAST(A.size(0) == B.size(0));
+    IL_EXPECT_FAST(C.size(0) == A.size(1));
+    IL_EXPECT_FAST(C.size(1) == B.size(1));
+  }
+  IL_EXPECT_FAST(A.data() != C.data());
+  IL_EXPECT_FAST(B.data() != C.data());
+
+  const IL_CBLAS_LAYOUT layout = CblasColMajor;
+  const CBLAS_TRANSPOSE transa = il::blas_from_dot(opa);
+  const CBLAS_TRANSPOSE transb = il::blas_from_dot(opb);
+  const IL_CBLAS_INT m =
+      static_cast<IL_CBLAS_INT>(opa == il::Dot::None ? A.size(0) : A.size(1));
+  const IL_CBLAS_INT n =
+      static_cast<IL_CBLAS_INT>(opb == il::Dot::None ? B.size(1) : B.size(0));
+  const IL_CBLAS_INT k =
+      static_cast<IL_CBLAS_INT>(opa == il::Dot::None ? A.size(1) : A.size(0));
   const IL_CBLAS_INT lda = static_cast<IL_CBLAS_INT>(A.stride(1));
   const IL_CBLAS_INT ldb = static_cast<IL_CBLAS_INT>(B.stride(1));
   const IL_CBLAS_INT ldc = static_cast<IL_CBLAS_INT>(C.stride(1));
@@ -446,107 +605,427 @@ inline void blas(float alpha, const il::Array2CView<float> &A,
               ldb, beta, C.Data(), ldc);
 }
 
+inline void blas(float alpha, il::Array2DView<float> A,
+                 il::Array2DView<float> B, float beta, il::io_t,
+                 il::Array2DEdit<float> C) {
+  il::blas(alpha, A, il::Dot::None, B, il::Dot::None, beta, il::io, C);
+}
 
-// A, B, C are matrices
-// C <- alpha A.B + beta C
-inline void blas(double alpha, const il::Array2C<double> &A,
-                 const il::Array2C<double> &B, double beta, il::io_t,
-                 il::Array2C<double> &C) {
-  IL_EXPECT_FAST(A.size(1) == B.size(0));
-  IL_EXPECT_FAST(C.size(0) == A.size(0));
-  IL_EXPECT_FAST(C.size(1) == B.size(1));
-  IL_EXPECT_FAST(&A != &C);
-  IL_EXPECT_FAST(&B != &C);
+inline void blas(float alpha, il::Array2DView<float> A, il::Dot op,
+                 il::Array2DView<float> B, float beta, il::io_t,
+                 il::Array2DEdit<float> C) {
+  il::blas(alpha, A, op, B, il::Dot::None, beta, il::io, C);
+}
 
-  const IL_CBLAS_LAYOUT layout{CblasRowMajor};
-  const CBLAS_TRANSPOSE transa{CblasNoTrans};
-  const CBLAS_TRANSPOSE transb{CblasNoTrans};
-  const IL_CBLAS_INT m{static_cast<IL_CBLAS_INT>(A.size(0))};
-  const IL_CBLAS_INT n{static_cast<IL_CBLAS_INT>(B.size(1))};
-  const IL_CBLAS_INT k{static_cast<IL_CBLAS_INT>(A.size(1))};
-  const IL_CBLAS_INT lda{static_cast<IL_CBLAS_INT>(A.stride(0))};
-  const IL_CBLAS_INT ldb{static_cast<IL_CBLAS_INT>(B.stride(0))};
-  const IL_CBLAS_INT ldc{static_cast<IL_CBLAS_INT>(C.stride(0))};
+inline void blas(float alpha, il::Array2DView<float> A,
+                 il::Array2DView<float> B, il::Dot op, float beta, il::io_t,
+                 il::Array2DEdit<float> C) {
+  il::blas(alpha, A, il::Dot::None, B, op, beta, il::io, C);
+}
+
+inline void blas(double alpha, il::Array2DView<double> A, il::Dot opa,
+                 il::Array2DView<double> B, il::Dot opb, double beta, il::io_t,
+                 il::Array2DEdit<double> C) {
+  if (opa == il::Dot::None && opb == il::Dot::None) {
+    IL_EXPECT_FAST(A.size(1) == B.size(0));
+    IL_EXPECT_FAST(C.size(0) == A.size(0));
+    IL_EXPECT_FAST(C.size(1) == B.size(1));
+  } else if (opa == il::Dot::None) {
+    IL_EXPECT_FAST(A.size(1) == B.size(1));
+    IL_EXPECT_FAST(C.size(0) == A.size(0));
+    IL_EXPECT_FAST(C.size(1) == B.size(0));
+  } else if (opb == il::Dot::None) {
+    IL_EXPECT_FAST(A.size(0) == B.size(0));
+    IL_EXPECT_FAST(C.size(0) == A.size(1));
+    IL_EXPECT_FAST(C.size(1) == B.size(1));
+  }
+  IL_EXPECT_FAST(A.data() != C.data());
+  IL_EXPECT_FAST(B.data() != C.data());
+
+  const IL_CBLAS_LAYOUT layout = CblasColMajor;
+  const CBLAS_TRANSPOSE transa = il::blas_from_dot(opa);
+  const CBLAS_TRANSPOSE transb = il::blas_from_dot(opb);
+  const IL_CBLAS_INT m =
+      static_cast<IL_CBLAS_INT>(opa == il::Dot::None ? A.size(0) : A.size(1));
+  const IL_CBLAS_INT n =
+      static_cast<IL_CBLAS_INT>(opb == il::Dot::None ? B.size(1) : B.size(0));
+  const IL_CBLAS_INT k =
+      static_cast<IL_CBLAS_INT>(opa == il::Dot::None ? A.size(1) : A.size(0));
+  const IL_CBLAS_INT lda = static_cast<IL_CBLAS_INT>(A.stride(1));
+  const IL_CBLAS_INT ldb = static_cast<IL_CBLAS_INT>(B.stride(1));
+  const IL_CBLAS_INT ldc = static_cast<IL_CBLAS_INT>(C.stride(1));
   cblas_dgemm(layout, transa, transb, m, n, k, alpha, A.data(), lda, B.data(),
               ldb, beta, C.Data(), ldc);
 }
 
-inline void blas(double alpha, const il::Array2C<double> &A,
-                 il::MatrixType info_a, const il::Array2C<double> &B,
-                 il::MatrixType info_b, double beta, il::io_t,
-                 il::Array2C<double> &C) {
-  IL_EXPECT_FAST(A.size(1) == B.size(0));
-  IL_EXPECT_FAST(C.size(0) == A.size(0));
-  IL_EXPECT_FAST(C.size(1) == B.size(1));
-  IL_EXPECT_FAST(&A != &C);
-  IL_EXPECT_FAST(&B != &C);
-
-  const IL_CBLAS_LAYOUT layout{CblasRowMajor};
-  const CBLAS_TRANSPOSE transa{CblasNoTrans};
-  const CBLAS_TRANSPOSE transb{CblasNoTrans};
-  const IL_CBLAS_INT m{static_cast<IL_CBLAS_INT>(A.size(0))};
-  const IL_CBLAS_INT n{static_cast<IL_CBLAS_INT>(B.size(1))};
-  const IL_CBLAS_INT k{static_cast<IL_CBLAS_INT>(A.size(1))};
-  const IL_CBLAS_INT lda{static_cast<IL_CBLAS_INT>(A.stride(0))};
-  const IL_CBLAS_INT ldb{static_cast<IL_CBLAS_INT>(B.stride(0))};
-  const IL_CBLAS_INT ldc{static_cast<IL_CBLAS_INT>(C.stride(0))};
-  if (info_a == il::MatrixType::SymmetricUpper &&
-      info_b == il::MatrixType::Regular) {
-    IL_EXPECT_FAST(A.size(0) == A.size(1));
-    const CBLAS_SIDE side{CblasLeft};
-    const CBLAS_UPLO uplo{CblasUpper};
-    cblas_dsymm(layout, side, uplo, m, n, alpha, A.data(), lda, B.data(), ldb,
-                beta, C.Data(), ldc);
-  } else {
-    (void)transa;
-    (void)transb;
-    (void)k;
-    abort();
-  }
-}
-#endif  // IL_MKL
-
-template <typename T, il::int_t n0, il::int_t n>
-void blas(double alpha, const il::StaticArray2D<T, n0, n> &A,
-          const il::StaticArray<T, n> &B, double beta, il::io_t,
-          il::StaticArray<T, n0> &C) {
-  for (il::int_t i0 = 0; i0 < n0; ++i0) {
-    C[i0] *= beta;
-    for (il::int_t i = 0; i < n; ++i) {
-      C[i0] += alpha * A(i0, i) * B[i];
-    }
-  }
+inline void blas(double alpha, il::Array2DView<double> A,
+                 il::Array2DView<double> B, double beta, il::io_t,
+                 il::Array2DEdit<double> C) {
+  il::blas(alpha, A, il::Dot::None, B, il::Dot::None, beta, il::io, C);
 }
 
-template <typename T, il::int_t n0, il::int_t n1, il::int_t n>
-void blas(double alpha, const il::StaticArray3D<T, n0, n1, n> &A,
-          const il::StaticArray<T, n> &B, double beta, il::io_t,
-          il::StaticArray2D<T, n0, n1> &C) {
-  for (il::int_t i0 = 0; i0 < n0; ++i0) {
-    for (il::int_t i1 = 0; i1 < n1; ++i1) {
-      C(i0, i1) *= beta;
-      for (il::int_t i = 0; i < n; ++i) {
-        C(i0, i1) += alpha * A(i0, i1, i) * B[i];
-      }
-    }
-  }
+inline void blas(double alpha, il::Array2DView<double> A, il::Dot op,
+                 il::Array2DView<double> B, double beta, il::io_t,
+                 il::Array2DEdit<double> C) {
+  il::blas(alpha, A, op, B, il::Dot::None, beta, il::io, C);
 }
 
-template <typename T, il::int_t n0, il::int_t n1, il::int_t n2, il::int_t n>
-void blas(double alpha, const il::StaticArray4D<T, n0, n1, n2, n> &A,
-          const il::StaticArray<T, n> &B, double beta, il::io_t,
-          il::StaticArray3D<T, n0, n1, n2> &C) {
-  for (il::int_t i0 = 0; i0 < n0; ++i0) {
-    for (il::int_t i1 = 0; i1 < n1; ++i1) {
-      for (il::int_t i2 = 0; i2 < n2; ++i2) {
-        C(i0, i1, i2) *= beta;
-        for (il::int_t i = 0; i < n; ++i) {
-          C(i0, i1, i2) += alpha * A(i0, i1, i2, i) * B[i];
-        }
-      }
-    }
-  }
+inline void blas(double alpha, il::Array2DView<double> A,
+                 il::Array2DView<double> B, il::Dot op, double beta, il::io_t,
+                 il::Array2DEdit<double> C) {
+  il::blas(alpha, A, il::Dot::None, B, op, beta, il::io, C);
 }
+
+inline void blas(std::complex<float> alpha,
+                 il::Array2DView<std::complex<float>> A, il::Dot opa,
+                 il::Array2DView<std::complex<float>> B, il::Dot opb,
+                 std::complex<float> beta, il::io_t,
+                 il::Array2DEdit<std::complex<float>> C) {
+  if (opa == il::Dot::None && opb == il::Dot::None) {
+    IL_EXPECT_FAST(A.size(1) == B.size(0));
+    IL_EXPECT_FAST(C.size(0) == A.size(0));
+    IL_EXPECT_FAST(C.size(1) == B.size(1));
+  } else if (opa == il::Dot::None) {
+    IL_EXPECT_FAST(A.size(1) == B.size(1));
+    IL_EXPECT_FAST(C.size(0) == A.size(0));
+    IL_EXPECT_FAST(C.size(1) == B.size(0));
+  } else if (opb == il::Dot::None) {
+    IL_EXPECT_FAST(A.size(0) == B.size(0));
+    IL_EXPECT_FAST(C.size(0) == A.size(1));
+    IL_EXPECT_FAST(C.size(1) == B.size(1));
+  }
+  IL_EXPECT_FAST(A.data() != C.data());
+  IL_EXPECT_FAST(B.data() != C.data());
+
+  const IL_CBLAS_LAYOUT layout = CblasColMajor;
+  const CBLAS_TRANSPOSE transa = il::blas_from_dot(opa);
+  const CBLAS_TRANSPOSE transb = il::blas_from_dot(opb);
+  const IL_CBLAS_INT m =
+      static_cast<IL_CBLAS_INT>(opa == il::Dot::None ? A.size(0) : A.size(1));
+  const IL_CBLAS_INT n =
+      static_cast<IL_CBLAS_INT>(opb == il::Dot::None ? B.size(1) : B.size(0));
+  const IL_CBLAS_INT k =
+      static_cast<IL_CBLAS_INT>(opa == il::Dot::None ? A.size(1) : A.size(0));
+  const IL_CBLAS_INT lda = static_cast<IL_CBLAS_INT>(A.stride(1));
+  const IL_CBLAS_INT ldb = static_cast<IL_CBLAS_INT>(B.stride(1));
+  const IL_CBLAS_INT ldc = static_cast<IL_CBLAS_INT>(C.stride(1));
+  cblas_cgemm(layout, transa, transb, m, n, k, &alpha, A.data(), lda, B.data(),
+              ldb, &beta, C.Data(), ldc);
+}
+
+inline void blas(std::complex<float> alpha,
+                 il::Array2DView<std::complex<float>> A,
+                 il::Array2DView<std::complex<float>> B,
+                 std::complex<float> beta, il::io_t,
+                 il::Array2DEdit<std::complex<float>> C) {
+  il::blas(alpha, A, il::Dot::None, B, il::Dot::None, beta, il::io, C);
+}
+
+inline void blas(std::complex<float> alpha,
+                 il::Array2DView<std::complex<float>> A, il::Dot op,
+                 il::Array2DView<std::complex<float>> B,
+                 std::complex<float> beta, il::io_t,
+                 il::Array2DEdit<std::complex<float>> C) {
+  il::blas(alpha, A, op, B, il::Dot::None, beta, il::io, C);
+}
+
+inline void blas(std::complex<float> alpha,
+                 il::Array2DView<std::complex<float>> A,
+                 il::Array2DView<std::complex<float>> B, il::Dot op,
+                 std::complex<float> beta, il::io_t,
+                 il::Array2DEdit<std::complex<float>> C) {
+  il::blas(alpha, A, il::Dot::None, B, op, beta, il::io, C);
+}
+
+inline void blas(std::complex<double> alpha,
+                 il::Array2DView<std::complex<double>> A, il::Dot opa,
+                 il::Array2DView<std::complex<double>> B, il::Dot opb,
+                 std::complex<double> beta, il::io_t,
+                 il::Array2DEdit<std::complex<double>> C) {
+  if (opa == il::Dot::None && opb == il::Dot::None) {
+    IL_EXPECT_FAST(A.size(1) == B.size(0));
+    IL_EXPECT_FAST(C.size(0) == A.size(0));
+    IL_EXPECT_FAST(C.size(1) == B.size(1));
+  } else if (opa == il::Dot::None) {
+    IL_EXPECT_FAST(A.size(1) == B.size(1));
+    IL_EXPECT_FAST(C.size(0) == A.size(0));
+    IL_EXPECT_FAST(C.size(1) == B.size(0));
+  } else if (opb == il::Dot::None) {
+    IL_EXPECT_FAST(A.size(0) == B.size(0));
+    IL_EXPECT_FAST(C.size(0) == A.size(1));
+    IL_EXPECT_FAST(C.size(1) == B.size(1));
+  }
+  IL_EXPECT_FAST(A.data() != C.data());
+  IL_EXPECT_FAST(B.data() != C.data());
+
+  const IL_CBLAS_LAYOUT layout = CblasColMajor;
+  const CBLAS_TRANSPOSE transa = il::blas_from_dot(opa);
+  const CBLAS_TRANSPOSE transb = il::blas_from_dot(opb);
+  const IL_CBLAS_INT m =
+      static_cast<IL_CBLAS_INT>(opa == il::Dot::None ? A.size(0) : A.size(1));
+  const IL_CBLAS_INT n =
+      static_cast<IL_CBLAS_INT>(opb == il::Dot::None ? B.size(1) : B.size(0));
+  const IL_CBLAS_INT k =
+      static_cast<IL_CBLAS_INT>(opa == il::Dot::None ? A.size(1) : A.size(0));
+  const IL_CBLAS_INT lda = static_cast<IL_CBLAS_INT>(A.stride(1));
+  const IL_CBLAS_INT ldb = static_cast<IL_CBLAS_INT>(B.stride(1));
+  const IL_CBLAS_INT ldc = static_cast<IL_CBLAS_INT>(C.stride(1));
+  cblas_zgemm(layout, transa, transb, m, n, k, &alpha, A.data(), lda, B.data(),
+              ldb, &beta, C.Data(), ldc);
+}
+
+inline void blas(std::complex<double> alpha,
+                 il::Array2DView<std::complex<double>> A,
+                 il::Array2DView<std::complex<double>> B,
+                 std::complex<double> beta, il::io_t,
+                 il::Array2DEdit<std::complex<double>> C) {
+  il::blas(alpha, A, il::Dot::None, B, il::Dot::None, beta, il::io, C);
+}
+
+inline void blas(std::complex<double> alpha,
+                 il::Array2DView<std::complex<double>> A, il::Dot op,
+                 il::Array2DView<std::complex<double>> B,
+                 std::complex<double> beta, il::io_t,
+                 il::Array2DEdit<std::complex<double>> C) {
+  il::blas(alpha, A, op, B, il::Dot::None, beta, il::io, C);
+}
+
+inline void blas(std::complex<double> alpha,
+                 il::Array2DView<std::complex<double>> A,
+                 il::Array2DView<std::complex<double>> B, il::Dot op,
+                 std::complex<double> beta, il::io_t,
+                 il::Array2DEdit<std::complex<double>> C) {
+  il::blas(alpha, A, il::Dot::None, B, op, beta, il::io, C);
+}
+
+inline void blas(float alpha, il::Array2CView<float> A, il::Dot opa,
+                 il::Array2CView<float> B, il::Dot opb, float beta, il::io_t,
+                 il::Array2CEdit<float> C) {
+  if (opa == il::Dot::None && opb == il::Dot::None) {
+    IL_EXPECT_FAST(A.size(1) == B.size(0));
+    IL_EXPECT_FAST(C.size(0) == A.size(0));
+    IL_EXPECT_FAST(C.size(1) == B.size(1));
+  } else if (opa == il::Dot::None) {
+    IL_EXPECT_FAST(A.size(1) == B.size(1));
+    IL_EXPECT_FAST(C.size(0) == A.size(0));
+    IL_EXPECT_FAST(C.size(1) == B.size(0));
+  } else if (opb == il::Dot::None) {
+    IL_EXPECT_FAST(A.size(0) == B.size(0));
+    IL_EXPECT_FAST(C.size(0) == A.size(1));
+    IL_EXPECT_FAST(C.size(1) == B.size(1));
+  }
+  IL_EXPECT_FAST(A.data() != C.data());
+  IL_EXPECT_FAST(B.data() != C.data());
+
+  const IL_CBLAS_LAYOUT layout = CblasRowMajor;
+  const CBLAS_TRANSPOSE transa = il::blas_from_dot(opa);
+  const CBLAS_TRANSPOSE transb = il::blas_from_dot(opb);
+  const IL_CBLAS_INT m =
+      static_cast<IL_CBLAS_INT>(opa == il::Dot::None ? A.size(0) : A.size(1));
+  const IL_CBLAS_INT n =
+      static_cast<IL_CBLAS_INT>(opb == il::Dot::None ? B.size(1) : B.size(0));
+  const IL_CBLAS_INT k =
+      static_cast<IL_CBLAS_INT>(opa == il::Dot::None ? A.size(1) : A.size(0));
+  const IL_CBLAS_INT lda = static_cast<IL_CBLAS_INT>(A.stride(0));
+  const IL_CBLAS_INT ldb = static_cast<IL_CBLAS_INT>(B.stride(0));
+  const IL_CBLAS_INT ldc = static_cast<IL_CBLAS_INT>(C.stride(0));
+  cblas_sgemm(layout, transa, transb, m, n, k, alpha, A.data(), lda, B.data(),
+              ldb, beta, C.Data(), ldc);
+}
+
+inline void blas(float alpha, il::Array2CView<float> A,
+                 il::Array2CView<float> B, float beta, il::io_t,
+                 il::Array2CEdit<float> C) {
+  il::blas(alpha, A, il::Dot::None, B, il::Dot::None, beta, il::io, C);
+}
+
+inline void blas(float alpha, il::Array2CView<float> A, il::Dot op,
+                 il::Array2CView<float> B, float beta, il::io_t,
+                 il::Array2CEdit<float> C) {
+  il::blas(alpha, A, op, B, il::Dot::None, beta, il::io, C);
+}
+
+inline void blas(float alpha, il::Array2CView<float> A,
+                 il::Array2CView<float> B, il::Dot op, float beta, il::io_t,
+                 il::Array2CEdit<float> C) {
+  il::blas(alpha, A, il::Dot::None, B, op, beta, il::io, C);
+}
+
+inline void blas(double alpha, il::Array2CView<double> A, il::Dot opa,
+                 il::Array2CView<double> B, il::Dot opb, double beta, il::io_t,
+                 il::Array2CEdit<double> C) {
+  if (opa == il::Dot::None && opb == il::Dot::None) {
+    IL_EXPECT_FAST(A.size(1) == B.size(0));
+    IL_EXPECT_FAST(C.size(0) == A.size(0));
+    IL_EXPECT_FAST(C.size(1) == B.size(1));
+  } else if (opa == il::Dot::None) {
+    IL_EXPECT_FAST(A.size(1) == B.size(1));
+    IL_EXPECT_FAST(C.size(0) == A.size(0));
+    IL_EXPECT_FAST(C.size(1) == B.size(0));
+  } else if (opb == il::Dot::None) {
+    IL_EXPECT_FAST(A.size(0) == B.size(0));
+    IL_EXPECT_FAST(C.size(0) == A.size(1));
+    IL_EXPECT_FAST(C.size(1) == B.size(1));
+  }
+  IL_EXPECT_FAST(A.data() != C.data());
+  IL_EXPECT_FAST(B.data() != C.data());
+
+  const IL_CBLAS_LAYOUT layout = CblasRowMajor;
+  const CBLAS_TRANSPOSE transa = il::blas_from_dot(opa);
+  const CBLAS_TRANSPOSE transb = il::blas_from_dot(opb);
+  const IL_CBLAS_INT m =
+      static_cast<IL_CBLAS_INT>(opa == il::Dot::None ? A.size(0) : A.size(1));
+  const IL_CBLAS_INT n =
+      static_cast<IL_CBLAS_INT>(opb == il::Dot::None ? B.size(1) : B.size(0));
+  const IL_CBLAS_INT k =
+      static_cast<IL_CBLAS_INT>(opa == il::Dot::None ? A.size(1) : A.size(0));
+  const IL_CBLAS_INT lda = static_cast<IL_CBLAS_INT>(A.stride(0));
+  const IL_CBLAS_INT ldb = static_cast<IL_CBLAS_INT>(B.stride(0));
+  const IL_CBLAS_INT ldc = static_cast<IL_CBLAS_INT>(C.stride(0));
+  cblas_dgemm(layout, transa, transb, m, n, k, alpha, A.data(), lda, B.data(),
+              ldb, beta, C.Data(), ldc);
+}
+
+inline void blas(double alpha, il::Array2CView<double> A,
+                 il::Array2CView<double> B, double beta, il::io_t,
+                 il::Array2CEdit<double> C) {
+  il::blas(alpha, A, il::Dot::None, B, il::Dot::None, beta, il::io, C);
+}
+
+inline void blas(double alpha, il::Array2CView<double> A, il::Dot op,
+                 il::Array2CView<double> B, double beta, il::io_t,
+                 il::Array2CEdit<double> C) {
+  il::blas(alpha, A, op, B, il::Dot::None, beta, il::io, C);
+}
+
+inline void blas(double alpha, il::Array2CView<double> A,
+                 il::Array2CView<double> B, il::Dot op, double beta, il::io_t,
+                 il::Array2CEdit<double> C) {
+  il::blas(alpha, A, il::Dot::None, B, op, beta, il::io, C);
+}
+
+inline void blas(std::complex<float> alpha,
+                 il::Array2CView<std::complex<float>> A, il::Dot opa,
+                 il::Array2CView<std::complex<float>> B, il::Dot opb,
+                 std::complex<float> beta, il::io_t,
+                 il::Array2CEdit<std::complex<float>> C) {
+  if (opa == il::Dot::None && opb == il::Dot::None) {
+    IL_EXPECT_FAST(A.size(1) == B.size(0));
+    IL_EXPECT_FAST(C.size(0) == A.size(0));
+    IL_EXPECT_FAST(C.size(1) == B.size(1));
+  } else if (opa == il::Dot::None) {
+    IL_EXPECT_FAST(A.size(1) == B.size(1));
+    IL_EXPECT_FAST(C.size(0) == A.size(0));
+    IL_EXPECT_FAST(C.size(1) == B.size(0));
+  } else if (opb == il::Dot::None) {
+    IL_EXPECT_FAST(A.size(0) == B.size(0));
+    IL_EXPECT_FAST(C.size(0) == A.size(1));
+    IL_EXPECT_FAST(C.size(1) == B.size(1));
+  }
+  IL_EXPECT_FAST(A.data() != C.data());
+  IL_EXPECT_FAST(B.data() != C.data());
+
+  const IL_CBLAS_LAYOUT layout = CblasRowMajor;
+  const CBLAS_TRANSPOSE transa = il::blas_from_dot(opa);
+  const CBLAS_TRANSPOSE transb = il::blas_from_dot(opb);
+  const IL_CBLAS_INT m =
+      static_cast<IL_CBLAS_INT>(opa == il::Dot::None ? A.size(0) : A.size(1));
+  const IL_CBLAS_INT n =
+      static_cast<IL_CBLAS_INT>(opb == il::Dot::None ? B.size(1) : B.size(0));
+  const IL_CBLAS_INT k =
+      static_cast<IL_CBLAS_INT>(opa == il::Dot::None ? A.size(1) : A.size(0));
+  const IL_CBLAS_INT lda = static_cast<IL_CBLAS_INT>(A.stride(0));
+  const IL_CBLAS_INT ldb = static_cast<IL_CBLAS_INT>(B.stride(0));
+  const IL_CBLAS_INT ldc = static_cast<IL_CBLAS_INT>(C.stride(0));
+  cblas_cgemm(layout, transa, transb, m, n, k, &alpha, A.data(), lda, B.data(),
+              ldb, &beta, C.Data(), ldc);
+}
+
+inline void blas(std::complex<float> alpha,
+                 il::Array2CView<std::complex<float>> A,
+                 il::Array2CView<std::complex<float>> B,
+                 std::complex<float> beta, il::io_t,
+                 il::Array2CEdit<std::complex<float>> C) {
+  il::blas(alpha, A, il::Dot::None, B, il::Dot::None, beta, il::io, C);
+}
+
+inline void blas(std::complex<float> alpha,
+                 il::Array2CView<std::complex<float>> A, il::Dot op,
+                 il::Array2CView<std::complex<float>> B,
+                 std::complex<float> beta, il::io_t,
+                 il::Array2CEdit<std::complex<float>> C) {
+  il::blas(alpha, A, op, B, il::Dot::None, beta, il::io, C);
+}
+
+inline void blas(std::complex<float> alpha,
+                 il::Array2CView<std::complex<float>> A,
+                 il::Array2CView<std::complex<float>> B, il::Dot op,
+                 std::complex<float> beta, il::io_t,
+                 il::Array2CEdit<std::complex<float>> C) {
+  il::blas(alpha, A, il::Dot::None, B, op, beta, il::io, C);
+}
+
+inline void blas(std::complex<double> alpha,
+                 il::Array2CView<std::complex<double>> A, il::Dot opa,
+                 il::Array2CView<std::complex<double>> B, il::Dot opb,
+                 std::complex<double> beta, il::io_t,
+                 il::Array2CEdit<std::complex<double>> C) {
+  if (opa == il::Dot::None && opb == il::Dot::None) {
+    IL_EXPECT_FAST(A.size(1) == B.size(0));
+    IL_EXPECT_FAST(C.size(0) == A.size(0));
+    IL_EXPECT_FAST(C.size(1) == B.size(1));
+  } else if (opa == il::Dot::None) {
+    IL_EXPECT_FAST(A.size(1) == B.size(1));
+    IL_EXPECT_FAST(C.size(0) == A.size(0));
+    IL_EXPECT_FAST(C.size(1) == B.size(0));
+  } else if (opb == il::Dot::None) {
+    IL_EXPECT_FAST(A.size(0) == B.size(0));
+    IL_EXPECT_FAST(C.size(0) == A.size(1));
+    IL_EXPECT_FAST(C.size(1) == B.size(1));
+  }
+  IL_EXPECT_FAST(A.data() != C.data());
+  IL_EXPECT_FAST(B.data() != C.data());
+
+  const IL_CBLAS_LAYOUT layout = CblasRowMajor;
+  const CBLAS_TRANSPOSE transa = il::blas_from_dot(opa);
+  const CBLAS_TRANSPOSE transb = il::blas_from_dot(opb);
+  const IL_CBLAS_INT m =
+      static_cast<IL_CBLAS_INT>(opa == il::Dot::None ? A.size(0) : A.size(1));
+  const IL_CBLAS_INT n =
+      static_cast<IL_CBLAS_INT>(opb == il::Dot::None ? B.size(1) : B.size(0));
+  const IL_CBLAS_INT k =
+      static_cast<IL_CBLAS_INT>(opa == il::Dot::None ? A.size(1) : A.size(0));
+  const IL_CBLAS_INT lda = static_cast<IL_CBLAS_INT>(A.stride(0));
+  const IL_CBLAS_INT ldb = static_cast<IL_CBLAS_INT>(B.stride(0));
+  const IL_CBLAS_INT ldc = static_cast<IL_CBLAS_INT>(C.stride(0));
+  cblas_zgemm(layout, transa, transb, m, n, k, &alpha, A.data(), lda, B.data(),
+              ldb, &beta, C.Data(), ldc);
+}
+
+inline void blas(std::complex<double> alpha,
+                 il::Array2CView<std::complex<double>> A,
+                 il::Array2CView<std::complex<double>> B,
+                 std::complex<double> beta, il::io_t,
+                 il::Array2CEdit<std::complex<double>> C) {
+  il::blas(alpha, A, il::Dot::None, B, il::Dot::None, beta, il::io, C);
+}
+
+inline void blas(std::complex<double> alpha,
+                 il::Array2CView<std::complex<double>> A, il::Dot op,
+                 il::Array2CView<std::complex<double>> B,
+                 std::complex<double> beta, il::io_t,
+                 il::Array2CEdit<std::complex<double>> C) {
+  il::blas(alpha, A, op, B, il::Dot::None, beta, il::io, C);
+}
+
+inline void blas(std::complex<double> alpha,
+                 il::Array2CView<std::complex<double>> A,
+                 il::Array2CView<std::complex<double>> B, il::Dot op,
+                 std::complex<double> beta, il::io_t,
+                 il::Array2CEdit<std::complex<double>> C) {
+  il::blas(alpha, A, il::Dot::None, B, op, beta, il::io, C);
+}
+
 }  // namespace il
 
 #endif  // IL_BLAS_H

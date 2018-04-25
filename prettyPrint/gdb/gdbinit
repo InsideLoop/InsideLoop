@@ -3,7 +3,7 @@ skip -rfu ^std::
 
 python
 import sys
-sys.path.insert(0, '/home/fayard/Documents/Projects/InsideLoop/InsideLoop/prettyPrint/gdb')
+sys.path.insert(0, '/home/fayard/Library/InsideLoop/prettyPrint/gdb')
 from printers import register_insideloop_printers
 register_insideloop_printers (None)
 end

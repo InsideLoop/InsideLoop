@@ -199,6 +199,17 @@ enum class Type : unsigned char {
 
 };
 
+inline il::int_t sizeOf(il::Type type) {
+  switch(type) {
+    case il::Type::Complex64:
+      return 8;
+    case il::Type::Complex128:
+      return 16;
+    default:
+      IL_UNREACHABLE;
+  }
+}
+
 class Dynamic;
 
 template <typename T>

@@ -18,11 +18,10 @@
 
 #include <gtest/gtest.h>
 
-#include <il/linearAlgebra/dense/blas/dot.h>
 #include <il/math.h>
+#include <il/linearAlgebra/dense/blas/dot.h>
 
-#include <iostream>
-
+#ifdef IL_BLAS
 TEST(dot, vector_vector_f_0) {
   il::Array<float> x{il::value, {2.0f, 3.0f}};
   il::Array<float> y{il::value, {4.0f, 5.0f}};
@@ -177,7 +176,6 @@ TEST(dot, vector_vector_cd_5) {
                  1.0e-15);
 }
 
-#ifdef IL_BLAS
 TEST(dot, matrix_vector_f_0) {
   il::Array2D<double> A{il::value, {{1.0, 2.0}, {3.0, 4.0}, {5.0, 6.0}}};
   il::Array<double> x{il::value, {1.0, 2.0, 3.0}};
@@ -337,4 +335,4 @@ TEST(dot, matrix_c_simd_1) {
 
   ASSERT_TRUE(C.size(0) == 1 && C.size(1) == 3 && error <= 1.0e-15);
 }
-#endif
+#endif // IL_BLAS

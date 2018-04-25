@@ -18,4 +18,6 @@
 
 #include <il/linearAlgebra/dense/blas/cross.h>
 #include <il/linearAlgebra/dense/blas/dot.h>
+#include <il/linearAlgebra/dense/blas/blas.h>
+#include <il/linearAlgebra/dense/blas/blas_static.h>
 #include <il/linearAlgebra/dense/factorization/linearSolve.h>

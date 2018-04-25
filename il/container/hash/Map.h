@@ -246,10 +246,10 @@ Map<K, V, F>::Map(il::value_t, std::initializer_list<il::KeyValue<K, V>> list) {
     for (il::int_t k = 0; k < n; ++k) {
       il::spot_t i = search((list.begin() + k)->key);
       IL_EXPECT_FAST(!found(i));
+      Set((list.begin() + k)->key, (list.begin() + k)->value, il::io, i);
 #ifdef IL_DEBUG_CLASS
       hash_ += F::hash((list.begin() + k)->key, p_);
 #endif
-      Set((list.begin() + k)->key, (list.begin() + k)->value, il::io, i);
     }
   }
 }

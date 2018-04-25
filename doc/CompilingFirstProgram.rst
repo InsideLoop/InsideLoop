@@ -26,79 +26,167 @@ called :bash:`Library` inside your home folder.
     fayard@Grisbouille:~$ cd ~/Library
     fayard@Grisbouille:~$ git clone https://github.com/InsideLoop/InsideLoop.git
 
-Then create a file :bash:`main.cpp` with the text editor of your choice and
-type your first InsideLoop program which computes the first 100'000'000 values
-of :math:`\cos(k)` and times this operation.
+- **Compile your first program**
 
-.. code:: cpp
+  To compile our first program we need to create a file :bash:`main.cpp` with
+  the text editor of your choice and type your first InsideLoop program which
+  computes the first 100'000'000 values of :math:`\cos(k)` and benchmarks this
+  operation.
 
-    #include <cmath>
-    #include <iostream>
+  .. code:: cpp
 
-    #include <il/Array.h>
-    #include <il/Timer.h>
+      #include <cmath>
+      #include <iostream>
 
-    int main() {
-      const il::int_t n = 100000000;
-      il::Array<double> v{n, 0.0};
-      const double alpha = 1.0;
+      #include <il/Array.h>
+      #include <il/Timer.h>
 
-      il::Timer timer{};
-      timer.Start();
-      for (il::int_t k = 0; k < v.size(); ++k) {
-        v[k] = std::cos(k * alpha);
+      int main() {
+        const il::int_t n = 100000000;
+        il::Array<double> v{n, 0.0};
+        const double alpha = 1.0;
+
+        il::Timer timer{};
+        timer.Start();
+        for (il::int_t k = 0; k < v.size(); ++k) {
+          v[k] = std::cos(k * alpha);
+        }
+        timer.Stop();
+
+        std::cout << "Time: " << timer.time() << "s" << std::endl;
+
+        return 0;
       }
-      timer.Stop();
 
-      std::cout << "Time: " << timer.time() << "s" << std::endl;
+  To compile and run your program in debug mode, you should use
 
-      return 0;
-    }
+  .. code:: bash
 
-To compile and run your program in debug mode, you should use
+      fayard@Grisbouille:~$ g++ -g -std=c++11 -O0 -I~/Library/InsideLoop main.cpp -o main
+      fayard@Grisbouille:~$ ./main
+      Time: 4.44s
 
-.. code:: bash
+  For release mode, you can use the following commands:
 
-    fayard@Grisbouille:~$ g++ -g -std=c++11 -O0 -I~/Library main.cpp -o main
-    fayard@Grisbouille:~$ ./main
-    Time: 4.44s
+  .. code:: bash
 
-For release mode, you can use the following commands:
+      fayard@Grisbouille:~$ g++ -g -std=c++11 -O3 -march=native -DNDEBUG -I~/Library/InsideLoop main.cpp -o main
+      fayard@Grisbouille:~$ ./main
+      Time: 3.24s
 
-.. code:: bash
+  If you want to use clang, the same commands can be used:
 
-    fayard@Grisbouille:~$ g++ -g -std=c++11 -O3 -march=native -DNDEBUG -I~/Library main.cpp -o main
-    fayard@Grisbouille:~$ ./main
-    Time: 3.24s
+  .. code:: bash
 
-If you want to use clang, the same commands can be used:
+      fayard@Grisbouille:~$ clang++ -g -std=c++11 -O3 -march=native -DNDEBUG -I~/Library/InsideLoop main.cpp -o main
+      fayard@Grisbouille:~$ ./main
+      Time: 1.68e-7s
 
-.. code:: bash
+  As you can see, clang is smart enough to realize that nothig is done with the
+  array. As a consequence, the loop is removed from the final code which does
+  nothing.
 
-    fayard@Grisbouille:~$ clang++ -g -std=c++11 -O3 -march=native -DNDEBUG -I~/Library main.cpp -o main
-    fayard@Grisbouille:~$ ./main
-    Time: 1.68e-7s
+  If you use the Intel compilers, one can issue the following command:
 
-As you can see, clang is smart enough to realize that nothig is done with the
-array. As a consequence, the loop is removed from the final code which does
-nothing.
+  .. code:: bash
 
-If you use the Intel compilers, one can issue the following command:
+      fayard@Grisbouille:~$ icpc -g -std=c++11 -O3 -xHost -DNDEBUG -I~/Library/InsideLoop main.cpp -o main
+      fayard@Grisbouille:~$ ./main
+      Time: 0.66s
 
-.. code:: bash
+  This time, we get a faster code than gcc. It is obviously not as fast as clang
+  as the computation is really done.
 
-    fayard@Grisbouille:~$ icpc -g -std=c++11 -O3 -xHost -DNDEBUG -I~/Library main.cpp -o main
-    fayard@Grisbouille:~$ ./main
-    Time: 0.66s
+- **Using the MKL for basic linear algebra**
 
-This time, we get a faster code than gcc. It is obviously not as fast as clang
-as the computation is really done.
+  Let's write our first program that can do a matrix multiplication and
+  benchmark the performance of your computer.
 
-Note: The Gcc compiler is know to use very slow calls when computing :cpp:`sin`
-and :cpp:`cos` functions. Even though the Intel compiler is notoriously good
-for number crunching, one should not expect such a difference in between
-compilers for most programs.
+  .. code:: cpp
 
+      #include <iostream>
+
+      #include <il/Array2D.h>
+      #include <il/Timer.h>
+      #include <il/math.h>
+      #include <il/blas.h>
+
+      int main() {
+        const il::int_t n = 2000;
+        const il::int_t nb_times = 10;
+        il::Array2D<float> A{n, n, 0.0};
+        il::Array2D<float> B{n, n, 0.0};
+
+        // Warmup
+        il::Array2D<float> C = il::dot(A, B);
+
+        il::Timer timer{};
+        timer.Start();
+        for (il::int_t k = 0; k < nb_times; ++k) {
+          il::Array2D<float> D = il::dot(A, B);
+        }
+        timer.Stop();
+
+        const il::int_t nb_flops = nb_times * 2 * il::ipow<3>(n);
+
+        std::cout << "Gflops per second: " << 1.0e-9 * nb_flops / timer.time()
+                  << std::endl;
+
+        return 0;
+      }
+
+  If you use the Intel compilers, it can be easily compiled with
+
+  .. code:: bash
+
+      fayard@Grisbouille:~$ icpc -std=c++11 -O3 -xHost -mkl=parallel -DNDEBUG -DIL_MKL -I~/Library/InsideLoop main.cpp -o main
+      fayard@Grisbouille:~$ ./main
+      Gflops per second: 2930.51
+
+  For other compilers, it is better to go to the "Intel MKL Link Line Advisor".
+  On my workstation, with gcc, one need to use the following command line
+
+  .. code:: bash
+
+      fayard@Grisbouille:~$ g++ -std=c++11 -O3 -march=native -m64 -DNDEBUG -DIL_MKL -I~/Library/InsideLoop -I${MKLROOT}/include -L${MKLROOT}/lib/intel64 -Wl,--no-as-needed main.cpp -o main -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lm -ldl
+      fayard@Grisbouille:~$ ./main
+      Gflops per second: 2916.56
+
+  The same command line works with Clang:
+
+  .. code:: bash
+
+      fayard@Grisbouille:~$ clang++ -std=c++11 -O3 -march=native -m64 -DNDEBUG -DIL_MKL -I~/Library/InsideLoop -I${MKLROOT}/include -L${MKLROOT}/lib/intel64 -Wl,--no-as-needed main.cpp -o main -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lm -ldl
+      fayard@Grisbouille:~$ ./main
+      Gflops per second: 2915.1
+
+- **Debugging with GDB**
+
+  Out of the box, C++ programs can be painful to debug for 2 reasons. The first
+  one is that when you debug, you want to debug your program and the underlying
+  library you are using. For instance, you don't want to step into a function
+  call of the library such as an array accessor. Moreover, you are not
+  interested in the internals of an object :cpp:`il::Array<T>` which is composed
+  of 3 pointers. You are interested to the elements that are contained in this
+  array. In order to solve these problems, we provide some configuration files
+  in the folder :cpp:`prettyPrint/gdb`. Copy the :cpp:`gdbinit` file to your
+  home directory as :cpp:`.gdbinit` and edit the file. You should replace the
+  line
+
+  .. code:: bash
+
+      sys.path.insert(0, '/home/fayard/Library/InsideLoop/prettyPrint/gdb')
+
+  with the full path where is stored the file :cpp:`printers.py` that contains
+  all the pretty printers.
+
+  Once it is configured, IDE such as CLion should display your arrays as such
+  in the debugger.
+
+  .. image:: debugger.png
+       :scale: 100 %
+       :alt: alternate text
+       :align: center
 
 Windows
 -------

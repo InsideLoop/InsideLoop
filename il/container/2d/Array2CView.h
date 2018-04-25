@@ -199,7 +199,7 @@ const T* Array2CView<T>::data() const {
 template <typename T>
 il::int_t Array2CView<T>::stride(il::int_t d) const {
   IL_EXPECT_FAST(static_cast<std::size_t>(d) < static_cast<std::size_t>(2));
-  return (d == 1) ? static_cast<il::int_t>(stride_ - data_) : 1;
+  return (d == 0) ? static_cast<il::int_t>(stride_ - data_) : 1;
 }
 
 template <typename T>

@@ -16,11 +16,7 @@
 //
 //==============================================================================
 
-#include <il/Array.h>
+#include <il/linearAlgebra/dense/blas/blas.h>
+#include <il/linearAlgebra/dense/blas/dot.h>
 
-int main() {
-  const il::int_t n = 10;
-  il::Array<double> v{n, 0.0};
 
-  return 0;
-}

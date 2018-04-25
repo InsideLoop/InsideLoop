@@ -16,11 +16,22 @@
 //
 //==============================================================================
 
-#include <il/Array.h>
+#ifndef IL_BLAS_DEFINE_H
+#define IL_BLAS_DEFINE_H
 
-int main() {
-  const il::int_t n = 10;
-  il::Array<double> v{n, 0.0};
+#ifdef IL_MKL
 
-  return 0;
-}
+#include <mkl_cblas.h>
+#define IL_CBLAS_INT MKL_INT
+#define IL_CBLAS_LAYOUT CBLAS_LAYOUT
+
+#elif IL_OPENBLAS
+
+#include <OpenBLAS/cblas.h>
+#define IL_CBLAS_INT int
+#define IL_CBLAS_LAYOUT CBLAS_ORDER
+
+#endif
+
+#endif  // IL_BLAS_DEFINE_H
+

@@ -21,6 +21,7 @@
 #ifdef IL_BLAS
 #include <il/algorithmArray.h>
 #include <il/linearAlgebra/dense/blas/dot.h>
+#include <il/linearAlgebra/dense/blas/blas_static.h>
 #include <il/linearAlgebra/dense/factorization/Singular.h>
 
 il::StaticArray2D<double, 3, 3> rotation1(double theta) {
