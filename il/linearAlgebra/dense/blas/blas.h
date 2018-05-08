@@ -202,6 +202,8 @@ inline std::complex<float> dot(il::ArrayView<std::complex<float>> x, il::Dot op,
     default:
       IL_UNREACHABLE;
   }
+  IL_UNREACHABLE;
+  return 0.0;
 }
 
 inline std::complex<double> dot(il::ArrayView<std::complex<double>> x,
@@ -223,6 +225,8 @@ inline std::complex<double> dot(il::ArrayView<std::complex<double>> x,
     default:
       IL_UNREACHABLE;
   }
+  IL_UNREACHABLE;
+  return 0.0;
 }
 
 inline std::complex<float> dot(il::ArrayView<std::complex<float>> x,
@@ -244,6 +248,8 @@ inline std::complex<float> dot(il::ArrayView<std::complex<float>> x,
     default:
       IL_UNREACHABLE;
   }
+  IL_UNREACHABLE;
+  return 0.0;
 }
 
 inline std::complex<double> dot(il::ArrayView<std::complex<double>> x,
@@ -265,6 +271,8 @@ inline std::complex<double> dot(il::ArrayView<std::complex<double>> x,
     default:
       IL_UNREACHABLE;
   }
+  IL_UNREACHABLE;
+  return 0.0;
 }
 
 inline void blas(double alpha, il::Array2DView<double> X, double beta, il::io_t,

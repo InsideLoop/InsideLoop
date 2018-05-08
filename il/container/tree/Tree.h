@@ -147,6 +147,8 @@ bool Tree<T, n>::hasChild(il::spot_t s, il::int_t i) const {
   } else {
     IL_UNREACHABLE;
   }
+  IL_UNREACHABLE;
+  return true;
 };
 
 template <typename T, il::int_t n>
