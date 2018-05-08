@@ -209,9 +209,9 @@ class StringView {
   bool hasHexaDecimal(il::int_t i) const;
   bool hasNewLine(il::int_t i) const;
 
-  il::int_t nextChar(il::int_t, char c) const;
-  il::int_t nextDigit(il::int_t) const;
-  il::int_t nextNewLine(il::int_t) const;
+  il::int_t nextChar(il::int_t i, char c) const;
+  il::int_t nextDigit(il::int_t i) const;
+  il::int_t nextNewLine(il::int_t i) const;
 
   void removePrefix(il::int_t i1);
   void removeSuffix(il::int_t i0);
@@ -1321,6 +1321,20 @@ inline bool StringView::hasNewLine(il::int_t i) const {
 
   return data_[i] == '\n' ||
          (i + 1 < size() && data_[i] == '\r' && data_[i + 1] == '\n');
+}
+
+inline il::int_t StringView::nextChar(il::int_t i, char c) const {
+  while (i < size() && data_[i] != c) {
+    ++i;
+  }
+  return i < size() ? i : -1;
+}
+
+inline il::int_t StringView::nextDigit(il::int_t i) const {
+  while (i < size() && !(data_[i] >= '0' && data_[i] <= '9')) {
+    ++i;
+  }
+  return i < size() ? i : -1;
 }
 
 inline int StringView::rune(il::int_t i) const {

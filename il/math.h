@@ -64,20 +64,30 @@ inline il::int_t floor(double x) {
   return static_cast<il::int_t>(std::floor(x));
 }
 
-inline int abs(int x) {
-  return x >= 0 ? x : -x;
+inline int abs(int x) { return x >= 0 ? x : -x; }
+
+inline il::int_t abs(il::int_t x) { return x >= 0 ? x : -x; }
+
+inline float abs(float x) { return x >= 0 ? x : -x; }
+
+inline double abs(double x) { return x >= 0 ? x : -x; }
+
+inline float real(float x) { return x; }
+
+inline double real(double x) { return x; }
+
+inline double real(std::complex<double> x) { return x.real(); }
+
+inline bool isFinite(double x) { return std::isfinite(x); }
+
+inline bool isFinite(std::complex<double> x) {
+  return std::isfinite(x.real()) && std::isfinite(x.imag());
 }
 
-inline il::int_t abs(il::int_t x) {
-  return x >= 0 ? x : -x;
-}
+inline double conjugate(double x) { return x; }
 
-inline float abs(float x) {
-  return x >= 0 ? x : -x;
-}
-
-inline double abs(double x) {
-  return x >= 0 ? x : -x;
+inline std::complex<double> conjugate(std::complex<double> z) {
+  return std::conj(z);
 }
 
 inline float abs(std::complex<float> x) {
@@ -92,13 +102,9 @@ inline double abs(std::complex<double> x) {
   return std::sqrt(re * re + im * im);
 }
 
-inline il::int_t floor(il::int_t a, int b) {
-  return (a / b) * b;
-}
+inline il::int_t floor(il::int_t a, int b) { return (a / b) * b; }
 
-inline il::int_t floor(il::int_t a, il::int_t b) {
-  return (a / b) * b;
-}
+inline il::int_t floor(il::int_t a, il::int_t b) { return (a / b) * b; }
 // Template for pow(x,N) where N is a positive il::int_t constant.
 // General case, N is not a power of 2:
 template <bool IsPowerOf2, il::int_t N, typename T>

@@ -25,6 +25,11 @@ enum class Dot { None, Star, Transpose };
 
 enum class MatrixType {
   Regular,
+  LowerUnit,
+  LowerNonUnit,
+  LowerUnitUpperNonUnit,
+  UpperUnit,
+  UpperNonUnit,
   SymmetricUpper,
   SymmetricLower,
   HermitianUpper,

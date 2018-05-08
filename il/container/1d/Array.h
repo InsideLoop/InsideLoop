@@ -113,7 +113,7 @@ class Array {
   // // Construct an array of double from a list
   // il::Array<double> v{il::value, {2.0, 3.14, 5.0, 7.0}};
   */
-  explicit Array(il::value_t, std::initializer_list<T> list);
+  Array(il::value_t, std::initializer_list<T> list);
 
   /* \brief The copy constructor
   // \details The size and the capacity of the constructed il::Array<T>

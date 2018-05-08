@@ -237,6 +237,21 @@ T& ArrayEdit<T>::Back() {
 }
 
 template <typename T>
+il::ArrayView<T> ArrayEdit<T>::view() const {
+  return il::ArrayView<T>{this->data_, this->size()};
+};
+
+template <typename T>
+il::ArrayView<T> ArrayEdit<T>::view(il::Range range) const {
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(range.begin) <
+      static_cast<std::size_t>(this->size()));
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(range.end) <=
+      static_cast<std::size_t>(this->size()));
+
+  return il::ArrayView<T>{this->data_ + range.begin, range.end - range.begin};
+};
+
+template <typename T>
 il::ArrayEdit<T> ArrayEdit<T>::Edit() {
   return il::ArrayEdit<T>{this->data_, this->size()};
 };

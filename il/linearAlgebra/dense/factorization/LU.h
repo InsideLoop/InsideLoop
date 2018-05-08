@@ -63,6 +63,30 @@ class LU<il::StaticArray2D<double, n, n>> {
 };
 
 template <il::int_t n>
+class LU<il::StaticArray2D<std::complex<double>, n, n>> {
+ private:
+  il::StaticArray<lapack_int, n> ipiv_;
+  il::StaticArray2D<std::complex<double>, n, n> lu_;
+
+ public:
+  // Computes a LU factorization of a general n0 x n1 matrix A using partial
+  // pivoting with row interchanges. The factorization has the form
+  //
+  //  A = P.L.U
+  //
+  // where P is a permutation matrix, L is lower triangular with unit diagonal
+  // elements, and U is upper triangular.
+  LU(il::StaticArray2D<std::complex<double>, n, n> A, il::io_t,
+     il::Status &status);
+
+  // Compute the inverse of the matrix
+  il::StaticArray2D<std::complex<double>, n, n> inverse() const;
+
+  // Compute an approximation of the condition number
+  //  double conditionNumber(il::Norm norm_type, double norm_a) const;
+};
+
+template <il::int_t n>
 LU<il::StaticArray2D<double, n, n>>::LU(il::StaticArray2D<double, n, n> A,
                                         il::io_t, il::Status &status)
     : ipiv_{}, lu_{} {
@@ -92,6 +116,46 @@ il::StaticArray2D<double, n, n> LU<il::StaticArray2D<double, n, n>>::inverse()
   const lapack_int lapack_n = static_cast<lapack_int>(n);
   const lapack_int lapack_error =
       LAPACKE_dgetri(layout, lapack_n, inverse.Data(), lapack_n, ipiv_.data());
+  IL_EXPECT_FAST(lapack_error == 0);
+
+  return inverse;
+}
+
+template <il::int_t n>
+LU<il::StaticArray2D<std::complex<double>, n, n>>::LU(
+    il::StaticArray2D<std::complex<double>, n, n> A, il::io_t,
+    il::Status &status)
+    : ipiv_{}, lu_{} {
+  const int layout = LAPACK_COL_MAJOR;
+  const lapack_int lapack_n = static_cast<lapack_int>(n);
+  il::StaticArray<lapack_int, n> ipiv{};
+  const lapack_int lapack_error =
+      LAPACKE_zgetrf(layout, lapack_n, lapack_n,
+                     reinterpret_cast<lapack_complex_double *>(A.Data()),
+                     lapack_n, ipiv.Data());
+  IL_EXPECT_FAST(lapack_error >= 0);
+
+  if (lapack_error == 0) {
+    status.SetOk();
+    ipiv_ = ipiv;
+    lu_ = A;
+  } else {
+    status.SetError(il::Error::MatrixSingular);
+    IL_SET_SOURCE(status);
+    status.SetInfo("rank", il::int_t{lapack_error - 1});
+  }
+}
+
+template <il::int_t n>
+il::StaticArray2D<std::complex<double>, n, n>
+LU<il::StaticArray2D<std::complex<double>, n, n>>::inverse() const {
+  il::StaticArray2D<std::complex<double>, n, n> inverse = lu_;
+  const int layout = LAPACK_COL_MAJOR;
+  const lapack_int lapack_n = static_cast<lapack_int>(n);
+  const lapack_int lapack_error =
+      LAPACKE_zgetri(layout, lapack_n,
+                     reinterpret_cast<lapack_complex_double *>(inverse.Data()),
+                     lapack_n, ipiv_.data());
   IL_EXPECT_FAST(lapack_error == 0);
 
   return inverse;
@@ -144,7 +208,8 @@ class LU<il::Array2D<double>> {
   il::UpperArray2D<double> U() const;
 };
 
-inline LU<il::Array2D<double>>::LU(il::Array2D<double> A, il::io_t, il::Status &status)
+inline LU<il::Array2D<double>>::LU(il::Array2D<double> A, il::io_t,
+                                   il::Status &status)
     : ipiv_{}, lu_{} {
   const int layout = LAPACK_COL_MAJOR;
   const lapack_int m = static_cast<lapack_int>(A.size(0));
@@ -171,7 +236,8 @@ inline il::int_t LU<il::Array2D<double>>::size(il::int_t d) const {
   return lu_.size(d);
 }
 
-inline il::Array<double> LU<il::Array2D<double>>::solve(il::Array<double> y) const {
+inline il::Array<double> LU<il::Array2D<double>>::solve(
+    il::Array<double> y) const {
   IL_EXPECT_FAST(lu_.size(0) == lu_.size(1));
 
   const int layout = LAPACK_COL_MAJOR;
@@ -231,7 +297,7 @@ inline double LU<il::Array2D<double>>::determinant() const {
 }
 
 inline double LU<il::Array2D<double>>::conditionNumber(il::Norm norm_type,
-                                                double norm_a) const {
+                                                       double norm_a) const {
   IL_EXPECT_FAST(lu_.size(0) == lu_.size(1));
   IL_EXPECT_FAST(norm_type == il::Norm::L1 || norm_type == il::Norm::Linf);
 
@@ -247,12 +313,14 @@ inline double LU<il::Array2D<double>>::conditionNumber(il::Norm norm_type,
   return 1.0 / rcond;
 }
 
-inline const double &LU<il::Array2D<double>>::L(il::int_t i, il::int_t j) const {
+inline const double &LU<il::Array2D<double>>::L(il::int_t i,
+                                                il::int_t j) const {
   IL_EXPECT_MEDIUM(j < i);
   return lu_(i, j);
 }
 
-inline const double &LU<il::Array2D<double>>::U(il::int_t i, il::int_t j) const {
+inline const double &LU<il::Array2D<double>>::U(il::int_t i,
+                                                il::int_t j) const {
   IL_EXPECT_MEDIUM(j >= i);
   return lu_(i, j);
 }

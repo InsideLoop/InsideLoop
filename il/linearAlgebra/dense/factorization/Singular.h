@@ -19,6 +19,8 @@
 #ifndef IL_SINGULAR_H
 #define IL_SINGULAR_H
 
+#include <complex>
+
 #include <il/Status.h>
 #include <il/container/1d/Array.h>
 #include <il/container/1d/StaticArray.h>
@@ -35,7 +37,7 @@ namespace il {
 
 template <il::int_t n>
 il::StaticArray<double, n> singularValues(il::StaticArray2D<double, n, n> A,
-                                          il::io_t, il::Status& status) {
+                                          il::io_t, il::Status &status) {
   static_assert(n > 0, "il::singularValues<n>: n must be > 0");
 
   il::StaticArray<double, n> d{};
@@ -72,6 +74,50 @@ il::StaticArray<double, n> singularValues(il::StaticArray2D<double, n, n> A,
   return d;
 }
 
+template <il::int_t n>
+il::StaticArray<double, n> singularValues(
+    il::StaticArray2D<std::complex<double>, n, n> A, il::io_t,
+    il::Status &status) {
+  static_assert(n > 0, "il::singularValues<n>: n must be > 0");
+
+  il::StaticArray<double, n> d{};
+  il::StaticArray<double, (n == 1) ? 1 : (n - 1)> e{};
+  il::StaticArray<std::complex<double>, n> tauq{};
+  il::StaticArray<std::complex<double>, n> taup{};
+  const int layout = LAPACK_COL_MAJOR;
+  const lapack_int lapack_n = static_cast<lapack_int>(n);
+  const lapack_int lapack_error_0 = LAPACKE_zgebrd(
+      layout, lapack_n, lapack_n,
+      reinterpret_cast<lapack_complex_double *>(A.Data()), lapack_n, d.Data(),
+      e.Data(), reinterpret_cast<lapack_complex_double *>(tauq.Data()),
+      reinterpret_cast<lapack_complex_double *>(taup.Data()));
+  IL_EXPECT_FAST(lapack_error_0 >= 0);
+
+  const char uplo = 'U';
+  const lapack_int ncvt = 0;
+  const lapack_int ldvt = 1;
+  const lapack_int nru = 0;
+  const lapack_int ldu = 1;
+  const lapack_int ncc = 0;
+  const lapack_int ldc = 1;
+  il::StaticArray<std::complex<double>, ldvt * ncvt> vt{};
+  il::StaticArray<std::complex<double>, ldu * n> u{};
+  il::StaticArray<std::complex<double>, 1> c{};
+  const lapack_int lapack_error_1 =
+      LAPACKE_zbdsqr(layout, uplo, lapack_n, ncvt, nru, ncc, d.Data(), e.Data(),
+                     reinterpret_cast<lapack_complex_double *>(vt.Data()), ldvt,
+                     reinterpret_cast<lapack_complex_double *>(u.Data()), ldu,
+                     reinterpret_cast<lapack_complex_double *>(c.Data()), ldc);
+  IL_EXPECT_FAST(lapack_error_1 >= 0);
+
+  if (lapack_error_0 == 0 && lapack_error_1 == 0) {
+    status.SetOk();
+  } else {
+    status.SetError(il::Error::Undefined);
+  }
+  return d;
+}
+
 template <typename MatrixType>
 class Singular {};
 
@@ -82,13 +128,13 @@ class Singular<il::StaticArray2D<double, n, n>> {
 
  public:
   // Computes singular values of A
-  Singular(const il::StaticArray2D<double, n, n>& A, il::io_t,
-           il::Status& status);
+  Singular(const il::StaticArray2D<double, n, n> &A, il::io_t,
+           il::Status &status);
 };
 
 template <il::int_t n>
 Singular<il::StaticArray2D<double, n, n>>::Singular(
-    const il::StaticArray2D<double, n, n>& A, il::io_t, il::Status& status)
+    const il::StaticArray2D<double, n, n> &A, il::io_t, il::Status &status)
     : singular_value_{} {
   static_assert(n > 0, "il::StaticArray<T, n>: n must be > 0");
 
@@ -129,59 +175,59 @@ Singular<il::StaticArray2D<double, n, n>>::Singular(
   }
 }
 
-template <>
-class Singular<il::Array2D<double>> {
- private:
-  il::Array<double> singular_value_;
-
- public:
-  // Computes singular values of A
-  Singular(il::Array2D<double> A, il::io_t, il::Status& status);
-};
-
-Singular<il::Array2D<double>>::Singular(il::Array2D<double> A, il::io_t,
-                                        il::Status& status)
-    : singular_value_{} {
-  IL_EXPECT_FAST(A.size(0) > 0);
-  IL_EXPECT_FAST(A.size(1) > 0);
-  IL_EXPECT_FAST(A.size(0) == A.size(1));
-
-  const int layout = LAPACK_COL_MAJOR;
-  const lapack_int m = static_cast<lapack_int>(A.size(0));
-  const lapack_int n = static_cast<lapack_int>(A.size(1));
-  const lapack_int lda = static_cast<lapack_int>(A.stride(1));
-  const il::int_t min_mn = m < n ? m : n;
-  il::Array<double> d{min_mn};
-  il::Array<double> e{(min_mn == 1) ? 1 : (min_mn - 1)};
-  il::Array<double> tauq{min_mn};
-  il::Array<double> taup{min_mn};
-  lapack_int lapack_error =
-      LAPACKE_dgebrd(layout, m, n, A.Data(), lda, d.Data(), e.Data(),
-                     tauq.Data(), taup.Data());
-  IL_EXPECT_FAST(lapack_error >= 0);
-
-  const char uplo = (m >= n) ? 'U' : 'L';
-  const lapack_int ncvt = 0;
-  const lapack_int ldvt = 1;
-  const lapack_int nru = 0;
-  const lapack_int ldu = 1;
-  const lapack_int ncc = 0;  // No matrix C is upplied
-  const lapack_int ldc = 1;  // No matrix C is upplied
-  il::Array<double> vt{ldvt * ncvt};
-  il::Array<double> u{ldu * n};
-  il::Array<double> c{1};  // Should be useless
-  lapack_error =
-      LAPACKE_dbdsqr(layout, uplo, n, ncvt, nru, ncc, d.Data(), e.Data(),
-                     vt.Data(), ldvt, u.Data(), ldu, c.Data(), ldc);
-
-  IL_EXPECT_FAST(lapack_error >= 0);
-  if (lapack_error == 0) {
-    status.SetOk();
-    singular_value_ = std::move(d);
-  } else {
-    status.SetError(il::Error::Undefined);
-  }
-}
+// template <> class Singular<il::Array2D<double>> {
+// private:
+//  il::Array<double> singular_value_;
+//
+// public:
+//  // Computes singular values of A
+//  Singular(il::Array2D<double> A, il::io_t, il::Status &status);
+//};
+//
+// template <>
+// Singular<il::Array2D<double>>::Singular(il::Array2D<double> A, il::io_t,
+//                                        il::Status &status)
+//    : singular_value_{} {
+//  IL_EXPECT_FAST(A.size(0) > 0);
+//  IL_EXPECT_FAST(A.size(1) > 0);
+//  IL_EXPECT_FAST(A.size(0) == A.size(1));
+//
+//  const int layout = LAPACK_COL_MAJOR;
+//  const lapack_int m = static_cast<lapack_int>(A.size(0));
+//  const lapack_int n = static_cast<lapack_int>(A.size(1));
+//  const lapack_int lda = static_cast<lapack_int>(A.stride(1));
+//  const il::int_t min_mn = m < n ? m : n;
+//  il::Array<double> d{min_mn};
+//  il::Array<double> e{(min_mn == 1) ? 1 : (min_mn - 1)};
+//  il::Array<double> tauq{min_mn};
+//  il::Array<double> taup{min_mn};
+//  lapack_int lapack_error =
+//      LAPACKE_dgebrd(layout, m, n, A.Data(), lda, d.Data(), e.Data(),
+//                     tauq.Data(), taup.Data());
+//  IL_EXPECT_FAST(lapack_error >= 0);
+//
+//  const char uplo = (m >= n) ? 'U' : 'L';
+//  const lapack_int ncvt = 0;
+//  const lapack_int ldvt = 1;
+//  const lapack_int nru = 0;
+//  const lapack_int ldu = 1;
+//  const lapack_int ncc = 0; // No matrix C is upplied
+//  const lapack_int ldc = 1; // No matrix C is upplied
+//  il::Array<double> vt{ldvt * ncvt};
+//  il::Array<double> u{ldu * n};
+//  il::Array<double> c{1}; // Should be useless
+//  lapack_error =
+//      LAPACKE_dbdsqr(layout, uplo, n, ncvt, nru, ncc, d.Data(), e.Data(),
+//                     vt.Data(), ldvt, u.Data(), ldu, c.Data(), ldc);
+//
+//  IL_EXPECT_FAST(lapack_error >= 0);
+//  if (lapack_error == 0) {
+//    status.SetOk();
+//    singular_value_ = std::move(d);
+//  } else {
+//    status.SetError(il::Error::Undefined);
+//  }
+//}
 }  // namespace il
 
 #endif  // IL_SINGULAR_H

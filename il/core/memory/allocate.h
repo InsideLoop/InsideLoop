@@ -25,6 +25,9 @@
 #include <il/core/math/safe_arithmetic.h>
 #include <il/math.h>
 
+
+//#include <iostream>
+
 namespace il {
 
 template <typename T>
@@ -45,6 +48,8 @@ T* allocateArray(il::int_t n) {
     il::abort();
   }
 
+//  std::cout << "Allocated: " << p << std::endl;
+//
   return p;
 }
 
@@ -90,7 +95,10 @@ T* allocateArray(il::int_t n, il::int_t align_r, il::int_t align_mod, il::io_t,
   return aligned_p;
 }
 
-inline void deallocate(void* p) { std::free(p); }
+inline void deallocate(void* p) {
+//  std::cout << "Deallocated: " << p << std::endl;
+//
+  std::free(p); }
 }  // namespace il
 
 #endif  // IL_ALLOCATE_H

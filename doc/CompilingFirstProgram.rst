@@ -26,8 +26,7 @@ called :bash:`Library` inside your home folder.
     fayard@Grisbouille:~$ cd ~/Library
     fayard@Grisbouille:~$ git clone https://github.com/InsideLoop/InsideLoop.git
 
-- **Compile your first program**
-
+- **Compile your first program**.
   To compile our first program we need to create a file :bash:`main.cpp` with
   the text editor of your choice and type your first InsideLoop program which
   computes the first 100'000'000 values of :math:`\cos(k)` and benchmarks this
@@ -97,8 +96,7 @@ called :bash:`Library` inside your home folder.
   This time, we get a faster code than gcc. It is obviously not as fast as clang
   as the computation is really done.
 
-- **Using the MKL for basic linear algebra**
-
+- **Using the MKL for basic linear algebra**.
   Let's write our first program that can do a matrix multiplication and
   benchmark the performance of your computer.
 
@@ -139,7 +137,8 @@ called :bash:`Library` inside your home folder.
 
   .. code:: bash
 
-      fayard@Grisbouille:~$ icpc -std=c++11 -O3 -xHost -mkl=parallel -DNDEBUG -DIL_MKL -I~/Library/InsideLoop main.cpp -o main
+      fayard@Grisbouille:~$ icpc -std=c++11 -O3 -xHost -mkl=parallel -DNDEBUG -DIL_MKL
+        -I~/Library/InsideLoop main.cpp -o main
       fayard@Grisbouille:~$ ./main
       Gflops per second: 2930.51
 
@@ -148,7 +147,10 @@ called :bash:`Library` inside your home folder.
 
   .. code:: bash
 
-      fayard@Grisbouille:~$ g++ -std=c++11 -O3 -march=native -m64 -DNDEBUG -DIL_MKL -I~/Library/InsideLoop -I${MKLROOT}/include -L${MKLROOT}/lib/intel64 -Wl,--no-as-needed main.cpp -o main -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lm -ldl
+      fayard@Grisbouille:~$ g++ -std=c++11 -O3 -march=native -m64 -DNDEBUG -DIL_MKL
+        -I~/Library/InsideLoop -I${MKLROOT}/include -L${MKLROOT}/lib/intel64
+        -Wl,--no-as-needed main.cpp -o main
+        -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lm -ldl
       fayard@Grisbouille:~$ ./main
       Gflops per second: 2916.56
 
@@ -156,12 +158,14 @@ called :bash:`Library` inside your home folder.
 
   .. code:: bash
 
-      fayard@Grisbouille:~$ clang++ -std=c++11 -O3 -march=native -m64 -DNDEBUG -DIL_MKL -I~/Library/InsideLoop -I${MKLROOT}/include -L${MKLROOT}/lib/intel64 -Wl,--no-as-needed main.cpp -o main -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lm -ldl
+      fayard@Grisbouille:~$ clang++ -std=c++11 -O3 -march=native -m64 -DNDEBUG -DIL_MKL
+        -I~/Library/InsideLoop -I${MKLROOT}/include -L${MKLROOT}/lib/intel64
+        -Wl,--no-as-needed main.cpp -o main
+        -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lm -ldl
       fayard@Grisbouille:~$ ./main
       Gflops per second: 2915.1
 
-- **Debugging with GDB**
-
+- **Friendly debugging with GDB**.
   Out of the box, C++ programs can be painful to debug for 2 reasons. The first
   one is that when you debug, you want to debug your program and the underlying
   library you are using. For instance, you don't want to step into a function

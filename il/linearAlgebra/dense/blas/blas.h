@@ -267,6 +267,48 @@ inline std::complex<double> dot(il::ArrayView<std::complex<double>> x,
   }
 }
 
+inline void blas(double alpha, il::Array2DView<double> X, double beta, il::io_t,
+                 il::Array2DEdit<double> Y) {
+  IL_EXPECT_MEDIUM(X.size(0) == Y.size(0));
+  IL_EXPECT_MEDIUM(X.size(1) == Y.size(1));
+
+  if (beta == 0) {
+    for (il::int_t i1 = 0; i1 < Y.size(1); ++i1) {
+      for (il::int_t i0 = 0; i0 < Y.size(0); ++i0) {
+        Y(i0, i1) = alpha * X(i0, i1);
+      }
+    }
+  } else {
+    for (il::int_t i1 = 0; i1 < Y.size(1); ++i1) {
+      for (il::int_t i0 = 0; i0 < Y.size(0); ++i0) {
+        Y(i0, i1) = alpha * X(i0, i1) + beta * Y(i0, i1);
+      }
+    }
+  }
+}
+
+inline void blas(std::complex<double> alpha,
+                 il::Array2DView<std::complex<double>> X,
+                 std::complex<double> beta, il::io_t,
+                 il::Array2DEdit<std::complex<double>> Y) {
+  IL_EXPECT_MEDIUM(X.size(0) == Y.size(0));
+  IL_EXPECT_MEDIUM(X.size(1) == Y.size(1));
+
+  if (beta == std::complex<double>{0.0}) {
+    for (il::int_t i1 = 0; i1 < Y.size(1); ++i1) {
+      for (il::int_t i0 = 0; i0 < Y.size(0); ++i0) {
+        Y(i0, i1) = alpha * X(i0, i1);
+      }
+    }
+  } else {
+    for (il::int_t i1 = 0; i1 < Y.size(1); ++i1) {
+      for (il::int_t i0 = 0; i0 < Y.size(0); ++i0) {
+        Y(i0, i1) = alpha * X(i0, i1) + beta * Y(i0, i1);
+      }
+    }
+  }
+}
+
 // BLAS level 2
 //   y = alpha * A.x + beta * y
 

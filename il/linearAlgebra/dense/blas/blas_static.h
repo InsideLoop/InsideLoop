@@ -23,6 +23,7 @@
 #include <il/StaticArray2D.h>
 #include <il/StaticArray3D.h>
 #include <il/StaticArray4D.h>
+#include <il/linearAlgebra/Matrix.h>
 
 namespace il {
 

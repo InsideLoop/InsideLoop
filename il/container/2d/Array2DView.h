@@ -77,6 +77,8 @@ class Array2DView {
   */
   il::int_t size(il::int_t d) const;
 
+  Array2DView<T> view(il::Range r0, il::Range r1) const;
+
   /* \brief Get a pointer to const to the first element of the array
   // \details One should use this method only when using C-style API
   */
@@ -190,6 +192,26 @@ il::int_t Array2DView<T>::size(il::int_t d) const {
 }
 
 template <typename T>
+Array2DView<T> Array2DView<T>::view(il::Range r0, il::Range r1) const {
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(r0.begin) <
+                   static_cast<std::size_t>(size(0)));
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(r0.end) <=
+                   static_cast<std::size_t>(size(0)));
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(r1.begin) <
+                   static_cast<std::size_t>(size(1)));
+  IL_EXPECT_MEDIUM(static_cast<std::size_t>(r1.end) <=
+                   static_cast<std::size_t>(size(1)));
+
+  const il::int_t my_stride = stride(1);
+  return il::Array2DView<T>{data() + r0.begin + r1.begin * my_stride,
+                            r0.end - r0.begin,
+                            r1.end - r1.begin,
+                            my_stride,
+                            0,
+                            0};
+}
+
+template <typename T>
 const T* Array2DView<T>::data() const {
   return data_;
 }
@@ -240,6 +262,18 @@ Array2DEdit<T> Array2DEdit<T>::Edit(il::Range r0, il::Range r1) {
 template <typename T>
 T* Array2DEdit<T>::Data() {
   return this->data_;
+}
+
+template <typename T>
+void copy(il::Array2DView<T> A, il::io_t, il::Array2DEdit<T> B) {
+  IL_EXPECT_FAST(A.size(0) == B.size(0));
+  IL_EXPECT_FAST(A.size(1) == B.size(1));
+
+  for (il::int_t i1 = 0; i1 < A.size(1); ++i1) {
+    for (il::int_t i0 = 0; i0 < A.size(0); ++i0) {
+      B(i0, i1) = A(i0, i1);
+    }
+  }
 }
 
 }  // namespace il
