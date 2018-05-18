@@ -158,7 +158,7 @@ template <typename T>
 ArrayView<T>::ArrayView(const T* data, il::int_t n, il::int_t align_mod,
                         il::int_t align_r) {
   IL_EXPECT_FAST(il::isTrivial<T>::value);
-  IL_EXPECT_FAST(sizeof(T) == alignof(T));
+  IL_EXPECT_FAST(sizeof(T) % alignof(T) == 0);
   IL_EXPECT_FAST(n >= 0);
   IL_EXPECT_FAST(align_mod > 0);
   IL_EXPECT_FAST(align_mod % alignof(T) == 0);

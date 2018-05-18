@@ -161,6 +161,8 @@ class Array {
   */
   T& operator[](il::int_t i);
 
+  void Set(const T& x);
+
   /* \brief Accessor to the last element of a const il::Array<T>
   // \details In debug mode, calling this method on an array of size 0 aborts
   // the program. In release mode, it will lead to undefined behavior.
@@ -311,7 +313,7 @@ template <typename T>
 Array<T>::Array(il::int_t n, il::align_t, il::int_t alignment,
                 il::int_t align_r, il::int_t align_mod) {
   IL_EXPECT_FAST(il::isTrivial<T>::value);
-  IL_EXPECT_FAST(sizeof(T) == alignof(T));
+  IL_EXPECT_FAST(sizeof(T) % alignof(T) == 0);
   IL_EXPECT_FAST(n >= 0);
   IL_EXPECT_FAST(alignment > 0);
   IL_EXPECT_FAST(alignment % alignof(T) == 0);
@@ -398,7 +400,7 @@ template <typename T>
 Array<T>::Array(il::int_t n, const T& x, il::align_t, il::int_t alignment,
                 il::int_t align_r, il::int_t align_mod) {
   IL_EXPECT_FAST(il::isTrivial<T>::value);
-  IL_EXPECT_FAST(sizeof(T) == alignof(T));
+  IL_EXPECT_FAST(sizeof(T) % alignof(T) == 0);
   IL_EXPECT_FAST(n >= 0);
   IL_EXPECT_FAST(alignment > 0);
   IL_EXPECT_FAST(alignment % alignof(T) == 0);
@@ -654,6 +656,13 @@ T& Array<T>::operator[](il::int_t i) {
                    static_cast<std::size_t>(size()));
 
   return data_[i];
+}
+
+template <typename T>
+void Array<T>::Set(const T& x) {
+  for (il::int_t i = 0; i < capacity_ - data_; ++i) {
+    data_[i] = x;
+  }
 }
 
 template <typename T>

@@ -26,6 +26,8 @@
 // <cstdlib> is needed for std::abort()
 #include <cstdlib>
 
+#include <complex>
+
 ////////////////////////////////////////////////////////////////////////////////
 // Configuration
 ////////////////////////////////////////////////////////////////////////////////
@@ -531,6 +533,35 @@ inline long double defaultValue<long double>() {
   return 0.0l;
 #endif
 }
+
+template <>
+struct isTrivial<std::complex<float>> {
+  static constexpr bool value = true;
+};
+
+template <>
+inline std::complex<float> defaultValue<std::complex<float>>() {
+#ifdef IL_UNIX
+  return std::complex<float>{0.0f / 0.0f, 0.0f / 0.0f};
+#else
+  return std::complex<float>{0.0f, 0.0f};
+#endif
+}
+
+template <>
+struct isTrivial<std::complex<double>> {
+  static constexpr bool value = true;
+};
+
+template <>
+inline std::complex<double> defaultValue<std::complex<double>>() {
+#ifdef IL_UNIX
+  return std::complex<double>{0.0 / 0.0, 0.0 / 0.0};
+#else
+  return std::complex<double>{0.0, 0.0};
+#endif
+}
+
 }  // namespace il
 
 #endif  // IL_BASE_H

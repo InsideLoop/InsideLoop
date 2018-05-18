@@ -306,7 +306,7 @@ Array2D<T>::Array2D(il::int_t n0, il::int_t n1, il::align_t,
                     il::int_t alignment, il::int_t align_r,
                     il::int_t align_mod) {
   IL_EXPECT_FAST(il::isTrivial<T>::value);
-  IL_EXPECT_FAST(sizeof(T) == alignof(T));
+  IL_EXPECT_FAST(sizeof(T) % alignof(T) == 0);
   IL_EXPECT_FAST(n0 >= 0);
   IL_EXPECT_FAST(n1 >= 0);
   IL_EXPECT_FAST(align_mod > 0);
@@ -449,7 +449,7 @@ Array2D<T>::Array2D(il::int_t n0, il::int_t n1, const T& x, il::align_t,
                     il::int_t alignment, il::int_t align_r,
                     il::int_t align_mod) {
   IL_EXPECT_FAST(il::isTrivial<T>::value);
-  IL_EXPECT_FAST(sizeof(T) == alignof(T));
+  IL_EXPECT_FAST(sizeof(T) % alignof(T) == 0);
   IL_EXPECT_FAST(n0 >= 0);
   IL_EXPECT_FAST(n1 >= 0);
   IL_EXPECT_FAST(align_mod > 0);

@@ -56,7 +56,7 @@ T* allocateArray(il::int_t n) {
 template <typename T>
 T* allocateArray(il::int_t n, il::int_t align_r, il::int_t align_mod, il::io_t,
                  il::int_t& shift) {
-  IL_EXPECT_FAST(sizeof(T) == alignof(T));
+  IL_EXPECT_FAST(sizeof(T) % alignof(T) == 0);
   IL_EXPECT_FAST(n >= 0);
   IL_EXPECT_FAST(align_mod > 0);
   IL_EXPECT_FAST(align_mod % alignof(T) == 0);

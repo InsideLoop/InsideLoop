@@ -152,6 +152,8 @@ class Array2C {
   */
   T& operator()(il::int_t i0, il::int_t i1);
 
+  void Set(const T& x);
+
   /* \brief Get the size of the il::Array2C<T>
   // \details size(0) returns the number of rows of the array and size(1)
   // returns the number of columns of the same array. The library has been
@@ -198,6 +200,8 @@ class Array2C {
   il::Array2CView<T> view() const;
 
   il::Array2CView<T> view(il::Range range0, il::Range range1) const;
+
+  il::ArrayView<T> view(il::int_t i0, il::Range range1) const;
 
   il::Array2CEdit<T> Edit();
 
@@ -287,7 +291,7 @@ Array2C<T>::Array2C(il::int_t n0, il::int_t n1, il::align_t,
                     il::int_t alignment, il::int_t align_r,
                     il::int_t align_mod) {
   IL_EXPECT_FAST(il::isTrivial<T>::value);
-  IL_EXPECT_FAST(sizeof(T) == alignof(T));
+  IL_EXPECT_FAST(sizeof(T) % alignof(T) == 0);
   IL_EXPECT_FAST(n0 >= 0);
   IL_EXPECT_FAST(n1 >= 0);
   IL_EXPECT_FAST(align_mod > 0);
@@ -397,7 +401,7 @@ Array2C<T>::Array2C(il::int_t n0, il::int_t n1, const T& x, il::align_t,
                     il::int_t alignment, il::int_t align_r,
                     il::int_t align_mod) {
   IL_EXPECT_FAST(il::isTrivial<T>::value);
-  IL_EXPECT_FAST(sizeof(T) == alignof(T));
+  IL_EXPECT_FAST(sizeof(T) % alignof(T) == 0);
   IL_EXPECT_FAST(n0 >= 0);
   IL_EXPECT_FAST(n1 >= 0);
   IL_EXPECT_FAST(align_mod > 0);
@@ -791,6 +795,15 @@ T& Array2C<T>::operator()(il::int_t i0, il::int_t i1) {
 }
 
 template <typename T>
+void Array2C<T>::Set(const T& x) {
+  for (il::int_t i0 = 0; i0 < size(0); ++i0) {
+    for (il::int_t i1 = 0; i1 < size(1); ++i1) {
+      data_[i0 * (capacity_[1] - data_) + i1] = x;
+    }
+  }
+}
+
+template <typename T>
 il::int_t Array2C<T>::size(il::int_t d) const {
   IL_EXPECT_MEDIUM(static_cast<std::size_t>(d) < static_cast<std::size_t>(2));
 
@@ -988,12 +1001,7 @@ il::int_t Array2C<T>::alignment() const {
 template <typename T>
 il::Array2CView<T> Array2C<T>::view() const {
   const il::int_t the_stride = capacity(1);
-  return il::Array2CView<T>{data_,
-                            size(0),
-                            size(1),
-                            the_stride,
-                            0,
-                            0};
+  return il::Array2CView<T>{data_, size(0), size(1), the_stride, 0, 0};
 }
 
 template <typename T>
@@ -1015,6 +1023,20 @@ il::Array2CView<T> Array2C<T>::view(il::Range range0, il::Range range1) const {
                             0,
                             0};
 }
+
+template <typename T>
+il::ArrayView<T> Array2C<T>::view(il::int_t i0, il::Range range1) const {
+  IL_EXPECT_FAST(static_cast<std::size_t>(i0) <
+                 static_cast<std::size_t>(size(0)));
+  IL_EXPECT_FAST(static_cast<std::size_t>(range1.begin) <
+                 static_cast<std::size_t>(size(1)));
+  IL_EXPECT_FAST(static_cast<std::size_t>(range1.end) <=
+                 static_cast<std::size_t>(size(1)));
+
+  const il::int_t the_stride = capacity(1);
+  return il::ArrayView<T>{data_ + i0 * the_stride + range1.begin,
+                          range1.end - range1.begin};
+};
 
 template <typename T>
 il::Array2CEdit<T> Array2C<T>::Edit() {
