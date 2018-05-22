@@ -79,7 +79,9 @@ inline void blas(std::complex<float> alpha,
   const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(x.size());
   const IL_CBLAS_INT incx = 1;
   const IL_CBLAS_INT incy = 1;
-  cblas_caxpy(n, &alpha, x.data(), incx, y.Data(), incy);
+  cblas_caxpy(n, reinterpret_cast<const IL_CBLAS_PCOMPLEX64>(&alpha),
+              reinterpret_cast<const IL_CBLAS_PCOMPLEX64>(x.data()), incx,
+              reinterpret_cast<IL_CBLAS_PCOMPLEX64>(y.Data()), incy);
 }
 
 inline void blas(std::complex<double> alpha,
@@ -90,7 +92,9 @@ inline void blas(std::complex<double> alpha,
   const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(x.size());
   const IL_CBLAS_INT incx = 1;
   const IL_CBLAS_INT incy = 1;
-  cblas_zaxpy(n, &alpha, x.data(), incx, y.Data(), incy);
+  cblas_zaxpy(n, reinterpret_cast<const IL_CBLAS_PCOMPLEX128>(&alpha),
+              reinterpret_cast<const IL_CBLAS_PCOMPLEX128>(x.data()), incx,
+              reinterpret_cast<IL_CBLAS_PCOMPLEX128>(y.Data()), incy);
 }
 
 // y = alpha * x + beta * y
@@ -123,7 +127,10 @@ inline void blas(std::complex<float> alpha,
   const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(x.size());
   const IL_CBLAS_INT incx = 1;
   const IL_CBLAS_INT incy = 1;
-  cblas_caxpby(n, &alpha, x.data(), incx, &beta, y.Data(), incy);
+  cblas_caxpby(n, reinterpret_cast<const IL_CBLAS_PCOMPLEX64>(&alpha),
+               reinterpret_cast<const IL_CBLAS_PCOMPLEX64>(x.data()), incx,
+               reinterpret_cast<const IL_CBLAS_PCOMPLEX64>(&beta),
+               reinterpret_cast<IL_CBLAS_PCOMPLEX64>(y.Data()), incy);
 }
 
 inline void blas(std::complex<double> alpha,
@@ -135,7 +142,10 @@ inline void blas(std::complex<double> alpha,
   const IL_CBLAS_INT n = static_cast<IL_CBLAS_INT>(x.size());
   const IL_CBLAS_INT incx = 1;
   const IL_CBLAS_INT incy = 1;
-  cblas_zaxpby(n, &alpha, x.data(), incx, &beta, y.Data(), incy);
+  cblas_zaxpby(n, reinterpret_cast<const IL_CBLAS_PCOMPLEX128>(&alpha),
+               reinterpret_cast<const IL_CBLAS_PCOMPLEX128>(x.data()), incx,
+               reinterpret_cast<const IL_CBLAS_PCOMPLEX128>(&beta),
+               reinterpret_cast<IL_CBLAS_PCOMPLEX128>(y.Data()), incy);
 }
 
 // Scalar product of x and y
@@ -168,7 +178,9 @@ inline std::complex<float> dot(il::ArrayView<std::complex<float>> x,
   const IL_CBLAS_INT incx = 1;
   const IL_CBLAS_INT incy = 1;
   std::complex<float> ans;
-  cblas_cdotu_sub(n, x.data(), incx, y.data(), incy, &ans);
+  cblas_cdotu_sub(n, reinterpret_cast<const IL_CBLAS_PCOMPLEX64>(x.data()),
+                  incx, reinterpret_cast<const IL_CBLAS_PCOMPLEX64>(y.data()),
+                  incy, reinterpret_cast<IL_CBLAS_PCOMPLEX64_ANS>(&ans));
   return ans;
 }
 
@@ -180,7 +192,9 @@ inline std::complex<double> dot(il::ArrayView<std::complex<double>> x,
   const IL_CBLAS_INT incx = 1;
   const IL_CBLAS_INT incy = 1;
   std::complex<double> ans;
-  cblas_zdotu_sub(n, x.data(), incx, y.data(), incy, &ans);
+  cblas_zdotu_sub(n, reinterpret_cast<const IL_CBLAS_PCOMPLEX128>(x.data()),
+                  incx, reinterpret_cast<const IL_CBLAS_PCOMPLEX128>(y.data()),
+                  incy, reinterpret_cast<IL_CBLAS_PCOMPLEX128_ANS>(&ans));
   return ans;
 }
 
@@ -194,7 +208,10 @@ inline std::complex<float> dot(il::ArrayView<std::complex<float>> x, il::Dot op,
       const IL_CBLAS_INT incx = 1;
       const IL_CBLAS_INT incy = 1;
       std::complex<float> ans;
-      cblas_cdotc_sub(n, x.data(), incx, y.data(), incy, &ans);
+      cblas_cdotc_sub(n, reinterpret_cast<const IL_CBLAS_PCOMPLEX64>(x.data()),
+                      incx,
+                      reinterpret_cast<const IL_CBLAS_PCOMPLEX64>(y.data()),
+                      incy, reinterpret_cast<IL_CBLAS_PCOMPLEX64_ANS>(&ans));
       return ans;
     }
     case il::Dot::None:
@@ -217,7 +234,10 @@ inline std::complex<double> dot(il::ArrayView<std::complex<double>> x,
       const IL_CBLAS_INT incx = 1;
       const IL_CBLAS_INT incy = 1;
       std::complex<double> ans;
-      cblas_zdotc_sub(n, x.data(), incx, y.data(), incy, &ans);
+      cblas_zdotc_sub(n, reinterpret_cast<const IL_CBLAS_PCOMPLEX128>(x.data()),
+                      incx,
+                      reinterpret_cast<const IL_CBLAS_PCOMPLEX128>(y.data()),
+                      incy, reinterpret_cast<IL_CBLAS_PCOMPLEX128_ANS>(&ans));
       return ans;
     }
     case il::Dot::None:
@@ -240,7 +260,10 @@ inline std::complex<float> dot(il::ArrayView<std::complex<float>> x,
       const IL_CBLAS_INT incx = 1;
       const IL_CBLAS_INT incy = 1;
       std::complex<float> ans;
-      cblas_cdotc_sub(n, x.data(), incx, y.data(), incy, &ans);
+      cblas_cdotc_sub(n, reinterpret_cast<const IL_CBLAS_PCOMPLEX64>(x.data()),
+                      incx,
+                      reinterpret_cast<const IL_CBLAS_PCOMPLEX64>(y.data()),
+                      incy, reinterpret_cast<IL_CBLAS_PCOMPLEX64_ANS>(&ans));
       return std::conj(ans);
     }
     case il::Dot::None:
@@ -263,7 +286,10 @@ inline std::complex<double> dot(il::ArrayView<std::complex<double>> x,
       const IL_CBLAS_INT incx = 1;
       const IL_CBLAS_INT incy = 1;
       std::complex<double> ans;
-      cblas_zdotc_sub(n, x.data(), incx, y.data(), incy, &ans);
+      cblas_zdotc_sub(n, reinterpret_cast<const IL_CBLAS_PCOMPLEX128>(x.data()),
+                      incx,
+                      reinterpret_cast<const IL_CBLAS_PCOMPLEX128>(y.data()),
+                      incy, reinterpret_cast<IL_CBLAS_PCOMPLEX128_ANS>(&ans));
       return std::conj(ans);
     }
     case il::Dot::None:
@@ -418,8 +444,12 @@ inline void blas(std::complex<float> alpha,
   const IL_CBLAS_INT incx = 1;
   const IL_CBLAS_INT incy = 1;
 
-  cblas_cgemv(layout, transa, m, n, &alpha, A.data(), lda, x.data(), incx,
-              &beta, y.Data(), incy);
+  cblas_cgemv(layout, transa, m, n,
+              reinterpret_cast<const IL_CBLAS_PCOMPLEX64>(&alpha),
+              reinterpret_cast<const IL_CBLAS_PCOMPLEX64>(A.data()), lda,
+              reinterpret_cast<const IL_CBLAS_PCOMPLEX64>(x.data()), incx,
+              reinterpret_cast<const IL_CBLAS_PCOMPLEX64>(&beta),
+              reinterpret_cast<IL_CBLAS_PCOMPLEX64>(y.Data()), incy);
 }
 
 inline void blas(std::complex<float> alpha,
@@ -457,8 +487,12 @@ inline void blas(std::complex<double> alpha,
   const IL_CBLAS_INT incx = 1;
   const IL_CBLAS_INT incy = 1;
 
-  cblas_zgemv(layout, transa, m, n, &alpha, A.data(), lda, x.data(), incx,
-              &beta, y.Data(), incy);
+  cblas_zgemv(layout, transa, m, n,
+              reinterpret_cast<const IL_CBLAS_PCOMPLEX128>(&alpha),
+              reinterpret_cast<const IL_CBLAS_PCOMPLEX128>(A.data()), lda,
+              reinterpret_cast<const IL_CBLAS_PCOMPLEX128>(x.data()), incx,
+              reinterpret_cast<const IL_CBLAS_PCOMPLEX128>(&beta),
+              reinterpret_cast<IL_CBLAS_PCOMPLEX128>(y.Data()), incy);
 }
 
 inline void blas(std::complex<double> alpha,
@@ -566,8 +600,12 @@ inline void blas(std::complex<float> alpha,
   const IL_CBLAS_INT incx = 1;
   const IL_CBLAS_INT incy = 1;
 
-  cblas_cgemv(layout, transa, m, n, &alpha, A.data(), lda, x.data(), incx,
-              &beta, y.Data(), incy);
+  cblas_cgemv(layout, transa, m, n,
+              reinterpret_cast<const IL_CBLAS_PCOMPLEX64>(&alpha),
+              reinterpret_cast<const IL_CBLAS_PCOMPLEX64>(A.data()), lda,
+              reinterpret_cast<const IL_CBLAS_PCOMPLEX64>(x.data()), incx,
+              reinterpret_cast<const IL_CBLAS_PCOMPLEX64>(&beta),
+              reinterpret_cast<IL_CBLAS_PCOMPLEX64>(y.Data()), incy);
 }
 
 inline void blas(std::complex<float> alpha,
@@ -605,8 +643,12 @@ inline void blas(std::complex<double> alpha,
   const IL_CBLAS_INT incx = 1;
   const IL_CBLAS_INT incy = 1;
 
-  cblas_zgemv(layout, transa, m, n, &alpha, A.data(), lda, x.data(), incx,
-              &beta, y.Data(), incy);
+  cblas_zgemv(layout, transa, m, n,
+              reinterpret_cast<const IL_CBLAS_PCOMPLEX128>(&alpha),
+              reinterpret_cast<const IL_CBLAS_PCOMPLEX128>(A.data()), lda,
+              reinterpret_cast<const IL_CBLAS_PCOMPLEX128>(x.data()), incx,
+              reinterpret_cast<const IL_CBLAS_PCOMPLEX128>(&beta),
+              reinterpret_cast<IL_CBLAS_PCOMPLEX128>(y.Data()), incy);
 }
 
 inline void blas(std::complex<double> alpha,
@@ -759,8 +801,17 @@ inline void blas(std::complex<float> alpha,
   const IL_CBLAS_INT lda = static_cast<IL_CBLAS_INT>(A.stride(1));
   const IL_CBLAS_INT ldb = static_cast<IL_CBLAS_INT>(B.stride(1));
   const IL_CBLAS_INT ldc = static_cast<IL_CBLAS_INT>(C.stride(1));
-  cblas_cgemm(layout, transa, transb, m, n, k, &alpha, A.data(), lda, B.data(),
-              ldb, &beta, C.Data(), ldc);
+#ifdef IL_MKL
+  cblas_cgemm3m(layout, transa, transb, m, n, k, &alpha, A.data(), lda,
+                B.data(), ldb, &beta, C.Data(), ldc);
+#else
+  cblas_cgemm(layout, transa, transb, m, n, k,
+              reinterpret_cast<const IL_CBLAS_PCOMPLEX64>(&alpha),
+              reinterpret_cast<const IL_CBLAS_PCOMPLEX64>(A.data()), lda,
+              reinterpret_cast<const IL_CBLAS_PCOMPLEX64>(B.data()), ldb,
+              reinterpret_cast<const IL_CBLAS_PCOMPLEX64>(&beta),
+              reinterpret_cast<IL_CBLAS_PCOMPLEX64>(C.Data()), ldc);
+#endif
 }
 
 inline void blas(std::complex<float> alpha,
@@ -820,8 +871,17 @@ inline void blas(std::complex<double> alpha,
   const IL_CBLAS_INT lda = static_cast<IL_CBLAS_INT>(A.stride(1));
   const IL_CBLAS_INT ldb = static_cast<IL_CBLAS_INT>(B.stride(1));
   const IL_CBLAS_INT ldc = static_cast<IL_CBLAS_INT>(C.stride(1));
-  cblas_zgemm(layout, transa, transb, m, n, k, &alpha, A.data(), lda, B.data(),
-              ldb, &beta, C.Data(), ldc);
+#ifdef IL_MKL
+  cblas_zgemm3m(layout, transa, transb, m, n, k, &alpha, A.data(), lda,
+                B.data(), ldb, &beta, C.Data(), ldc);
+#else
+  cblas_zgemm(layout, transa, transb, m, n, k,
+              reinterpret_cast<const IL_CBLAS_PCOMPLEX128>(&alpha),
+              reinterpret_cast<const IL_CBLAS_PCOMPLEX128>(A.data()), lda,
+              reinterpret_cast<const IL_CBLAS_PCOMPLEX128>(B.data()), ldb,
+              reinterpret_cast<const IL_CBLAS_PCOMPLEX128>(&beta),
+              reinterpret_cast<IL_CBLAS_PCOMPLEX128>(C.Data()), ldc);
+#endif
 }
 
 inline void blas(std::complex<double> alpha,
@@ -987,8 +1047,17 @@ inline void blas(std::complex<float> alpha,
   const IL_CBLAS_INT lda = static_cast<IL_CBLAS_INT>(A.stride(0));
   const IL_CBLAS_INT ldb = static_cast<IL_CBLAS_INT>(B.stride(0));
   const IL_CBLAS_INT ldc = static_cast<IL_CBLAS_INT>(C.stride(0));
-  cblas_cgemm(layout, transa, transb, m, n, k, &alpha, A.data(), lda, B.data(),
-              ldb, &beta, C.Data(), ldc);
+#ifdef IL_MKL
+  cblas_cgemm3m(layout, transa, transb, m, n, k, &alpha, A.data(), lda,
+                B.data(), ldb, &beta, C.Data(), ldc);
+#else
+  cblas_cgemm(layout, transa, transb, m, n, k,
+              reinterpret_cast<const IL_CBLAS_PCOMPLEX64>(&alpha),
+              reinterpret_cast<const IL_CBLAS_PCOMPLEX64>(A.data()), lda,
+              reinterpret_cast<const IL_CBLAS_PCOMPLEX64>(B.data()), ldb,
+              reinterpret_cast<const IL_CBLAS_PCOMPLEX64>(&beta),
+              reinterpret_cast<IL_CBLAS_PCOMPLEX64>(C.Data()), ldc);
+#endif
 }
 
 inline void blas(std::complex<float> alpha,
@@ -1048,8 +1117,17 @@ inline void blas(std::complex<double> alpha,
   const IL_CBLAS_INT lda = static_cast<IL_CBLAS_INT>(A.stride(0));
   const IL_CBLAS_INT ldb = static_cast<IL_CBLAS_INT>(B.stride(0));
   const IL_CBLAS_INT ldc = static_cast<IL_CBLAS_INT>(C.stride(0));
-  cblas_zgemm(layout, transa, transb, m, n, k, &alpha, A.data(), lda, B.data(),
-              ldb, &beta, C.Data(), ldc);
+#ifdef IL_MKL
+  cblas_zgemm3m(layout, transa, transb, m, n, k, &alpha, A.data(), lda,
+                B.data(), ldb, &beta, C.Data(), ldc);
+#else
+  cblas_zgemm(layout, transa, transb, m, n, k,
+              reinterpret_cast<const IL_CBLAS_PCOMPLEX128>(&alpha),
+              reinterpret_cast<const IL_CBLAS_PCOMPLEX128>(A.data()), lda,
+              reinterpret_cast<const IL_CBLAS_PCOMPLEX128>(B.data()), ldb,
+              reinterpret_cast<const IL_CBLAS_PCOMPLEX128>(&beta),
+              reinterpret_cast<IL_CBLAS_PCOMPLEX128>(C.Data()), ldc);
+#endif
 }
 
 inline void blas(std::complex<double> alpha,

@@ -24,14 +24,21 @@
 #include <mkl_cblas.h>
 #define IL_CBLAS_INT MKL_INT
 #define IL_CBLAS_LAYOUT CBLAS_LAYOUT
+#define IL_CBLAS_PCOMPLEX64 float*
+#define IL_CBLAS_PCOMPLEX128 double*
+#define IL_CBLAS_PCOMPLEX64_ANS float*
+#define IL_CBLAS_PCOMPLEX128_ANS double*
 
 #elif IL_OPENBLAS
 
-#include <OpenBLAS/cblas.h>
+#include <cblas.h>
 #define IL_CBLAS_INT int
 #define IL_CBLAS_LAYOUT CBLAS_ORDER
+#define IL_CBLAS_PCOMPLEX64 float*
+#define IL_CBLAS_PCOMPLEX128 double*
+#define IL_CBLAS_PCOMPLEX64_ANS openblas_complex_float*
+#define IL_CBLAS_PCOMPLEX128_ANS openblas_complex_double*
 
 #endif
 
 #endif  // IL_BLAS_DEFINE_H
-
