@@ -16,5 +16,5 @@
 //
 //==============================================================================
 
-#include <il/linearAlgebra/matrixFree/solver/MatrixFreeGmres.h>
+#include <il/linearAlgebra/matrixFree/solver/Gmres.h>
 
