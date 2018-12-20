@@ -17,9 +17,11 @@
 //==============================================================================
 
 #include <il/Array.h>
+#include <il/Cg.h>
 #include <il/Dynamic.h>
 #include <il/Gmres.h>
 #include <il/Map.h>
+#include <il/print.h>
 
 template <typename T>
 class Matrix : public il::FunctorArray<T> {
@@ -30,6 +32,7 @@ class Matrix : public il::FunctorArray<T> {
   Matrix(il::Array<T> diag) : diag_{std::move(diag)} {}
   il::int_t size(il::int_t d) const override {
     IL_EXPECT_MEDIUM(d == 0 || d == 1);
+
     return diag_.size();
   }
   void operator()(il::ArrayView<T> x, il::io_t,
@@ -45,31 +48,61 @@ class Matrix : public il::FunctorArray<T> {
 };
 
 int main() {
-  const il::int_t n = 10;
-  const double epsilon = 1.0e-2;
-  il::Array<double> diag_m{n};
-  il::Array<double> diag_cond{n};
-  il::Array<double> y{n};
-  for (il::int_t i = 0; i < n; ++i) {
-    diag_m[i] = 2.0 + i + epsilon;
-    diag_cond[i] = 1.0 / (2.0 + i);
-    y[i] = 2.0 + i;
+  il::Array<double> diag{il::value, {1.0, 2.0, 3.0}};
+  Matrix<double> m{diag};
+  il::Array<double> y{il::value, {1.0, 1.0, 1.0}};
+
+  // Conjugate gradient solver
+  {
+    il::print("Conjugate gradient solver\n");
+    il::Array<double> precond_diag{il::value, {1.0, 0.5, 0.3}};
+    Matrix<double> precond{precond_diag};
+
+    {
+      il::Cg<double> cg{m, precond};
+      cg.SetRelativePrecision(1.0e-1);
+      cg.SetAbsolutionPrecision(0.0);
+      cg.SetMaxNbIterations(2);
+
+      il::Status status{};
+      il::Array<double> x = cg.Solve(y, il::io, status);
+      status.AbortOnError();
+
+      il::print("Number of iterations: {}\n", cg.nbIterations());
+      il::print("Norm of the residual: {}\n", cg.normResidual());
+      il::print("\n");
+    }
+    {
+      il::Array<double> x{3};
+
+      il::Cg<double> cg{m, precond};
+      cg.SetToSolve(y.view());
+      for (il::int_t i = 0; i < 10; ++i) {
+        cg.getSolution(il::io, x.Edit());
+        il::print("Iteration: {:2d}  --", cg.nbIterations());
+        il::print("  x = {:8.6f} - {:8.6f} - {:8.6f}  --", x[0], x[1], x[2]);
+        il::print("  residual = {:8.2e}\n", cg.normResidual());
+        cg.Next();
+      }
+    }
   }
-  Matrix<double> m{diag_m};
-  Matrix<double> cond{diag_cond};
 
-  const il::int_t restart_iteration = 5;
-  il::Gmres<double> gmres{m, cond, restart_iteration};
+  // GMRES solver
+  il::print("\nGMRES solver\n");
+  il::Array<double> diag_precond{il::value, {1.0, 1.0, 1.0}};
+  Matrix<double> precond{diag_precond};
+  il::Array<double> x{3};
 
-  const double relative_precision = 1.0e-4;
-  const il::int_t max_nb_iterations = 10;
-  il::Array<double> x{n, 0.0};
-  il::Status status{};
-  gmres.Solve(y.view(), relative_precision, max_nb_iterations, il::io, x.Edit(),
-              status);
-  status.AbortOnError();
-
-  const il::int_t nb_iterations = gmres.nbIterations();
+  il::int_t krylov_dim = 20;
+  il::Gmres<double> gmres{m, precond, krylov_dim};
+  gmres.SetToSolve(y);
+  for (il::int_t i = 0; i < 10; ++i) {
+    gmres.getSolution(il::io, x);
+    il::print("Iteration: {:2d}  --", gmres.nbIterations());
+    il::print("  x = {:8.6f} - {:8.6f} - {:8.6f}  --", x[0], x[1], x[2]);
+    il::print("  residual = {:8.2e}\n", gmres.normResidual());
+    gmres.Next();
+  }
 
   return 0;
 }
