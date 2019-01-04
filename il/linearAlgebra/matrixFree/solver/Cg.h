@@ -68,19 +68,25 @@ class Cg<double> {
   void Solve(il::ArrayView<double> y, il::ArrayView<double> x0, il::io_t,
              il::ArrayEdit<double> x);
 
-  double normResidual() const;
-  il::int_t nbIterations() const;
+  void SetTrueNormForConvergence();
+  void SetPreconditionnedNormForConvergence();
 
   void SetToSolve(il::ArrayView<double> y);
   void Next();
   void getSolution(il::io_t, il::ArrayEdit<double> x);
+  double trueResidualNorm() const;
+  double preconditionnedResidualNorm() const;
+  double objectiveFunction() const;
+  il::int_t nbIterations() const;
 
   void SetRelativePrecision(double relative_precision);
   void SetAbsolutionPrecision(double absolute_precision);
+  void SetRelativeDivergence(double relative_divergence);
   void SetMaxNbIterations(il::int_t max_nb_iterations);
 
   double relativePrecision() const;
   double absolutePrecision() const;
+  double relativeDivergence() const;
   il::int_t maxNbIterations() const;
 };
 
@@ -131,7 +137,7 @@ il::Array<double> Cg<double>::Solve(const il::Array<double>& y, il::io_t,
   dcg_init(&n_, x.data(), y.data(), &rci_request_, ipar_.Data(), dpar_.Data(),
            tmp_.Data());
   IL_ENSURE(rci_request_ == 0);
-//  ipar_[4] = static_cast<MKL_INT>(max_nb_iterations_);
+  //  ipar_[4] = static_cast<MKL_INT>(max_nb_iterations_);
   ipar_[7] = 0;
   ipar_[8] = 0;
   ipar_[9] = 1;
@@ -230,7 +236,7 @@ void Cg<double>::SetToSolve(il::ArrayView<double> y) {
   // ipar_[3] = 0;
 
   // Specifies the maximum number of iterations
-//  ipar_[4] = static_cast<MKL_INT>(max_nb_iterations_);
+  //  ipar_[4] = static_cast<MKL_INT>(max_nb_iterations_);
 
   // A value of 1, which is the default, does not output any error message
   // but gives a negative value for rci_request_
@@ -245,27 +251,27 @@ void Cg<double>::SetToSolve(il::ArrayView<double> y) {
 
   // The default value is 1 which is related to the stopping criteria and the
   // maximum number of iterations
-   ipar_[7] = 0;
+  ipar_[7] = 0;
 
   // The default value is 0 which is related to the stopping criteria and the
   // relative and absolute errors. Be careful, this case is
   // ||r_k||^2 <= eps_rel ||r_0||^2 + eps_abs
   // and contains squares
-   ipar_[8] = 0;
+  ipar_[8] = 0;
 
   // The default value is 1 which is related to the stopping criteria and user
   // defined tests
-   ipar_[9] = 1;
+  ipar_[9] = 1;
 
   // For a value of 0, runs the non-preconditioned algorithm
   // For a value of 1, runs the preconditioned algorithm
   ipar_[10] = (B_ == nullptr) ? 0 : 1;
 
   // Specifies the relative tolerance, the default value being 1.0e-6
-//  dpar_[0] = relative_precision_;
+  //  dpar_[0] = relative_precision_;
 
   // Specifies the absolute tolerance, the default value being 0.0
-//  dpar_[1] = absolute_precision_;
+  //  dpar_[1] = absolute_precision_;
 
   // Specifies the square norm of the initial residual. The initial value is 0.0
   // dpar_[2] = 0.0;
@@ -335,7 +341,7 @@ void Cg<double>::Next() {
   }
 }
 
-double Cg<double>::normResidual() const { return norm_residual_; }
+double Cg<double>::trueResidualNorm() const { return norm_residual_; }
 
 il::int_t Cg<double>::nbIterations() const { return nb_iterations_; }
 

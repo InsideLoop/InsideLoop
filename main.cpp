@@ -70,7 +70,7 @@ int main() {
   status.AbortOnError();
 
   il::print("Number of iterations: {}\n", cg.nbIterations());
-  il::print("Norm of the residual: {}\n", cg.normResidual());
+  il::print("True residual norm: {}\n", cg.trueResidualNorm());
   il::print("\n");
 
   return 0;
